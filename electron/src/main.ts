@@ -13,7 +13,7 @@ function createWindow() {
   const devMode = process.env.NODE_ENV !== "production";
   const url = devMode
     ? "http://localhost:3000"
-    : `file://${path.join(__dirname, ".next/server/pages/index.html")}`;
+    : `file://${path.join(__dirname, ".next/server/pages/index.html")}`; // this doesn't work
 
   win.loadURL(url);
 
