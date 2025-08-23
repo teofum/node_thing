@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const shaders = `
 struct VertexOut {
@@ -108,7 +108,7 @@ export function Canvas() {
     };
 
     const renderPipeline = device.createRenderPipeline(
-      pipelineDescriptor as any,
+      pipelineDescriptor as GPURenderPipelineDescriptor,
     );
     const commandEncoder = device.createCommandEncoder();
 
@@ -123,7 +123,9 @@ export function Canvas() {
       ],
     };
 
-    const pass = commandEncoder.beginRenderPass(renderPassDescriptor as any);
+    const pass = commandEncoder.beginRenderPass(
+      renderPassDescriptor as GPURenderPassDescriptor,
+    );
 
     pass.setPipeline(renderPipeline);
     pass.setVertexBuffer(0, vertexBuffer);
