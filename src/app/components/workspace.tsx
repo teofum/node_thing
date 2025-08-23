@@ -56,6 +56,8 @@ export function Workspace() {
   return (
     // esto es el "canvas principal" para React Flow
     // tiene un CSS modificando esto en /node_modules/@xyflow/react/dist/style.css
+
+    // test commit
     
     // TODO meto tailwind de juguete, esto puede estar mal
     <div className="w-screen h-screen border-6"> 
