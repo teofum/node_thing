@@ -60,7 +60,7 @@ export function Workspace() {
     // test commit
     
     // TODO meto tailwind de juguete, esto puede estar mal
-    <div className="w-screen h-screen border-6"> 
+    <div className="w-200 h-200 border-6"> 
       <ReactFlow
       nodes={nodes}
       edges={edges}
