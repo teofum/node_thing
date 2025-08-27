@@ -14,8 +14,12 @@ import {
   type OnEdgesChange,
   type OnNodeDrag,
   type DefaultEdgeOptions,
+  MiniMap,
+  Background,
+  Controls,
+  type ColorMode,
 } from "@xyflow/react";
-import '@xyflow/react/dist/style.css';
+import "@xyflow/react/dist/style.css";
 
 const initialNodes: Node[] = [
   { id: "1", data: { label: "Node 1" }, position: { x: 5, y: 5 } },
@@ -42,15 +46,15 @@ export function Workspace() {
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes]
+    [setNodes],
   );
   const onEdgesChange: OnEdgesChange = useCallback(
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges]
+    [setEdges],
   );
   const onConnect: OnConnect = useCallback(
     (connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges]
+    [setEdges],
   );
 
   return (
@@ -58,21 +62,25 @@ export function Workspace() {
     // tiene un CSS modificando esto en /node_modules/@xyflow/react/dist/style.css
 
     // test commit
-    
-    // TODO meto tailwind de juguete, esto puede estar mal
-    <div className="w-200 h-200 border-6"> 
-      <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onNodeDrag={onNodeDrag}
-      fitView
-      fitViewOptions={fitViewOptions}
-      defaultEdgeOptions={defaultEdgeOptions}
-    />
-    </div>
 
+    // TODO meto tailwind de juguete, esto puede estar mal
+    <div className="w-200 h-200 border-6">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeDrag={onNodeDrag}
+        colorMode="dark"
+        fitView
+        fitViewOptions={fitViewOptions}
+        defaultEdgeOptions={defaultEdgeOptions}
+      >
+        <MiniMap />
+        <Background />
+        <Controls />
+      </ReactFlow>
+    </div>
   );
 }
