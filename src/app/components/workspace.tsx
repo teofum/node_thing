@@ -1,4 +1,4 @@
-"use client"; // TODO this ok?
+"use client";
 
 import { useState, useCallback } from "react";
 import {
@@ -20,6 +20,10 @@ import {
   type ColorMode,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { ReactFlowProvider } from "@xyflow/react";
+import { DnDProvider } from "./dndContext";
+import { Sidebar } from "./sidebar";
+import { ReactFlowWithDnD } from "./dndFlow";
 
 const initialNodes: Node[] = [
   { id: "1", data: { label: "Node 1" }, position: { x: 5, y: 5 } },
@@ -60,27 +64,24 @@ export function Workspace() {
   return (
     // esto es el "canvas principal" para React Flow
     // tiene un CSS modificando esto en /node_modules/@xyflow/react/dist/style.css
+    <>
+      <div className="w-auto h-200 border-6">
+        <ReactFlowProvider>
+          <DnDProvider>
+            <div className="flex h-screen">
+              {/* Sidebar a la izquierda */}
+              <div className="w-1/4">
+                <Sidebar />
+              </div>
 
-    // test commit
-
-    // TODO meto tailwind de juguete, esto puede estar mal
-    <div className="w-200 h-200 border-6">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeDrag={onNodeDrag}
-        colorMode="dark"
-        fitView
-        fitViewOptions={fitViewOptions}
-        defaultEdgeOptions={defaultEdgeOptions}
-      >
-        <MiniMap />
-        <Background />
-        <Controls />
-      </ReactFlow>
-    </div>
+              {/* Canvas a la derecha */}
+              <div className="flex-1">
+                <ReactFlowWithDnD />
+              </div>
+            </div>
+          </DnDProvider>
+        </ReactFlowProvider>
+      </div>
+    </>
   );
 }
