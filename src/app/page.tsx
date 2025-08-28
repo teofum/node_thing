@@ -16,12 +16,11 @@ export default function Home() {
       {/* barra de herramientas */}
       <div className="border p-4">BARRA DE HERRAMIENTAS</div>
 
-      {/* panel principal (otro grid, de 3 columnas) */}
+      {/* panel principal (otro grid, de 2 columnas) */}
       <div className="grid grid-cols-[auto_20%]">
         {/* panel central (workspace) */}
         <div className="border p-4">
           <Workspace />
-          ...
         </div>
 
         {/* panel derecho */}

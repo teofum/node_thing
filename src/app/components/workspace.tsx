@@ -65,7 +65,7 @@ export function Workspace() {
     // esto es el "canvas principal" para React Flow
     // tiene un CSS modificando esto en /node_modules/@xyflow/react/dist/style.css
     <>
-      <div className="w-auto h-200 border-6">
+      <div className="w-auto h-auto border-6">
         <ReactFlowProvider>
           <DnDProvider>
             <div className="flex h-screen">
