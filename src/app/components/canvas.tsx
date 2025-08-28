@@ -141,8 +141,8 @@ export function Canvas() {
       ref={canvasRef}
       id="main-canvas"
       className="bg-black"
-      width={800}
-      height={600}
+      width={20}
+      height={20}
     />
   );
 }
