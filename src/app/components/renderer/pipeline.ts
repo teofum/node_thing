@@ -7,13 +7,20 @@ type Buffer = {
   users: Edge["to"][];
 };
 
-export function buildRenderPipeline({ nodes, edges }: Layer) {
+export type RenderPass = {
+  nodeType: Node["type"];
+  inputBindings: Record<string, number>;
+  outputBindings: Record<string, number>;
+};
+
+export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
   const queue: Node[] = [];
   const buffers: Buffer[] = [];
+  const passes: RenderPass[] = [];
 
   /*
    * Find the root nodes we're starting from.
-   * A node is a root if it has no imputs, or if all of its inputs are static
+   * A node is a root if it has no inputs, or if all of its inputs are static
    * (main input, aux image input)
    */
   const roots = nodes.filter((node) => {
@@ -24,8 +31,6 @@ export function buildRenderPipeline({ nodes, edges }: Layer) {
       inputs.every((edge) => edge.from.nodeId.startsWith("__input"))
     );
   });
-
-  console.log("Roots: ", roots);
 
   queue.push(...roots);
 
@@ -83,7 +88,6 @@ export function buildRenderPipeline({ nodes, edges }: Layer) {
      */
     const hasUnresolvedDeps = deps.some((d) => d.buf === undefined);
     if (hasUnresolvedDeps) {
-      console.warn(`Node ${node.id} has unresolved dependencies, skipping`);
       queue.push(node);
       continue;
     }
@@ -91,9 +95,18 @@ export function buildRenderPipeline({ nodes, edges }: Layer) {
 
     // TODO: end on output node
 
-    console.log(`Rendering node "${node.id}" [${node.type}]`);
+    /*
+     * Build render pass for this node
+     */
+    const pass: RenderPass = {
+      nodeType: node.type,
+      inputBindings: {},
+      outputBindings: {},
+    };
+
+    // Add input bindings
     for (const dep of dependencies) {
-      console.log(`[${dep.buf.idx}] -> ${dep.input}`);
+      pass.inputBindings[dep.input] = dep.buf.idx;
     }
 
     /*
@@ -118,9 +131,8 @@ export function buildRenderPipeline({ nodes, edges }: Layer) {
           }
         });
 
-      console.log(
-        `${node.id}/${out} -> [${buf.idx}] -> ${buf.users.map((u) => `${u.nodeId}/${u.input}`)}`,
-      );
+      // Add render pass output bindings
+      pass.outputBindings[out] = buf.idx;
     }
 
     /*
@@ -129,5 +141,12 @@ export function buildRenderPipeline({ nodes, edges }: Layer) {
     for (const dep of dependencies) {
       dep.buf.users = dep.buf.users.filter((user) => user.nodeId !== node.id);
     }
+
+    /*
+     * Add the render pass to the list
+     */
+    passes.push(pass);
   }
+
+  return passes;
 }

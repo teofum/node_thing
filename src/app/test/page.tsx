@@ -86,7 +86,9 @@ const testGraph: Layer = {
 export default function TestPagePleaseIgnore() {
   return (
     <div>
-      <button onClick={() => buildRenderPipeline(testGraph)}>teset</button>
+      <button onClick={() => console.log(buildRenderPipeline(testGraph))}>
+        test
+      </button>
     </div>
   );
 }
