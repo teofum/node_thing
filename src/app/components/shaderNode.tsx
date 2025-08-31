@@ -25,16 +25,3 @@ export function ShaderNode({ id, data }: ShaderNodeProps) {
     </div>
   );
 }
-
-// a lo que quiero llegar es:
-
-// const initialNodes: Node[] = [
-//   // TODO !!!!! acá lo de tipos con el JSON schema
-//   // el key/campo "type" determina el renderer a ser utilizado
-//   // hay que primero definirlos (o hacer un factory genérico) y luego registrarlos en nodeTypes para luego mandarlo como prop a <ReactFlow />
-//   {
-//     id: "1",
-//     type: "shaderNode", // !!
-//     data: { label: "input node", schema:  }, // !!
-//     position: { x: 250, y: 5 },
-//   },
