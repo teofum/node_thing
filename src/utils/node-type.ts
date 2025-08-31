@@ -49,14 +49,14 @@ export const NODE_TYPES = {
   middle: {
     name: "Middle",
     inputs: {
-      out_a: {
-        name: "out_a",
+      in_a: {
+        name: "in_a",
         type: "color",
       },
     },
     outputs: {
-      in_a: {
-        name: "in_a",
+      out_a: {
+        name: "out_a",
         type: "color",
       },
     },
