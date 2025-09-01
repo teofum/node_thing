@@ -32,18 +32,18 @@ export function ShaderNode({ id, data }: ShaderNodeProps) {
        */}
       {/* dinámicamente chequeo campos de inputs y outputs para imprimir Handles */}
       {/* inputs */}
-      {Object.entries(nodeTypeInfo.inputs).map(([key], index) => (
+      {Object.keys(nodeTypeInfo.inputs).map((key, index) => (
         <div key={key}>
           <Handle type="source" position={Position.Left} id={key.toString()} />
-          <div className=" text-yellow-400">s-h: {key.toString()}</div>{" "}
+          <div className="text-yellow-400">s-h: {key.toString()}</div>
           {/* debug */}
         </div>
       ))}
       {/* outputs */}
-      {Object.entries(nodeTypeInfo.outputs).map(([key], index) => (
+      {Object.keys(nodeTypeInfo.outputs).map((key, index) => (
         <div key={key}>
           <Handle type="target" position={Position.Right} id={key.toString()} />
-          <div className=" text-yellow-400">t-h: {key.toString()}</div>{" "}
+          <div className="text-yellow-400">t-h: {key.toString()}</div>
           {/* debug */}
         </div>
       ))}
