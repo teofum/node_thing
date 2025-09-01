@@ -1,5 +1,6 @@
 import { Canvas } from "./components/canvas";
 import { Workspace } from "./components/workspace";
+import { Tester } from "./tester";
 
 export default function Home() {
   return (
@@ -10,7 +11,7 @@ export default function Home() {
       {/* header */}
       <div className="flex border p-4">
         HEADER
-        <Canvas />
+        <Tester />
       </div>
 
       {/* barra de herramientas */}
@@ -24,7 +25,10 @@ export default function Home() {
         </div>
 
         {/* panel derecho */}
-        <div className="border p-4">PANEL DER</div>
+        <div className="border p-4">
+          PANEL DER
+          <Canvas />
+        </div>
       </div>
     </div>
   );
