@@ -103,6 +103,44 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  input: {
+    name: "Input",
+    inputs: {},
+    outputs: {
+      out_a: {
+        name: "out_a",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  output: {
+    name: "Output",
+    inputs: {
+      in_a: {
+        name: "in_a",
+        type: "color",
+      },
+    },
+    outputs: {},
+    parameters: {},
+  },
+  middle: {
+    name: "Middle",
+    inputs: {
+      in_a: {
+        name: "in_a",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "out_a",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
 } satisfies Record<string, NodeType>;
 
 export const NODE_TYPE_NAMES = Object.keys(
