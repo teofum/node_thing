@@ -12,7 +12,7 @@ import { useStore } from "@/store/store";
 import { ReactFlowProvider } from "@xyflow/react";
 import { DnDProvider } from "./dndContext";
 import { Sidebar } from "./sidebar";
-import { ReactFlowWithDnD } from "./dndFlow";
+import { ReactFlowWithDnD } from "./reactFlowWithDnD";
 
 const nodeTypes = {
   ShaderNode,
@@ -30,23 +30,7 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
   console.log("drag event", node.data);
 };
 
-// NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
 export function Workspace() {
-  // TODO esto estandarizarlo acá
-  const {
-    layers,
-    currentLayer,
-    onNodesChange,
-    onEdgesChange,
-    setActiveLayer,
-    onConnect,
-  } = useStore();
-
-  // obtengo la capa actual para imprimir
-  const { nodes, edges } = layers[currentLayer];
-
-  // TODO, acá debería hacer menejo por capas (ahora mismo solo muestra el grafo de la capa actual)
-
   return (
     <>
       <div className="w-auto h-auto border-6">

@@ -19,11 +19,12 @@ import { useStore } from "@/store/store";
 
 import { useDnD } from "./dndContext";
 
+// TODO esto volarlo, relacionado con lo de IDs duplicadas
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
 export function ReactFlowWithDnD() {
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  // NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
   const {
     layers,
     currentLayer,
@@ -34,11 +35,15 @@ export function ReactFlowWithDnD() {
     setActiveLayer,
     onConnect,
   } = useStore();
+
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
 
   // obtengo la capa actual para imprimir
   const { nodes, edges } = layers[currentLayer];
+
+  // TODO, acá debería hacer menejo por capas (ahora mismo solo muestra el grafo de la capa actual)
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
