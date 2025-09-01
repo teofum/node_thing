@@ -15,39 +15,30 @@ import {
   MiniMap,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { useStore } from "@/store/store";
 
 import { useDnD } from "./dndContext";
-
-const initialNodes: Node[] = [
-  // TODO !!!!! acá lo de tipos con el JSON schema
-  // el key/campo "type" determina el renderer a ser utilizado
-  // hay que primero definirlos (o hacer un factory genérico) y luego registrarlos en nodeTypes para luego mandarlo como prop a <ReactFlow />
-  {
-    id: "1",
-    type: "input",
-    data: { label: "input node" },
-    position: { x: 250, y: 5 },
-  },
-  { id: "2", data: { label: "Node 1" }, position: { x: 5, y: 5 } },
-  { id: "3", data: { label: "Node 2" }, position: { x: 5, y: 100 } },
-];
-
-const initialEdges: Edge[] = [{ id: "e1-2", source: "1", target: "2" }];
 
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
 export function ReactFlowWithDnD() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
+  const {
+    layers,
+    currentLayer,
+    setNodes,
+    setEdges,
+    onNodesChange,
+    onEdgesChange,
+    setActiveLayer,
+    onConnect,
+  } = useStore();
   const { screenToFlowPosition } = useReactFlow();
   const [type] = useDnD();
 
-  const onConnect: OnConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges],
-  );
+  // obtengo la capa actual para imprimir
+  const { nodes, edges } = layers[currentLayer];
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -71,7 +62,7 @@ export function ReactFlowWithDnD() {
         data: { label: `${type} node` },
       };
 
-      setNodes((nds) => nds.concat(newNode));
+      setNodes([...nodes, newNode]);
     },
     [screenToFlowPosition, type, setNodes],
   );
