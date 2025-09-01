@@ -46,6 +46,8 @@ export const nodeTypeSchema = z.object({
   inputs: z.record(z.string(), handleSchema),
   outputs: z.record(z.string(), handleSchema),
   parameters: z.record(z.string(), parameterSchema),
+
+  shader: z.string(),
 });
 
 export type NodeType = z.infer<typeof nodeTypeSchema>;

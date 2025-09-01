@@ -16,7 +16,12 @@ export type RenderPass = {
   outputBindings: Record<string, number>;
 };
 
-export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
+export type RenderPipeline = {
+  passes: RenderPass[];
+  bufferCount: number;
+};
+
+export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
   const queue: ShaderNode[] = [];
   const buffers: Buffer[] = [];
   const passes: RenderPass[] = [];
@@ -151,5 +156,5 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
     passes.push(pass);
   }
 
-  return passes;
+  return { passes, bufferCount: buffers.length };
 }

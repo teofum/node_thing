@@ -19,8 +19,6 @@ export function ShaderNode({ id, data }: ShaderNodeProps) {
 
   // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
 
-  // TODO node.id y id son diferentes (estandarziar para que quede uno)
-
   return (
     <div className="p-2 bg-amber-500">
       <div className=" text-blue-400">{id}</div> {/* debug */}
