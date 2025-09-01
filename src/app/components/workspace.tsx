@@ -26,6 +26,7 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
   console.log("drag event", node.data);
 };
 
+// NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
 export function Workspace() {
   const {
     layers,
@@ -36,7 +37,10 @@ export function Workspace() {
     onConnect,
   } = useStore();
 
+  // obtengo la capa actual para imprimir
   const { nodes, edges } = layers[currentLayer];
+
+  // TODO, acá debería hacer menejo por capas (ahora mismo solo muestra el grafo de la capa actual)
 
   return (
     // TODO meto tailwind de juguete, esto puede estar mal
