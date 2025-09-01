@@ -3,66 +3,19 @@
 import { useState, useCallback } from "react";
 import {
   ReactFlow,
-  addEdge,
-  applyNodeChanges,
-  applyEdgeChanges,
   type Node,
   type Edge,
   type FitViewOptions,
-  type OnConnect,
-  type OnNodesChange,
-  type OnEdgesChange,
   type OnNodeDrag,
   type DefaultEdgeOptions,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { ShaderNode } from "./shaderNode";
+import { useStore } from "@/store/store";
 
 const nodeTypes = {
   ShaderNode,
 };
-
-const initialNodes: Node[] = [
-  { id: "1", data: { label: "Node 1" }, position: { x: 5, y: 5 } },
-  { id: "2", data: { label: "Node 2" }, position: { x: 5, y: 100 } },
-
-  // ejemplo de uso de ShaderNode
-  {
-    id: "test1",
-    type: "ShaderNode",
-    data: {
-      node: {
-        id: "testid1",
-        type: "input",
-      },
-    },
-    position: { x: 0, y: 5 },
-  },
-  {
-    id: "test2",
-    type: "ShaderNode",
-    data: {
-      node: {
-        id: "testid2",
-        type: "middle",
-      },
-    },
-    position: { x: 30, y: 5 },
-  },
-  {
-    id: "test3",
-    type: "ShaderNode",
-    data: {
-      node: {
-        id: "testid3",
-        type: "output",
-      },
-    },
-    position: { x: 60, y: 5 },
-  },
-];
-
-const initialEdges: Edge[] = [{ id: "e1-2", source: "1", target: "2" }];
 
 const fitViewOptions: FitViewOptions = {
   padding: 0.2,
@@ -77,21 +30,16 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
 };
 
 export function Workspace() {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const {
+    layers,
+    currentLayer,
+    onNodesChange,
+    onEdgesChange,
+    setActiveLayer,
+    onConnect,
+  } = useStore();
 
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes],
-  );
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges],
-  );
-  const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges],
-  );
+  const { nodes, edges } = layers[currentLayer];
 
   return (
     // esto es el "canvas principal" para React Flow
