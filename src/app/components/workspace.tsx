@@ -39,7 +39,7 @@ export function Workspace() {
     onConnect,
   } = useStore();
 
-  const { nodes, edges } = layers[currentLayer];
+  const { nodes, edges } = layers[currentLayer]; // si hago +1 acá no imprime nada (porque está en capa 2, vacío)
 
   return (
     // esto es el "canvas principal" para React Flow
