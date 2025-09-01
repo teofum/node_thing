@@ -1,36 +1,22 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import {
   ReactFlow,
-  addEdge,
-  applyNodeChanges,
-  applyEdgeChanges,
-  type Node,
-  type Edge,
   type FitViewOptions,
-  type OnConnect,
-  type OnNodesChange,
-  type OnEdgesChange,
   type OnNodeDrag,
   type DefaultEdgeOptions,
-  MiniMap,
-  Background,
-  Controls,
-  type ColorMode,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { ShaderNode } from "./shaderNode";
+import { useStore } from "@/store/store";
 import { ReactFlowProvider } from "@xyflow/react";
 import { DnDProvider } from "./dndContext";
 import { Sidebar } from "./sidebar";
 import { ReactFlowWithDnD } from "./dndFlow";
 
-const initialNodes: Node[] = [
-  { id: "1", data: { label: "Node 1" }, position: { x: 5, y: 5 } },
-  { id: "2", data: { label: "Node 2" }, position: { x: 5, y: 100 } },
-];
-
-const initialEdges: Edge[] = [{ id: "e1-2", source: "1", target: "2" }];
+const nodeTypes = {
+  ShaderNode,
+};
 
 const fitViewOptions: FitViewOptions = {
   padding: 0.2,
@@ -44,26 +30,24 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
   console.log("drag event", node.data);
 };
 
+// NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
 export function Workspace() {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  // TODO esto estandarizarlo acá
+  const {
+    layers,
+    currentLayer,
+    onNodesChange,
+    onEdgesChange,
+    setActiveLayer,
+    onConnect,
+  } = useStore();
 
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes],
-  );
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges],
-  );
-  const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges],
-  );
+  // obtengo la capa actual para imprimir
+  const { nodes, edges } = layers[currentLayer];
+
+  // TODO, acá debería hacer menejo por capas (ahora mismo solo muestra el grafo de la capa actual)
 
   return (
-    // esto es el "canvas principal" para React Flow
-    // tiene un CSS modificando esto en /node_modules/@xyflow/react/dist/style.css
     <>
       <div className="w-auto h-auto border-6">
         <ReactFlowProvider>

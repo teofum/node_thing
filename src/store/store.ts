@@ -1,0 +1,102 @@
+import {
+  Node,
+  Edge,
+  applyNodeChanges,
+  applyEdgeChanges,
+  addEdge,
+  OnNodesChange,
+  OnEdgesChange,
+  OnConnect,
+} from "@xyflow/react";
+import { create } from "zustand";
+
+// !! cuidado: Node que se guarda es de RF
+// tiene campos id: y type: pero no son los de nuestro node.schema.ts
+// en Node[] se guardarían solamente ShaderNode, que en data.node: y data.id: se guarda lo de nuestro node.schema.ts
+
+// TODO, sería acá hacer una función de key, y eliminar redundancia de doble id
+
+export type Layer = {
+  nodes: Node[];
+  edges: Edge[];
+};
+
+export type Project = {
+  layers: Layer[];
+  currentLayer: number;
+};
+
+type ProjectActions = {
+  setActiveLayer: (idx: number) => void;
+
+  setNodes: (nodes: Node[]) => void;
+  setEdges: (edges: Edge[]) => void;
+
+  onNodesChange: OnNodesChange;
+  onEdgesChange: OnEdgesChange;
+  onConnect: OnConnect;
+};
+
+function modifyLayer(
+  layers: Layer[],
+  layerIdx: number,
+  f: (layer: Layer) => Partial<Layer>,
+): Layer[] {
+  const layerToModify = layers[layerIdx];
+  if (!layerToModify) return layers; // out of bounds
+
+  const layersUnder = layers.slice(0, layerIdx);
+  const layersOver = layers.slice(layerIdx + 1);
+  return [
+    ...layersUnder,
+    {
+      ...layerToModify,
+      ...f(layerToModify),
+    },
+    ...layersOver,
+  ];
+}
+
+export const useStore = create<Project & ProjectActions>((set, get) => ({
+  /*
+   * State
+   */
+  layers: [{ nodes: [], edges: [] }],
+  currentLayer: 0,
+
+  /*
+   * Actions
+   */
+  setActiveLayer: (idx) => set({ currentLayer: idx }),
+
+  setNodes: (nodes) =>
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, () => ({ nodes })),
+    })),
+
+  setEdges: (edges) =>
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, () => ({ edges })),
+    })),
+
+  onNodesChange: (changes) =>
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        nodes: applyNodeChanges(changes, layer.nodes),
+      })),
+    })),
+
+  onEdgesChange: (changes) =>
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        edges: applyEdgeChanges(changes, layer.edges),
+      })),
+    })),
+
+  onConnect: (connection) =>
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        edges: addEdge(connection, layer.edges),
+      })),
+    })),
+}));
