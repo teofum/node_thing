@@ -1,6 +1,12 @@
 import { Edge, Node } from "@/schemas/node.schema";
 import { create } from "zustand";
 
+// !! cuidado: Node que se guarda es de RF
+// tiene campos id: y type: pero no son los de nuestro node.schema.ts
+// en Node[] se guardarían solamente ShaderNode, que en data.node: y data.id: se guarda lo de nuestro node.schema.ts
+
+// TODO, sería acá hacer una función de key, y eliminar redundancia de doble id
+
 export type Layer = {
   nodes: Node[];
   edges: Edge[];
