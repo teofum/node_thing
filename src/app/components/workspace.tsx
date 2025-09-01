@@ -9,7 +9,6 @@ import {
 import "@xyflow/react/dist/style.css";
 import { RenderShaderNode } from "./renderShaderNode";
 import { ReactFlowProvider } from "@xyflow/react";
-import { DnDProvider } from "./dndContext";
 import { Sidebar } from "./sidebar";
 import { ReactFlowWithDnD } from "./reactFlowWithDnD";
 
@@ -34,19 +33,17 @@ export function Workspace() {
     <>
       <div className="w-auto h-auto border-6">
         <ReactFlowProvider>
-          <DnDProvider>
-            <div className="flex h-screen">
-              {/* Sidebar a la izquierda */}
-              <div className="w-1/4">
-                <Sidebar />
-              </div>
-
-              {/* Canvas a la derecha */}
-              <div className="flex-1">
-                <ReactFlowWithDnD />
-              </div>
+          <div className="flex h-screen">
+            {/* Sidebar a la izquierda */}
+            <div className="w-1/4">
+              <Sidebar />
             </div>
-          </DnDProvider>
+
+            {/* Canvas a la derecha */}
+            <div className="flex-1">
+              <ReactFlowWithDnD />
+            </div>
+          </div>
         </ReactFlowProvider>
       </div>
     </>

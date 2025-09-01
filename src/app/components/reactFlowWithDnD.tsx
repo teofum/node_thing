@@ -1,5 +1,3 @@
-"use client";
-
 import { useRef, useCallback } from "react";
 import {
   ReactFlow,
@@ -16,8 +14,8 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { ShaderNode, useStore } from "@/store/store";
-import { useDnD } from "./dndContext";
 import { RenderShaderNode } from "./renderShaderNode";
+import { NodeData } from "@/schemas/node.schema";
 
 // TODO esto volarlo, relacionado con lo de IDs duplicadas
 let id = 0;
@@ -42,7 +40,6 @@ export function ReactFlowWithDnD() {
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
-  const [type] = useDnD();
 
   // obtengo la capa actual para imprimir
   const { nodes, edges } = layers[currentLayer];
@@ -57,8 +54,6 @@ export function ReactFlowWithDnD() {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-      if (!type) return;
-
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
@@ -73,13 +68,13 @@ export function ReactFlowWithDnD() {
         type: "RenderShaderNode", // hardcodeo
         position,
         data: {
-          type: "output", // TODO !! esto de alguna manera lo tengo que obtener de Sidebar
+          type: event.dataTransfer.getData("type") as NodeData["type"],
         },
       };
 
       setNodes([...useStore.getState().layers[currentLayer].nodes, newNode]);
     },
-    [screenToFlowPosition, type, setNodes],
+    [screenToFlowPosition, setNodes, currentLayer],
   );
 
   return (
