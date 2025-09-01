@@ -10,6 +10,7 @@ export default function Home() {
       {/* header */}
       <div className="flex border p-4">
         HEADER
+        {/* Creo que acá iría bien el login */}
         <Canvas />
       </div>
 
