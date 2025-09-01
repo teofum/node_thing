@@ -8,10 +8,7 @@ export default function Home() {
     // div general para definir el grid (de 3 columnas)
     <div className="font-sans grid grid-rows-[auto_auto_1fr] min-h-screen pb-20">
       {/* header */}
-      <div className="flex border p-4">
-        HEADER
-        <Canvas />
-      </div>
+      <div className="flex border p-4">HEADER</div>
 
       {/* barra de herramientas */}
       <div className="border p-4">BARRA DE HERRAMIENTAS</div>
@@ -24,7 +21,10 @@ export default function Home() {
         </div>
 
         {/* panel derecho */}
-        <div className="border p-4">PANEL DER</div>
+        <div className="border p-4">
+          PANEL DER
+          <Canvas /> {/* a esto le falta diseño */}
+        </div>
       </div>
     </div>
   );
