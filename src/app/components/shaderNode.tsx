@@ -3,14 +3,14 @@
 // nota: no usar los hooks de React Flow, usar directamente nuestro store del zustand en store.ts
 
 import { Handle, Position } from "@xyflow/react";
-import { Edge, Node } from "@/schemas/node.schema";
+import { NodeData } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 
 // TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
 // puede que querramos guardar el código del shader en formato string dentro del objeto data:
 export type ShaderNodeProps = {
   id: string;
-  data: { node: Node };
+  data: { node: NodeData };
 };
 
 export function ShaderNode({ id, data }: ShaderNodeProps) {
@@ -23,7 +23,7 @@ export function ShaderNode({ id, data }: ShaderNodeProps) {
 
   return (
     <div className="p-2 bg-amber-500">
-      <div className=" text-blue-400">{node.id}</div> {/* debug */}
+      <div className=" text-blue-400">{id}</div> {/* debug */}
       <div className="text-xs text-gray-400 mb-2">{nodeTypeInfo.name}</div>{" "}
       {/* debug */}
       {/*

@@ -1,20 +1,23 @@
-import { Edge, Node } from "@/schemas/node.schema";
-import { Layer } from "@/store/store";
+import { NodeData } from "@/schemas/node.schema";
+import { Layer, ShaderNode } from "@/store/store";
 import { NODE_TYPES } from "@/utils/node-type";
 
 type Buffer = {
   idx: number;
-  users: Edge["to"][];
+  users: {
+    nodeId: string;
+    input: string;
+  }[];
 };
 
 export type RenderPass = {
-  nodeType: Node["type"];
+  nodeType: NodeData["type"];
   inputBindings: Record<string, number>;
   outputBindings: Record<string, number>;
 };
 
 export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
-  const queue: Node[] = [];
+  const queue: ShaderNode[] = [];
   const buffers: Buffer[] = [];
   const passes: RenderPass[] = [];
 
@@ -25,10 +28,10 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
    */
   const roots = nodes.filter((node) => {
     if (node.id.startsWith("__input")) return false;
-    const inputs = edges.filter((edge) => edge.to.nodeId === node.id);
+    const inputs = edges.filter((edge) => edge.target === node.id);
     return (
       inputs.length === 0 ||
-      inputs.every((edge) => edge.from.nodeId.startsWith("__input"))
+      inputs.every((edge) => edge.source.startsWith("__input"))
     );
   });
 
@@ -59,8 +62,8 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
     }
 
     // We just asserted the array has items, unshift will never return undefined
-    const node = queue.shift() as Node;
-    const nodeType = NODE_TYPES[node.type];
+    const node = queue.shift() as ShaderNode;
+    const nodeType = NODE_TYPES[node.data.type];
 
     /*
      * Get a list of dependencies
@@ -70,9 +73,9 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
         (input) =>
           !edges.some(
             (edge) =>
-              edge.from.nodeId.startsWith("__input") &&
-              edge.to.nodeId === node.id &&
-              edge.to.input === input,
+              edge.source.startsWith("__input") &&
+              edge.target === node.id &&
+              edge.targetHandle === input,
           ),
       )
       .map((input) => ({
@@ -99,7 +102,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
      * Build render pass for this node
      */
     const pass: RenderPass = {
-      nodeType: node.type,
+      nodeType: node.data.type,
       inputBindings: {},
       outputBindings: {},
     };
@@ -116,16 +119,16 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
       const buf = findOrCreateBuffer();
 
       edges
-        .filter(
-          (edge) => edge.from.nodeId === node.id && edge.from.output === out,
-        )
-        .map((edge) => edge.to)
-        .forEach((input) => {
+        .filter((edge) => edge.source === node.id && edge.sourceHandle === out)
+        .forEach((edge) => {
           // Connect relevant inputs to buffer
-          buf.users.push(input);
+          buf.users.push({
+            nodeId: edge.target,
+            input: edge.targetHandle ?? "",
+          });
 
           // Queue the connected node if it's not queued already
-          const inputNode = nodes.find((n) => n.id === input.nodeId);
+          const inputNode = nodes.find((n) => n.id === edge.target);
           if (inputNode && !queue.includes(inputNode)) {
             queue.push(inputNode);
           }

@@ -52,16 +52,8 @@ export type NodeType = z.infer<typeof nodeTypeSchema>;
 
 const nodeTypeIdSchema = z.enum(NODE_TYPE_NAMES);
 
-export const nodeSchema = z.object({
-  id: z.uuid(),
+export const nodeDataSchema = z.object({
   type: nodeTypeIdSchema,
 });
 
-export type Node = z.infer<typeof nodeSchema>;
-
-export const edgeSchema = z.object({
-  from: z.object({ nodeId: z.uuid(), output: z.string() }),
-  to: z.object({ nodeId: z.uuid(), input: z.string() }),
-});
-
-export type Edge = z.infer<typeof edgeSchema>;
+export type NodeData = z.infer<typeof nodeDataSchema>;
