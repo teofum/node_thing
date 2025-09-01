@@ -10,7 +10,10 @@ export function Tester() {
     <div>
       <button
         className="bg-red-700 rounded-lg p-2"
-        onClick={() => console.log(buildRenderPipeline(layer))}
+        onClick={() => {
+          console.log(layer);
+          console.log(buildRenderPipeline(layer));
+        }}
       >
         test
       </button>
