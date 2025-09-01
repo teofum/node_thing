@@ -15,17 +15,16 @@ import {
   MiniMap,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useStore } from "@/store/store";
-
+import { ShaderNode, useStore } from "@/store/store";
 import { useDnD } from "./dndContext";
-import { ShaderNode } from "./shaderNode";
+import { RenderShaderNode } from "./renderShaderNode";
 
 // TODO esto volarlo, relacionado con lo de IDs duplicadas
 let id = 0;
 const getId = () => `dndnode_${id++}`;
 
 const nodeTypes = {
-  ShaderNode,
+  RenderShaderNode,
 };
 
 export function ReactFlowWithDnD() {
@@ -69,15 +68,12 @@ export function ReactFlowWithDnD() {
       const currId = getId();
 
       // TODO esto hardcodeo, instancio siempre un ShaderNode con tipo interno "middle"
-      const newNode: Node = {
+      const newNode: ShaderNode = {
         id: currId,
-        type: "ShaderNode", // hardcodeo
+        type: "RenderShaderNode", // hardcodeo
         position,
         data: {
-          node: {
-            id: currId,
-            type: "middle", // TODO !! esto de alguna manera lo tengo que obtener de Sidebar
-          },
+          type: "output", // TODO !! esto de alguna manera lo tengo que obtener de Sidebar
         },
       };
 

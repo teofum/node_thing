@@ -8,14 +8,12 @@ import { NODE_TYPES } from "@/utils/node-type";
 
 // TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
 // puede que querramos guardar el código del shader en formato string dentro del objeto data:
-export type ShaderNodeProps = {
-  id: string;
-  data: { node: NodeData };
+export type RenderShaderNodeProps = {
+  data: NodeData;
 };
 
-export function ShaderNode({ id, data }: ShaderNodeProps) {
-  const { node } = data;
-  const nodeTypeInfo = NODE_TYPES[node.type];
+export function RenderShaderNode({ data }: RenderShaderNodeProps) {
+  const nodeTypeInfo = NODE_TYPES[data.type];
 
   // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
 
@@ -23,7 +21,7 @@ export function ShaderNode({ id, data }: ShaderNodeProps) {
 
   return (
     <div className="p-2 bg-amber-500">
-      <div className=" text-blue-400">{id}</div> {/* debug */}
+      <div className=" text-blue-400"></div> {/* debug */}
       <div className="text-xs text-gray-400 mb-2">{nodeTypeInfo.name}</div>{" "}
       {/* debug */}
       {/*

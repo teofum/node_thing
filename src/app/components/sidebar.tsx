@@ -40,7 +40,7 @@ export function Sidebar() {
       </div>
       <div
         className="dndnode output"
-        onDragStart={(event) => onDragStart(event, "ShaderNode")}
+        onDragStart={(event) => onDragStart(event, "RenderShaderNode")}
         draggable
       >
         Test shaderNode

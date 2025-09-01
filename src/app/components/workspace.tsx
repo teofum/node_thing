@@ -7,15 +7,14 @@ import {
   type DefaultEdgeOptions,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ShaderNode } from "./shaderNode";
-import { useStore } from "@/store/store";
+import { RenderShaderNode } from "./renderShaderNode";
 import { ReactFlowProvider } from "@xyflow/react";
 import { DnDProvider } from "./dndContext";
 import { Sidebar } from "./sidebar";
 import { ReactFlowWithDnD } from "./reactFlowWithDnD";
 
 const nodeTypes = {
-  ShaderNode,
+  RenderShaderNode,
 };
 
 const fitViewOptions: FitViewOptions = {
