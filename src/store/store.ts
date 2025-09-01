@@ -10,14 +10,18 @@ import {
 } from "@xyflow/react";
 import { create } from "zustand";
 
+import { NodeData } from "@/schemas/node.schema";
+
 // !! cuidado: Node que se guarda es de RF
 // tiene campos id: y type: pero no son los de nuestro node.schema.ts
 // en Node[] se guardarían solamente ShaderNode, que en data.node: y data.id: se guarda lo de nuestro node.schema.ts
 
 // TODO, sería acá hacer una función de key, y eliminar redundancia de doble id
 
+export type ShaderNode = Node<NodeData>;
+
 export type Layer = {
-  nodes: Node[];
+  nodes: ShaderNode[];
   edges: Edge[];
 };
 
@@ -29,7 +33,7 @@ export type Project = {
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
 
-  setNodes: (nodes: Node[]) => void;
+  setNodes: (nodes: ShaderNode[]) => void;
   setEdges: (edges: Edge[]) => void;
 
   onNodesChange: OnNodesChange;
@@ -82,7 +86,7 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
   onNodesChange: (changes) =>
     set(({ layers, currentLayer }) => ({
       layers: modifyLayer(layers, currentLayer, (layer) => ({
-        nodes: applyNodeChanges(changes, layer.nodes),
+        nodes: applyNodeChanges(changes, layer.nodes) as ShaderNode[], // TODO: actually check this
       })),
     })),
 
