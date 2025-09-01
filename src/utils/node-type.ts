@@ -3,6 +3,7 @@ import { NodeType } from "@/schemas/node.schema";
 export const NODE_TYPES = {
   __input: {
     name: "Special input node",
+    shader: "",
     inputs: {},
     outputs: {
       out_a: {
@@ -14,6 +15,7 @@ export const NODE_TYPES = {
   },
   __output: {
     name: "Special output node",
+    shader: "",
     inputs: {
       in_a: {
         name: "in_a",
@@ -25,6 +27,7 @@ export const NODE_TYPES = {
   },
   test_node_1to1: {
     name: "Test node: 1 to 1",
+    shader: "",
     inputs: {
       in_a: {
         name: "in_a",
@@ -41,6 +44,7 @@ export const NODE_TYPES = {
   },
   test_node_1to2: {
     name: "Test node: 1 to 2",
+    shader: "",
     inputs: {
       in_a: {
         name: "in_a",
@@ -61,6 +65,7 @@ export const NODE_TYPES = {
   },
   test_node_2to1: {
     name: "Test node: 2 to 1",
+    shader: "",
     inputs: {
       in_a: {
         name: "in_a",
@@ -81,6 +86,7 @@ export const NODE_TYPES = {
   },
   test_node_3to1: {
     name: "Test node: 3 to 1",
+    shader: "",
     inputs: {
       in_a: {
         name: "in_a",
@@ -105,6 +111,7 @@ export const NODE_TYPES = {
   },
   input: {
     name: "Input",
+    shader: "",
     inputs: {},
     outputs: {
       out_a: {
@@ -116,6 +123,7 @@ export const NODE_TYPES = {
   },
   output: {
     name: "Output",
+    shader: "",
     inputs: {
       in_a: {
         name: "in_a",
@@ -127,6 +135,7 @@ export const NODE_TYPES = {
   },
   middle: {
     name: "Middle",
+    shader: "",
     inputs: {
       in_a: {
         name: "in_a",
