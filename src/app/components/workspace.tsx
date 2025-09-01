@@ -7,11 +7,14 @@ import {
   type DefaultEdgeOptions,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ShaderNode } from "./shaderNode";
-import { useStore } from "@/store/store";
+import { RenderShaderNode } from "./renderShaderNode";
+import { ReactFlowProvider } from "@xyflow/react";
+import { DnDProvider } from "./dndContext";
+import { Sidebar } from "./sidebar";
+import { ReactFlowWithDnD } from "./reactFlowWithDnD";
 
 const nodeTypes = {
-  ShaderNode,
+  RenderShaderNode,
 };
 
 const fitViewOptions: FitViewOptions = {
@@ -26,37 +29,26 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
   console.log("drag event", node.data);
 };
 
-// NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
 export function Workspace() {
-  const {
-    layers,
-    currentLayer,
-    onNodesChange,
-    onEdgesChange,
-    setActiveLayer,
-    onConnect,
-  } = useStore();
-
-  // obtengo la capa actual para imprimir
-  const { nodes, edges } = layers[currentLayer];
-
-  // TODO, acá debería hacer menejo por capas (ahora mismo solo muestra el grafo de la capa actual)
-
   return (
-    // TODO meto tailwind de juguete, esto puede estar mal
-    <div className="w-screen h-screen border-6">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeDrag={onNodeDrag}
-        nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={fitViewOptions}
-        defaultEdgeOptions={defaultEdgeOptions}
-      />
-    </div>
+    <>
+      <div className="w-auto h-auto border-6">
+        <ReactFlowProvider>
+          <DnDProvider>
+            <div className="flex h-screen">
+              {/* Sidebar a la izquierda */}
+              <div className="w-1/4">
+                <Sidebar />
+              </div>
+
+              {/* Canvas a la derecha */}
+              <div className="flex-1">
+                <ReactFlowWithDnD />
+              </div>
+            </div>
+          </DnDProvider>
+        </ReactFlowProvider>
+      </div>
+    </>
   );
 }

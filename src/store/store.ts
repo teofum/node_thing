@@ -30,6 +30,40 @@ export type Project = {
   currentLayer: number;
 };
 
+// DEBUG
+
+const initialNodes: ShaderNode[] = [
+  // ejemplo de uso de ShaderNode
+  {
+    id: "test1",
+    type: "RenderShaderNode",
+    data: {
+      type: "input",
+    },
+    position: { x: 0, y: 5 },
+  },
+  {
+    id: "test2",
+    type: "RenderShaderNode",
+    data: {
+      type: "middle",
+    },
+    position: { x: 30, y: 5 },
+  },
+  {
+    id: "test3",
+    type: "RenderShaderNode",
+    data: {
+      type: "output",
+    },
+    position: { x: 60, y: 5 },
+  },
+];
+
+const initialEdges: Edge[] = [{ id: "e1-2", source: "1", target: "2" }];
+
+//
+
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
 
@@ -65,7 +99,10 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
   /*
    * State
    */
-  layers: [{ nodes: [], edges: [] }],
+  layers: [
+    { nodes: [...initialNodes], edges: [...initialEdges] }, // debug, le enchufo valores iniciales en la capa 0
+    { nodes: [], edges: [] }, // debug, si le mando + 1
+  ],
   currentLayer: 0,
 
   /*
