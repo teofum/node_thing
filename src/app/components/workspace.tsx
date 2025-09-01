@@ -1,10 +1,7 @@
-"use client"; // TODO this ok?
+"use client";
 
-import { useState, useCallback } from "react";
 import {
   ReactFlow,
-  type Node,
-  type Edge,
   type FitViewOptions,
   type OnNodeDrag,
   type DefaultEdgeOptions,
@@ -39,12 +36,9 @@ export function Workspace() {
     onConnect,
   } = useStore();
 
-  const { nodes, edges } = layers[currentLayer]; // si hago +1 acá no imprime nada (porque está en capa 2, vacío)
+  const { nodes, edges } = layers[currentLayer];
 
   return (
-    // esto es el "canvas principal" para React Flow
-    // tiene un CSS modificando esto en /node_modules/@xyflow/react/dist/style.css
-
     // TODO meto tailwind de juguete, esto puede estar mal
     <div className="w-screen h-screen border-6">
       <ReactFlow
