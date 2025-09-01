@@ -17,17 +17,10 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { ShaderNode } from "./shaderNode";
-import { NODE_TYPE_NAMES, NODE_TYPES } from "@/utils/node-type";
-// import { Node } from "@/schemas/node.schema";
 
 const nodeTypes = {
   ShaderNode,
 };
-
-// TODO debug
-const testNode1 = { id: "testid1", type: "input" };
-const testNode2 = { id: "testid2", type: "middle" };
-const testNode3 = { id: "testid3", type: "output" };
 
 const initialNodes: Node[] = [
   { id: "1", data: { label: "Node 1" }, position: { x: 5, y: 5 } },
@@ -38,7 +31,10 @@ const initialNodes: Node[] = [
     id: "test1",
     type: "ShaderNode",
     data: {
-      node: testNode1,
+      node: {
+        id: "testid1",
+        type: "input",
+      },
     },
     position: { x: 0, y: 5 },
   },
@@ -46,7 +42,10 @@ const initialNodes: Node[] = [
     id: "test2",
     type: "ShaderNode",
     data: {
-      node: testNode2,
+      node: {
+        id: "testid2",
+        type: "middle",
+      },
     },
     position: { x: 30, y: 5 },
   },
@@ -54,7 +53,10 @@ const initialNodes: Node[] = [
     id: "test3",
     type: "ShaderNode",
     data: {
-      node: testNode3,
+      node: {
+        id: "testid3",
+        type: "output",
+      },
     },
     position: { x: 60, y: 5 },
   },

@@ -1,21 +1,25 @@
 // nodo elemental para cada shader del proyecto
 
-// nota: no se debería usar los hooks de React Flow, se debería manejar nodes y edges cion las funciones que están definidas en este archivo
+// nota: no usar los hooks de React Flow, usar directamente nuestro store del zustand en store.ts
 
 import { Handle, Position } from "@xyflow/react";
 import { Edge, Node } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 
+// TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
+// puede que querramos guardar el código del shader en formato string dentro del objeto data:
 export type ShaderNodeProps = {
   id: string;
   data: { node: Node };
 };
 
 export function ShaderNode({ id, data }: ShaderNodeProps) {
-  const { node } = data; // TODO, acá agregaríamos los valores de runtime
+  const { node } = data;
   const nodeTypeInfo = NODE_TYPES[node.type];
 
   // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
+
+  // TODO node.id y id son diferentes (estandarziar para que quede uno)
 
   return (
     <div className="p-2 bg-amber-500">
