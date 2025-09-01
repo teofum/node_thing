@@ -28,18 +28,28 @@ export function RenderShaderNode({ data }: RenderShaderNodeProps) {
        */}
       {/* dinámicamente chequeo campos de inputs y outputs para imprimir Handles */}
       {/* inputs */}
-      {Object.keys(nodeTypeInfo.inputs).map((key, index) => (
+      {Object.keys(nodeTypeInfo.inputs).map((key, i) => (
         <div key={key}>
-          <Handle type="source" position={Position.Left} id={key.toString()} />
-          <div className="text-yellow-400">s-h: {key.toString()}</div>
+          <Handle
+            type="target"
+            position={Position.Left}
+            id={key}
+            style={{ top: i * 20 + 20 }}
+          />
+          <div className="text-yellow-400">s-h: {key}</div>
           {/* debug */}
         </div>
       ))}
       {/* outputs */}
-      {Object.keys(nodeTypeInfo.outputs).map((key, index) => (
+      {Object.keys(nodeTypeInfo.outputs).map((key, i) => (
         <div key={key}>
-          <Handle type="target" position={Position.Right} id={key.toString()} />
-          <div className="text-yellow-400">t-h: {key.toString()}</div>
+          <Handle
+            type="source"
+            position={Position.Right}
+            id={key}
+            style={{ top: i * 20 + 20 }}
+          />
+          <div className="text-yellow-400">t-h: {key}</div>
           {/* debug */}
         </div>
       ))}
