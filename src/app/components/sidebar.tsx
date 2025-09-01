@@ -12,6 +12,8 @@ export function Sidebar() {
     event.dataTransfer.effectAllowed = "move";
   };
 
+  // TODO acá se quiere renderizar todas las opcioens para cada shader
+  // serían todos del tipo ShaderNode, pero tienen su tipo real guardado en el campo data.
   return (
     <aside>
       <div className="description">Panel izquierdo</div>
@@ -35,6 +37,13 @@ export function Sidebar() {
         draggable
       >
         Output Node
+      </div>
+      <div
+        className="dndnode output"
+        onDragStart={(event) => onDragStart(event, "ShaderNode")}
+        draggable
+      >
+        Test shaderNode
       </div>
     </aside>
   );

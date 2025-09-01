@@ -18,10 +18,15 @@ import "@xyflow/react/dist/style.css";
 import { useStore } from "@/store/store";
 
 import { useDnD } from "./dndContext";
+import { ShaderNode } from "./shaderNode";
 
 // TODO esto volarlo, relacionado con lo de IDs duplicadas
 let id = 0;
 const getId = () => `dndnode_${id++}`;
+
+const nodeTypes = {
+  ShaderNode,
+};
 
 export function ReactFlowWithDnD() {
   // NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
@@ -60,14 +65,23 @@ export function ReactFlowWithDnD() {
         y: event.clientY,
       });
 
+      // TODO borrar a futuro
+      const currId = getId();
+
+      // TODO esto hardcodeo, instancio siempre un ShaderNode con tipo interno "middle"
       const newNode: Node = {
-        id: getId(),
-        type,
+        id: currId,
+        type: "ShaderNode", // hardcodeo
         position,
-        data: { label: `${type} node` },
+        data: {
+          node: {
+            id: currId,
+            type: "middle", // TODO !! esto de alguna manera lo tengo que obtener de Sidebar
+          },
+        },
       };
 
-      setNodes([...nodes, newNode]);
+      setNodes([...useStore.getState().layers[currentLayer].nodes, newNode]);
     },
     [screenToFlowPosition, type, setNodes],
   );
@@ -82,6 +96,7 @@ export function ReactFlowWithDnD() {
         onConnect={onConnect}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        nodeTypes={nodeTypes}
         colorMode="dark"
         fitView
       >
