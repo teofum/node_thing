@@ -1,5 +1,6 @@
 import { Canvas } from "./components/canvas";
 import { Workspace } from "./components/workspace";
+import { Tester } from "./tester";
 
 export default function Home() {
   return (
@@ -8,7 +9,10 @@ export default function Home() {
     // div general para definir el grid (de 3 columnas)
     <div className="font-sans grid grid-rows-[auto_auto_1fr] min-h-screen pb-20">
       {/* header */}
-      <div className="flex border p-4">HEADER</div>
+      <div className="flex border p-4">
+        HEADER
+        <Tester />
+      </div>
 
       {/* barra de herramientas */}
       <div className="border p-4">BARRA DE HERRAMIENTAS</div>
