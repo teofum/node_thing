@@ -14,7 +14,7 @@ export function Sidebar() {
       {Object.entries(NODE_TYPES).map(([key, type]) => (
         <div
           key={key}
-          className=""
+          className="p-3 m-3 border-2 bg-black rounded-md"
           onDragStart={(event) => onDragStart(event, key)}
           draggable
         >
