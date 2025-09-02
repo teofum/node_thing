@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useStore } from "@/store/store";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { preparePipeline, render } from "./renderer/renderer";
+import { buildRenderPipeline } from "./renderer/pipeline";
 
 const shaders = `
 struct VertexOut {
@@ -37,9 +40,17 @@ async function getDevice() {
 }
 
 export function Canvas() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  /*
+   * State
+   */
+  const { layers } = useStore();
   const [device, setDevice] = useState<GPUDevice | null>(null);
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const frameRequestHandle = useRef<number | null>(null);
 
+  /*
+   * Initialize GPU device on component init
+   */
   useEffect(() => {
     async function initWebGPUDevice() {
       setDevice(await getDevice());
@@ -47,8 +58,28 @@ export function Canvas() {
     initWebGPUDevice();
   }, []);
 
-  if (canvasRef.current && device) {
-    const canvas = canvasRef.current;
+  /*
+   * Rebuild pipeline when node graph state changes
+   */
+  const pipeline = useMemo(() => {
+    if (!canvas || !device) return null;
+
+    // Get width and height from canvas
+    const { width, height } = canvas;
+
+    const desc = buildRenderPipeline(layers[0]);
+    return {
+      desc,
+      ...preparePipeline(device, desc, { width, height }),
+    };
+  }, [canvas, device, layers]);
+
+  /*
+   * Get and configure canvas WebGPU context
+   */
+  const ctx = useMemo(() => {
+    if (!canvas || !device) return null;
+
     const ctx = canvas.getContext("webgpu");
     if (!ctx) return null;
 
@@ -58,87 +89,38 @@ export function Canvas() {
       alphaMode: "premultiplied",
     });
 
-    const sm = device.createShaderModule({ code: shaders });
+    return ctx;
+  }, [canvas, device]);
 
-    const vertices = new Float32Array([
-      0.0, 0.6, 0, 1, 1, 0, 0, 1, -0.5, -0.6, 0, 1, 0, 1, 0, 1, 0.5, -0.6, 0, 1,
-      0, 0, 1, 1,
-    ]);
-    const vertexBuffer = device.createBuffer({
-      size: vertices.byteLength,
-      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-    });
-    device.queue.writeBuffer(vertexBuffer, 0, vertices, 0, vertices.length);
+  /*
+   * Render a frame
+   */
+  useEffect(() => {
+    // Cancel pending renders
+    if (frameRequestHandle.current)
+      cancelAnimationFrame(frameRequestHandle.current);
 
-    const pipelineDescriptor = {
-      vertex: {
-        module: sm,
-        entryPoint: "vertex_main",
-        buffers: [
-          {
-            attributes: [
-              {
-                shaderLocation: 0, // position
-                offset: 0,
-                format: "float32x4",
-              },
-              {
-                shaderLocation: 1, // color
-                offset: 16,
-                format: "float32x4",
-              },
-            ],
-            arrayStride: 32,
-          },
-        ],
-      },
-      fragment: {
-        module: sm,
-        entryPoint: "fragment_main",
-        targets: [
-          {
-            format: navigator.gpu.getPreferredCanvasFormat(),
-          },
-        ],
-      },
-      primitive: {
-        topology: "triangle-list",
-      },
-      layout: "auto",
+    if (!canvas || !ctx || !device || !pipeline) return;
+
+    const renderFrame = () => {
+      const { width, height } = canvas;
+      render(
+        device,
+        pipeline.desc,
+        { width, height },
+        pipeline.buffers,
+        pipeline.pipelines,
+        pipeline.bindGroups,
+        ctx.getCurrentTexture(),
+      );
     };
 
-    const renderPipeline = device.createRenderPipeline(
-      pipelineDescriptor as GPURenderPipelineDescriptor,
-    );
-    const commandEncoder = device.createCommandEncoder();
-
-    const renderPassDescriptor = {
-      colorAttachments: [
-        {
-          clearValue: { r: 0.0, g: 0.5, b: 1.0, a: 1.0 },
-          loadOp: "clear",
-          storeOp: "store",
-          view: ctx.getCurrentTexture().createView(),
-        },
-      ],
-    };
-
-    const pass = commandEncoder.beginRenderPass(
-      renderPassDescriptor as GPURenderPassDescriptor,
-    );
-
-    pass.setPipeline(renderPipeline);
-    pass.setVertexBuffer(0, vertexBuffer);
-    pass.draw(3);
-
-    pass.end();
-
-    device.queue.submit([commandEncoder.finish()]);
-  }
+    frameRequestHandle.current = requestAnimationFrame(renderFrame);
+  }, [canvas, ctx, device, pipeline]);
 
   return (
     <canvas
-      ref={canvasRef}
+      ref={(ref) => setCanvas(ref)}
       id="main-canvas"
       className="bg-black"
       width={20}
