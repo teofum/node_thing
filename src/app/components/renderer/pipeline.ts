@@ -10,6 +10,12 @@ type Buffer = {
   }[];
 };
 
+type Input = {
+  nodeId: string;
+  type: string;
+  outputBindings: Record<string, number>;
+};
+
 export type RenderPass = {
   nodeType: NodeData["type"];
   inputBindings: Record<string, number>;
@@ -18,6 +24,8 @@ export type RenderPass = {
 
 export type RenderPipeline = {
   passes: RenderPass[];
+  inputs: Input[];
+  outputBuffer: number;
   bufferCount: number;
 };
 
@@ -25,6 +33,8 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
   const queue: ShaderNode[] = [];
   const buffers: Buffer[] = [];
   const passes: RenderPass[] = [];
+  const inputs: Input[] = [];
+  let outputBuffer = -1;
 
   /*
    * Find the root nodes we're starting from.
@@ -32,12 +42,8 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
    * (main input, aux image input)
    */
   const roots = nodes.filter((node) => {
-    if (node.id.startsWith("__input")) return false;
     const inputs = edges.filter((edge) => edge.target === node.id);
-    return (
-      inputs.length === 0 ||
-      inputs.every((edge) => edge.source.startsWith("__input"))
-    );
+    return inputs.length === 0;
   });
 
   queue.push(...roots);
@@ -101,7 +107,10 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
     }
     const dependencies = deps as { input: string; buf: Buffer }[];
 
-    // TODO: end on output node
+    if (node.data.type === "__output") {
+      outputBuffer = buffers.indexOf(dependencies[0].buf);
+      break;
+    }
 
     /*
      * Build render pass for this node
@@ -152,9 +161,18 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
 
     /*
      * Add the render pass to the list
+     * If it's an input, add it to the input list instead
      */
-    passes.push(pass);
+    if (node.data.type.startsWith("__input")) {
+      inputs.push({
+        nodeId: node.id,
+        type: node.data.type,
+        outputBindings: pass.outputBindings,
+      });
+    } else {
+      passes.push(pass);
+    }
   }
 
-  return { passes, bufferCount: buffers.length };
+  return { passes, inputs, outputBuffer, bufferCount: buffers.length };
 }
