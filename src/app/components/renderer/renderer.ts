@@ -1,16 +1,27 @@
 import { NODE_TYPES } from "@/utils/node-type";
 import { RenderPipeline } from "./pipeline";
 
+const THREADS_PER_WORKGROUP = 64;
+
+export type RenderOptions = {
+  width: number;
+  height: number;
+};
+
 /*
  * Create all buffers needed to render the given shader graph.
  */
-function createBuffers(device: GPUDevice, desc: RenderPipeline) {
+function createBuffers(
+  device: GPUDevice,
+  desc: RenderPipeline,
+  opts: RenderOptions,
+) {
   const buffers: GPUBuffer[] = [];
 
   for (let i = 0; i < desc.bufferCount; i++) {
     buffers.push(
       device.createBuffer({
-        size: 1, // TODO
+        size: 16 * opts.width * opts.height,
         usage: GPUBufferUsage.STORAGE,
       }),
     );
@@ -114,10 +125,14 @@ function createComputePSOs(
  * Prepare a render pipeline for rendering by creating all the necessary
  * objects: buffers, binding groups, and compute PSOs.
  */
-export function preparePipeline(device: GPUDevice, desc: RenderPipeline) {
+export function preparePipeline(
+  device: GPUDevice,
+  desc: RenderPipeline,
+  opts: RenderOptions,
+) {
   const bindGroupLayouts = createBindGroupLayouts(device, desc);
 
-  const buffers = createBuffers(device, desc);
+  const buffers = createBuffers(device, desc, opts);
   const bindGroups = createBindGroups(device, desc, bindGroupLayouts, buffers);
   const pipelines = createComputePSOs(device, desc, bindGroupLayouts);
 
@@ -127,24 +142,51 @@ export function preparePipeline(device: GPUDevice, desc: RenderPipeline) {
 /*
  * Executes a render pipeline, given the lists of PSOs and binding groups
  * for each stage.
- * Returns a buffer where the result is stored.
+ * Returns the buffer where the result is stored.
  */
 export function render(
   device: GPUDevice,
+  desc: RenderPipeline,
+  opts: RenderOptions,
+  buffers: GPUBuffer[],
   pipelines: GPUComputePipeline[],
   bindGroups: GPUBindGroup[],
+  target: GPUTexture,
 ) {
   const enc = device.createCommandEncoder();
 
+  for (const input of desc.inputs) {
+    // TODO copy input textures to buffers...
+    console.log(input.nodeId);
+  }
+
+  /*
+   * Render stages
+   */
   for (const [pipeline, bindGroup] of pipelines.map(
     (p, i) => [p, bindGroups[i]] as const,
   )) {
     const pass = enc.beginComputePass();
     pass.setPipeline(pipeline);
     pass.setBindGroup(0, bindGroup);
-    pass.dispatchWorkgroups(1, 1); // TODO amount
+    pass.dispatchWorkgroups(
+      Math.ceil(opts.width / THREADS_PER_WORKGROUP),
+      Math.ceil(opts.height / THREADS_PER_WORKGROUP),
+    );
     pass.end();
   }
+
+  /*
+   * Copy output buffer to final render target
+   */
+  enc.copyBufferToTexture(
+    {
+      buffer: buffers[desc.outputBuffer],
+      bytesPerRow: 16 * target.width,
+    },
+    { texture: target },
+    [target.width, target.height, target.depthOrArrayLayers],
+  );
 
   device.queue.submit([enc.finish()]);
 }
