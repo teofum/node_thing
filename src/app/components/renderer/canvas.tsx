@@ -2,8 +2,8 @@
 
 import { useStore } from "@/store/store";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { preparePipeline, render } from "./renderer/renderer";
-import { buildRenderPipeline } from "./renderer/pipeline";
+import { preparePipeline, render } from "./renderer";
+import { buildRenderPipeline } from "./pipeline";
 
 async function getDevice() {
   if (!navigator.gpu) throw new Error("webgpu not supported");
@@ -102,7 +102,7 @@ export function Canvas() {
       id="main-canvas"
       className="bg-black"
       width={300}
-      height={200}
+      height={500}
     />
   );
 }

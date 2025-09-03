@@ -1,18 +1,27 @@
 @group(0) @binding(0)
 var<storage, read_write> output: array<vec4f>;
 
+struct Uniforms {
+    width: u32,
+    height: u32,
+};
+
+@group(1) @binding(0)
+var<uniform> u: Uniforms;
+
 @compute @workgroup_size(16, 16)
 fn main(
     @builtin(global_invocation_id) id: vec3u,
 ) {
     // Avoid accessing the buffer out of bounds
-    if id.x >= 300u || id.y >= 200u {
+    if id.x >= u.width || id.y >= u.height {
         return;
     }
+    let index = id.x + id.y * u.width;
 
-    output[id.x + id.y * 300u] = vec4f(
-        f32(id.x) / 300.0,
-        f32(id.y) / 200.0,
+    output[index] = vec4f(
+        f32(id.x) / f32(u.width),
+        f32(id.y) / f32(u.height),
         0.0, 1.0
     );
 }

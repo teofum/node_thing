@@ -1,5 +1,6 @@
 import { NODE_TYPES } from "@/utils/node-type";
 import { RenderPipeline } from "./pipeline";
+import { createUniform } from "./uniforms";
 
 const THREADS_PER_WORKGROUP = 16;
 
@@ -45,9 +46,7 @@ function createBindGroupLayouts(device: GPUDevice, desc: RenderPipeline) {
         (_, i): GPUBindGroupLayoutEntry => ({
           binding: i,
           visibility: GPUShaderStage.COMPUTE,
-          buffer: {
-            type: "storage",
-          },
+          buffer: { type: "storage" },
         }),
       ),
     }),
@@ -105,6 +104,7 @@ function createComputePSOs(
   device: GPUDevice,
   desc: RenderPipeline,
   bindGroupLayouts: GPUBindGroupLayout[],
+  uniformBindGroupLayout: GPUBindGroupLayout,
 ) {
   const shaders = compileShaders(device, desc);
 
@@ -115,7 +115,7 @@ function createComputePSOs(
         entryPoint: "main",
       },
       layout: device.createPipelineLayout({
-        bindGroupLayouts: [bindGroupLayouts[i]],
+        bindGroupLayouts: [bindGroupLayouts[i], uniformBindGroupLayout],
       }),
     }),
   );
@@ -135,7 +135,13 @@ export function preparePipeline(
 
   const buffers = createBuffers(device, desc, opts);
   const bindGroups = createBindGroups(device, desc, bindGroupLayouts, buffers);
-  const pipelines = createComputePSOs(device, desc, bindGroupLayouts);
+  const uniform = createUniform(device);
+  const pipelines = createComputePSOs(
+    device,
+    desc,
+    bindGroupLayouts,
+    uniform.bindGroupLayout,
+  );
 
   // TODO pass render size in uniforms
   const finalStageShader = device.createShaderModule({
@@ -146,16 +152,25 @@ export function preparePipeline(
     @group(0) @binding(1)
     var tex: texture_storage_2d<rgba8unorm, write>;
 
+    struct Uniforms {
+        width: u32,
+        height: u32,
+    };
+
+    @group(1) @binding(0)
+    var<uniform> u: Uniforms;
+
     @compute @workgroup_size(16, 16)
     fn main(
       @builtin(global_invocation_id) id: vec3u
     ) {
       // Avoid accessing the buffer out of bounds
-      if (id.x >= 300 || id.y >= 200) {
-        return;
+      if id.x >= u.width || id.y >= u.height {
+          return;
       }
+      let index = id.x + id.y * u.width;
 
-      let color = input[id.x + id.y * 300];
+      let color = input[index];
       textureStore(tex, id.xy, color);
     }
     `,
@@ -187,7 +202,7 @@ export function preparePipeline(
         entryPoint: "main",
       },
       layout: device.createPipelineLayout({
-        bindGroupLayouts: [finalStageLayout],
+        bindGroupLayouts: [finalStageLayout, uniform.bindGroupLayout],
       }),
     }),
     bindGroup: device.createBindGroup({
@@ -205,7 +220,7 @@ export function preparePipeline(
     }),
   };
 
-  return { desc, opts, buffers, bindGroups, pipelines, finalStage };
+  return { desc, opts, buffers, bindGroups, pipelines, finalStage, uniform };
 }
 
 type PreparedPipeline = ReturnType<typeof preparePipeline>;
@@ -216,8 +231,24 @@ type PreparedPipeline = ReturnType<typeof preparePipeline>;
  * Returns the buffer where the result is stored.
  */
 export function render(device: GPUDevice, pipeline: PreparedPipeline) {
-  const { desc, opts, bindGroups, pipelines, finalStage } = pipeline;
+  const { desc, opts, bindGroups, pipelines, finalStage, uniform } = pipeline;
 
+  /*
+   * Update uniforms
+   */
+  const uniformValues = Uint32Array.from([opts.width, opts.height]);
+  console.log(uniformValues.byteLength);
+  device.queue.writeBuffer(
+    uniform.buffer,
+    0,
+    uniformValues,
+    0,
+    uniformValues.length,
+  );
+
+  /*
+   * Create command encoder
+   */
   const enc = device.createCommandEncoder();
 
   for (const input of desc.inputs) {
@@ -234,6 +265,7 @@ export function render(device: GPUDevice, pipeline: PreparedPipeline) {
     const pass = enc.beginComputePass();
     pass.setPipeline(pipeline);
     pass.setBindGroup(0, bindGroup);
+    pass.setBindGroup(1, uniform.bindGroup);
     pass.dispatchWorkgroups(
       Math.ceil(opts.width / THREADS_PER_WORKGROUP),
       Math.ceil(opts.height / THREADS_PER_WORKGROUP),
@@ -247,6 +279,7 @@ export function render(device: GPUDevice, pipeline: PreparedPipeline) {
   const finalPass = enc.beginComputePass();
   finalPass.setPipeline(finalStage.pipeline);
   finalPass.setBindGroup(0, finalStage.bindGroup);
+  finalPass.setBindGroup(1, uniform.bindGroup);
   finalPass.dispatchWorkgroups(
     Math.ceil(opts.width / THREADS_PER_WORKGROUP),
     Math.ceil(opts.height / THREADS_PER_WORKGROUP),
