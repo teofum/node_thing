@@ -1,5 +1,8 @@
 import { NodeType } from "@/schemas/node.schema";
 
+import testUVShader from "@/shaders/test-uv.wgsl";
+import testBWShader from "@/shaders/test-grayscale.wgsl";
+
 export const NODE_TYPES = {
   __input: {
     name: "Special input node",
@@ -25,9 +28,21 @@ export const NODE_TYPES = {
     outputs: {},
     parameters: {},
   },
-  test_node_1to1: {
-    name: "Test node: 1 to 1",
-    shader: "",
+  test_uv: {
+    name: "Test UV gradient",
+    shader: testUVShader,
+    inputs: {},
+    outputs: {
+      out_a: {
+        name: "out_a",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  test_bw: {
+    name: "Test Grayscale",
+    shader: testBWShader,
     inputs: {
       in_a: {
         name: "in_a",
