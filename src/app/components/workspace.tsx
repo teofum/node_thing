@@ -31,11 +31,11 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
 export function Workspace() {
   return (
     <>
-      <div className="w-auto h-auto border-6">
+      <div className="w-auto h-auto">
         <ReactFlowProvider>
           <div className="flex h-screen">
             {/* Sidebar a la izquierda */}
-            <div className="w-1/4">
+            <div className="w-1/5">
               <Sidebar />
             </div>
 
