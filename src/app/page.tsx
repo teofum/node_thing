@@ -6,6 +6,8 @@ export default function Home() {
   return (
     // hago la estructura básica todo con divs
 
+    // TODO arreglar fullscreen sin scroll
+
     // div general para definir el grid (de 3 columnas)
     <div className="font-sans grid grid-rows-[auto_auto_1fr] min-h-screen">
       {/* header */}
