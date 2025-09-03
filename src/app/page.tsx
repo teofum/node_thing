@@ -1,4 +1,4 @@
-import { Canvas } from "./components/canvas";
+import { Canvas } from "./components/renderer/canvas";
 import { Workspace } from "./components/workspace";
 import { Tester } from "./tester";
 
