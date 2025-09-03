@@ -60,7 +60,8 @@ export function ReactFlowWithDnD() {
       });
 
       // TODO borrar a futuro
-      const currId = getId();
+      const type = event.dataTransfer.getData("type") as NodeData["type"];
+      const currId = `${type === "__input" || type === "__output" ? `${type}_` : ""}${getId()}`;
 
       // TODO esto hardcodeo, instancio siempre un ShaderNode con tipo interno "middle"
       const newNode: ShaderNode = {
@@ -68,7 +69,7 @@ export function ReactFlowWithDnD() {
         type: "RenderShaderNode", // hardcodeo
         position,
         data: {
-          type: event.dataTransfer.getData("type") as NodeData["type"],
+          type,
         },
       };
 

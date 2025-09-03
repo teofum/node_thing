@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build:next": "next build --turbopack",
+    "build": "next build --turbopack",
     "build:electron": "tsc --project ./electron",
-    "start:next": "next start",
+    "start": "next start",
     "start:electron": "electron electron/dist/main.js",
     "lint": "eslint",
     "prepare": "husky"
@@ -41,6 +41,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
+    "raw-loader": "^4.0.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
