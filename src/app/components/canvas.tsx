@@ -1,6 +1,6 @@
 "use client";
 
-import { useStore } from "@/store/store";
+import { Layer, useStore } from "@/store/store";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { preparePipeline, render } from "./renderer/renderer";
 import { buildRenderPipeline } from "./renderer/pipeline";
@@ -20,7 +20,7 @@ export function Canvas() {
   /*
    * State
    */
-  const { layers } = useStore();
+  const { layers } = useStore(); // TODO support multiple layers
   const [device, setDevice] = useState<GPUDevice | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const frameRequestHandle = useRef<number | null>(null);
@@ -45,11 +45,16 @@ export function Canvas() {
     const { width, height } = canvas;
 
     const desc = buildRenderPipeline(layers[0]);
+    console.log(desc);
+    if (desc.outputBuffer < 0) return null;
+
     return {
       desc,
       ...preparePipeline(device, desc, { width, height }),
     };
-  }, [canvas, device, layers]);
+    // Trust me, we only care about updating when edges change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canvas, device, layers[0].edges]);
 
   /*
    * Get and configure canvas WebGPU context
