@@ -1,4 +1,4 @@
-/*
+
 @group(0) @binding(0)
 var srcTex : texture_2d<f32>;
 
@@ -32,4 +32,3 @@ fn main(@builtin(global_invocation_id) gid : vec3<u32>) {
 
     textureStore(dstTex, vec2<i32>(i32(gid.x), i32(gid.y)), avg);
 }
-*/
