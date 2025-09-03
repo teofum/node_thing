@@ -16,6 +16,7 @@ export function RenderShaderNode({ data }: RenderShaderNodeProps) {
   const nodeTypeInfo = NODE_TYPES[data.type];
 
   // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
+  const outputOffset = Object.keys(nodeTypeInfo.inputs).length * 16 + 40;
 
   return (
     <div className="p-2 bg-gradient-to-b to-gray-700/20  via-gray-600/20 from-gray-500/20 backdrop-blur-sm rounded-lg border border-white/20">
@@ -36,9 +37,9 @@ export function RenderShaderNode({ data }: RenderShaderNodeProps) {
             type="target"
             position={Position.Left}
             id={key}
-            style={{ top: i * 20 + 20 }}
+            style={{ top: i * 16 + 40 }}
           />
-          <div className="text-white text-xs">s-h: {key}</div>
+          <div className="text-white text-xs"> {key}</div>
           {/* debug */}
         </div>
       ))}
@@ -49,9 +50,9 @@ export function RenderShaderNode({ data }: RenderShaderNodeProps) {
             type="source"
             position={Position.Right}
             id={key}
-            style={{ top: i * 20 + 20 }}
+            style={{ top: i * 16 + outputOffset }}
           />
-          <div className="text-white text-xs">t-h: {key}</div>
+          <div className="text-white text-xs flex justify-end"> {key}</div>
           {/* debug */}
         </div>
       ))}
