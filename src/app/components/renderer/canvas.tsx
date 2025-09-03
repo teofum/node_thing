@@ -5,6 +5,9 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { preparePipeline, render } from "./renderer";
 import { buildRenderPipeline } from "./pipeline";
 import useResizeObserver from "@/utils/use-resize-observer";
+import useDebounce from "@/utils/use-debounce";
+
+const RESIZE_DEBOUNCE_MS = 50;
 
 async function getDevice() {
   if (!navigator.gpu) throw new Error("webgpu not supported");
@@ -30,7 +33,7 @@ export function Canvas() {
   /*
    * Handle resize
    */
-  const onResize = () => {
+  const onResize = useDebounce(() => {
     if (!canvas) return;
 
     const { width, height } = canvas.getBoundingClientRect();
@@ -38,10 +41,10 @@ export function Canvas() {
     canvas.height = height * window.devicePixelRatio;
 
     setRenderSize({ width: canvas.width, height: canvas.height });
-  };
+  }, RESIZE_DEBOUNCE_MS);
 
   useResizeObserver(canvas, onResize);
-  useLayoutEffect(onResize, [canvas]); // Autosize on first render
+  useLayoutEffect(onResize, [canvas, onResize]); // Autosize on first render
 
   /*
    * Initialize GPU device on component init
