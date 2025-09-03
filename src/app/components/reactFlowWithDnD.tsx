@@ -38,7 +38,6 @@ export function ReactFlowWithDnD() {
     onConnect,
   } = useStore();
 
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
   // obtengo la capa actual para imprimir
@@ -79,26 +78,24 @@ export function ReactFlowWithDnD() {
   );
 
   return (
-    <div className="w-full h-full" ref={reactFlowWrapper}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
-        nodeTypes={nodeTypes}
-        colorMode="dark"
-        fitView
-        defaultEdgeOptions={{
-          style: { strokeWidth: 2, stroke: "#505050" },
-        }}
-      >
-        <Controls />
-        <Background />
-        <MiniMap />
-      </ReactFlow>
-    </div>
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      nodeTypes={nodeTypes}
+      colorMode="dark"
+      fitView
+      defaultEdgeOptions={{
+        style: { strokeWidth: 2, stroke: "#505050" },
+      }}
+    >
+      <Controls />
+      <Background />
+      <MiniMap />
+    </ReactFlow>
   );
 }

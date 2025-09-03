@@ -1,6 +1,5 @@
 import { Canvas } from "./components/renderer/canvas";
 import { Workspace } from "./components/workspace";
-import { Tester } from "./tester";
 
 export default function Home() {
   return (
@@ -9,13 +8,11 @@ export default function Home() {
     // TODO arreglar fullscreen sin scroll
 
     // div general para definir el grid (de 3 columnas)
-    <div className="font-sans grid grid-rows-[auto_auto_1fr] min-h-screen">
+    <div className="font-sans grid grid-rows-[auto_auto_1fr] w-screen h-screen">
       {/* header */}
       <div className="flex justify-between items-center p-4">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
       </div>
-
-      <hr className="border-gray-600" />
 
       {/* barra de herramientas */}
       <div className="p-4">
@@ -29,19 +26,14 @@ export default function Home() {
         {/* TODO */}
       </div>
 
-      <hr className="border-gray-600" />
-
       {/* panel principal (otro grid, de 2 columnas) */}
-      <div className="grid grid-cols-[auto_20%]">
+      <div className="grid grid-cols-[2fr_1fr] min-h-0">
         {/* panel central (workspace) */}
-        <div className="">
-          <Workspace />
-        </div>
+        <Workspace />
 
         {/* panel derecho */}
-        <div className="border-l border-gray-600 p-1">
+        <div className="border-l border-gray-600 p-1 min-w-0 min-h-0">
           <Canvas />
-          <Tester />
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@ export function Sidebar() {
   // TODO acá se quiere renderizar todas las opcioens para cada shader
   // serían todos del tipo ShaderNode, pero tienen su tipo real guardado en el campo data.
   return (
-    <aside>
+    <aside className="w-52 flex flex-col h-full min-h-0 overflow-auto">
       {Object.entries(NODE_TYPES).map(([key, type]) => (
         <div
           key={key}

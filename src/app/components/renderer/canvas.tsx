@@ -100,7 +100,7 @@ export function Canvas() {
     <canvas
       ref={(ref) => setCanvas(ref)}
       id="main-canvas"
-      className="bg-black"
+      className="bg-black w-full h-full"
       width={300}
       height={500}
     />

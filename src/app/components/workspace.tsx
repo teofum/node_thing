@@ -31,21 +31,17 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
 export function Workspace() {
   return (
     <>
-      <div className="w-auto h-auto">
-        <ReactFlowProvider>
-          <div className="flex h-screen">
-            {/* Sidebar a la izquierda */}
-            <div className="w-1/5">
-              <Sidebar />
-            </div>
+      <ReactFlowProvider>
+        <div className="w-full h-full flex min-h-0">
+          {/* Sidebar a la izquierda */}
+          <Sidebar />
 
-            {/* Canvas a la derecha */}
-            <div className="flex-1">
-              <ReactFlowWithDnD />
-            </div>
+          {/* Canvas a la derecha */}
+          <div className="flex-1">
+            <ReactFlowWithDnD />
           </div>
-        </ReactFlowProvider>
-      </div>
+        </div>
+      </ReactFlowProvider>
     </>
   );
 }
