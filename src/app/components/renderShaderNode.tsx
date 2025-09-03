@@ -18,9 +18,11 @@ export function RenderShaderNode({ data }: RenderShaderNodeProps) {
   // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
 
   return (
-    <div className="p-2 bg-amber-500">
+    <div className="p-2 bg-gradient-to-b to-gray-700/20  via-gray-600/20 from-gray-500/20 backdrop-blur-sm rounded-lg border border-white/20">
       <div className=" text-blue-400"></div> {/* debug */}
-      <div className="text-xs text-gray-400 mb-2">{nodeTypeInfo.name}</div>{" "}
+      <div className="text-xs text-blue-50 mb-2 font-bold">
+        {nodeTypeInfo.name}
+      </div>{" "}
       {/* debug */}
       {/*
        * NOTA: React Flow usa internamente Handle id y Edge sourceHandle/targetHandle para identificar handles
@@ -36,7 +38,7 @@ export function RenderShaderNode({ data }: RenderShaderNodeProps) {
             id={key}
             style={{ top: i * 20 + 20 }}
           />
-          <div className="text-yellow-400">s-h: {key}</div>
+          <div className="text-white text-xs">s-h: {key}</div>
           {/* debug */}
         </div>
       ))}
@@ -49,7 +51,7 @@ export function RenderShaderNode({ data }: RenderShaderNodeProps) {
             id={key}
             style={{ top: i * 20 + 20 }}
           />
-          <div className="text-yellow-400">t-h: {key}</div>
+          <div className="text-white text-xs">t-h: {key}</div>
           {/* debug */}
         </div>
       ))}

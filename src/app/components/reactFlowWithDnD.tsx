@@ -90,6 +90,9 @@ export function ReactFlowWithDnD() {
         nodeTypes={nodeTypes}
         colorMode="dark"
         fitView
+        defaultEdgeOptions={{
+          style: { strokeWidth: 2, stroke: "#505050" },
+        }}
       >
         <Controls />
         <Background />
