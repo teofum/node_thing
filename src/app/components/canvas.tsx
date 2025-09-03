@@ -68,15 +68,12 @@ export function Canvas() {
     console.log(desc);
     if (desc.outputBuffer < 0) return null;
 
-    return {
+    return preparePipeline(
+      device,
       desc,
-      ...preparePipeline(
-        device,
-        desc,
-        { width, height },
-        ctx.getCurrentTexture(),
-      ),
-    };
+      { width, height },
+      ctx.getCurrentTexture(),
+    );
     // Trust me, we only care about updating when edges change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, ctx, device, layers[0].edges]);
@@ -92,16 +89,8 @@ export function Canvas() {
     if (!canvas || !ctx || !device || !pipeline) return;
 
     const renderFrame = () => {
-      const { width, height } = canvas;
-      render(
-        device,
-        pipeline.desc,
-        { width, height },
-        pipeline.buffers,
-        pipeline.pipelines,
-        pipeline.bindGroups,
-        pipeline.finalStage,
-      );
+      render(device, pipeline);
+      // requestAnimationFrame(renderFrame);
     };
 
     frameRequestHandle.current = requestAnimationFrame(renderFrame);
