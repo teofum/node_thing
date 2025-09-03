@@ -1,7 +1,7 @@
 import { NODE_TYPES } from "@/utils/node-type";
 import { RenderPipeline } from "./pipeline";
 
-const THREADS_PER_WORKGROUP = 64;
+const THREADS_PER_WORKGROUP = 16;
 
 export type RenderOptions = {
   width: number;
@@ -108,14 +108,14 @@ function createComputePSOs(
 ) {
   const shaders = compileShaders(device, desc);
 
-  return desc.passes.map((pass) =>
+  return desc.passes.map((pass, i) =>
     device.createComputePipeline({
       compute: {
         module: shaders[pass.nodeType],
         entryPoint: "main",
       },
       layout: device.createPipelineLayout({
-        bindGroupLayouts,
+        bindGroupLayouts: [bindGroupLayouts[i]],
       }),
     }),
   );
@@ -129,6 +129,7 @@ export function preparePipeline(
   device: GPUDevice,
   desc: RenderPipeline,
   opts: RenderOptions,
+  target: GPUTexture,
 ) {
   const bindGroupLayouts = createBindGroupLayouts(device, desc);
 
@@ -136,7 +137,74 @@ export function preparePipeline(
   const bindGroups = createBindGroups(device, desc, bindGroupLayouts, buffers);
   const pipelines = createComputePSOs(device, desc, bindGroupLayouts);
 
-  return { buffers, bindGroups, pipelines };
+  const finalStageShader = device.createShaderModule({
+    code: `
+    @group(0) @binding(0)
+    var<storage, read_write> input: array<vec4f>;
+
+    @group(0) @binding(1)
+    var tex: texture_storage_2d<rgba8unorm, write>;
+
+    @compute @workgroup_size(16, 16)
+    fn main(
+      @builtin(global_invocation_id) id: vec3u
+    ) {
+      // Avoid accessing the buffer out of bounds
+      if (id.x >= 300 || id.y >= 200) {
+        return;
+      }
+
+      let color = input[id.x + id.y * 300];
+      textureStore(tex, id.xy, color);
+    }
+    `,
+  });
+
+  const finalStageLayout = device.createBindGroupLayout({
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "storage",
+        },
+      },
+      {
+        binding: 1,
+        visibility: GPUShaderStage.COMPUTE,
+        storageTexture: {
+          format: "rgba8unorm",
+        },
+      },
+    ],
+  });
+
+  const finalStage = {
+    pipeline: device.createComputePipeline({
+      compute: {
+        module: finalStageShader,
+        entryPoint: "main",
+      },
+      layout: device.createPipelineLayout({
+        bindGroupLayouts: [finalStageLayout],
+      }),
+    }),
+    bindGroup: device.createBindGroup({
+      layout: finalStageLayout,
+      entries: [
+        {
+          binding: 0,
+          resource: { buffer: buffers[desc.outputBuffer] },
+        },
+        {
+          binding: 1,
+          resource: target.createView(),
+        },
+      ],
+    }),
+  };
+
+  return { buffers, bindGroups, pipelines, finalStage };
 }
 
 /*
@@ -151,7 +219,7 @@ export function render(
   buffers: GPUBuffer[],
   pipelines: GPUComputePipeline[],
   bindGroups: GPUBindGroup[],
-  target: GPUTexture,
+  finalStage: { pipeline: GPUComputePipeline; bindGroup: GPUBindGroup },
 ) {
   const enc = device.createCommandEncoder();
 
@@ -179,14 +247,14 @@ export function render(
   /*
    * Copy output buffer to final render target
    */
-  enc.copyBufferToTexture(
-    {
-      buffer: buffers[desc.outputBuffer],
-      bytesPerRow: 16 * target.width,
-    },
-    { texture: target },
-    [target.width, target.height, target.depthOrArrayLayers],
+  const finalPass = enc.beginComputePass();
+  finalPass.setPipeline(finalStage.pipeline);
+  finalPass.setBindGroup(0, finalStage.bindGroup);
+  finalPass.dispatchWorkgroups(
+    Math.ceil(opts.width / THREADS_PER_WORKGROUP),
+    Math.ceil(opts.height / THREADS_PER_WORKGROUP),
   );
+  finalPass.end();
 
   device.queue.submit([enc.finish()]);
 }
