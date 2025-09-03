@@ -19,10 +19,14 @@ function createBuffers(
 ) {
   const buffers: GPUBuffer[] = [];
 
+  const bufSize = 16 * ~~opts.width * ~~opts.height;
+  const paddedSize = bufSize + (bufSize % 4);
+  console.log(opts.width, opts.height, bufSize, paddedSize);
+
   for (let i = 0; i < desc.bufferCount; i++) {
     buffers.push(
       device.createBuffer({
-        size: 16 * opts.width * opts.height,
+        size: paddedSize,
         usage: GPUBufferUsage.STORAGE,
       }),
     );
