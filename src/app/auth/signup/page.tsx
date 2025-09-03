@@ -21,12 +21,12 @@ export default async function SignUpPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="space-y-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Sign up</h2>
+          <h2 className="text-3xl font-bold">Create your account</h2>
         </div>
         <SignUpForm />
         <div className="text-center">
           <Link href="/auth/login" className="text-sm underline">
-            Already have an account? Login
+            Already have an account? Log in
           </Link>
         </div>
       </div>

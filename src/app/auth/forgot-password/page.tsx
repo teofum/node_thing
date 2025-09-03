@@ -21,7 +21,7 @@ export default async function ForgotPasswordPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="space-y-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Reset Your Password</h2>
+          <h2 className="text-3xl font-bold">Reset Your Password</h2>
           <p className="text-sm">Type in your email and we&apos;ll send you a link to reset your password</p>
         </div>
         <ForgotPasswordForm />

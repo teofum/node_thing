@@ -28,8 +28,8 @@ export function UpdatePasswordForm() {
   };
 
   return (
-    <div className="border p-4 max-w-md mx-auto">
-      <form onSubmit={handleUpdatePassword} className="space-y-4">
+    <div className="border p-6 max-w-lg mx-auto rounded-md">
+      <form onSubmit={handleUpdatePassword} className="space-y-6">
         <div>
           <label htmlFor="password" className="block text-sm mb-1">
             New password
@@ -40,7 +40,7 @@ export function UpdatePasswordForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border"
+            className="w-full p-3 border rounded-md"
             placeholder="New password"
           />
         </div>

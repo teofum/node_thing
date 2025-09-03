@@ -33,8 +33,8 @@ export function LoginForm() {
   };
 
   return (
-    <div className="border p-4 max-w-md mx-auto">
-      <form onSubmit={handleLogin} className="space-y-4">
+    <div className="border p-6 max-w-lg mx-auto rounded-md">
+      <form onSubmit={handleLogin} className="space-y-6">
         <div>
           <label htmlFor="email" className="block text-sm mb-1">
             Email
@@ -45,7 +45,7 @@ export function LoginForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border"
+            className="w-full p-3 border rounded-md"
           />
         </div>
         <div>
@@ -63,7 +63,7 @@ export function LoginForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border"
+            className="w-full p-3 border rounded-md"
           />
         </div>
         {error && <p className="text-sm">{error}</p>}
@@ -72,7 +72,7 @@ export function LoginForm() {
           disabled={isLoading}
           className="w-full p-2 bg-stone-800 text-white rounded hover:bg-blue-700 cursor-pointer disabled:opacity-50"
         >
-          {isLoading ? "Logging in..." : "Login"}
+          {isLoading ? "Logging in..." : "Log in"}
         </button>
       </form>
     </div>

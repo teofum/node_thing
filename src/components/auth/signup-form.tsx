@@ -35,8 +35,8 @@ export function SignUpForm() {
   };
 
   return (
-    <div className="border p-4 max-w-md mx-auto">
-      <form onSubmit={handleSignUp} className="space-y-4">
+    <div className="border p-6 max-w-lg mx-auto rounded-md">
+      <form onSubmit={handleSignUp} className="space-y-6">
         <div>
           <label htmlFor="email" className="block text-sm mb-1">
             Email
@@ -47,7 +47,7 @@ export function SignUpForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border"
+            className="w-full p-3 border rounded-md"
           />
         </div>
         <div>
@@ -60,7 +60,7 @@ export function SignUpForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border"
+            className="w-full p-3 border rounded-md"
           />
         </div>
         {error && <p className="text-sm">{error}</p>}

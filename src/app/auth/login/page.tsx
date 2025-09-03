@@ -21,7 +21,7 @@ export default async function LoginPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="space-y-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Login</h2>
+          <h2 className="text-3xl font-bold">Welcome back!</h2>
         </div>
         <LoginForm />
         <div className="text-center">
