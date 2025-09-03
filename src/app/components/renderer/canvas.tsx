@@ -1,9 +1,10 @@
 "use client";
 
 import { useStore } from "@/store/store";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { preparePipeline, render } from "./renderer";
 import { buildRenderPipeline } from "./pipeline";
+import useResizeObserver from "@/utils/use-resize-observer";
 
 async function getDevice() {
   if (!navigator.gpu) throw new Error("webgpu not supported");
@@ -24,6 +25,20 @@ export function Canvas() {
   const [device, setDevice] = useState<GPUDevice | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const frameRequestHandle = useRef<number | null>(null);
+
+  /*
+   * Handle resize
+   */
+  const onResize = () => {
+    if (!canvas) return;
+
+    const { width, height } = canvas.getBoundingClientRect();
+    canvas.width = width * window.devicePixelRatio;
+    canvas.height = height * window.devicePixelRatio;
+  };
+
+  useResizeObserver(canvas, onResize);
+  useLayoutEffect(onResize, []);
 
   /*
    * Initialize GPU device on component init
@@ -101,8 +116,8 @@ export function Canvas() {
       ref={(ref) => setCanvas(ref)}
       id="main-canvas"
       className="bg-black w-full h-full"
-      width={300}
-      height={500}
+      width={100}
+      height={100}
     />
   );
 }
