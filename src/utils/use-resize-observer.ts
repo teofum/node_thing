@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 // Code from Radix UI
-// https://github.com/radix-ui/primitives/blob/main/packages/react/use-callback-ref/src/useCallbackRef.tsx
-// https://github.com/radix-ui/primitives/blob/main/packages/react/scroll-area/src/ScrollArea.tsx#L985
+// https://github.com/radix-ui/primitives/blob/main/packages/react/use-callback-ref/src/use-callback-ref.tsx
+// https://github.com/radix-ui/primitives/blob/main/packages/react/scroll-area/src/scroll-area.tsx#L985
 
 /**
  * A custom hook that converts a callback to a ref to avoid triggering
