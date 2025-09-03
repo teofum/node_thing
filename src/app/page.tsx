@@ -1,5 +1,6 @@
 import { Canvas } from "./components/canvas";
 import { Workspace } from "./components/workspace";
+import { AuthButton } from "@/components/auth/auth-button";
 
 export default function Home() {
   return (
@@ -8,10 +9,12 @@ export default function Home() {
     // div general para definir el grid (de 3 columnas)
     <div className="font-sans grid grid-rows-[auto_auto_1fr] min-h-screen pb-20">
       {/* header */}
-      <div className="flex border p-4">
-        HEADER
-        {/* Creo que acá iría bien el login */}
-        <Canvas />
+      <div className="flex justify-between items-center border p-4">
+        <div className="flex items-center gap-4">
+          <span className="font-bold">NODE THING</span>
+          <Canvas />
+        </div>
+        <AuthButton />
       </div>
 
       {/* barra de herramientas */}
