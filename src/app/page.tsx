@@ -13,10 +13,6 @@ export default function Home() {
       {/* header */}
       <div className="flex justify-between items-center p-4">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
-        <button className="bg-stone-800 px-2 py-1 rounded hover:bg-blue-700">
-          Login
-        </button>{" "}
-        {/* TODO */}
       </div>
 
       <hr className="border-gray-600" />
