@@ -80,14 +80,10 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
      * Get a list of dependencies
      */
     const deps = Object.keys(nodeType.inputs)
-      .filter(
-        (input) =>
-          !edges.some(
-            (edge) =>
-              edge.source.startsWith("__input") &&
-              edge.target === node.id &&
-              edge.targetHandle === input,
-          ),
+      .filter((input) =>
+        edges.some(
+          (edge) => edge.target === node.id && edge.targetHandle === input,
+        ),
       )
       .map((input) => ({
         input,
@@ -108,7 +104,9 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
     const dependencies = deps as { input: string; buf: Buffer }[];
 
     if (node.data.type === "__output") {
-      outputBuffer = buffers.indexOf(dependencies[0].buf);
+      outputBuffer = dependencies[0]
+        ? buffers.indexOf(dependencies[0].buf)
+        : -1;
       break;
     }
 
