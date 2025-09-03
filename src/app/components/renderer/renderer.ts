@@ -137,6 +137,7 @@ export function preparePipeline(
   const bindGroups = createBindGroups(device, desc, bindGroupLayouts, buffers);
   const pipelines = createComputePSOs(device, desc, bindGroupLayouts);
 
+  // TODO pass render size in uniforms
   const finalStageShader = device.createShaderModule({
     code: `
     @group(0) @binding(0)
@@ -204,23 +205,19 @@ export function preparePipeline(
     }),
   };
 
-  return { buffers, bindGroups, pipelines, finalStage };
+  return { desc, opts, buffers, bindGroups, pipelines, finalStage };
 }
+
+type PreparedPipeline = ReturnType<typeof preparePipeline>;
 
 /*
  * Executes a render pipeline, given the lists of PSOs and binding groups
  * for each stage.
  * Returns the buffer where the result is stored.
  */
-export function render(
-  device: GPUDevice,
-  desc: RenderPipeline,
-  opts: RenderOptions,
-  buffers: GPUBuffer[],
-  pipelines: GPUComputePipeline[],
-  bindGroups: GPUBindGroup[],
-  finalStage: { pipeline: GPUComputePipeline; bindGroup: GPUBindGroup },
-) {
+export function render(device: GPUDevice, pipeline: PreparedPipeline) {
+  const { desc, opts, bindGroups, pipelines, finalStage } = pipeline;
+
   const enc = device.createCommandEncoder();
 
   for (const input of desc.inputs) {
