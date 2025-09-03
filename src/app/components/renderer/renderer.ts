@@ -237,7 +237,6 @@ export function render(device: GPUDevice, pipeline: PreparedPipeline) {
    * Update uniforms
    */
   const uniformValues = Uint32Array.from([opts.width, opts.height]);
-  console.log(uniformValues.byteLength);
   device.queue.writeBuffer(
     uniform.buffer,
     0,
