@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { OAuthButtons } from "./oauth-buttons";
 
 export function SignUpForm() {
   const [email, setEmail] = useState("");
@@ -36,6 +37,7 @@ export function SignUpForm() {
 
   return (
     <div className="border p-6 w-96 mx-auto rounded-md">
+      <OAuthButtons mode="signup" onError={setError} />
       <form onSubmit={handleSignUp} className="space-y-6">
         <div>
           <label htmlFor="email" className="block text-sm mb-1">
