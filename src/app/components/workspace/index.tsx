@@ -5,8 +5,6 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { Sidebar } from "./sidebar";
 import { Viewport } from "./viewport";
 
-import "@xyflow/react/dist/style.css";
-
 export function Workspace() {
   return (
     <>

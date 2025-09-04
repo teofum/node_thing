@@ -6,7 +6,6 @@ import {
   Background,
   MiniMap,
 } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
 import { ShaderNode, useStore } from "@/store/store";
 import { RenderShaderNode } from "./shader-node";
 import { NodeData } from "@/schemas/node.schema";
@@ -87,12 +86,16 @@ export function Viewport() {
       nodeTypes={nodeTypes}
       colorMode="dark"
       fitView
-      defaultEdgeOptions={{
-        style: { strokeWidth: 2, stroke: "#505050" },
-      }}
       panOnScroll={mac}
       panOnDrag={!mac}
       selectionOnDrag={mac}
+      style={
+        {
+          "--xy-edge-stroke": "rgb(from var(--color-gray-300) r g b / 0.4)",
+          "--xy-edge-stroke-selected":
+            "rgb(from var(--color-teal-400) r g b / 0.6)",
+        } as Record<string, string>
+      }
     >
       <Controls />
       <Background />
