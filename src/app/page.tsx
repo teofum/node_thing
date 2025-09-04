@@ -8,7 +8,7 @@ export default function Home() {
     // TODO arreglar fullscreen sin scroll
 
     // div general para definir el grid (de 3 columnas)
-    <div className="font-sans grid grid-rows-[auto_auto_1fr] w-screen h-screen">
+    <div className="font-sans grid grid-rows-[auto_auto_1fr] w-screen h-screen bg-neutral-800">
       {/* header */}
       <div className="flex justify-between items-center p-4">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
@@ -27,13 +27,19 @@ export default function Home() {
       </div>
 
       {/* panel principal (otro grid, de 2 columnas) */}
-      <div className="grid grid-cols-[2fr_1fr] min-h-0">
+      <div className="flex flex-row min-h-0 select-none">
         {/* panel central (workspace) */}
         <Workspace />
 
         {/* panel derecho */}
-        <div className="border-l border-gray-600 p-1 min-w-0 min-h-0">
-          <Canvas />
+        <div className="p-1 relative min-w-80 min-h-0">
+          <div className="absolute inset-2 rounded overflow-hidden z-20">
+            <Canvas />
+          </div>
+
+          {/* CSS resize hack */}
+          <div className="absolute left-0.5 top-1/2 -translate-y-1/2 h-4 w-1 rounded bg-neutral-600" />
+          <div className="relative top-1/2 -translate-y-1/2 h-4 w-full resize-x -ml-1.5 overflow-hidden [direction:rtl] opacity-0" />
         </div>
       </div>
     </div>
