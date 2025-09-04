@@ -27,18 +27,18 @@ export default function Home() {
       </div>
 
       {/* Main panel */}
-      <main className="flex flex-row min-h-0 select-none">
+      <main className="flex flex-row min-h-0 max-w-full select-none">
         <Workspace />
 
         {/* Output panel */}
-        <div className="p-1 relative min-w-80 min-h-0">
+        <div className="p-1 relative min-h-0">
           <div className="absolute inset-2 rounded overflow-hidden z-20">
             <Canvas />
           </div>
 
           {/* CSS resize hack */}
           <div className="absolute left-0.5 top-1/2 -translate-y-1/2 h-4 w-1 rounded bg-neutral-600" />
-          <div className="relative top-1/2 -translate-y-1/2 h-4 w-full resize-x -ml-1.5 overflow-hidden [direction:rtl] opacity-0" />
+          <div className="relative top-1/2 -translate-y-1/2 h-4 w-full resize-x min-w-80 max-w-[70vw] -ml-1.5 overflow-hidden [direction:rtl] opacity-0" />
         </div>
       </main>
     </div>
