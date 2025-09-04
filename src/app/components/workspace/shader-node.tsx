@@ -1,17 +1,30 @@
 import { Handle, NodeProps, Position } from "@xyflow/react";
 import { NODE_TYPES } from "@/utils/node-type";
 import { ShaderNode as ShaderNodeType } from "@/store/store";
+import cn from "classnames";
 
 // TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
 // puede que querramos guardar el código del shader en formato string dentro del objeto data:
-export function RenderShaderNode({ data }: NodeProps<ShaderNodeType>) {
+export function RenderShaderNode({
+  data,
+  selected,
+}: NodeProps<ShaderNodeType>) {
   const nodeTypeInfo = NODE_TYPES[data.type];
 
   // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
   const outputOffset = Object.keys(nodeTypeInfo.inputs).length * 16 + 40;
 
   return (
-    <div className="p-2 bg-gradient-to-b to-gray-700/20  via-gray-600/20 from-gray-500/20 backdrop-blur-sm rounded-lg border border-white/20">
+    <div
+      className={cn(
+        "p-2 bg-gradient-to-b to-gray-700/20 via-gray-600/20 from-gray-500/20",
+        "backdrop-blur-sm rounded-lg border",
+        {
+          "border-white/20": !selected,
+          "border-teal-400/40 outline-teal-400/20 outline-2": selected,
+        },
+      )}
+    >
       <div className="text-xs text-blue-50 mb-2 font-bold">
         {nodeTypeInfo.name}
       </div>
