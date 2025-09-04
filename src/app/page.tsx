@@ -26,12 +26,11 @@ export default function Home() {
         {/* TODO */}
       </div>
 
-      {/* panel principal (otro grid, de 2 columnas) */}
-      <div className="flex flex-row min-h-0 select-none">
-        {/* panel central (workspace) */}
+      {/* Main panel */}
+      <main className="flex flex-row min-h-0 select-none">
         <Workspace />
 
-        {/* panel derecho */}
+        {/* Output panel */}
         <div className="p-1 relative min-w-80 min-h-0">
           <div className="absolute inset-2 rounded overflow-hidden z-20">
             <Canvas />
@@ -41,7 +40,7 @@ export default function Home() {
           <div className="absolute left-0.5 top-1/2 -translate-y-1/2 h-4 w-1 rounded bg-neutral-600" />
           <div className="relative top-1/2 -translate-y-1/2 h-4 w-full resize-x -ml-1.5 overflow-hidden [direction:rtl] opacity-0" />
         </div>
-      </div>
+      </main>
     </div>
   );
 }
