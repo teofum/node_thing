@@ -31,7 +31,7 @@ export function ForgotPasswordForm() {
 
   if (success) {
     return (
-      <div className="border p-6 max-w-lg mx-auto rounded-md">
+      <div className="border p-6 w-96 mx-auto rounded-md">
         <h2 className="text-2xl font-bold mb-2">Check Your Email</h2>
         <p className="mb-4">Password reset instructions sent</p>
         <p className="text-sm">
@@ -43,7 +43,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <div className="border p-6 max-w-lg mx-auto rounded-md">
+    <div className="border p-6 w-96 mx-auto rounded-md">
       <form onSubmit={handleForgotPassword} className="space-y-6">
         <div>
           <label htmlFor="email" className="block text-sm mb-1">

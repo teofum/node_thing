@@ -28,7 +28,7 @@ export function UpdatePasswordForm() {
   };
 
   return (
-    <div className="border p-6 max-w-lg mx-auto rounded-md">
+    <div className="border p-6 w-96 mx-auto rounded-md">
       <form onSubmit={handleUpdatePassword} className="space-y-6">
         <div>
           <label htmlFor="password" className="block text-sm mb-1">
