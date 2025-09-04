@@ -64,7 +64,7 @@ function modifyLayer(
   ];
 }
 
-export const useStore = create<Project & ProjectActions>((set, get) => ({
+export const useStore = create<Project & ProjectActions>((set) => ({
   /*
    * State
    */

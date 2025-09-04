@@ -8,7 +8,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { ShaderNode, useStore } from "@/store/store";
-import { RenderShaderNode } from "./renderShaderNode";
+import { RenderShaderNode } from "./shader-node";
 import { NodeData } from "@/schemas/node.schema";
 
 // TODO esto volarlo, relacionado con lo de IDs duplicadas
@@ -19,7 +19,7 @@ const nodeTypes = {
   RenderShaderNode,
 };
 
-export function ReactFlowWithDnD() {
+export function Viewport() {
   // NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
   const {
     layers,
