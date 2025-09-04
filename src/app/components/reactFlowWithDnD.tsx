@@ -1,15 +1,9 @@
-import { useRef, useCallback } from "react";
+import { useCallback } from "react";
 import {
   ReactFlow,
-  addEdge,
-  useNodesState,
-  useEdgesState,
   Controls,
   useReactFlow,
   Background,
-  type Node,
-  type Edge,
-  type OnConnect,
   MiniMap,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -31,10 +25,8 @@ export function ReactFlowWithDnD() {
     layers,
     currentLayer,
     setNodes,
-    setEdges,
     onNodesChange,
     onEdgesChange,
-    setActiveLayer,
     onConnect,
   } = useStore();
 
@@ -77,6 +69,12 @@ export function ReactFlowWithDnD() {
     [screenToFlowPosition, setNodes, currentLayer],
   );
 
+  /*
+   * Detect macOS and adjust controls to be more consistent with platform
+   * conventions (use the touchpad)
+   */
+  const mac = navigator.platform.startsWith("Mac");
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -92,6 +90,9 @@ export function ReactFlowWithDnD() {
       defaultEdgeOptions={{
         style: { strokeWidth: 2, stroke: "#505050" },
       }}
+      panOnScroll={mac}
+      panOnDrag={!mac}
+      selectionOnDrag={mac}
     >
       <Controls />
       <Background />
