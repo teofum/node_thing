@@ -97,7 +97,6 @@ export function Viewport() {
         } as Record<string, string>
       }
     >
-      <Controls />
       <Background />
       <MiniMap />
     </ReactFlow>
