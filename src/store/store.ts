@@ -107,29 +107,17 @@ export const useStore = create<Project & ProjectActions>((set) => ({
     set(({ layers, currentLayer }) => {
       const layer = layers[currentLayer];
 
-      // TODO editar acá para restricciones
-      // por ahora agrego restricción 1 a 1 (handle a handle)
-
-      const hasTarget = layer.edges.some(
+      const filteredEdges = layer.edges.filter(
         (e) =>
-          e.target === connection.target &&
-          e.targetHandle === connection.targetHandle,
+          e.target !== connection.target ||
+          e.targetHandle !== connection.targetHandle,
       );
 
-      const hasSource = layer.edges.some(
-        (e) =>
-          e.source === connection.source &&
-          e.sourceHandle === connection.sourceHandle,
-      );
-
-      // si ya alguno de los handles está ocupado, no conecto
-      if (hasTarget || hasSource) {
-        return { layers };
-      }
+      const newEdges = addEdge(connection, filteredEdges);
 
       return {
         layers: modifyLayer(layers, currentLayer, (layer) => ({
-          edges: addEdge(connection, layer.edges),
+          edges: newEdges,
         })),
       };
     }),
