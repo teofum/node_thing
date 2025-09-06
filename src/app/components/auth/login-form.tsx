@@ -3,31 +3,29 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 import { OAuthButtons } from "./oauth-buttons";
 
-export function SignUpForm() {
+export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-        },
       });
       if (error) throw error;
-      router.push("/auth/sign-up-success");
+      router.push("/");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -37,8 +35,8 @@ export function SignUpForm() {
 
   return (
     <div className="border p-6 w-96 mx-auto rounded-md">
-      <OAuthButtons mode="signup" onError={setError} />
-      <form onSubmit={handleSignUp} className="space-y-6">
+      <OAuthButtons mode="signin" onError={setError} />
+      <form onSubmit={handleLogin} className="space-y-6">
         <div>
           <label htmlFor="email" className="block text-sm mb-1">
             Email
@@ -53,9 +51,14 @@ export function SignUpForm() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm mb-1">
-            Password
-          </label>
+          <div className="flex justify-between mb-1">
+            <label htmlFor="password" className="block text-sm">
+              Password
+            </label>
+            <Link href="/auth/forgot-password" className="text-sm underline">
+              Forgot your password?
+            </Link>
+          </div>
           <input
             id="password"
             type="password"
@@ -71,7 +74,7 @@ export function SignUpForm() {
           disabled={isLoading}
           className="w-full p-2 bg-stone-800 text-white rounded hover:bg-blue-700 cursor-pointer disabled:opacity-50"
         >
-          {isLoading ? "Creating account..." : "Sign up"}
+          {isLoading ? "Logging in..." : "Log in"}
         </button>
       </form>
     </div>

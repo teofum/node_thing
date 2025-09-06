@@ -13,8 +13,8 @@ export async function AuthButton() {
       <LogoutButton />
     </div>
   ) : (
-    <Link 
-      href="/auth/login" 
+    <Link
+      href="/auth/login"
       className="bg-stone-800 px-2 py-1 rounded hover:bg-blue-700 text-white text-sm"
     >
       Login

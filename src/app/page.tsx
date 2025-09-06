@@ -1,6 +1,6 @@
 import { Canvas } from "./components/renderer/canvas";
 import { Workspace } from "./components/workspace";
-import { AuthButton } from "@/components/auth/auth-button";
+import { AuthButton } from "./components/auth/auth-button";
 
 export default function Home() {
   return (
