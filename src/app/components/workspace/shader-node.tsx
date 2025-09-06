@@ -1,31 +1,34 @@
-// nodo elemental para cada shader del proyecto
-
-// nota: no usar los hooks de React Flow, usar directamente nuestro store del zustand en store.ts
-
-import { Handle, Position } from "@xyflow/react";
-import { NodeData } from "@/schemas/node.schema";
+import { Handle, NodeProps, Position } from "@xyflow/react";
 import { NODE_TYPES } from "@/utils/node-type";
+import { ShaderNode as ShaderNodeType } from "@/store/store";
+import cn from "classnames";
 
 // TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
 // puede que querramos guardar el código del shader en formato string dentro del objeto data:
-export type RenderShaderNodeProps = {
-  data: NodeData;
-};
-
-export function RenderShaderNode({ data }: RenderShaderNodeProps) {
+export function RenderShaderNode({
+  data,
+  selected,
+}: NodeProps<ShaderNodeType>) {
   const nodeTypeInfo = NODE_TYPES[data.type];
 
   // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
+  const outputOffset = Object.keys(nodeTypeInfo.inputs).length * 16 + 40;
 
   return (
-    <div className="p-2 bg-amber-500">
-      <div className=" text-blue-400"></div> {/* debug */}
-      <div className="text-xs text-gray-400 mb-2">{nodeTypeInfo.name}</div>{" "}
-      {/* debug */}
-      {/*
-       * NOTA: React Flow usa internamente Handle id y Edge sourceHandle/targetHandle para identificar handles
-       * sería luego conectarlo con nuestro Edge del schema
-       */}
+    <div
+      className={cn(
+        "p-2 bg-gradient-to-b to-gray-700/20 via-gray-600/20 from-gray-500/20",
+        "backdrop-blur-sm rounded-lg border",
+        {
+          "border-white/20": !selected,
+          "border-teal-400/40 outline-teal-400/20 outline-2": selected,
+        },
+      )}
+    >
+      <div className="text-xs text-blue-50 mb-2 font-bold">
+        {nodeTypeInfo.name}
+      </div>
+
       {/* dinámicamente chequeo campos de inputs y outputs para imprimir Handles */}
       {/* inputs */}
       {Object.keys(nodeTypeInfo.inputs).map((key, i) => (
@@ -34,12 +37,13 @@ export function RenderShaderNode({ data }: RenderShaderNodeProps) {
             type="target"
             position={Position.Left}
             id={key}
-            style={{ top: i * 20 + 20 }}
+            style={{ top: i * 16 + 40 }}
           />
-          <div className="text-yellow-400">s-h: {key}</div>
+          <div className="text-white text-xs"> {key}</div>
           {/* debug */}
         </div>
       ))}
+
       {/* outputs */}
       {Object.keys(nodeTypeInfo.outputs).map((key, i) => (
         <div key={key}>
@@ -47,9 +51,9 @@ export function RenderShaderNode({ data }: RenderShaderNodeProps) {
             type="source"
             position={Position.Right}
             id={key}
-            style={{ top: i * 20 + 20 }}
+            style={{ top: i * 16 + outputOffset }}
           />
-          <div className="text-yellow-400">t-h: {key}</div>
+          <div className="text-white text-xs flex justify-end"> {key}</div>
           {/* debug */}
         </div>
       ))}

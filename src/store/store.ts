@@ -64,7 +64,7 @@ function modifyLayer(
   ];
 }
 
-export const useStore = create<Project & ProjectActions>((set, get) => ({
+export const useStore = create<Project & ProjectActions>((set) => ({
   /*
    * State
    */
@@ -104,9 +104,21 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
     })),
 
   onConnect: (connection) =>
-    set(({ layers, currentLayer }) => ({
-      layers: modifyLayer(layers, currentLayer, (layer) => ({
-        edges: addEdge(connection, layer.edges),
-      })),
-    })),
+    set(({ layers, currentLayer }) => {
+      const layer = layers[currentLayer];
+
+      const filteredEdges = layer.edges.filter(
+        (e) =>
+          e.target !== connection.target ||
+          e.targetHandle !== connection.targetHandle,
+      );
+
+      const newEdges = addEdge(connection, filteredEdges);
+
+      return {
+        layers: modifyLayer(layers, currentLayer, (layer) => ({
+          edges: newEdges,
+        })),
+      };
+    }),
 }));

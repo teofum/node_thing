@@ -20,8 +20,8 @@ fn main(
     let index = id.x + id.y * u.width;
 
     output[index] = vec4f(
-        f32(id.x) / f32(u.width),
-        f32(id.y) / f32(u.height),
+        fract(f32(id.x) / 100.0),
+        fract(f32(id.y) / 100.0),
         0.0, 1.0
     );
 }
