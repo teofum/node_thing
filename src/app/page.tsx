@@ -1,5 +1,6 @@
 import { Canvas } from "./components/renderer/canvas";
 import { Workspace } from "./components/workspace";
+import { AuthButton } from "./components/auth/auth-button";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       {/* header */}
       <div className="flex justify-between items-center p-4">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
+        <AuthButton />
       </div>
 
       {/* barra de herramientas */}
