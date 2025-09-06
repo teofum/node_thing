@@ -1,14 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { NODE_TYPES } from "@/utils/node-type";
 import cn from "classnames";
 
-export function Sidebar({
-  hideSidebar,
-  setHideSidebar,
-}: {
-  hideSidebar: boolean;
-  setHideSidebar: (v: boolean) => void;
-}) {
+export function Sidebar() {
+  const [hideSidebar, setHideSidebar] = useState(false);
+
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("type", nodeType);
