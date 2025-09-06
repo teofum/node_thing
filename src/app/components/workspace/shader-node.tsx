@@ -16,14 +16,10 @@ export function RenderShaderNode({
 
   return (
     <div
-      className={cn(
-        "p-2 bg-gradient-to-b to-gray-700/20 via-gray-600/20 from-gray-500/20",
-        "backdrop-blur-sm rounded-lg border",
-        {
-          "border-white/20": !selected,
-          "border-teal-400/40 outline-teal-400/20 outline-2": selected,
-        },
-      )}
+      className={cn("p-2 glass rounded-lg border", {
+        "border-white/20": !selected,
+        "border-teal-400/40 outline-teal-400/20 outline-2": selected,
+      })}
     >
       <div className="text-xs text-blue-50 mb-2 font-bold">
         {nodeTypeInfo.name}
