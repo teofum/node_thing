@@ -1,23 +1,14 @@
-"use client";
-
-import { useRef, useCallback } from "react";
+import { useCallback } from "react";
 import {
   ReactFlow,
-  addEdge,
-  useNodesState,
-  useEdgesState,
   Controls,
   useReactFlow,
   Background,
-  type Node,
-  type Edge,
-  type OnConnect,
   MiniMap,
 } from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
 import { ShaderNode, useStore } from "@/store/store";
-import { useDnD } from "./dndContext";
-import { RenderShaderNode } from "./renderShaderNode";
+import { RenderShaderNode } from "./shader-node";
+import { NodeData } from "@/schemas/node.schema";
 
 // TODO esto volarlo, relacionado con lo de IDs duplicadas
 let id = 0;
@@ -27,22 +18,18 @@ const nodeTypes = {
   RenderShaderNode,
 };
 
-export function ReactFlowWithDnD() {
+export function Viewport() {
   // NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
   const {
     layers,
     currentLayer,
     setNodes,
-    setEdges,
     onNodesChange,
     onEdgesChange,
-    setActiveLayer,
     onConnect,
   } = useStore();
 
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
-  const [type] = useDnD();
 
   // obtengo la capa actual para imprimir
   const { nodes, edges } = layers[currentLayer];
@@ -57,15 +44,14 @@ export function ReactFlowWithDnD() {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-      if (!type) return;
-
       const position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
       // TODO borrar a futuro
-      const currId = getId();
+      const type = event.dataTransfer.getData("type") as NodeData["type"];
+      const currId = `${type === "__input" || type === "__output" ? `${type}_` : ""}${getId()}`;
 
       // TODO esto hardcodeo, instancio siempre un ShaderNode con tipo interno "middle"
       const newNode: ShaderNode = {
@@ -73,33 +59,46 @@ export function ReactFlowWithDnD() {
         type: "RenderShaderNode", // hardcodeo
         position,
         data: {
-          type: "output", // TODO !! esto de alguna manera lo tengo que obtener de Sidebar
+          type,
         },
       };
 
       setNodes([...useStore.getState().layers[currentLayer].nodes, newNode]);
     },
-    [screenToFlowPosition, type, setNodes],
+    [screenToFlowPosition, setNodes, currentLayer],
   );
 
+  /*
+   * Detect macOS and adjust controls to be more consistent with platform
+   * conventions (use the touchpad)
+   */
+  const mac = navigator.platform.startsWith("Mac");
+
   return (
-    <div className="w-full h-full" ref={reactFlowWrapper}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
-        nodeTypes={nodeTypes}
-        colorMode="dark"
-        fitView
-      >
-        <Controls />
-        <Background />
-        <MiniMap />
-      </ReactFlow>
-    </div>
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      nodeTypes={nodeTypes}
+      colorMode="dark"
+      fitView
+      panOnScroll={mac}
+      panOnDrag={!mac}
+      selectionOnDrag={mac}
+      style={
+        {
+          "--xy-edge-stroke": "rgb(from var(--color-gray-300) r g b / 0.4)",
+          "--xy-edge-stroke-selected":
+            "rgb(from var(--color-teal-400) r g b / 0.6)",
+        } as Record<string, string>
+      }
+    >
+      <Background />
+      <MiniMap />
+    </ReactFlow>
   );
 }

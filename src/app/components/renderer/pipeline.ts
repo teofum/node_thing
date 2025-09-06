@@ -10,16 +10,80 @@ type Buffer = {
   }[];
 };
 
+type Input = {
+  nodeId: string;
+  type: string;
+  outputBindings: Record<string, number>;
+};
+
 export type RenderPass = {
   nodeType: NodeData["type"];
   inputBindings: Record<string, number>;
   outputBindings: Record<string, number>;
 };
 
-export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
+export type RenderPipeline = {
+  passes: RenderPass[];
+  inputs: Input[];
+  outputBuffer: number;
+  bufferCount: number;
+};
+
+export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
   const queue: ShaderNode[] = [];
   const buffers: Buffer[] = [];
   const passes: RenderPass[] = [];
+  const inputs: Input[] = [];
+  let outputBuffer = -1;
+
+  /*
+   * Find outputs for pre-process culling step
+   */
+  const outputs = nodes.filter((node) => node.data.type === "__output");
+
+  // If there are no outputs, do nothing!
+  if (outputs.length === 0)
+    return { passes, inputs, outputBuffer, bufferCount: 0 };
+
+  if (outputs.length > 1) console.warn("More than one output in render graph!");
+  const output = outputs[0]; // There shouldn't be multiple outputs per graph!
+
+  /*
+   * Graph culling: start from the output and work backwards, tagging all
+   * connected nodes. This ensures any disconnected nodes or dead ends are
+   * ignored when we traverse the graph later.
+   */
+  queue.push(output);
+
+  const connectedIds = new Set<string>();
+  while (queue.length > 0) {
+    // We just asserted the array has items, unshift will never return undefined
+    const node = queue.shift() as ShaderNode;
+    const nodeType = NODE_TYPES[node.data.type];
+
+    // Tag the node as connected to output
+    connectedIds.add(node.id);
+
+    // Enqueue any inputs that aren't already in queue
+    for (const input of Object.keys(nodeType.inputs)) {
+      edges
+        .filter(
+          (edge) => edge.target === node.id && edge.targetHandle === input,
+        )
+        .forEach((edge) => {
+          const outputNode = nodes.find((n) => n.id === edge.source);
+          if (outputNode && !queue.includes(outputNode)) {
+            queue.push(outputNode);
+          }
+        });
+    }
+  }
+
+  // Clear the queue
+  queue.splice(0);
+
+  // Cull the nodes array, removing all nodes not connected to the output
+  nodes = nodes.filter((node) => connectedIds.has(node.id));
 
   /*
    * Find the root nodes we're starting from.
@@ -27,12 +91,8 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
    * (main input, aux image input)
    */
   const roots = nodes.filter((node) => {
-    if (node.id.startsWith("__input")) return false;
     const inputs = edges.filter((edge) => edge.target === node.id);
-    return (
-      inputs.length === 0 ||
-      inputs.every((edge) => edge.source.startsWith("__input"))
-    );
+    return inputs.length === 0;
   });
 
   queue.push(...roots);
@@ -41,7 +101,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
    * Helper function.
    * Get a buffer suitable for writing, or create one if there are none.
    */
-  function findOrCreateBuffer() {
+  const findOrCreateBuffer = () => {
     let freeBuffer = buffers.find((buf) => buf.users.length === 0);
     if (!freeBuffer) {
       freeBuffer = { idx: buffers.length, users: [] };
@@ -49,7 +109,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
     }
 
     return freeBuffer;
-  }
+  };
 
   /*
    * Explore the graph in order
@@ -69,14 +129,10 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
      * Get a list of dependencies
      */
     const deps = Object.keys(nodeType.inputs)
-      .filter(
-        (input) =>
-          !edges.some(
-            (edge) =>
-              edge.source.startsWith("__input") &&
-              edge.target === node.id &&
-              edge.targetHandle === input,
-          ),
+      .filter((input) =>
+        edges.some(
+          (edge) => edge.target === node.id && edge.targetHandle === input,
+        ),
       )
       .map((input) => ({
         input,
@@ -96,7 +152,12 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
     }
     const dependencies = deps as { input: string; buf: Buffer }[];
 
-    // TODO: end on output node
+    if (node.data.type === "__output") {
+      outputBuffer = dependencies[0]
+        ? buffers.indexOf(dependencies[0].buf)
+        : -1;
+      break;
+    }
 
     /*
      * Build render pass for this node
@@ -147,9 +208,18 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPass[] {
 
     /*
      * Add the render pass to the list
+     * If it's an input, add it to the input list instead
      */
-    passes.push(pass);
+    if (node.data.type.startsWith("__input")) {
+      inputs.push({
+        nodeId: node.id,
+        type: node.data.type,
+        outputBindings: pass.outputBindings,
+      });
+    } else {
+      passes.push(pass);
+    }
   }
 
-  return passes;
+  return { passes, inputs, outputBuffer, bufferCount: buffers.length };
 }

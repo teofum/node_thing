@@ -1,8 +1,12 @@
 import { NodeType } from "@/schemas/node.schema";
 
+import testUVShader from "@/shaders/test-uv.wgsl";
+import testBWShader from "@/shaders/test-grayscale.wgsl";
+
 export const NODE_TYPES = {
   __input: {
     name: "Special input node",
+    shader: "",
     inputs: {},
     outputs: {
       out_a: {
@@ -14,6 +18,7 @@ export const NODE_TYPES = {
   },
   __output: {
     name: "Special output node",
+    shader: "",
     inputs: {
       in_a: {
         name: "in_a",
@@ -23,88 +28,9 @@ export const NODE_TYPES = {
     outputs: {},
     parameters: {},
   },
-  test_node_1to1: {
-    name: "Test node: 1 to 1",
-    inputs: {
-      in_a: {
-        name: "in_a",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "out_a",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  test_node_1to2: {
-    name: "Test node: 1 to 2",
-    inputs: {
-      in_a: {
-        name: "in_a",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "out_a",
-        type: "color",
-      },
-      out_b: {
-        name: "out_b",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  test_node_2to1: {
-    name: "Test node: 2 to 1",
-    inputs: {
-      in_a: {
-        name: "in_a",
-        type: "color",
-      },
-      in_b: {
-        name: "in_b",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "out_a",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  test_node_3to1: {
-    name: "Test node: 3 to 1",
-    inputs: {
-      in_a: {
-        name: "in_a",
-        type: "color",
-      },
-      in_b: {
-        name: "in_b",
-        type: "color",
-      },
-      in_c: {
-        name: "in_c",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "out_a",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  input: {
-    name: "Input",
+  test_uv: {
+    name: "Test UV gradient",
+    shader: testUVShader,
     inputs: {},
     outputs: {
       out_a: {
@@ -114,19 +40,9 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  output: {
-    name: "Output",
-    inputs: {
-      in_a: {
-        name: "in_a",
-        type: "color",
-      },
-    },
-    outputs: {},
-    parameters: {},
-  },
-  middle: {
-    name: "Middle",
+  test_bw: {
+    name: "Test Grayscale",
+    shader: testBWShader,
     inputs: {
       in_a: {
         name: "in_a",
