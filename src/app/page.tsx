@@ -9,9 +9,9 @@ export default function Home() {
     // TODO arreglar fullscreen sin scroll
 
     // div general para definir el grid (de 3 columnas)
-    <div className="font-sans grid grid-rows-[auto_1fr] w-screen h-screen bg-neutral-800">
+    <div className="font-sans grid grid-rows-[auto_1fr] w-screen h-screen bg-neutral-900">
       {/* header */}
-      <div className="flex justify-between items-center p-4">
+      <div className="flex justify-between items-center px-2 pl-4 pt-3">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
         <AuthButton />
       </div>
@@ -32,7 +32,7 @@ export default function Home() {
 
         {/* Output panel */}
         <div className="relative min-h-0">
-          <div className="absolute inset-0 left-2 rounded-2xl overflow-hidden z-20">
+          <div className="absolute inset-0 left-2 rounded-2xl overflow-hidden z-20 border border-white/15">
             <Canvas />
           </div>
 

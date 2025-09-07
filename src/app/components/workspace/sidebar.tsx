@@ -4,6 +4,7 @@ import cn from "classnames";
 
 import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
+import { ToggleButton } from "@/ui/button";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
@@ -40,19 +41,17 @@ export function Sidebar() {
           <LuGitFork />
           <div className="font-semibold text-sm/4">Library</div>
 
-          <button
-            className={cn(
-              "ml-auto w-8 h-8 rounded-lg grid place-items-center cursor-pointer",
-              "transition duration-200 hover:bg-current/10",
-              {
-                "opacity-0 group-hover:opacity-100": !pin,
-                "text-teal-500": pin,
-              },
-            )}
-            onClick={() => setPin(!pin)}
+          <ToggleButton
+            icon
+            variant="ghost"
+            className={cn("ml-auto", {
+              "opacity-0 group-hover:opacity-100": !pin,
+            })}
+            pressed={pin}
+            onPressedChange={setPin}
           >
             <LuPin />
-          </button>
+          </ToggleButton>
         </div>
         <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
           {Object.entries(NODE_TYPES).map(([key, type]) => (

@@ -1,3 +1,4 @@
+import { Toggle } from "@radix-ui/react-toggle";
 import cn from "classnames";
 import Link from "next/link";
 import { ComponentProps, forwardRef } from "react";
@@ -7,8 +8,6 @@ type CommonProps = {
   icon?: boolean;
 };
 
-type ButtonProps = ComponentProps<"button"> & CommonProps;
-
 function buttonClassnames(
   { variant = "default", icon = false }: CommonProps,
   className?: string,
@@ -16,7 +15,7 @@ function buttonClassnames(
   return cn(
     "p-2 text-sm/4 font-semibold text-white rounded-lg",
     "flex flex-row items-center justify-center gap-2",
-    "cursor-pointer transition duration-150",
+    "cursor-pointer transition duration-150 data-[state=on]:text-teal-500",
     "focus-visible:outline outline-offset-0 outline-teal-400",
     "focus-visible:shadow-[0_0_0_3px] shadow-teal-400/30",
     {
@@ -29,6 +28,8 @@ function buttonClassnames(
     className,
   );
 }
+
+type ButtonProps = ComponentProps<"button"> & CommonProps;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   function ButtonImpl(
@@ -62,6 +63,25 @@ export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
       >
         {children}
       </Link>
+    );
+  },
+);
+
+type ToggleButtonProps = ComponentProps<typeof Toggle> & CommonProps;
+
+export const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
+  function ButtonImpl(
+    { className, children, variant, icon, ...props },
+    forwardedRef,
+  ) {
+    return (
+      <Toggle
+        ref={forwardedRef}
+        className={buttonClassnames({ variant, icon }, className)}
+        {...props}
+      >
+        {children}
+      </Toggle>
     );
   },
 );
