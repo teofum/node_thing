@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+
+import { LinkButton } from "@/ui/button";
 import { LogoutButton } from "./logout-button";
 
 export async function AuthButton() {
@@ -13,11 +14,6 @@ export async function AuthButton() {
       <LogoutButton />
     </div>
   ) : (
-    <Link
-      href="/auth/login"
-      className="bg-stone-800 px-2 py-1 rounded hover:bg-blue-700 text-white text-sm"
-    >
-      Login
-    </Link>
+    <LinkButton href="/auth/login">Login</LinkButton>
   );
 }
