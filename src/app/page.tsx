@@ -9,7 +9,7 @@ export default function Home() {
     // TODO arreglar fullscreen sin scroll
 
     // div general para definir el grid (de 3 columnas)
-    <div className="font-sans grid grid-rows-[auto_auto_1fr] w-screen h-screen bg-neutral-800">
+    <div className="font-sans grid grid-rows-[auto_1fr] w-screen h-screen bg-neutral-800">
       {/* header */}
       <div className="flex justify-between items-center p-4">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
@@ -17,16 +17,14 @@ export default function Home() {
       </div>
 
       {/* barra de herramientas */}
-      <div className="p-4">
+      {/*<div className="p-4">
         <button className="bg-stone-800 px-2 py-1 rounded hover:bg-blue-700">
           Import
-        </button>{" "}
-        {/* TODO */}
+        </button>
         <button className="bg-stone-800 px-2 py-1 rounded hover:bg-blue-700">
           Export
-        </button>{" "}
-        {/* TODO */}
-      </div>
+        </button>
+      </div>*/}
 
       {/* Main panel */}
       <main className="flex flex-row min-h-0 max-w-full select-none p-2">
