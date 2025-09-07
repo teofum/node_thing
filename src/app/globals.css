@@ -22,7 +22,7 @@ body {
 @layer utilities {
   .glass {
     @apply bg-black/50 bg-gradient-to-b from-white/8 to-transparent 
-        to-[min(100%,10rem)] backdrop-blur-md;
+        to-[8rem] backdrop-blur-md;
 
     /* Override tw gradient with custom angle */
     --tw-gradient-position: 170deg in oklab;

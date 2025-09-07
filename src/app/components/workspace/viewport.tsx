@@ -85,9 +85,11 @@ export function Viewport() {
       selectionOnDrag={mac}
       style={
         {
-          "--xy-edge-stroke": "rgb(from var(--color-gray-300) r g b / 0.4)",
+          "--xy-edge-stroke": "rgb(from var(--color-neutral-300) r g b / 0.4)",
           "--xy-edge-stroke-selected":
             "rgb(from var(--color-teal-400) r g b / 0.6)",
+          "--xy-handle-background-color": "var(--color-neutral-100)",
+          "--xy-handle-border-color": "var(--color-neutral-600)",
         } as Record<string, string>
       }
     >
