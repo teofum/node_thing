@@ -1,4 +1,4 @@
-import { ForgotPasswordForm } from "@/app/components/auth/forgot-password-form";
+import { ForgotPasswordForm } from "@/app/auth/components/forgot-password-form";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";

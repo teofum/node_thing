@@ -1,4 +1,4 @@
-import { UpdatePasswordForm } from "@/app/components/auth/update-password-form";
+import { UpdatePasswordForm } from "@/app/auth/components/update-password-form";
 import Link from "next/link";
 
 export default function UpdatePasswordPage() {

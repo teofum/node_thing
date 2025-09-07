@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react";
-import { NODE_TYPES } from "@/utils/node-type";
-import cn from "classnames";
 import { LuGitFork, LuPin } from "react-icons/lu";
+import cn from "classnames";
+
+import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
 
 export function Sidebar() {
