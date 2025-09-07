@@ -54,7 +54,7 @@ export function Sidebar() {
             <LuPin />
           </button>
         </div>
-        <div className="border-t border-white/15 p-2 flex flex-col gap-3">
+        <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
           {Object.entries(NODE_TYPES).map(([key, type]) => (
             <div
               key={key}
