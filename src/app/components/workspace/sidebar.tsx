@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { LuGitFork, LuPin } from "react-icons/lu";
 import cn from "classnames";
 
@@ -18,6 +18,9 @@ export function Sidebar() {
   useResizeObserver(dummySizingDiv.current, () => {
     setHeight(dummySizingDiv.current?.clientHeight ?? 0);
   });
+  useLayoutEffect(() => {
+    setHeight(dummySizingDiv.current?.clientHeight ?? 0);
+  }, []);
 
   return (
     <>
