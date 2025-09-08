@@ -5,7 +5,7 @@ import { Renderer } from "./components/renderer";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[auto_1fr] w-screen h-screen bg-neutral-900">
+    <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}
       <div className="flex justify-between items-center px-2 pl-4 pt-3">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
