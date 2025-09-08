@@ -1,4 +1,3 @@
-import { Canvas } from "./components/renderer/canvas";
 import { Workspace } from "./components/workspace";
 import { AuthButton } from "./auth/components/auth-button";
 import { Renderer } from "./components/renderer";
