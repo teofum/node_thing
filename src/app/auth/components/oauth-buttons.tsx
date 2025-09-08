@@ -1,12 +1,12 @@
-"use client";
-
-import { createClient } from "@/lib/supabase/client";
+import {
+  signInWithGoogleAction,
+  signInWithGithubAction,
+  signInWithAppleAction,
+} from "@/lib/auth/actions";
 import { Button } from "@/ui/button";
-import { useState } from "react";
 
 interface OAuthButtonsProps {
   mode: "signin" | "signup";
-  onError: (error: string) => void;
 }
 
 function GoogleLogo() {
@@ -48,52 +48,28 @@ function AppleLogo() {
   );
 }
 
-export function OAuthButtons({ mode, onError }: OAuthButtonsProps) {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleOAuth = async (provider: "google" | "github" | "apple") => {
-    setIsLoading(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
-    });
-    if (error) onError(error.message);
-    setIsLoading(false);
-  };
-
+export function OAuthButtons({ mode }: OAuthButtonsProps) {
   const actionText = mode === "signin" ? "Sign in" : "Sign up";
 
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="font-medium text-lg">{actionText} with</div>
       <div className="flex flex-row justify-center gap-4">
-        <Button
-          icon
-          size="lg"
-          onClick={() => handleOAuth("google")}
-          disabled={isLoading}
-        >
-          <GoogleLogo />
-        </Button>
-        <Button
-          icon
-          size="lg"
-          onClick={() => handleOAuth("github")}
-          disabled={isLoading}
-        >
-          <GithubLogo />
-        </Button>
-        <Button
-          icon
-          size="lg"
-          onClick={() => handleOAuth("apple")}
-          disabled={isLoading}
-        >
-          <AppleLogo />
-        </Button>
+        <form action={signInWithGoogleAction}>
+          <Button icon size="lg" type="submit">
+            <GoogleLogo />
+          </Button>
+        </form>
+        <form action={signInWithGithubAction}>
+          <Button icon size="lg" type="submit">
+            <GithubLogo />
+          </Button>
+        </form>
+        <form action={signInWithAppleAction}>
+          <Button icon size="lg" type="submit">
+            <AppleLogo />
+          </Button>
+        </form>
       </div>
     </div>
   );

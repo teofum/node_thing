@@ -3,7 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-export default async function ForgotPasswordPage() {
+export default async function ForgotPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; message?: string }>;
+}) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
@@ -11,6 +15,9 @@ export default async function ForgotPasswordPage() {
   if (user) {
     redirect("/");
   }
+
+  const params = await searchParams;
+
   return (
     <div className="min-h-screen relative">
       <Link
@@ -30,7 +37,7 @@ export default async function ForgotPasswordPage() {
               password
             </p>
           </div>
-          <ForgotPasswordForm />
+          <ForgotPasswordForm error={params.error} message={params.message} />
         </div>
       </div>
     </div>

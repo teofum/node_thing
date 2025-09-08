@@ -1,7 +1,13 @@
 import { UpdatePasswordForm } from "@/app/auth/components/update-password-form";
 import Link from "next/link";
 
-export default function UpdatePasswordPage() {
+export default async function UpdatePasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
+
   return (
     <div className="min-h-screen relative">
       <Link
@@ -18,7 +24,7 @@ export default function UpdatePasswordPage() {
             <h2 className="text-3xl font-bold">Reset Your Password</h2>
             <p className="text-sm">Please enter your new password below.</p>
           </div>
-          <UpdatePasswordForm />
+          <UpdatePasswordForm error={params.error} />
         </div>
       </div>
     </div>

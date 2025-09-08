@@ -5,7 +5,11 @@ import Link from "next/link";
 import { LinkButton } from "@/ui/button";
 import { LuArrowLeft } from "react-icons/lu";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
@@ -13,6 +17,9 @@ export default async function LoginPage() {
   if (user) {
     redirect("/");
   }
+
+  const params = await searchParams;
+
   return (
     <div className="min-h-screen relative">
       <LinkButton variant="ghost" href="/" className="absolute top-4 left-4">
@@ -25,7 +32,7 @@ export default async function LoginPage() {
           <div className="text-center">
             <h2 className="text-3xl font-bold">Welcome back!</h2>
           </div>
-          <LoginForm />
+          <LoginForm error={params.error} />
           <div className="text-center">
             <Link href="/auth/signup" className="text-sm underline">
               Don&apos;t have an account? Sign up
