@@ -1,29 +1,34 @@
 import { updatePasswordAction } from "@/lib/auth/actions";
+import { Input } from "@/ui/input";
+import { Button } from "@/ui/button";
 
 export function UpdatePasswordForm({ error }: { error?: string }) {
   return (
-    <div className="border p-6 w-96 mx-auto rounded-md">
+    <div className="glass glass-border p-6 w-96 mx-auto rounded-2xl">
       <form action={updatePasswordAction} className="space-y-6">
         <div>
-          <label htmlFor="password" className="block text-sm mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm/3 font-semibold mb-2"
+          >
             New password
           </label>
-          <input
+          <Input
             id="password"
             name="password"
             type="password"
             required
-            className="w-full p-3 border rounded-md"
+            className="w-full"
             placeholder="New password"
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
+        <Button
           type="submit"
           className="w-full p-2 bg-stone-800 text-white rounded hover:bg-blue-700 cursor-pointer"
         >
           Save new password
-        </button>
+        </Button>
       </form>
     </div>
   );

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { forgotPasswordAction } from "@/lib/auth/actions";
+import { Input } from "@/ui/input";
+import { Button } from "@/ui/button";
 
 export function ForgotPasswordForm({
   error,
@@ -10,7 +12,7 @@ export function ForgotPasswordForm({
 }) {
   if (message) {
     return (
-      <div className="border p-6 w-96 mx-auto rounded-md">
+      <div className="glass glass-border p-6 w-96 mx-auto rounded-2xl">
         <h2 className="text-2xl font-bold mb-2">Check Your Email</h2>
         <p className="mb-4 text-green-600">{message}</p>
         <p className="text-sm">
@@ -22,27 +24,27 @@ export function ForgotPasswordForm({
   }
 
   return (
-    <div className="border p-6 w-96 mx-auto rounded-md">
+    <div className="glass glass-border p-6 w-96 mx-auto rounded-2xl">
       <form action={forgotPasswordAction} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm mb-1">
+          <label htmlFor="email" className="block text-sm/3 font-semibold mb-2">
             Email
           </label>
-          <input
+          <Input
             id="email"
             name="email"
             type="email"
             required
-            className="w-full p-3 border rounded-md"
+            className="w-full"
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
+        <Button
           type="submit"
           className="w-full p-2 bg-stone-800 text-white rounded hover:bg-blue-700 cursor-pointer"
         >
           Send reset email
-        </button>
+        </Button>
         <div className="text-center text-sm">
           Remember your password?{" "}
           <Link href="/auth/login" className="underline">
