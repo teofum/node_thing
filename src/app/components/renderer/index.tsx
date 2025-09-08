@@ -68,16 +68,14 @@ export function Renderer() {
    */
   const updateWidth = (value: string) => {
     const width = Number(value);
-    console.log(value, width);
-    if (width > 0 && isFinite(width)) {
+    if (width > 0 && isFinite(width) && width !== canvas.width) {
       setCanvasSize(width, canvas.height);
     }
   };
 
   const updateHeight = (value: string) => {
     const height = Number(value);
-    console.log(value, height);
-    if (height > 0 && isFinite(height)) {
+    if (height > 0 && isFinite(height) && height !== canvas.height) {
       setCanvasSize(canvas.width, height);
     }
   };

@@ -132,7 +132,6 @@ export function preparePipeline(
   device: GPUDevice,
   desc: RenderPipeline,
   opts: RenderOptions,
-  target: GPUTexture,
 ) {
   const bindGroupLayouts = createBindGroupLayouts(device, desc);
 
@@ -208,19 +207,7 @@ export function preparePipeline(
         bindGroupLayouts: [finalStageLayout, uniform.bindGroupLayout],
       }),
     }),
-    bindGroup: device.createBindGroup({
-      layout: finalStageLayout,
-      entries: [
-        {
-          binding: 0,
-          resource: { buffer: buffers[desc.outputBuffer] },
-        },
-        {
-          binding: 1,
-          resource: target.createView(),
-        },
-      ],
-    }),
+    layout: finalStageLayout,
   };
 
   return { desc, opts, buffers, bindGroups, pipelines, finalStage, uniform };
@@ -233,8 +220,30 @@ type PreparedPipeline = ReturnType<typeof preparePipeline>;
  * for each stage.
  * Returns the buffer where the result is stored.
  */
-export function render(device: GPUDevice, pipeline: PreparedPipeline) {
-  const { desc, opts, bindGroups, pipelines, finalStage, uniform } = pipeline;
+export function render(
+  device: GPUDevice,
+  pipeline: PreparedPipeline,
+  target: GPUTexture,
+) {
+  const { desc, opts, buffers, bindGroups, pipelines, finalStage, uniform } =
+    pipeline;
+
+  /*
+   * Bind target texture to final stage
+   */
+  const finalStageBindGroup = device.createBindGroup({
+    layout: finalStage.layout,
+    entries: [
+      {
+        binding: 0,
+        resource: { buffer: buffers[desc.outputBuffer] },
+      },
+      {
+        binding: 1,
+        resource: target.createView(),
+      },
+    ],
+  });
 
   /*
    * Update uniforms
@@ -280,7 +289,7 @@ export function render(device: GPUDevice, pipeline: PreparedPipeline) {
    */
   const finalPass = enc.beginComputePass();
   finalPass.setPipeline(finalStage.pipeline);
-  finalPass.setBindGroup(0, finalStage.bindGroup);
+  finalPass.setBindGroup(0, finalStageBindGroup);
   finalPass.setBindGroup(1, uniform.bindGroup);
   finalPass.dispatchWorkgroups(
     Math.ceil(opts.width / THREADS_PER_WORKGROUP),

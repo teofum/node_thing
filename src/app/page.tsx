@@ -5,11 +5,6 @@ import { Renderer } from "./components/renderer";
 
 export default function Home() {
   return (
-    // hago la estructura básica todo con divs
-
-    // TODO arreglar fullscreen sin scroll
-
-    // div general para definir el grid (de 3 columnas)
     <div className="grid grid-rows-[auto_1fr] w-screen h-screen bg-neutral-900">
       {/* header */}
       <div className="flex justify-between items-center px-2 pl-4 pt-3">

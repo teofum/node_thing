@@ -97,12 +97,7 @@ export function Canvas() {
     if (!canvas || !ctx || !device || !desc) return null;
 
     console.log("Rebuilding pipeline...");
-    return preparePipeline(
-      device,
-      desc,
-      canvasProperties,
-      ctx.getCurrentTexture(),
-    );
+    return preparePipeline(device, desc, canvasProperties);
   }, [canvas, ctx, device, desc, canvasProperties]);
 
   /*
@@ -116,7 +111,8 @@ export function Canvas() {
     if (!canvas || !ctx || !device || !pipeline) return;
 
     const renderFrame = () => {
-      render(device, pipeline);
+      const target = ctx.getCurrentTexture();
+      render(device, pipeline, target);
       // requestAnimationFrame(renderFrame);
     };
 
