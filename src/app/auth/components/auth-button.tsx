@@ -14,6 +14,6 @@ export async function AuthButton() {
       <LogoutButton />
     </div>
   ) : (
-    <LinkButton href="/auth/login">Login</LinkButton>
+    <LinkButton href="/auth/login">Sign in</LinkButton>
   );
 }
