@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { OAuthButtons } from "./oauth-buttons";
+import { Input } from "@/ui/input";
+import { Button } from "@/ui/button";
 
 export function SignUpForm() {
   const [email, setEmail] = useState("");
@@ -36,43 +38,51 @@ export function SignUpForm() {
   };
 
   return (
-    <div className="border p-6 w-96 mx-auto rounded-md">
+    <div className="glass glass-border p-6 w-96 mx-auto rounded-2xl">
       <OAuthButtons mode="signup" onError={setError} />
+
+      <div className="font-medium mt-6 mb-3 text-center">
+        or sign up using email
+      </div>
+
       <form onSubmit={handleSignUp} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm mb-1">
+          <label htmlFor="email" className="block text-sm/3 font-semibold mb-2">
             Email
           </label>
-          <input
+          <Input
             id="email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border rounded-md"
+            className="w-full"
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm/3 font-semibold mb-2"
+          >
             Password
           </label>
-          <input
+          <Input
             id="password"
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border rounded-md"
+            className="w-full"
           />
         </div>
         {error && <p className="text-sm">{error}</p>}
-        <button
+        <Button
           type="submit"
           disabled={isLoading}
           className="w-full p-2 bg-stone-800 text-white rounded hover:bg-blue-700 cursor-pointer disabled:opacity-50"
         >
           {isLoading ? "Creating account..." : "Sign up"}
-        </button>
+        </Button>
       </form>
     </div>
   );
