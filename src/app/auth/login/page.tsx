@@ -11,8 +11,9 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (user) {
     redirect("/");

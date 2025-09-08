@@ -77,6 +77,16 @@ export async function forgotPasswordAction(formData: FormData) {
 
 export async function updatePasswordAction(formData: FormData) {
   const supabase = await createClient();
+
+  // Verificar que el usuario esté autenticado
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError || !user) {
+    redirect("/auth/login?error=Please log in to update your password");
+  }
+
   const password = formData.get("password") as string;
 
   const { error } = await supabase.auth.updateUser({
