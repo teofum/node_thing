@@ -1,9 +1,13 @@
 "use client";
 
 import { useStore } from "@/store/store";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { preparePipeline, render } from "./renderer";
 import { buildRenderPipeline } from "./pipeline";
+import useResizeObserver from "@/utils/use-resize-observer";
+import useDebounce from "@/utils/use-debounce";
+
+const RESIZE_DEBOUNCE_MS = 50;
 
 async function getDevice() {
   if (!navigator.gpu) throw new Error("webgpu not supported");
@@ -23,7 +27,24 @@ export function Canvas() {
   const { layers } = useStore(); // TODO support multiple layers
   const [device, setDevice] = useState<GPUDevice | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+  const [renderSize, setRenderSize] = useState({ width: 0, height: 0 });
   const frameRequestHandle = useRef<number | null>(null);
+
+  /*
+   * Handle resize
+   */
+  const onResize = useDebounce(() => {
+    if (!canvas) return;
+
+    const { width, height } = canvas.getBoundingClientRect();
+    canvas.width = width * window.devicePixelRatio;
+    canvas.height = height * window.devicePixelRatio;
+
+    setRenderSize({ width: canvas.width, height: canvas.height });
+  }, RESIZE_DEBOUNCE_MS);
+
+  useResizeObserver(canvas, onResize);
+  useLayoutEffect(onResize, [canvas, onResize]); // Autosize on first render
 
   /*
    * Initialize GPU device on component init
@@ -56,27 +77,31 @@ export function Canvas() {
   }, [canvas, device]);
 
   /*
-   * Rebuild pipeline when node graph state changes
+   * Rebuild render pipeline when node graph state changes
    */
-  const pipeline = useMemo(() => {
+  const desc = useMemo(() => {
     if (!canvas || !ctx || !device) return null;
 
-    // Get width and height from canvas
-    const { width, height } = canvas;
-
+    console.log("Rebuilding render graph...");
     const desc = buildRenderPipeline(layers[0]);
-    console.log(desc);
     if (desc.outputBuffer < 0) return null;
 
-    return preparePipeline(
-      device,
-      desc,
-      { width, height },
-      ctx.getCurrentTexture(),
-    );
+    return desc;
     // Trust me, we only care about updating when edges change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, ctx, device, layers[0].edges]);
+
+  /*
+   * Rebuild WebGPU pipeline on render pipeline change, or when the
+   * canvas is resized.
+   * TODO: this recompiles the shaders, which is not necessary
+   */
+  const pipeline = useMemo(() => {
+    if (!canvas || !ctx || !device || !desc) return null;
+
+    console.log("Rebuilding pipeline...");
+    return preparePipeline(device, desc, renderSize, ctx.getCurrentTexture());
+  }, [canvas, ctx, device, desc, renderSize]);
 
   /*
    * Render a frame
@@ -100,9 +125,9 @@ export function Canvas() {
     <canvas
       ref={(ref) => setCanvas(ref)}
       id="main-canvas"
-      className="bg-black"
-      width={300}
-      height={500}
+      className="bg-black w-full h-full"
+      width={100}
+      height={100}
     />
   );
 }

@@ -1,44 +1,28 @@
-import { useRef, useCallback } from "react";
-import {
-  ReactFlow,
-  addEdge,
-  useNodesState,
-  useEdgesState,
-  Controls,
-  useReactFlow,
-  Background,
-  type Node,
-  type Edge,
-  type OnConnect,
-  MiniMap,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
+import { useCallback } from "react";
+import { ReactFlow, useReactFlow, Background } from "@xyflow/react";
 import { ShaderNode, useStore } from "@/store/store";
-import { RenderShaderNode } from "./renderShaderNode";
+import { RenderShaderNode } from "./shader-node";
 import { NodeData } from "@/schemas/node.schema";
 
 // TODO esto volarlo, relacionado con lo de IDs duplicadas
 let id = 0;
-const getId = () => `dndnode_${id++}`;
+const getId = () => `node_${id++}`;
 
 const nodeTypes = {
   RenderShaderNode,
 };
 
-export function ReactFlowWithDnD() {
+export function Viewport() {
   // NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
   const {
     layers,
     currentLayer,
     setNodes,
-    setEdges,
     onNodesChange,
     onEdgesChange,
-    setActiveLayer,
     onConnect,
   } = useStore();
 
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
   // obtengo la capa actual para imprimir
@@ -59,14 +43,12 @@ export function ReactFlowWithDnD() {
         y: event.clientY,
       });
 
-      // TODO borrar a futuro
       const type = event.dataTransfer.getData("type") as NodeData["type"];
       const currId = `${type === "__input" || type === "__output" ? `${type}_` : ""}${getId()}`;
 
-      // TODO esto hardcodeo, instancio siempre un ShaderNode con tipo interno "middle"
       const newNode: ShaderNode = {
         id: currId,
-        type: "RenderShaderNode", // hardcodeo
+        type: "RenderShaderNode",
         position,
         data: {
           type,
@@ -78,24 +60,38 @@ export function ReactFlowWithDnD() {
     [screenToFlowPosition, setNodes, currentLayer],
   );
 
+  /*
+   * Detect macOS and adjust controls to be more consistent with platform
+   * conventions (use the touchpad)
+   */
+  const mac = navigator.platform.startsWith("Mac");
+
   return (
-    <div className="w-full h-full" ref={reactFlowWrapper}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onDrop={onDrop}
-        onDragOver={onDragOver}
-        nodeTypes={nodeTypes}
-        colorMode="dark"
-        fitView
-      >
-        <Controls />
-        <Background />
-        <MiniMap />
-      </ReactFlow>
-    </div>
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      nodeTypes={nodeTypes}
+      colorMode="dark"
+      fitView
+      panOnScroll={mac}
+      panOnDrag={!mac}
+      selectionOnDrag={mac}
+      style={
+        {
+          "--xy-edge-stroke": "rgb(from var(--color-neutral-300) r g b / 0.4)",
+          "--xy-edge-stroke-selected":
+            "rgb(from var(--color-teal-400) r g b / 0.6)",
+          "--xy-handle-background-color": "var(--color-neutral-100)",
+          "--xy-handle-border-color": "var(--color-neutral-600)",
+        } as Record<string, string>
+      }
+    >
+      <Background />
+    </ReactFlow>
   );
 }

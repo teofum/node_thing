@@ -30,7 +30,15 @@ export type Project = {
   currentLayer: number;
 };
 
-const initialNodes: ShaderNode[] = [];
+const initialNodes: ShaderNode[] = [
+  {
+    id: "__output",
+    position: { x: 0, y: 0 },
+    data: { type: "__output" },
+    type: "RenderShaderNode",
+    deletable: false,
+  },
+];
 const initialEdges: Edge[] = [];
 
 type ProjectActions = {
@@ -64,14 +72,11 @@ function modifyLayer(
   ];
 }
 
-export const useStore = create<Project & ProjectActions>((set, get) => ({
+export const useStore = create<Project & ProjectActions>((set) => ({
   /*
    * State
    */
-  layers: [
-    { nodes: [...initialNodes], edges: [...initialEdges] }, // debug, le enchufo valores iniciales en la capa 0
-    { nodes: [], edges: [] }, // debug, si le mando + 1
-  ],
+  layers: [{ nodes: [...initialNodes], edges: [...initialEdges] }],
   currentLayer: 0,
 
   /*
@@ -104,9 +109,21 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
     })),
 
   onConnect: (connection) =>
-    set(({ layers, currentLayer }) => ({
-      layers: modifyLayer(layers, currentLayer, (layer) => ({
-        edges: addEdge(connection, layer.edges),
-      })),
-    })),
+    set(({ layers, currentLayer }) => {
+      const layer = layers[currentLayer];
+
+      const filteredEdges = layer.edges.filter(
+        (e) =>
+          e.target !== connection.target ||
+          e.targetHandle !== connection.targetHandle,
+      );
+
+      const newEdges = addEdge(connection, filteredEdges);
+
+      return {
+        layers: modifyLayer(layers, currentLayer, (layer) => ({
+          edges: newEdges,
+        })),
+      };
+    }),
 }));

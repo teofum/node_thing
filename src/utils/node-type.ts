@@ -5,23 +5,23 @@ import testBWShader from "@/shaders/test-grayscale.wgsl";
 
 export const NODE_TYPES = {
   __input: {
-    name: "Special input node",
+    name: "Input",
     shader: "",
     inputs: {},
     outputs: {
       out_a: {
-        name: "out_a",
+        name: "Input",
         type: "color",
       },
     },
     parameters: {},
   },
   __output: {
-    name: "Special output node",
+    name: "Output",
     shader: "",
     inputs: {
       in_a: {
-        name: "in_a",
+        name: "Layer output",
         type: "color",
       },
     },
@@ -34,7 +34,7 @@ export const NODE_TYPES = {
     inputs: {},
     outputs: {
       out_a: {
-        name: "out_a",
+        name: "UV grid",
         type: "color",
       },
     },
@@ -45,80 +45,13 @@ export const NODE_TYPES = {
     shader: testBWShader,
     inputs: {
       in_a: {
-        name: "in_a",
+        name: "Input",
         type: "color",
       },
     },
     outputs: {
       out_a: {
-        name: "out_a",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  test_node_1to2: {
-    name: "Test node: 1 to 2",
-    shader: "",
-    inputs: {
-      in_a: {
-        name: "in_a",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "out_a",
-        type: "color",
-      },
-      out_b: {
-        name: "out_b",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  test_node_2to1: {
-    name: "Test node: 2 to 1",
-    shader: "",
-    inputs: {
-      in_a: {
-        name: "in_a",
-        type: "color",
-      },
-      in_b: {
-        name: "in_b",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "out_a",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  test_node_3to1: {
-    name: "Test node: 3 to 1",
-    shader: "",
-    inputs: {
-      in_a: {
-        name: "in_a",
-        type: "color",
-      },
-      in_b: {
-        name: "in_b",
-        type: "color",
-      },
-      in_c: {
-        name: "in_c",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "out_a",
+        name: "Output",
         type: "color",
       },
     },
