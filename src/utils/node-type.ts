@@ -10,7 +10,7 @@ export const NODE_TYPES = {
     inputs: {},
     outputs: {
       out_a: {
-        name: "out_a",
+        name: "Input",
         type: "color",
       },
     },
