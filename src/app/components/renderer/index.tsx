@@ -4,10 +4,11 @@ import { useStore } from "@/store/store";
 import { Canvas } from "./canvas";
 import { Button } from "@/ui/button";
 import { LuMinus, LuPlus } from "react-icons/lu";
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Input } from "@/ui/input";
 
 const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
+const ZOOM_SPEED = 0.01;
 
 export function Renderer() {
   const { canvas, view } = useStore((s) => s.properties);
@@ -41,6 +42,27 @@ export function Renderer() {
     setZoom(Math.min(vzoom, hzoom));
   };
 
+  useLayoutEffect(() => {
+    const zoomScrollHandler = (ev: WheelEvent) => {
+      if (!ev.ctrlKey) return;
+
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      const zoom = view.zoom * (1 - ev.deltaY * ZOOM_SPEED);
+      setZoom(Math.max(ZOOM_STOPS[1], Math.min(ZOOM_STOPS.at(-1) ?? 1, zoom)));
+    };
+
+    const viewportEl = viewport.current;
+    viewportEl?.addEventListener("wheel", zoomScrollHandler, {
+      passive: false,
+    });
+
+    return () => {
+      viewportEl?.removeEventListener("wheel", zoomScrollHandler);
+    };
+  }, [setZoom, view.zoom]);
+
   /*
    * Canvas size
    */
@@ -64,7 +86,7 @@ export function Renderer() {
    * Component UI
    */
   return (
-    <div className="rounded-2xl bg-neutral-950 z-20 border border-white/15 w-full h-full flex flex-col overflow-hidden">
+    <div className="rounded-2xl bg-neutral-950 border border-white/15 w-full h-full flex flex-col overflow-hidden">
       <div className="p-2 flex flex-row gap-2 border-b border-white/15">
         <div className="flex flex-row">
           <Button

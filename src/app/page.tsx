@@ -33,13 +33,13 @@ export default function Home() {
 
         {/* Output panel */}
         <div className="relative min-h-0">
-          <div className="absolute inset-0 left-2">
+          <div className="absolute inset-0 left-2 z-10">
             <Renderer />
           </div>
 
           {/* CSS resize hack */}
           <div className="absolute left-0.5 top-1/2 -translate-y-1/2 h-4 w-1 rounded bg-neutral-600 cursor-col-resize" />
-          <div className="relative top-1/2 -translate-y-1/2 h-4 w-full resize-x min-w-80 max-w-[70vw] -ml-1.5 overflow-hidden [direction:rtl] opacity-0 cursor-col-resize" />
+          <div className="relative top-1/2 -translate-y-1/2 h-4 w-full resize-x min-w-120 max-w-[70vw] -ml-1.5 overflow-hidden [direction:rtl] opacity-0 cursor-col-resize" />
         </div>
       </main>
     </div>
