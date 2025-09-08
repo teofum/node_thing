@@ -26,12 +26,12 @@ export function Sidebar() {
   return (
     <>
       <div
-        className="absolute left-0 top-2 bottom-2 w-0"
+        className="absolute left-0 top-1 bottom-1 w-0"
         ref={dummySizingDiv}
       />
       <aside
         className={cn(
-          "absolute left-2 top-2 z-10 w-48 flex flex-col rounded-xl group",
+          "absolute left-1 top-1 z-10 w-48 flex flex-col rounded-xl group",
           "glass glass-border transition-[height] duration-300 overflow-hidden",
           { "not-hover:!h-[50px]": !pin },
         )}
