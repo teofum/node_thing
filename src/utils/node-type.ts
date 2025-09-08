@@ -2,6 +2,8 @@ import { NodeType } from "@/schemas/node.schema";
 
 import testUVShader from "@/shaders/test-uv.wgsl";
 import testBWShader from "@/shaders/test-grayscale.wgsl";
+import thresholdShader from "@/shaders/threshold-bw.wgsl";
+import boxBlurShader from "@/shaders/box-blur.wgsl";
 
 export const NODE_TYPES = {
   __input: {
@@ -43,6 +45,40 @@ export const NODE_TYPES = {
   test_bw: {
     name: "Test Grayscale",
     shader: testBWShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  threshold: {
+    name: "Threshold B/W",
+    shader: thresholdShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  boxBlur: {
+    name: "Box Blur",
+    shader: boxBlurShader,
     inputs: {
       in_a: {
         name: "Input",
