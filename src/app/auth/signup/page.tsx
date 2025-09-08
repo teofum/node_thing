@@ -2,6 +2,8 @@ import { signUpAction } from "@/lib/auth/actions";
 import { OAuthButtons } from "@/app/auth/components/oauth-buttons";
 import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function SignUpPage({
@@ -9,6 +11,15 @@ export default async function SignUpPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/");
+  }
+
   const params = await searchParams;
 
   return (
@@ -50,6 +61,21 @@ export default async function SignUpPage({
             <Input
               id="password"
               name="password"
+              type="password"
+              required
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm/3 font-semibold mb-2"
+            >
+              Confirm Password
+            </label>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
               type="password"
               required
               className="w-full"

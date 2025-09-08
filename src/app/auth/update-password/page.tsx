@@ -34,6 +34,22 @@ export default async function UpdatePasswordPage({
               placeholder="New password"
             />
           </div>
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm/3 font-semibold mb-2"
+            >
+              Confirm new password
+            </label>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              required
+              className="w-full"
+              placeholder="Confirm new password"
+            />
+          </div>
           {params.error && (
             <p className="text-sm text-red-600">{params.error}</p>
           )}

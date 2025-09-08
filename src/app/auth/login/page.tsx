@@ -2,6 +2,8 @@ import { signInAction } from "@/lib/auth/actions";
 import { OAuthButtons } from "@/app/auth/components/oauth-buttons";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function LoginPage({
@@ -9,6 +11,15 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/");
+  }
+
   const params = await searchParams;
 
   return (

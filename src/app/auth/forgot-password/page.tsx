@@ -1,6 +1,8 @@
 import { forgotPasswordAction } from "@/lib/auth/actions";
 import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function ForgotPasswordPage({
@@ -8,6 +10,15 @@ export default async function ForgotPasswordPage({
 }: {
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    redirect("/");
+  }
+
   const params = await searchParams;
 
   if (params.message) {

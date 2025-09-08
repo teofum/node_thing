@@ -33,6 +33,13 @@ export async function signUpAction(formData: FormData) {
   const supabase = await createClient();
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (password !== confirmPassword) {
+    redirect(
+      `/auth/signup?error=${encodeURIComponent("Passwords do not match")}`,
+    );
+  }
 
   const { error } = await supabase.auth.signUp({
     email,
@@ -88,6 +95,13 @@ export async function updatePasswordAction(formData: FormData) {
   }
 
   const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (password !== confirmPassword) {
+    redirect(
+      `/auth/update-password?error=${encodeURIComponent("Passwords do not match")}`,
+    );
+  }
 
   const { error } = await supabase.auth.updateUser({
     password,
