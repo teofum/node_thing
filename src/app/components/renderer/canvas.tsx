@@ -1,13 +1,11 @@
 "use client";
 
-import { useStore } from "@/store/store";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import cn from "classnames";
+
+import { useStore } from "@/store/store";
 import { preparePipeline, render } from "./renderer";
 import { buildRenderPipeline } from "./pipeline";
-import useResizeObserver from "@/utils/use-resize-observer";
-import useDebounce from "@/utils/use-debounce";
-
-const RESIZE_DEBOUNCE_MS = 50;
 
 async function getDevice() {
   if (!navigator.gpu) throw new Error("webgpu not supported");
@@ -24,27 +22,26 @@ export function Canvas() {
   /*
    * State
    */
-  const { layers } = useStore(); // TODO support multiple layers
+  const layers = useStore((s) => s.layers);
+  const { canvas: canvasProperties, view } = useStore((s) => s.properties);
+
   const [device, setDevice] = useState<GPUDevice | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const [renderSize, setRenderSize] = useState({ width: 0, height: 0 });
   const frameRequestHandle = useRef<number | null>(null);
 
   /*
    * Handle resize
    */
-  const onResize = useDebounce(() => {
-    if (!canvas) return;
-
-    const { width, height } = canvas.getBoundingClientRect();
-    canvas.width = width * window.devicePixelRatio;
-    canvas.height = height * window.devicePixelRatio;
-
-    setRenderSize({ width: canvas.width, height: canvas.height });
-  }, RESIZE_DEBOUNCE_MS);
-
-  useResizeObserver(canvas, onResize);
-  useLayoutEffect(onResize, [canvas, onResize]); // Autosize on first render
+  useLayoutEffect(() => {
+    canvas?.style.setProperty(
+      "width",
+      `${(canvas.width * view.zoom) / window.devicePixelRatio}px`,
+    );
+    canvas?.style.setProperty(
+      "height",
+      `${(canvas.height * view.zoom) / window.devicePixelRatio}px`,
+    );
+  }, [canvas, view]); // Autosize on first render
 
   /*
    * Initialize GPU device on component init
@@ -100,8 +97,13 @@ export function Canvas() {
     if (!canvas || !ctx || !device || !desc) return null;
 
     console.log("Rebuilding pipeline...");
-    return preparePipeline(device, desc, renderSize, ctx.getCurrentTexture());
-  }, [canvas, ctx, device, desc, renderSize]);
+    return preparePipeline(
+      device,
+      desc,
+      canvasProperties,
+      ctx.getCurrentTexture(),
+    );
+  }, [canvas, ctx, device, desc, canvasProperties]);
 
   /*
    * Render a frame
@@ -125,9 +127,10 @@ export function Canvas() {
     <canvas
       ref={(ref) => setCanvas(ref)}
       id="main-canvas"
-      className="bg-black w-full h-full"
-      width={100}
-      height={100}
+      className={cn("bg-pattern-squares bg-neutral-950 text-neutral-900", {
+        "[image-rendering:pixelated]": view.zoom > 1,
+      })}
+      {...canvasProperties}
     />
   );
 }

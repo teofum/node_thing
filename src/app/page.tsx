@@ -1,6 +1,7 @@
 import { Canvas } from "./components/renderer/canvas";
 import { Workspace } from "./components/workspace";
 import { AuthButton } from "./auth/components/auth-button";
+import { Renderer } from "./components/renderer";
 
 export default function Home() {
   return (
@@ -32,8 +33,8 @@ export default function Home() {
 
         {/* Output panel */}
         <div className="relative min-h-0">
-          <div className="absolute inset-0 left-2 rounded-2xl overflow-hidden z-20 border border-white/15">
-            <Canvas />
+          <div className="absolute inset-0 left-2">
+            <Renderer />
           </div>
 
           {/* CSS resize hack */}
