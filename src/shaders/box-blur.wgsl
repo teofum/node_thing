@@ -1,4 +1,3 @@
-
 @group(0) @binding(0)
 var<storage, read_write> input: array<vec4f>;
 
@@ -12,7 +11,7 @@ struct Uniforms {
 @group(1) @binding(0)
 var<uniform> u: Uniforms;
 
-const R : i32 = 1; //el radio del blur
+const R : i32 = 2; //el radio del blur
 
 @compute @workgroup_size(16, 16) 
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
@@ -28,8 +27,8 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
             let x = clamp(i32(id.x) + dx, 0, i32(u.width) - 1);
             let y = clamp(i32(id.y) + dy, 0, i32(u.height) - 1);
 
-            let c = input[index];
-            sum = sum + c;
+            let sampleIndex = u32(x) + u32(y) * u.width;
+            sum = sum + input[sampleIndex];
         }
     }
 
