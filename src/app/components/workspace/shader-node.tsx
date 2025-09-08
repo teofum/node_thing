@@ -19,7 +19,7 @@ export function RenderShaderNode({
 
   return (
     <div
-      className={cn("glass rounded-lg border", {
+      className={cn("glass rounded-lg border min-w-32", {
         "border-white/20": !selected,
         "border-teal-400/40 outline-teal-400/20 outline-2": selected,
       })}
@@ -31,7 +31,7 @@ export function RenderShaderNode({
       <div className="p-2">
         {/* dinámicamente chequeo campos de inputs y outputs para imprimir Handles */}
         {/* inputs */}
-        {Object.keys(nodeTypeInfo.inputs).map((key, i) => (
+        {Object.entries(nodeTypeInfo.inputs).map(([key, input], i) => (
           <div key={key}>
             <Handle
               type="target"
@@ -39,13 +39,12 @@ export function RenderShaderNode({
               id={key}
               style={{ top: i * 16 + HEADER_HEIGHT }}
             />
-            <div className="text-white text-xs/4"> {key}</div>
-            {/* debug */}
+            <div className="text-white text-xs/4">{input.name}</div>
           </div>
         ))}
 
         {/* outputs */}
-        {Object.keys(nodeTypeInfo.outputs).map((key, i) => (
+        {Object.entries(nodeTypeInfo.outputs).map(([key, output], i) => (
           <div key={key}>
             <Handle
               type="source"
@@ -53,8 +52,9 @@ export function RenderShaderNode({
               id={key}
               style={{ top: i * 16 + outputOffset }}
             />
-            <div className="text-white text-xs/4 flex justify-end"> {key}</div>
-            {/* debug */}
+            <div className="text-white text-xs/4 flex justify-end">
+              {output.name}
+            </div>
           </div>
         ))}
       </div>
