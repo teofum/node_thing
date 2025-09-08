@@ -54,16 +54,18 @@ export function Sidebar() {
           </ToggleButton>
         </div>
         <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
-          {Object.entries(NODE_TYPES).map(([key, type]) => (
-            <div
-              key={key}
-              className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
-              onDragStart={(event) => onDragStart(event, key)}
-              draggable
-            >
-              {type.name}
-            </div>
-          ))}
+          {Object.entries(NODE_TYPES)
+            .filter(([key]) => !key.startsWith("__"))
+            .map(([key, type]) => (
+              <div
+                key={key}
+                className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
+                onDragStart={(event) => onDragStart(event, key)}
+                draggable
+              >
+                {type.name}
+              </div>
+            ))}
         </div>
       </aside>
     </>
