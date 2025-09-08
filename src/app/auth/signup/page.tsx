@@ -1,4 +1,7 @@
-import { SignUpForm } from "@/app/auth/components/signup-form";
+import { signUpAction } from "@/lib/auth/actions";
+import { OAuthButtons } from "@/app/auth/components/oauth-buttons";
+import { Input } from "@/ui/input";
+import { Button } from "@/ui/button";
 import Link from "next/link";
 
 export default async function SignUpPage({
@@ -13,7 +16,57 @@ export default async function SignUpPage({
       <div className="text-center">
         <h2 className="text-3xl font-bold">Create your account</h2>
       </div>
-      <SignUpForm error={params.error} />
+
+      <div className="glass glass-border p-6 w-96 mx-auto rounded-2xl">
+        <OAuthButtons mode="signup" />
+
+        <div className="font-medium mt-6 mb-3 text-center">
+          or sign up using email
+        </div>
+
+        <form action={signUpAction} className="space-y-6">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm/3 font-semibold mb-2"
+            >
+              Email
+            </label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm/3 font-semibold mb-2"
+            >
+              Password
+            </label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="w-full"
+            />
+          </div>
+          {params.error && (
+            <p className="text-sm text-red-600">{params.error}</p>
+          )}
+          <Button
+            type="submit"
+            className="w-full p-2 bg-stone-800 text-white rounded hover:bg-blue-700 cursor-pointer"
+          >
+            Sign up
+          </Button>
+        </form>
+      </div>
+
       <div className="text-center">
         <Link href="/auth/login" className="text-sm underline">
           Already have an account? Log in
