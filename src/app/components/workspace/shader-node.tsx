@@ -24,7 +24,12 @@ export function RenderShaderNode({
         "border-teal-400/40 outline-teal-400/20 outline-2": selected,
       })}
     >
-      <div className="text-xs/4 px-3 py-2 font-bold border-b border-white/15">
+      <div
+        className={cn(
+          "text-xs/4 px-3 py-2 font-bold border-b border-white/15 bg-clip-padding rounded-t-[7px]",
+          { "bg-purple-400/15": data.type === "__output" },
+        )}
+      >
         {nodeTypeInfo.name}
       </div>
 

@@ -18,6 +18,11 @@ body {
   color: var(--foreground);
 }
 
+.react-flow__attribution {
+  border-top-left-radius: 4px;
+  padding-right: 0.75rem;
+}
+
 @layer utilities {
   .glass {
     @apply bg-black/50 bg-gradient-to-b from-white/8 to-transparent 
