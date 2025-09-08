@@ -102,10 +102,12 @@ export async function updatePasswordAction(formData: FormData) {
   redirect(`/?message=${encodeURIComponent("Password updated successfully")}`);
 }
 
-export async function signInWithGoogleAction() {
+export async function signInWithOAuthAction(
+  provider: "google" | "github" | "apple",
+) {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
+    provider,
     options: {
       redirectTo: `${await getBaseUrl()}/`,
     },
@@ -120,38 +122,12 @@ export async function signInWithGoogleAction() {
   }
 }
 
-export async function signInWithGithubAction() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "github",
-    options: {
-      redirectTo: `${await getBaseUrl()}/`,
-    },
-  });
-
-  if (error) {
-    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
-  }
-
-  if (data.url) {
-    redirect(data.url);
-  }
-}
-
-export async function signInWithAppleAction() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "apple",
-    options: {
-      redirectTo: `${await getBaseUrl()}/`,
-    },
-  });
-
-  if (error) {
-    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
-  }
-
-  if (data.url) {
-    redirect(data.url);
-  }
-}
+export const signInWithGoogleAction = signInWithOAuthAction.bind(
+  null,
+  "google",
+);
+export const signInWithGithubAction = signInWithOAuthAction.bind(
+  null,
+  "github",
+);
+export const signInWithAppleAction = signInWithOAuthAction.bind(null, "apple");
