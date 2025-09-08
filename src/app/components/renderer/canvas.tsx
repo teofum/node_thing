@@ -41,7 +41,7 @@ export function Canvas() {
       "height",
       `${(canvas.height * view.zoom) / window.devicePixelRatio}px`,
     );
-  }, [canvas, view]); // Autosize on first render
+  }, [canvas, view, canvasProperties]); // Autosize on first render
 
   /*
    * Initialize GPU device on component init

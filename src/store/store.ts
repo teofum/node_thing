@@ -63,6 +63,7 @@ type ProjectActions = {
   onConnect: OnConnect;
 
   setZoom: (zoom: number) => void;
+  setCanvasSize: (width: number, height: number) => void;
 };
 
 function modifyLayer(
@@ -149,6 +150,17 @@ export const useStore = create<Project & ProjectActions>((set) => ({
       properties: {
         ...properties,
         view: { ...properties.view, zoom },
+      },
+    })),
+
+  /*
+   * Actions: canvas
+   */
+  setCanvasSize: (width, height) =>
+    set(({ properties }) => ({
+      properties: {
+        ...properties,
+        canvas: { ...properties.canvas, width, height },
       },
     })),
 }));

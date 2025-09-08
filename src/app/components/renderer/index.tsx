@@ -5,15 +5,20 @@ import { Canvas } from "./canvas";
 import { Button } from "@/ui/button";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { useRef } from "react";
+import { Input } from "@/ui/input";
 
 const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
 
 export function Renderer() {
   const { canvas, view } = useStore((s) => s.properties);
   const setZoom = useStore((s) => s.setZoom);
+  const setCanvasSize = useStore((s) => s.setCanvasSize);
 
   const viewport = useRef<HTMLDivElement | null>(null);
 
+  /*
+   * Zoom controls
+   */
   const zoomIn = () => {
     setZoom(
       ZOOM_STOPS.find((stop) => stop > view.zoom) ?? ZOOM_STOPS.at(-1) ?? 1,
@@ -36,9 +41,31 @@ export function Renderer() {
     setZoom(Math.min(vzoom, hzoom));
   };
 
+  /*
+   * Canvas size
+   */
+  const updateWidth = (value: string) => {
+    const width = Number(value);
+    console.log(value, width);
+    if (width > 0 && isFinite(width)) {
+      setCanvasSize(width, canvas.height);
+    }
+  };
+
+  const updateHeight = (value: string) => {
+    const height = Number(value);
+    console.log(value, height);
+    if (height > 0 && isFinite(height)) {
+      setCanvasSize(canvas.width, height);
+    }
+  };
+
+  /*
+   * Component UI
+   */
   return (
     <div className="rounded-2xl bg-neutral-950 z-20 border border-white/15 w-full h-full flex flex-col overflow-hidden">
-      <div className="p-2 flex flex-row gap-2">
+      <div className="p-2 flex flex-row gap-2 border-b border-white/15">
         <div className="flex flex-row">
           <Button
             icon
@@ -50,6 +77,7 @@ export function Renderer() {
           </Button>
           <Button
             variant="outline"
+            size="sm"
             className="border-r-0 border-l-0 rounded-none"
             onClick={fit}
           >
@@ -63,6 +91,31 @@ export function Renderer() {
           >
             <LuPlus />
           </Button>
+        </div>
+
+        <div className="flex fle-row items-center gap-1 ml-auto">
+          <div className="font-medium text-sm">Canvas size</div>
+          <Input
+            variant="outline"
+            size="sm"
+            className="min-w-20 w-0"
+            defaultValue={canvas.width}
+            onBlur={(ev) => updateWidth(ev.target.value)}
+            onKeyDown={(ev) => {
+              if (ev.key === "Enter") updateWidth(ev.currentTarget.value);
+            }}
+          />
+          ×
+          <Input
+            size="sm"
+            variant="outline"
+            className="min-w-20 w-0"
+            defaultValue={canvas.height}
+            onBlur={(ev) => updateHeight(ev.target.value)}
+            onKeyDown={(ev) => {
+              if (ev.key === "Enter") updateHeight(ev.currentTarget.value);
+            }}
+          />
         </div>
       </div>
       <div
