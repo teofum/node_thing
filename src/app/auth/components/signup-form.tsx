@@ -3,29 +3,33 @@
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Link from "next/link";
 import { OAuthButtons } from "./oauth-buttons";
+import { Input } from "@/ui/input";
+import { Button } from "@/ui/button";
 
-export function LoginForm() {
+export function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        },
       });
       if (error) throw error;
-      router.push("/");
+      router.push("/auth/sign-up-success");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -34,48 +38,51 @@ export function LoginForm() {
   };
 
   return (
-    <div className="border p-6 w-96 mx-auto rounded-md">
-      <OAuthButtons mode="signin" onError={setError} />
-      <form onSubmit={handleLogin} className="space-y-6">
+    <div className="glass glass-border p-6 w-96 mx-auto rounded-2xl">
+      <OAuthButtons mode="signup" onError={setError} />
+
+      <div className="font-medium mt-6 mb-3 text-center">
+        or sign up using email
+      </div>
+
+      <form onSubmit={handleSignUp} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm mb-1">
+          <label htmlFor="email" className="block text-sm/3 font-semibold mb-2">
             Email
           </label>
-          <input
+          <Input
             id="email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 border rounded-md"
+            className="w-full"
           />
         </div>
         <div>
-          <div className="flex justify-between mb-1">
-            <label htmlFor="password" className="block text-sm">
-              Password
-            </label>
-            <Link href="/auth/forgot-password" className="text-sm underline">
-              Forgot your password?
-            </Link>
-          </div>
-          <input
+          <label
+            htmlFor="password"
+            className="block text-sm/3 font-semibold mb-2"
+          >
+            Password
+          </label>
+          <Input
             id="password"
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border rounded-md"
+            className="w-full"
           />
         </div>
         {error && <p className="text-sm">{error}</p>}
-        <button
+        <Button
           type="submit"
           disabled={isLoading}
           className="w-full p-2 bg-stone-800 text-white rounded hover:bg-blue-700 cursor-pointer disabled:opacity-50"
         >
-          {isLoading ? "Logging in..." : "Log in"}
-        </button>
+          {isLoading ? "Creating account..." : "Sign up"}
+        </Button>
       </form>
     </div>
   );

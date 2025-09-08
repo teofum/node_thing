@@ -1,50 +1,71 @@
-import React, { useState } from "react";
-import { NODE_TYPES } from "@/utils/node-type";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import { LuGitFork, LuPin } from "react-icons/lu";
 import cn from "classnames";
 
+import { NODE_TYPES } from "@/utils/node-type";
+import useResizeObserver from "@/utils/use-resize-observer";
+import { ToggleButton } from "@/ui/button";
+
 export function Sidebar() {
-  const [hideSidebar, setHideSidebar] = useState(false);
+  const [pin, setPin] = useState(false);
+  const [height, setHeight] = useState(0);
+  const dummySizingDiv = useRef<HTMLDivElement | null>(null);
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("type", nodeType);
   };
 
+  useResizeObserver(dummySizingDiv.current, () => {
+    setHeight(dummySizingDiv.current?.clientHeight ?? 0);
+  });
+  useLayoutEffect(() => {
+    setHeight(dummySizingDiv.current?.clientHeight ?? 0);
+  }, []);
+
   return (
     <>
+      <div
+        className="absolute left-0 top-2 bottom-2 w-0"
+        ref={dummySizingDiv}
+      />
       <aside
         className={cn(
-          "absolute top-2 bottom-2 z-10 flex flex-col rounded-lg p-2 overflow-hidden",
-          "bg-gradient-to-b from-gray-500/20 via-gray-600/20 to-gray-700/20",
-          "backdrop-blur-sm border border-gray-700 shadow-lg transition-all duration-50",
-          hideSidebar ? "left-0 w-2" : "left-2 w-52",
+          "absolute left-2 top-2 z-10 w-48 flex flex-col rounded-xl group",
+          "glass glass-border transition-[height] duration-300 overflow-hidden",
+          { "not-hover:!h-[50px]": !pin },
         )}
+        style={{ height }}
       >
-        {!hideSidebar &&
-          Object.entries(NODE_TYPES).map(([key, type]) => (
+        <div className="p-2 pl-4 flex flex-row gap-2 items-center min-h-12">
+          <LuGitFork />
+          <div className="font-semibold text-sm/4">Library</div>
+
+          <ToggleButton
+            icon
+            variant="ghost"
+            className={cn("ml-auto", {
+              "opacity-0 group-hover:opacity-100": !pin,
+            })}
+            pressed={pin}
+            onPressedChange={setPin}
+          >
+            <LuPin />
+          </ToggleButton>
+        </div>
+        <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
+          {Object.entries(NODE_TYPES).map(([key, type]) => (
             <div
               key={key}
-              className="p-3 m-3 border-2 bg-black rounded-md"
+              className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
               onDragStart={(event) => onDragStart(event, key)}
               draggable
             >
               {type.name}
             </div>
           ))}
+        </div>
       </aside>
-
-      <button
-        className={cn(
-          "absolute top-1/2 w-6 h-14 items-center justify-center",
-          "bg-gradient-to-b from-gray-500/20 via-gray-600/20 to-gray-700/20",
-          "backdrop-blur-sm border border-gray-700 border-l-0 shadow-lg rounded",
-          "hover:bg-gray-700 transition",
-          hideSidebar ? "left-[16px]" : "left-[214px]", // esto hardcodeado dependiendo del tamaño de sidebar (también hardcodeado)
-        )}
-        onClick={() => setHideSidebar(!hideSidebar)}
-      >
-        {hideSidebar ? ">" : "<"}
-      </button>
     </>
   );
 }
