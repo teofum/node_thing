@@ -1,0 +1,237 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { Provider } from "@supabase/supabase-js";
+
+async function getBaseUrl() {
+  const headersList = await headers();
+  const host = headersList.get("host");
+  const forwardedProto = headersList.get("x-forwarded-proto");
+  const protocol =
+    forwardedProto || (host?.includes("localhost") ? "http" : "https");
+  return `${protocol}://${host}`;
+}
+
+export async function signInAction(formData: FormData) {
+  const supabase = await createClient();
+  const emailOrUsername = formData.get("emailOrUsername") as string;
+  const password = formData.get("password") as string;
+
+  let email = emailOrUsername;
+
+  if (!emailOrUsername.includes("@")) {
+    const { data: profileData } = await supabase.rpc(
+      "get_user_email_by_username",
+      { username_param: emailOrUsername },
+    );
+
+    if (!profileData) {
+      redirect(
+        `/auth/login?error=${encodeURIComponent("Invalid username or password")}`,
+      );
+    }
+    email = profileData;
+  }
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/");
+  redirect("/");
+}
+
+export async function signUpAction(formData: FormData) {
+  const supabase = await createClient();
+  const username = formData.get("username") as string;
+  const email = formData.get("email") as string;
+  const displayName = formData.get("displayName") as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (password !== confirmPassword) {
+    redirect(
+      `/auth/signup?error=${encodeURIComponent("Passwords do not match")}`,
+    );
+  }
+
+  const { data: existingProfile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("username", username)
+    .single();
+
+  if (existingProfile) {
+    redirect(
+      `/auth/signup?error=${encodeURIComponent("Username already taken")}`,
+    );
+  }
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${await getBaseUrl()}/`,
+      data: {
+        username,
+        full_name: displayName,
+      },
+    },
+  });
+
+  if (error) {
+    redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
+  }
+
+  redirect("/auth/sign-up-success");
+}
+
+export async function signOutAction() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  revalidatePath("/");
+  redirect("/");
+}
+
+export async function forgotPasswordAction(formData: FormData) {
+  const supabase = await createClient();
+  const email = formData.get("email") as string;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${await getBaseUrl()}/auth/callback?next=/auth/update-password`,
+  });
+
+  if (error) {
+    redirect(
+      `/auth/forgot-password?error=${encodeURIComponent(error.message)}`,
+    );
+  }
+
+  redirect(
+    `/auth/forgot-password?message=${encodeURIComponent("Check your email for the password reset link")}`,
+  );
+}
+
+export async function updatePasswordAction(formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (userError || !user) {
+    redirect("/auth/login?error=Please log in to update your password");
+  }
+
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (password !== confirmPassword) {
+    redirect(
+      `/auth/update-password?error=${encodeURIComponent("Passwords do not match")}`,
+    );
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password,
+  });
+
+  if (error) {
+    redirect(
+      `/auth/update-password?error=${encodeURIComponent(error.message)}`,
+    );
+  }
+
+  redirect(`/?message=${encodeURIComponent("Password updated successfully")}`);
+}
+
+export async function signInWithOAuthAction(provider: Provider) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${await getBaseUrl()}/auth/callback?next=/onboarding`,
+    },
+  });
+
+  if (error) {
+    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
+  }
+
+  if (data.url) {
+    redirect(data.url);
+  }
+}
+
+export const signInWithGoogleAction = signInWithOAuthAction.bind(
+  null,
+  "google",
+);
+export const signInWithGithubAction = signInWithOAuthAction.bind(
+  null,
+  "github",
+);
+export const signInWithDiscordAction = signInWithOAuthAction.bind(
+  null,
+  "discord",
+);
+
+export async function onboardingAction(formData: FormData) {
+  const supabase = await createClient();
+  const username = formData.get("username") as string;
+  const displayName = formData.get("displayName") as string;
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/auth/login?error=Please log in first");
+  }
+
+  const { data: existingProfile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("username", username)
+    .single();
+
+  if (existingProfile) {
+    redirect(
+      `/onboarding?error=${encodeURIComponent("Username already taken")}`,
+    );
+  }
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .insert({ id: user.id, username });
+
+  if (profileError) {
+    console.error("Profile creation error:", profileError);
+    redirect(
+      `/onboarding?error=${encodeURIComponent(profileError.message || "Failed to create profile")}`,
+    );
+  }
+
+  // Set user-provided display name
+  const { error: updateError } = await supabase.auth.updateUser({
+    data: {
+      full_name: displayName,
+    },
+  });
+
+  if (updateError) {
+    console.error("Display name update error:", updateError);
+  }
+
+  revalidatePath("/");
+  redirect("/");
+}

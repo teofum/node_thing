@@ -23,7 +23,7 @@ function buttonClassnames(
       "p-1 text-xs/3": size === "sm",
       "p-2 text-sm/4": size === "md",
       "p-4 text-base/5": size === "lg",
-      "px-3 min-w-20": !icon && size === "sm",
+      "px-3 min-w-16": !icon && size === "sm",
       "px-4 min-w-20": !icon && size === "md",
       "px-6 min-w-20": !icon && size === "lg",
       "border border-current/15": variant === "outline",

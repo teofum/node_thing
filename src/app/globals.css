@@ -45,4 +45,12 @@ body {
     background-position: -1px -1px;
     background-size: calc(100% + 2px) calc(100% + 2px);
   }
+
+  .bg-pattern-squares {
+    background-size: 1rem 1rem;
+    background-image: repeating-conic-gradient(
+      currentcolor 0% 25%,
+      transparent 0% 50%
+    );
+  }
 }

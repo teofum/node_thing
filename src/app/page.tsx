@@ -1,15 +1,29 @@
-import { Canvas } from "./components/renderer/canvas";
+import { redirect } from "next/navigation";
+
 import { Workspace } from "./components/workspace";
 import { AuthButton } from "./auth/components/auth-button";
+import { createClient } from "@/lib/supabase/server";
+import { Renderer } from "./components/renderer";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile) {
+      redirect("/onboarding");
+    }
+  }
   return (
-    // hago la estructura básica todo con divs
-
-    // TODO arreglar fullscreen sin scroll
-
-    // div general para definir el grid (de 3 columnas)
-    <div className="grid grid-rows-[auto_1fr] w-screen h-screen bg-neutral-900">
+    <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}
       <div className="flex justify-between items-center px-2 pl-4 pt-3">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
@@ -32,13 +46,13 @@ export default function Home() {
 
         {/* Output panel */}
         <div className="relative min-h-0">
-          <div className="absolute inset-0 left-2 rounded-2xl overflow-hidden z-20 border border-white/15">
-            <Canvas />
+          <div className="absolute inset-0 left-2 z-10">
+            <Renderer />
           </div>
 
           {/* CSS resize hack */}
           <div className="absolute left-0.5 top-1/2 -translate-y-1/2 h-4 w-1 rounded bg-neutral-600 cursor-col-resize" />
-          <div className="relative top-1/2 -translate-y-1/2 h-4 w-full resize-x min-w-80 max-w-[70vw] -ml-1.5 overflow-hidden [direction:rtl] opacity-0 cursor-col-resize" />
+          <div className="relative top-1/2 -translate-y-1/2 h-4 w-full resize-x min-w-120 max-w-[70vw] -ml-1.5 overflow-hidden [direction:rtl] opacity-0 cursor-col-resize" />
         </div>
       </main>
     </div>
