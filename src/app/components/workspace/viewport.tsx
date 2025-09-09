@@ -6,7 +6,7 @@ import { NodeData } from "@/schemas/node.schema";
 
 // TODO esto volarlo, relacionado con lo de IDs duplicadas
 let id = 0;
-const getId = () => `dndnode_${id++}`;
+const getId = () => `node_${id++}`;
 
 const nodeTypes = {
   RenderShaderNode,
@@ -43,14 +43,12 @@ export function Viewport() {
         y: event.clientY,
       });
 
-      // TODO borrar a futuro
       const type = event.dataTransfer.getData("type") as NodeData["type"];
       const currId = `${type === "__input" || type === "__output" ? `${type}_` : ""}${getId()}`;
 
-      // TODO esto hardcodeo, instancio siempre un ShaderNode con tipo interno "middle"
       const newNode: ShaderNode = {
         id: currId,
-        type: "RenderShaderNode", // hardcodeo
+        type: "RenderShaderNode",
         position,
         data: {
           type,

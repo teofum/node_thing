@@ -26,12 +26,12 @@ export function Sidebar() {
   return (
     <>
       <div
-        className="absolute left-0 top-2 bottom-2 w-0"
+        className="absolute left-0 top-1 bottom-1 w-0"
         ref={dummySizingDiv}
       />
       <aside
         className={cn(
-          "absolute left-2 top-2 z-10 w-48 flex flex-col rounded-xl group",
+          "absolute left-1 top-1 z-10 w-48 flex flex-col rounded-xl group",
           "glass glass-border transition-[height] duration-300 overflow-hidden",
           { "not-hover:!h-[50px]": !pin },
         )}
@@ -54,16 +54,18 @@ export function Sidebar() {
           </ToggleButton>
         </div>
         <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
-          {Object.entries(NODE_TYPES).map(([key, type]) => (
-            <div
-              key={key}
-              className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
-              onDragStart={(event) => onDragStart(event, key)}
-              draggable
-            >
-              {type.name}
-            </div>
-          ))}
+          {Object.entries(NODE_TYPES)
+            .filter(([key]) => !key.startsWith("__"))
+            .map(([key, type]) => (
+              <div
+                key={key}
+                className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
+                onDragStart={(event) => onDragStart(event, key)}
+                draggable
+              >
+                {type.name}
+              </div>
+            ))}
         </div>
       </aside>
     </>

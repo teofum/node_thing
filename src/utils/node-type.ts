@@ -5,23 +5,23 @@ import testBWShader from "@/shaders/test-grayscale.wgsl";
 
 export const NODE_TYPES = {
   __input: {
-    name: "Special input node",
+    name: "Input",
     shader: "",
     inputs: {},
     outputs: {
       out_a: {
-        name: "out_a",
+        name: "Input",
         type: "color",
       },
     },
     parameters: {},
   },
   __output: {
-    name: "Special output node",
+    name: "Output",
     shader: "",
     inputs: {
       in_a: {
-        name: "in_a",
+        name: "Layer output",
         type: "color",
       },
     },
@@ -34,7 +34,7 @@ export const NODE_TYPES = {
     inputs: {},
     outputs: {
       out_a: {
-        name: "out_a",
+        name: "UV grid",
         type: "color",
       },
     },
@@ -45,13 +45,13 @@ export const NODE_TYPES = {
     shader: testBWShader,
     inputs: {
       in_a: {
-        name: "in_a",
+        name: "Input",
         type: "color",
       },
     },
     outputs: {
       out_a: {
-        name: "out_a",
+        name: "Output",
         type: "color",
       },
     },

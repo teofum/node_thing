@@ -30,7 +30,15 @@ export type Project = {
   currentLayer: number;
 };
 
-const initialNodes: ShaderNode[] = [];
+const initialNodes: ShaderNode[] = [
+  {
+    id: "__output",
+    position: { x: 0, y: 0 },
+    data: { type: "__output" },
+    type: "RenderShaderNode",
+    deletable: false,
+  },
+];
 const initialEdges: Edge[] = [];
 
 type ProjectActions = {
@@ -68,10 +76,7 @@ export const useStore = create<Project & ProjectActions>((set) => ({
   /*
    * State
    */
-  layers: [
-    { nodes: [...initialNodes], edges: [...initialEdges] }, // debug, le enchufo valores iniciales en la capa 0
-    { nodes: [], edges: [] }, // debug, si le mando + 1
-  ],
+  layers: [{ nodes: [...initialNodes], edges: [...initialEdges] }],
   currentLayer: 0,
 
   /*
