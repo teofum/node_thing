@@ -6,8 +6,11 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 async function getBaseUrl() {
-  const host = (await headers()).get("host");
-  const protocol = host?.includes("localhost") ? "http" : "https";
+  const headersList = await headers();
+  const host = headersList.get("host");
+  const forwardedProto = headersList.get("x-forwarded-proto");
+  const protocol =
+    forwardedProto || (host?.includes("localhost") ? "http" : "https");
   return `${protocol}://${host}`;
 }
 
