@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { Provider } from "@supabase/supabase-js";
 
 async function getBaseUrl() {
   const headersList = await headers();
@@ -152,9 +153,7 @@ export async function updatePasswordAction(formData: FormData) {
   redirect(`/?message=${encodeURIComponent("Password updated successfully")}`);
 }
 
-export async function signInWithOAuthAction(
-  provider: "google" | "github" | "apple",
-) {
+export async function signInWithOAuthAction(provider: Provider) {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
@@ -179,6 +178,10 @@ export const signInWithGoogleAction = signInWithOAuthAction.bind(
 export const signInWithGithubAction = signInWithOAuthAction.bind(
   null,
   "github",
+);
+export const signInWithDiscordAction = signInWithOAuthAction.bind(
+  null,
+  "discord",
 );
 
 export async function onboardingAction(formData: FormData) {
