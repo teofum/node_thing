@@ -49,6 +49,7 @@ export async function signUpAction(formData: FormData) {
   const supabase = await createClient();
   const username = formData.get("username") as string;
   const email = formData.get("email") as string;
+  const displayName = formData.get("displayName") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
 
@@ -77,6 +78,7 @@ export async function signUpAction(formData: FormData) {
       emailRedirectTo: `${await getBaseUrl()}/`,
       data: {
         username,
+        full_name: displayName,
       },
     },
   });
@@ -154,7 +156,7 @@ export async function signInWithOAuthAction(
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${await getBaseUrl()}/`,
+      redirectTo: `${await getBaseUrl()}/auth/callback?next=/onboarding`,
     },
   });
 
@@ -176,3 +178,55 @@ export const signInWithGithubAction = signInWithOAuthAction.bind(
   "github",
 );
 export const signInWithAppleAction = signInWithOAuthAction.bind(null, "apple");
+
+export async function onboardingAction(formData: FormData) {
+  const supabase = await createClient();
+  const username = formData.get("username") as string;
+  const displayName = formData.get("displayName") as string;
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/auth/login?error=Please log in first");
+  }
+
+  const { data: existingProfile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("username", username)
+    .single();
+
+  if (existingProfile) {
+    redirect(
+      `/onboarding?error=${encodeURIComponent("Username already taken")}`,
+    );
+  }
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .insert({ id: user.id, username });
+
+  if (profileError) {
+    console.error("Profile creation error:", profileError);
+    redirect(
+      `/onboarding?error=${encodeURIComponent(profileError.message || "Failed to create profile")}`,
+    );
+  }
+
+  // Set user-provided display name
+  const { error: updateError } = await supabase.auth.updateUser({
+    data: {
+      full_name: displayName,
+    },
+  });
+
+  if (updateError) {
+    console.error("Display name update error:", updateError);
+  }
+
+  revalidatePath("/");
+  redirect("/");
+}

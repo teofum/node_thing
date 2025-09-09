@@ -12,13 +12,7 @@ export async function AuthButton() {
     return <LinkButton href="/auth/login">Sign in</LinkButton>;
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("username")
-    .eq("id", user.id)
-    .single();
-
-  const displayName = profile?.username || user.email;
+  const displayName = user.user_metadata?.full_name || user.email;
 
   return (
     <div className="flex items-center gap-4">
