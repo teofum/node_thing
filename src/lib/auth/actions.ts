@@ -19,6 +19,7 @@ export async function signInAction(formData: FormData) {
   const supabase = await createClient();
   const emailOrUsername = formData.get("emailOrUsername") as string;
   const password = formData.get("password") as string;
+  const next = formData.get("next") as string;
 
   let email = emailOrUsername;
 
@@ -29,9 +30,10 @@ export async function signInAction(formData: FormData) {
     );
 
     if (!profileData) {
-      redirect(
-        `/auth/login?error=${encodeURIComponent("Invalid username or password")}`,
-      );
+      const errorUrl = next
+        ? `/auth/login?next=${encodeURIComponent(next)}&error=${encodeURIComponent("Invalid username or password")}`
+        : `/auth/login?error=${encodeURIComponent("Invalid username or password")}`;
+      redirect(errorUrl);
     }
     email = profileData;
   }
@@ -42,11 +44,20 @@ export async function signInAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
+    const errorUrl = next
+      ? `/auth/login?next=${encodeURIComponent(next)}&error=${encodeURIComponent(error.message)}`
+      : `/auth/login?error=${encodeURIComponent(error.message)}`;
+    redirect(errorUrl);
   }
 
   revalidatePath("/");
-  redirect("/");
+
+  // Only redirect to next if it's a valid path starting with /
+  if (next && next.startsWith("/")) {
+    redirect(next);
+  } else {
+    redirect("/");
+  }
 }
 
 export async function signUpAction(formData: FormData) {
@@ -153,12 +164,19 @@ export async function updatePasswordAction(formData: FormData) {
   redirect(`/?message=${encodeURIComponent("Password updated successfully")}`);
 }
 
-export async function signInWithOAuthAction(provider: Provider) {
+export async function signInWithOAuthAction(
+  formData: FormData,
+  provider: Provider,
+) {
   const supabase = await createClient();
+  const next = formData.get("next") as string;
+
+  const callbackNext = next && next.startsWith("/") ? next : "/onboarding";
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${await getBaseUrl()}/auth/callback?next=/onboarding`,
+      redirectTo: `${await getBaseUrl()}/auth/callback?next=${encodeURIComponent(callbackNext)}`,
     },
   });
 
@@ -171,18 +189,17 @@ export async function signInWithOAuthAction(provider: Provider) {
   }
 }
 
-export const signInWithGoogleAction = signInWithOAuthAction.bind(
-  null,
-  "google",
-);
-export const signInWithGithubAction = signInWithOAuthAction.bind(
-  null,
-  "github",
-);
-export const signInWithDiscordAction = signInWithOAuthAction.bind(
-  null,
-  "discord",
-);
+export async function signInWithGoogleAction(formData: FormData) {
+  return signInWithOAuthAction(formData, "google");
+}
+
+export async function signInWithGithubAction(formData: FormData) {
+  return signInWithOAuthAction(formData, "github");
+}
+
+export async function signInWithDiscordAction(formData: FormData) {
+  return signInWithOAuthAction(formData, "discord");
+}
 
 export async function onboardingAction(formData: FormData) {
   const supabase = await createClient();
