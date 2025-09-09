@@ -11,7 +11,7 @@ struct Uniforms {
 @group(1) @binding(0)
 var<uniform> u: Uniforms;
 
-const R : i32 = 2; //el radio del blur
+const R : i32 = 9; //el radio del blur
 
 @compute @workgroup_size(16, 16) 
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {

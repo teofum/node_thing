@@ -6,6 +6,7 @@ import thresholdShader from "@/shaders/threshold-bw.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
 import gaussianBlurShader3x3 from "@/shaders/gaussian-blur-3x3.wgsl";
 import gaussianBlurShader5x5 from "@/shaders/gaussian-blur-5x5.wgsl";
+import mixShader from "@/shaders/mix.wgsl";
 
 export const NODE_TYPES = {
   __input: {
@@ -118,6 +119,27 @@ export const NODE_TYPES = {
     inputs: {
       in_a: {
         name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  mix: {
+    name: "Mix",
+    shader: mixShader,
+    inputs: {
+      in_a: {
+        name: "A",
+        type: "color",
+      },
+      in_b: {
+        name: "B",
         type: "color",
       },
     },
