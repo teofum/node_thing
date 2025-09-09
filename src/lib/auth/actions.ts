@@ -180,7 +180,6 @@ export const signInWithGithubAction = signInWithOAuthAction.bind(
   null,
   "github",
 );
-export const signInWithAppleAction = signInWithOAuthAction.bind(null, "apple");
 
 export async function onboardingAction(formData: FormData) {
   const supabase = await createClient();
