@@ -25,9 +25,20 @@ export type Layer = {
   edges: Edge[];
 };
 
+export type ProjectProperties = {
+  canvas: {
+    width: number;
+    height: number;
+  };
+  view: {
+    zoom: number;
+  };
+};
+
 export type Project = {
   layers: Layer[];
   currentLayer: number;
+  properties: ProjectProperties;
 };
 
 const initialNodes: ShaderNode[] = [
@@ -50,6 +61,9 @@ type ProjectActions = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+
+  setZoom: (zoom: number) => void;
+  setCanvasSize: (width: number, height: number) => void;
 };
 
 function modifyLayer(
@@ -78,6 +92,7 @@ export const useStore = create<Project & ProjectActions>((set) => ({
    */
   layers: [{ nodes: [...initialNodes], edges: [...initialEdges] }],
   currentLayer: 0,
+  properties: { canvas: { width: 1920, height: 1080 }, view: { zoom: 1 } },
 
   /*
    * Actions
@@ -121,9 +136,31 @@ export const useStore = create<Project & ProjectActions>((set) => ({
       const newEdges = addEdge(connection, filteredEdges);
 
       return {
-        layers: modifyLayer(layers, currentLayer, (layer) => ({
+        layers: modifyLayer(layers, currentLayer, () => ({
           edges: newEdges,
         })),
       };
     }),
+
+  /*
+   * Actions: view
+   */
+  setZoom: (zoom) =>
+    set(({ properties }) => ({
+      properties: {
+        ...properties,
+        view: { ...properties.view, zoom },
+      },
+    })),
+
+  /*
+   * Actions: canvas
+   */
+  setCanvasSize: (width, height) =>
+    set(({ properties }) => ({
+      properties: {
+        ...properties,
+        canvas: { ...properties.canvas, width, height },
+      },
+    })),
 }));
