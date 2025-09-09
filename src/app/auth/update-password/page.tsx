@@ -31,7 +31,6 @@ export default async function UpdatePasswordPage({
               type="password"
               required
               className="w-full"
-              placeholder="New password"
             />
           </div>
           <div>
@@ -47,7 +46,6 @@ export default async function UpdatePasswordPage({
               type="password"
               required
               className="w-full"
-              placeholder="Confirm new password"
             />
           </div>
           {params.error && (

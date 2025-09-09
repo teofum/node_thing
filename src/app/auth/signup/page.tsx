@@ -53,6 +53,21 @@ export default async function SignUpPage({
           </div>
           <div>
             <label
+              htmlFor="username"
+              className="block text-sm/3 font-semibold mb-2"
+            >
+              Username
+            </label>
+            <Input
+              id="username"
+              name="username"
+              type="text"
+              required
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label
               htmlFor="password"
               className="block text-sm/3 font-semibold mb-2"
             >

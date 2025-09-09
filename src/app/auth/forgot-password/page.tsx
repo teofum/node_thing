@@ -68,7 +68,6 @@ export default async function ForgotPasswordPage({
               type="email"
               required
               className="w-full"
-              placeholder="john@example.com"
             />
           </div>
           {params.error && (

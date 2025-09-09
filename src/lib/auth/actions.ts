@@ -13,8 +13,24 @@ async function getBaseUrl() {
 
 export async function signInAction(formData: FormData) {
   const supabase = await createClient();
-  const email = formData.get("email") as string;
+  const emailOrUsername = formData.get("emailOrUsername") as string;
   const password = formData.get("password") as string;
+
+  let email = emailOrUsername;
+
+  if (!emailOrUsername.includes("@")) {
+    const { data: profileData } = await supabase.rpc(
+      "get_user_email_by_username",
+      { username_param: emailOrUsername },
+    );
+
+    if (!profileData) {
+      redirect(
+        `/auth/login?error=${encodeURIComponent("Invalid username or password")}`,
+      );
+    }
+    email = profileData;
+  }
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -31,6 +47,7 @@ export async function signInAction(formData: FormData) {
 
 export async function signUpAction(formData: FormData) {
   const supabase = await createClient();
+  const username = formData.get("username") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
@@ -41,11 +58,26 @@ export async function signUpAction(formData: FormData) {
     );
   }
 
+  const { data: existingProfile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("username", username)
+    .single();
+
+  if (existingProfile) {
+    redirect(
+      `/auth/signup?error=${encodeURIComponent("Username already taken")}`,
+    );
+  }
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       emailRedirectTo: `${await getBaseUrl()}/`,
+      data: {
+        username,
+      },
     },
   });
 
@@ -85,7 +117,6 @@ export async function forgotPasswordAction(formData: FormData) {
 export async function updatePasswordAction(formData: FormData) {
   const supabase = await createClient();
 
-  // Verificar que el usuario esté autenticado
   const {
     data: { user },
     error: userError,

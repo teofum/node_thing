@@ -32,24 +32,23 @@ export default async function LoginPage({
         <OAuthButtons mode="signin" />
 
         <div className="font-medium mt-6 mb-3 text-center">
-          or sign in using email
+          or sign in using email or username
         </div>
 
         <form action={signInAction} className="space-y-6">
           <div>
             <label
-              htmlFor="email"
+              htmlFor="emailOrUsername"
               className="block text-sm/3 font-semibold mb-2"
             >
-              Email
+              Email or Username
             </label>
             <Input
-              id="email"
-              name="email"
-              type="email"
+              id="emailOrUsername"
+              name="emailOrUsername"
+              type="text"
               required
               className="w-full"
-              placeholder="john@example.com"
             />
           </div>
           <div>

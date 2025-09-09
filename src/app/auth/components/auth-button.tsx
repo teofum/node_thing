@@ -8,16 +8,26 @@ export async function AuthButton() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return user ? (
+  if (!user) {
+    return <LinkButton href="/auth/login">Sign in</LinkButton>;
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  const displayName = profile?.username || user.email;
+
+  return (
     <div className="flex items-center gap-4">
-      <span className="text-sm">Hey, {user.email}!</span>
+      <span className="text-sm">Hey, {displayName}!</span>
       <form action={signOutAction} className="inline">
         <Button type="submit" variant="outline" size="sm">
           Logout
         </Button>
       </form>
     </div>
-  ) : (
-    <LinkButton href="/auth/login">Sign in</LinkButton>
   );
 }
