@@ -1,12 +1,12 @@
-"use client";
-
-import { createClient } from "@/lib/supabase/client";
+import {
+  signInWithGoogleAction,
+  signInWithGithubAction,
+  signInWithDiscordAction,
+} from "@/lib/auth/actions";
 import { Button } from "@/ui/button";
-import { useState } from "react";
 
 interface OAuthButtonsProps {
   mode: "signin" | "signup";
-  onError: (error: string) => void;
 }
 
 function GoogleLogo() {
@@ -40,60 +40,41 @@ function GithubLogo() {
   );
 }
 
-function AppleLogo() {
+function DiscordLogo() {
   return (
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+    <svg
+      className="w-6 h-6"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="#5865f2"
+      viewBox="0 0 126.644 96"
+    >
+      <path d="M81.15 0c-1.2376 2.1973-2.3489 4.4704-3.3591 6.794-9.5975-1.4396-19.3718-1.4396-28.9945 0-.985-2.3236-2.1216-4.5967-3.3591-6.794-9.0166 1.5407-17.8059 4.2431-26.1405 8.0568C2.779 32.5304-1.6914 56.3725.5312 79.8863c9.6732 7.1476 20.5083 12.603 32.0505 16.0884 2.6014-3.4854 4.8998-7.1981 6.8698-11.0623-3.738-1.3891-7.3497-3.1318-10.8098-5.1523.9092-.6567 1.7932-1.3386 2.6519-1.9953 20.281 9.547 43.7696 9.547 64.0758 0 .8587.7072 1.7427 1.3891 2.6519 1.9953-3.4601 2.0457-7.0718 3.7632-10.835 5.1776 1.97 3.8642 4.2683 7.5769 6.8698 11.0623 11.5419-3.4854 22.3769-8.9156 32.0509-16.0631 2.626-27.2771-4.496-50.9172-18.817-71.8548C98.9811 4.2684 90.1918 1.5659 81.1752.0505L81.15 0ZM42.2802 65.4144c-6.2383 0-11.4159-5.6575-11.4159-12.6535s4.9755-12.6788 11.3907-12.6788 11.5169 5.708 11.4159 12.6788c-.101 6.9708-5.026 12.6535-11.3907 12.6535Zm42.0774 0c-6.2637 0-11.3907-5.6575-11.3907-12.6535s4.9755-12.6788 11.3907-12.6788 11.4917 5.708 11.3906 12.6788c-.101 6.9708-5.026 12.6535-11.3906 12.6535Z" />
     </svg>
   );
 }
 
-export function OAuthButtons({ mode, onError }: OAuthButtonsProps) {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleOAuth = async (provider: "google" | "github" | "apple") => {
-    setIsLoading(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/`,
-      },
-    });
-    if (error) onError(error.message);
-    setIsLoading(false);
-  };
-
+export function OAuthButtons({ mode }: OAuthButtonsProps) {
   const actionText = mode === "signin" ? "Sign in" : "Sign up";
 
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="font-medium text-lg">{actionText} with</div>
       <div className="flex flex-row justify-center gap-4">
-        <Button
-          icon
-          size="lg"
-          onClick={() => handleOAuth("google")}
-          disabled={isLoading}
-        >
-          <GoogleLogo />
-        </Button>
-        <Button
-          icon
-          size="lg"
-          onClick={() => handleOAuth("github")}
-          disabled={isLoading}
-        >
-          <GithubLogo />
-        </Button>
-        <Button
-          icon
-          size="lg"
-          onClick={() => handleOAuth("apple")}
-          disabled={isLoading}
-        >
-          <AppleLogo />
-        </Button>
+        <form action={signInWithGoogleAction}>
+          <Button icon size="lg" type="submit">
+            <GoogleLogo />
+          </Button>
+        </form>
+        <form action={signInWithGithubAction}>
+          <Button icon size="lg" type="submit">
+            <GithubLogo />
+          </Button>
+        </form>
+        <form action={signInWithDiscordAction}>
+          <Button icon size="lg" type="submit">
+            <DiscordLogo />
+          </Button>
+        </form>
       </div>
     </div>
   );

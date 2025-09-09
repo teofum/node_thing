@@ -1,19 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
-
-import { LinkButton } from "@/ui/button";
-import { LogoutButton } from "./logout-button";
+import { signOutAction } from "@/lib/auth/actions";
+import { LinkButton, Button } from "@/ui/button";
 
 export async function AuthButton() {
   const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const user = data?.claims;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return user ? (
+  if (!user) {
+    return <LinkButton href="/auth/login">Sign in</LinkButton>;
+  }
+
+  const displayName = user.user_metadata?.full_name || user.email;
+
+  return (
     <div className="flex items-center gap-4">
-      <span className="text-sm">Hey, {user.email}!</span>
-      <LogoutButton />
+      <span className="text-sm">Hey, {displayName}!</span>
+      <form action={signOutAction} className="inline">
+        <Button type="submit" variant="outline">
+          Logout
+        </Button>
+      </form>
     </div>
-  ) : (
-    <LinkButton href="/auth/login">Sign in</LinkButton>
   );
 }

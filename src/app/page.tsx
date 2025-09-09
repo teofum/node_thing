@@ -1,8 +1,27 @@
+import { redirect } from "next/navigation";
+
 import { Workspace } from "./components/workspace";
 import { AuthButton } from "./auth/components/auth-button";
+import { createClient } from "@/lib/supabase/server";
 import { Renderer } from "./components/renderer";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile) {
+      redirect("/onboarding");
+    }
+  }
   return (
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}
