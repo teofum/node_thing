@@ -4,6 +4,7 @@ import { Workspace } from "./components/workspace";
 import { AuthButton } from "./auth/components/auth-button";
 import { createClient } from "@/lib/supabase/server";
 import { Renderer } from "./components/renderer";
+import { LinkButton } from "@/ui/button";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -26,7 +27,12 @@ export default async function Home() {
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}
       <div className="flex justify-between items-center px-2 pl-4 pt-3">
-        <h1 className="font-semibold tracking-wide">node_thing</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="font-semibold tracking-wide">node_thing</h1>
+          <LinkButton href="/marketplace" variant="outline">
+            Marketplace
+          </LinkButton>
+        </div>
         <AuthButton />
       </div>
 
