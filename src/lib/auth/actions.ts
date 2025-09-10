@@ -234,13 +234,11 @@ export async function onboardingAction(formData: FormData) {
     .insert({ id: user.id, username });
 
   if (profileError) {
-    console.error("Profile creation error:", profileError);
     redirect(
       `/onboarding?error=${encodeURIComponent(profileError.message || "Failed to create profile")}`,
     );
   }
 
-  // Set user-provided display name
   const { error: updateError } = await supabase.auth.updateUser({
     data: {
       full_name: displayName,
@@ -248,7 +246,9 @@ export async function onboardingAction(formData: FormData) {
   });
 
   if (updateError) {
-    console.error("Display name update error:", updateError);
+    redirect(
+      `/onboarding?error=${encodeURIComponent(updateError.message || "Failed to update display name")}`,
+    );
   }
 
   revalidatePath("/");
