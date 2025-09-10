@@ -66,3 +66,20 @@ export async function uploadShaderAction(formData: FormData) {
   revalidatePath("/marketplace");
   redirect("/marketplace");
 }
+
+export async function getShaders() {
+  const supabase = await createClient();
+
+  const { data: shaders, error } = await supabase
+    .from("shaders")
+    .select("id, title, price")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    redirect(
+      "/marketplace?error=" + encodeURIComponent("Failed to load shaders"),
+    );
+  }
+
+  return shaders || [];
+}
