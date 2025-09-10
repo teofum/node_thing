@@ -104,9 +104,10 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
    * Helper function.
    * Get a buffer of the right type suitable for writing, or create one if there are none.
    */
-  const findOrCreateBuffer = (type: Buffer["type"]) => {
+  const findOrCreateBuffer = (type: Buffer["type"], used: Buffer["idx"][]) => {
     let freeBuffer = buffers.find(
-      (buf) => buf.type === type && buf.users.length === 0,
+      (buf) =>
+        buf.type === type && buf.users.length === 0 && !used.includes(buf.idx),
     );
     if (!freeBuffer) {
       freeBuffer = { idx: buffers.length, users: [], type };
@@ -182,10 +183,14 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
     }
 
     /*
-     * Assign a buffer to each output
+     * Assign a buffer to each output, making sure not to reuse buffers.
+     * This may allocate more buffers than actually necessary for nodes with
+     * multiple unused outputs. Too bad! Limitation of WebGPU's bindful API.
      */
+    const buffersUsed: Buffer["idx"][] = [];
     for (const [outputKey, output] of Object.entries(nodeType.outputs)) {
-      const buf = findOrCreateBuffer(output.type);
+      const buf = findOrCreateBuffer(output.type, buffersUsed);
+      buffersUsed.push(buf.idx);
 
       edges
         .filter(

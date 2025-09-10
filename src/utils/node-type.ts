@@ -7,6 +7,7 @@ import boxBlurShader from "@/shaders/box-blur.wgsl";
 import gaussianBlurShader3x3 from "@/shaders/gaussian-blur-3x3.wgsl";
 import gaussianBlurShader5x5 from "@/shaders/gaussian-blur-5x5.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
+import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 
 export const NODE_TYPES = {
   __input: {
@@ -62,6 +63,31 @@ export const NODE_TYPES = {
       out_a: {
         name: "Output",
         type: "color",
+      },
+    },
+    parameters: {},
+  },
+  split_channels: {
+    name: "Split channels",
+    shader: splitChannelsShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      red: {
+        name: "R",
+        type: "number",
+      },
+      green: {
+        name: "G",
+        type: "number",
+      },
+      blue: {
+        name: "B",
+        type: "number",
       },
     },
     parameters: {},
