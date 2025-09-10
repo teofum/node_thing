@@ -34,7 +34,6 @@ export function RenderShaderNode({
       </div>
 
       <div className="p-2">
-        {/* dinámicamente chequeo campos de inputs y outputs para imprimir Handles */}
         {/* inputs */}
         {Object.entries(nodeTypeInfo.inputs).map(([key, input], i) => (
           <div key={key}>
@@ -43,6 +42,7 @@ export function RenderShaderNode({
               position={Position.Left}
               id={key}
               style={{ top: i * 16 + HEADER_HEIGHT }}
+              className={cn({ "!bg-teal-500": input.type === "color" })}
             />
             <div className="text-white text-xs/4">{input.name}</div>
           </div>
@@ -56,6 +56,7 @@ export function RenderShaderNode({
               position={Position.Right}
               id={key}
               style={{ top: i * 16 + outputOffset }}
+              className={cn({ "!bg-teal-500": output.type === "color" })}
             />
             <div className="text-white text-xs/4 flex justify-end">
               {output.name}
