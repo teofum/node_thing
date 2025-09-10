@@ -1,5 +1,5 @@
 @group(0) @binding(0)
-var<storage, read_write> output: array<vec4f>;
+var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
     width: u32,
@@ -19,10 +19,10 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
-    output[index] = vec4f(
+    output[index] = vec3f(
         fract(f32(id.x) / 100.0),
         fract(f32(id.y) / 100.0),
-        0.0, 1.0
+        0.0
     );
 }
 

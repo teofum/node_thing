@@ -1,23 +1,11 @@
 import { NODE_TYPE_NAMES } from "@/utils/node-type";
 import * as z from "zod/v4";
 
-const parameterTypeSchema = z.enum([
-  "number",
-  "color",
-  "vec2",
-  "vec3",
-  "select",
-  "string",
-]);
+const parameterTypeSchema = z.enum(["number", "color", "select", "string"]);
 
 export type ParameterType = z.infer<typeof parameterTypeSchema>;
 
-const handleTypeSchema = parameterTypeSchema.extract([
-  "number",
-  "color",
-  "vec2",
-  "vec3",
-]);
+const handleTypeSchema = parameterTypeSchema.extract(["number", "color"]);
 
 export type HandleType = z.infer<typeof handleTypeSchema>;
 

@@ -1,9 +1,10 @@
-import { NodeData } from "@/schemas/node.schema";
+import { HandleType, NodeData } from "@/schemas/node.schema";
 import { Layer, ShaderNode } from "@/store/store";
 import { NODE_TYPES } from "@/utils/node-type";
 
 type Buffer = {
   idx: number;
+  type: HandleType;
   users: {
     nodeId: string;
     input: string;
@@ -26,7 +27,7 @@ export type RenderPipeline = {
   passes: RenderPass[];
   inputs: Input[];
   outputBuffer: number;
-  bufferCount: number;
+  bufferTypes: HandleType[];
 };
 
 export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
@@ -43,7 +44,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
 
   // If there are no outputs, do nothing!
   if (outputs.length === 0)
-    return { passes, inputs, outputBuffer, bufferCount: 0 };
+    return { passes, inputs, outputBuffer, bufferTypes: [] };
 
   if (outputs.length > 1) console.warn("More than one output in render graph!");
   const output = outputs[0]; // There shouldn't be multiple outputs per graph!
@@ -99,12 +100,14 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
 
   /*
    * Helper function.
-   * Get a buffer suitable for writing, or create one if there are none.
+   * Get a buffer of the right type suitable for writing, or create one if there are none.
    */
-  const findOrCreateBuffer = () => {
-    let freeBuffer = buffers.find((buf) => buf.users.length === 0);
+  const findOrCreateBuffer = (type: Buffer["type"]) => {
+    let freeBuffer = buffers.find(
+      (buf) => buf.type === type && buf.users.length === 0,
+    );
     if (!freeBuffer) {
-      freeBuffer = { idx: buffers.length, users: [] };
+      freeBuffer = { idx: buffers.length, users: [], type };
       buffers.push(freeBuffer);
     }
 
@@ -176,11 +179,13 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
     /*
      * Assign a buffer to each output
      */
-    for (const out of Object.keys(nodeType.outputs)) {
-      const buf = findOrCreateBuffer();
+    for (const [outputKey, output] of Object.entries(nodeType.outputs)) {
+      const buf = findOrCreateBuffer(output.type);
 
       edges
-        .filter((edge) => edge.source === node.id && edge.sourceHandle === out)
+        .filter(
+          (edge) => edge.source === node.id && edge.sourceHandle === outputKey,
+        )
         .forEach((edge) => {
           // Connect relevant inputs to buffer
           buf.users.push({
@@ -196,7 +201,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
         });
 
       // Add render pass output bindings
-      pass.outputBindings[out] = buf.idx;
+      pass.outputBindings[outputKey] = buf.idx;
     }
 
     /*
@@ -221,5 +226,10 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
     }
   }
 
-  return { passes, inputs, outputBuffer, bufferCount: buffers.length };
+  return {
+    passes,
+    inputs,
+    outputBuffer,
+    bufferTypes: buffers.map((buf) => buf.type),
+  };
 }

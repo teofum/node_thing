@@ -1,11 +1,11 @@
 @group(0) @binding(0)
-var<storage, read_write> input_a: array<vec4f>;
+var<storage, read_write> input_a: array<vec3f>;
 
 @group(0) @binding(1)
-var<storage, read_write> input_b: array<vec4f>;
+var<storage, read_write> input_b: array<vec3f>;
 
 @group(0) @binding(2)
-var<storage, read_write> output: array<vec4f>;
+var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
     width: u32,
