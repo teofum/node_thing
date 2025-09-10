@@ -19,7 +19,7 @@ type Input = {
 
 export type RenderPass = {
   nodeType: NodeData["type"];
-  inputBindings: Record<string, number>;
+  inputBindings: Record<string, number | null>;
   outputBindings: Record<string, number>;
 };
 
@@ -66,6 +66,7 @@ export function buildRenderPipeline({
     const node = queue.shift() as ShaderNode;
     const nodeType = NODE_TYPES[node.data.type];
 
+    // Detect loops
     if (connectedIds.has(node.id)) {
       console.error("loop detected in shader graph");
       return null;
@@ -187,6 +188,11 @@ export function buildRenderPipeline({
     // Add input bindings
     for (const dep of dependencies) {
       pass.inputBindings[dep.input] = dep.buf.idx;
+    }
+
+    // Mark all unbound inputs
+    for (const input of Object.keys(nodeType.inputs)) {
+      pass.inputBindings[input] = pass.inputBindings[input] ?? null;
     }
 
     /*
