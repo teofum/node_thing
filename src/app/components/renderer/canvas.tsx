@@ -81,7 +81,7 @@ export function Canvas() {
 
     console.log("Rebuilding render graph...");
     const desc = buildRenderPipeline(layers[0]);
-    if (desc.outputBuffer < 0) return null;
+    if (!desc || desc.outputBuffer < 0) return null;
 
     return desc;
     // Trust me, we only care about updating when edges change
