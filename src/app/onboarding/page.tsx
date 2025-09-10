@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -26,7 +26,13 @@ export default async function OnboardingPage({
     .single();
 
   if (profile) {
-    redirect("/");
+    const params = await searchParams;
+    const next = params.next;
+    if (next && next.startsWith("/")) {
+      redirect(next);
+    } else {
+      redirect("/");
+    }
   }
 
   const params = await searchParams;
@@ -43,6 +49,9 @@ export default async function OnboardingPage({
 
         <div className="glass glass-border p-6 w-96 mx-auto rounded-2xl">
           <form action={onboardingAction} className="space-y-6">
+            {params.next && (
+              <input type="hidden" name="next" value={params.next} />
+            )}
             <div>
               <label
                 htmlFor="username"

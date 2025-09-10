@@ -11,7 +11,9 @@ export async function uploadShaderAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login?next=/marketplace/upload");
+    redirect(
+      `/marketplace/upload?error=${encodeURIComponent("Authentication required")}`,
+    );
   }
 
   // required fields

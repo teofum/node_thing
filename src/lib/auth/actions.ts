@@ -207,6 +207,7 @@ export async function onboardingAction(formData: FormData) {
   const supabase = await createClient();
   const username = formData.get("username") as string;
   const displayName = formData.get("displayName") as string;
+  const next = formData.get("next") as string;
 
   const {
     data: { user },
@@ -224,9 +225,10 @@ export async function onboardingAction(formData: FormData) {
     .single();
 
   if (existingProfile) {
-    redirect(
-      `/onboarding?error=${encodeURIComponent("Username already taken")}`,
-    );
+    const errorUrl = next
+      ? `/onboarding?next=${encodeURIComponent(next)}&error=${encodeURIComponent("Username already taken")}`
+      : `/onboarding?error=${encodeURIComponent("Username already taken")}`;
+    redirect(errorUrl);
   }
 
   const { error: profileError } = await supabase
@@ -234,9 +236,10 @@ export async function onboardingAction(formData: FormData) {
     .insert({ id: user.id, username });
 
   if (profileError) {
-    redirect(
-      `/onboarding?error=${encodeURIComponent(profileError.message || "Failed to create profile")}`,
-    );
+    const errorUrl = next
+      ? `/onboarding?next=${encodeURIComponent(next)}&error=${encodeURIComponent(profileError.message || "Failed to create profile")}`
+      : `/onboarding?error=${encodeURIComponent(profileError.message || "Failed to create profile")}`;
+    redirect(errorUrl);
   }
 
   const { error: updateError } = await supabase.auth.updateUser({
@@ -246,11 +249,17 @@ export async function onboardingAction(formData: FormData) {
   });
 
   if (updateError) {
-    redirect(
-      `/onboarding?error=${encodeURIComponent(updateError.message || "Failed to update display name")}`,
-    );
+    const errorUrl = next
+      ? `/onboarding?next=${encodeURIComponent(next)}&error=${encodeURIComponent(updateError.message || "Failed to update display name")}`
+      : `/onboarding?error=${encodeURIComponent(updateError.message || "Failed to update display name")}`;
+    redirect(errorUrl);
   }
 
   revalidatePath("/");
-  redirect("/");
+
+  if (next && next.startsWith("/")) {
+    redirect(next);
+  } else {
+    redirect("/");
+  }
 }
