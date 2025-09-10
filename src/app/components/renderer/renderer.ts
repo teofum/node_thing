@@ -37,6 +37,13 @@ function createBuffers(
 }
 
 /*
+ * Create a dummy buffer used for fallback values
+ */
+function createDummyBuffer(device: GPUDevice) {
+  return device.createBuffer({ size: 16, usage: GPUBufferUsage.STORAGE });
+}
+
+/*
  * Create binding group layout objects for each pipeline stage.
  * Each binding group contains bindings for all inputs and outputs
  * in that stage.
@@ -76,21 +83,38 @@ function createBindGroups(
   desc: RenderPipeline,
   bindGroupLayouts: GPUBindGroupLayout[],
   buffers: GPUBuffer[],
+  dummyBuffers: GPUBuffer[],
 ) {
-  return desc.passes.map((pass, i) =>
-    device.createBindGroup({
+  return desc.passes.map((pass, i) => {
+    const inputs = Object.entries(pass.inputBindings);
+    const outputs = Object.entries(pass.outputBindings);
+
+    return device.createBindGroup({
       layout: bindGroupLayouts[i],
       entries: [
-        ...Object.entries(pass.inputBindings),
-        ...Object.entries(pass.outputBindings),
-      ].map(
-        ([, bufferIdx], i): GPUBindGroupEntry => ({
-          binding: i,
-          resource: { buffer: buffers[bufferIdx] },
+        ...inputs.map(([, bufferIdx], i): GPUBindGroupEntry => {
+          let buffer: GPUBuffer;
+          if (bufferIdx === null) {
+            buffer = createDummyBuffer(device);
+            dummyBuffers.push(buffer);
+          } else {
+            buffer = buffers[bufferIdx];
+          }
+
+          return {
+            binding: i,
+            resource: { buffer },
+          };
         }),
-      ),
-    }),
-  );
+        ...outputs.map(
+          ([, bufferIdx], i): GPUBindGroupEntry => ({
+            binding: i + inputs.length,
+            resource: { buffer: buffers[bufferIdx] },
+          }),
+        ),
+      ],
+    });
+  });
 }
 
 /*
@@ -146,8 +170,15 @@ export function preparePipeline(
 ) {
   const bindGroupLayouts = createBindGroupLayouts(device, desc);
 
+  const dummyBuffers: GPUBuffer[] = [];
   const buffers = createBuffers(device, desc, opts);
-  const bindGroups = createBindGroups(device, desc, bindGroupLayouts, buffers);
+  const bindGroups = createBindGroups(
+    device,
+    desc,
+    bindGroupLayouts,
+    buffers,
+    dummyBuffers,
+  );
   const uniform = createUniform(device);
   const pipelines = createComputePSOs(
     device,
@@ -236,7 +267,16 @@ export function preparePipeline(
     layout: finalStageLayout,
   };
 
-  return { desc, opts, buffers, bindGroups, pipelines, finalStage, uniform };
+  return {
+    desc,
+    opts,
+    buffers,
+    dummyBuffers,
+    bindGroups,
+    pipelines,
+    finalStage,
+    uniform,
+  };
 }
 
 type PreparedPipeline = ReturnType<typeof preparePipeline>;
