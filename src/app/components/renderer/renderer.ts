@@ -1,8 +1,14 @@
 import { NODE_TYPES } from "@/utils/node-type";
 import { RenderPipeline } from "./pipeline";
 import { createUniform } from "./uniforms";
+import { HandleType } from "@/schemas/node.schema";
 
 const THREADS_PER_WORKGROUP = 16;
+
+const N_CHANNELS = {
+  number: 1,
+  color: 4, // We actually only need vec3s, but alignment
+} satisfies Record<HandleType, number>;
 
 export type RenderOptions = {
   width: number;
@@ -17,21 +23,17 @@ function createBuffers(
   desc: RenderPipeline,
   opts: RenderOptions,
 ) {
-  const buffers: GPUBuffer[] = [];
+  const paddedSize = (nChannels: number) => {
+    const bufSize = 4 * nChannels * ~~opts.width * ~~opts.height;
+    return bufSize + (bufSize % 4);
+  };
 
-  const bufSize = 16 * ~~opts.width * ~~opts.height;
-  const paddedSize = bufSize + (bufSize % 4);
-
-  for (let i = 0; i < desc.bufferCount; i++) {
-    buffers.push(
-      device.createBuffer({
-        size: paddedSize,
-        usage: GPUBufferUsage.STORAGE,
-      }),
-    );
-  }
-
-  return buffers;
+  return desc.bufferTypes.map((bufType) =>
+    device.createBuffer({
+      size: paddedSize(N_CHANNELS[bufType]),
+      usage: GPUBufferUsage.STORAGE,
+    }),
+  );
 }
 
 /*
@@ -149,7 +151,7 @@ export function preparePipeline(
   const finalStageShader = device.createShaderModule({
     code: `
     @group(0) @binding(0)
-    var<storage, read_write> input: array<vec4f>;
+    var<storage, read_write> input: array<vec3f>;
 
     @group(0) @binding(1)
     var tex: texture_storage_2d<rgba8unorm, write>;
@@ -173,7 +175,7 @@ export function preparePipeline(
       let index = id.x + id.y * u.width;
 
       let color = input[index];
-      textureStore(tex, id.xy, color);
+      textureStore(tex, id.xy, vec4f(color, 1.0));
     }
     `,
   });

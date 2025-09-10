@@ -1,8 +1,8 @@
 @group(0) @binding(0)
-var<storage, read_write> input: array<vec4f>;
+var<storage, read_write> input: array<vec3f>;
 
 @group(0) @binding(1)
-var<storage, read_write> output: array<vec4f>;
+var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
     width: u32,
@@ -20,7 +20,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
     let index = id.x + id.y * u.width;
 
-    var sum: vec4<f32> = vec4<f32>(0.0);
+    var sum: vec3f = vec3f(0.0);
 
     for (var dy: i32 = -R; dy <= R; dy = dy + 1) {
         for (var dx: i32 = -R; dx <= R; dx = dx + 1) {
