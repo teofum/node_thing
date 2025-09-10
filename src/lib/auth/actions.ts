@@ -173,12 +173,15 @@ export async function signInWithOAuthAction(
   const supabase = await createClient();
   const next = formData.get("next") as string;
 
-  const callbackNext = next && next.startsWith("/") ? next : "/onboarding";
+  const callbackUrl =
+    next && next.startsWith("/")
+      ? `${await getBaseUrl()}/auth/callback?next=${encodeURIComponent(next)}`
+      : `${await getBaseUrl()}/auth/callback`;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${await getBaseUrl()}/auth/callback?next=${encodeURIComponent(callbackNext)}`,
+      redirectTo: callbackUrl,
     },
   });
 
