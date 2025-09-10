@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/onboarding";
+  const next = searchParams.get("next");
 
   if (code) {
     const supabase = await createClient();
@@ -15,7 +15,13 @@ export async function GET(request: NextRequest) {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        return NextResponse.redirect(`${origin}${next}`);
+        if (next && next.startsWith("/")) {
+          return NextResponse.redirect(
+            `${origin}/onboarding?next=${encodeURIComponent(next)}`,
+          );
+        } else {
+          return NextResponse.redirect(`${origin}/onboarding`);
+        }
       }
     }
   }
