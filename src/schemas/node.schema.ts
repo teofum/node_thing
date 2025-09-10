@@ -42,6 +42,7 @@ const parameterSchema = z.object({
 
 export const nodeTypeSchema = z.object({
   name: z.string(),
+  category: z.string(),
 
   inputs: z.record(z.string(), handleSchema),
   outputs: z.record(z.string(), handleSchema),
