@@ -25,9 +25,13 @@ export const NODE_TYPES = {
     name: "Output",
     shader: "",
     inputs: {
-      in_a: {
+      output_color: {
         name: "Layer output",
         type: "color",
+      },
+      alpha: {
+        name: "Layer alpha",
+        type: "number",
       },
     },
     outputs: {},

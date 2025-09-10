@@ -151,14 +151,18 @@ export function preparePipeline(
   const finalStageShader = device.createShaderModule({
     code: `
     @group(0) @binding(0)
-    var<storage, read_write> input: array<vec3f>;
+    var<storage, read> input: array<vec3f>;
 
     @group(0) @binding(1)
+    var<storage, read> alpha: array<f32>;
+
+    @group(0) @binding(2)
     var tex: texture_storage_2d<rgba8unorm, write>;
 
     struct Uniforms {
         width: u32,
         height: u32,
+        has_alpha: u32,
     };
 
     @group(1) @binding(0)
@@ -175,7 +179,11 @@ export function preparePipeline(
       let index = id.x + id.y * u.width;
 
       let color = input[index];
-      textureStore(tex, id.xy, vec4f(color, 1.0));
+      if u.has_alpha != 0 {
+        textureStore(tex, id.xy, vec4f(color * alpha[index], alpha[index]));
+      } else {
+        textureStore(tex, id.xy, vec4f(color, 1.0));
+      }
     }
     `,
   });
@@ -186,11 +194,18 @@ export function preparePipeline(
         binding: 0,
         visibility: GPUShaderStage.COMPUTE,
         buffer: {
-          type: "storage",
+          type: "read-only-storage",
         },
       },
       {
         binding: 1,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "read-only-storage",
+        },
+      },
+      {
+        binding: 2,
         visibility: GPUShaderStage.COMPUTE,
         storageTexture: {
           format: "rgba8unorm",
@@ -233,6 +248,8 @@ export function render(
   /*
    * Bind target texture to final stage
    */
+  const alphaBuffer =
+    desc.outputAlphaBuffer === -1 ? 0 : desc.outputAlphaBuffer;
   const finalStageBindGroup = device.createBindGroup({
     layout: finalStage.layout,
     entries: [
@@ -242,6 +259,10 @@ export function render(
       },
       {
         binding: 1,
+        resource: { buffer: buffers[alphaBuffer] },
+      },
+      {
+        binding: 2,
         resource: target.createView(),
       },
     ],
@@ -250,7 +271,11 @@ export function render(
   /*
    * Update uniforms
    */
-  const uniformValues = Uint32Array.from([opts.width, opts.height]);
+  const uniformValues = Uint32Array.from([
+    opts.width,
+    opts.height,
+    desc.outputAlphaBuffer === -1 ? 0 : 1,
+  ]);
   device.queue.writeBuffer(
     uniform.buffer,
     0,
