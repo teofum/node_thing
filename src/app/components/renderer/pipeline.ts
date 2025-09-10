@@ -31,7 +31,10 @@ export type RenderPipeline = {
   bufferTypes: HandleType[];
 };
 
-export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
+export function buildRenderPipeline({
+  nodes,
+  edges,
+}: Layer): RenderPipeline | null {
   const queue: ShaderNode[] = [];
   const buffers: Buffer[] = [];
   const passes: RenderPass[] = [];
@@ -45,8 +48,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
   const outputs = nodes.filter((node) => node.data.type === "__output");
 
   // If there are no outputs, do nothing!
-  if (outputs.length === 0)
-    return { passes, inputs, outputBuffer, outputAlphaBuffer, bufferTypes: [] };
+  if (outputs.length === 0) return null;
 
   if (outputs.length > 1) console.warn("More than one output in render graph!");
   const output = outputs[0]; // There shouldn't be multiple outputs per graph!
@@ -63,6 +65,11 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
     // We just asserted the array has items, unshift will never return undefined
     const node = queue.shift() as ShaderNode;
     const nodeType = NODE_TYPES[node.data.type];
+
+    if (connectedIds.has(node.id)) {
+      console.error("loop detected in shader graph");
+      return null;
+    }
 
     // Tag the node as connected to output
     connectedIds.add(node.id);
@@ -124,7 +131,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
   while (queue.length > 0) {
     if (i++ > 1000) {
       console.error("max iteration count exceeded");
-      break;
+      return null;
     }
 
     // We just asserted the array has items, unshift will never return undefined
