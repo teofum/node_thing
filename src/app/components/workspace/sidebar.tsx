@@ -1,10 +1,11 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { Fragment, useLayoutEffect, useRef, useState } from "react";
 import { LuGitFork, LuPin } from "react-icons/lu";
 import cn from "classnames";
 
 import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
+import { NodeType } from "@/schemas/node.schema";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
@@ -22,6 +23,15 @@ export function Sidebar() {
   useLayoutEffect(() => {
     setHeight(dummySizingDiv.current?.clientHeight ?? 0);
   }, []);
+
+  // Group nodes by category
+  const nodesByCategory: Record<string, Record<string, NodeType>> = {};
+  Object.entries(NODE_TYPES)
+    .filter(([key]) => !key.startsWith("__"))
+    .forEach(([key, type]) => {
+      if (!nodesByCategory[type.category]) nodesByCategory[type.category] = {};
+      nodesByCategory[type.category][key] = type;
+    });
 
   return (
     <>
@@ -54,18 +64,21 @@ export function Sidebar() {
           </ToggleButton>
         </div>
         <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
-          {Object.entries(NODE_TYPES)
-            .filter(([key]) => !key.startsWith("__"))
-            .map(([key, type]) => (
-              <div
-                key={key}
-                className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
-                onDragStart={(event) => onDragStart(event, key)}
-                draggable
-              >
-                {type.name}
-              </div>
-            ))}
+          {Object.entries(nodesByCategory).map(([category, types]) => (
+            <Fragment key={category}>
+              <h3 className="text-sm/4 mt-1 font-semibold">{category}</h3>
+              {Object.entries(types).map(([key, type]) => (
+                <div
+                  key={key}
+                  className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
+                  onDragStart={(event) => onDragStart(event, key)}
+                  draggable
+                >
+                  {type.name}
+                </div>
+              ))}
+            </Fragment>
+          ))}
         </div>
       </aside>
     </>
