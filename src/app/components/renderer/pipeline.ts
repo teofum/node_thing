@@ -27,6 +27,7 @@ export type RenderPipeline = {
   passes: RenderPass[];
   inputs: Input[];
   outputBuffer: number;
+  outputAlphaBuffer: number;
   bufferTypes: HandleType[];
 };
 
@@ -36,6 +37,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
   const passes: RenderPass[] = [];
   const inputs: Input[] = [];
   let outputBuffer = -1;
+  let outputAlphaBuffer = -1;
 
   /*
    * Find outputs for pre-process culling step
@@ -44,7 +46,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
 
   // If there are no outputs, do nothing!
   if (outputs.length === 0)
-    return { passes, inputs, outputBuffer, bufferTypes: [] };
+    return { passes, inputs, outputBuffer, outputAlphaBuffer, bufferTypes: [] };
 
   if (outputs.length > 1) console.warn("More than one output in render graph!");
   const output = outputs[0]; // There shouldn't be multiple outputs per graph!
@@ -159,6 +161,9 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
       outputBuffer = dependencies[0]
         ? buffers.indexOf(dependencies[0].buf)
         : -1;
+      outputAlphaBuffer = dependencies[1]
+        ? buffers.indexOf(dependencies[1].buf)
+        : -1;
       break;
     }
 
@@ -230,6 +235,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
     passes,
     inputs,
     outputBuffer,
+    outputAlphaBuffer,
     bufferTypes: buffers.map((buf) => buf.type),
   };
 }

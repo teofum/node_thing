@@ -30,9 +30,13 @@ export const NODE_TYPES = {
     category: "Special",
     shader: "",
     inputs: {
-      in_a: {
+      output_color: {
         name: "Layer output",
         type: "color",
+      },
+      alpha: {
+        name: "Layer alpha",
+        type: "number",
       },
     },
     outputs: {},
