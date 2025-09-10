@@ -42,20 +42,29 @@ function createBuffers(
  * in that stage.
  */
 function createBindGroupLayouts(device: GPUDevice, desc: RenderPipeline) {
-  return desc.passes.map((pass) =>
-    device.createBindGroupLayout({
+  return desc.passes.map((pass) => {
+    const inputs = Object.entries(pass.inputBindings);
+    const outputs = Object.entries(pass.outputBindings);
+
+    return device.createBindGroupLayout({
       entries: [
-        ...Object.entries(pass.inputBindings),
-        ...Object.entries(pass.outputBindings),
-      ].map(
-        (_, i): GPUBindGroupLayoutEntry => ({
-          binding: i,
-          visibility: GPUShaderStage.COMPUTE,
-          buffer: { type: "storage" },
-        }),
-      ),
-    }),
-  );
+        ...inputs.map(
+          (_, i): GPUBindGroupLayoutEntry => ({
+            binding: i,
+            visibility: GPUShaderStage.COMPUTE,
+            buffer: { type: "read-only-storage" },
+          }),
+        ),
+        ...outputs.map(
+          (_, i): GPUBindGroupLayoutEntry => ({
+            binding: i + inputs.length,
+            visibility: GPUShaderStage.COMPUTE,
+            buffer: { type: "storage" },
+          }),
+        ),
+      ],
+    });
+  });
 }
 
 /*
