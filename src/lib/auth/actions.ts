@@ -139,7 +139,9 @@ export async function updatePasswordAction(formData: FormData) {
     error: userError,
   } = await supabase.auth.getUser();
   if (userError || !user) {
-    redirect("/auth/login?error=Please log in to update your password");
+    redirect(
+      `/auth/login?error=${encodeURIComponent("Please log in to update your password")}`,
+    );
   }
 
   const password = formData.get("password") as string;
@@ -212,7 +214,7 @@ export async function onboardingAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    redirect("/auth/login?error=Please log in first");
+    redirect(`/auth/login?error=${encodeURIComponent("Please log in first")}`);
   }
 
   const { data: existingProfile } = await supabase

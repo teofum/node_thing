@@ -21,22 +21,20 @@ export async function uploadShaderAction(formData: FormData) {
 
   if (!title?.trim()) {
     redirect(
-      "/marketplace/upload?error=" + encodeURIComponent("Title is required"),
+      `/marketplace/upload?error=${encodeURIComponent("Title is required")}`,
     );
   }
 
   if (!code?.trim()) {
     redirect(
-      "/marketplace/upload?error=" +
-        encodeURIComponent("Shader code is required"),
+      `/marketplace/upload?error=${encodeURIComponent("Shader code is required")}`,
     );
   }
 
   const price = parseFloat(priceStr);
   if (isNaN(price) || price < 0) {
     redirect(
-      "/marketplace/upload?error=" +
-        encodeURIComponent("Valid price is required"),
+      `/marketplace/upload?error=${encodeURIComponent("Valid price is required")}`,
     );
   }
 
@@ -60,7 +58,7 @@ export async function uploadShaderAction(formData: FormData) {
   });
 
   if (error) {
-    redirect("/marketplace/upload?error=" + encodeURIComponent(error.message));
+    redirect(`/marketplace/upload?error=${encodeURIComponent(error.message)}`);
   }
 
   revalidatePath("/marketplace");
@@ -77,7 +75,7 @@ export async function getShaders() {
 
   if (error) {
     redirect(
-      "/marketplace?error=" + encodeURIComponent("Failed to load shaders"),
+      `/marketplace?error=${encodeURIComponent("Failed to load shaders")}`,
     );
   }
 
