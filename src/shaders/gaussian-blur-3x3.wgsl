@@ -1,5 +1,5 @@
 @group(0) @binding(0)
-var<storage, read_write> input: array<vec3f>;
+var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
 var<storage, read_write> output: array<vec3f>;
