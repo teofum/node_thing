@@ -10,7 +10,8 @@ import {
 } from "@xyflow/react";
 import { create } from "zustand";
 
-import { NodeData } from "@/schemas/node.schema";
+import { NodeData, NodeType } from "@/schemas/node.schema";
+import { NODE_TYPES } from "@/utils/node-type";
 
 // !! cuidado: Node que se guarda es de RF
 // tiene campos id: y type: pero no son los de nuestro node.schema.ts
@@ -126,6 +127,22 @@ export const useStore = create<Project & ProjectActions>((set) => ({
   onConnect: (connection) =>
     set(({ layers, currentLayer }) => {
       const layer = layers[currentLayer];
+
+      const targetType = layer.nodes.find(
+        (node) => node.id === connection.target,
+      )!.data.type;
+      const sourceType = layer.nodes.find(
+        (node) => node.id === connection.source,
+      )!.data.type;
+
+      const targetHandleType = (
+        NODE_TYPES[targetType].inputs as NodeType["inputs"]
+      )[connection.targetHandle ?? ""].type;
+      const sourceHandleType = (
+        NODE_TYPES[sourceType].outputs as NodeType["outputs"]
+      )[connection.sourceHandle ?? ""].type;
+
+      if (targetHandleType !== sourceHandleType) return {};
 
       const filteredEdges = layer.edges.filter(
         (e) =>
