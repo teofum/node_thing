@@ -7,6 +7,8 @@ import boxBlurShader from "@/shaders/box-blur.wgsl";
 import gaussianBlurShader3x3 from "@/shaders/gaussian-blur-3x3.wgsl";
 import gaussianBlurShader5x5 from "@/shaders/gaussian-blur-5x5.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
+import diffShader from "@/shaders/diff.wgsl";
+import brightness from "@/shaders/brightness.wgsl";
 
 export const NODE_TYPES = {
   __input: {
@@ -140,6 +142,44 @@ export const NODE_TYPES = {
       },
       in_b: {
         name: "B",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  diff: {
+    name: "Diff",
+    shader: diffShader,
+    inputs: {
+      in_a: {
+        name: "A",
+        type: "color",
+      },
+      in_b: {
+        name: "B",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  brightness: {
+    name: "Brightness",
+    shader: brightness,
+    inputs: {
+      in_a: {
+        name: "Input",
         type: "color",
       },
     },
