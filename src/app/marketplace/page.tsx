@@ -1,12 +1,23 @@
 import { LinkButton } from "@/ui/button";
 import { LuArrowLeft } from "react-icons/lu";
 import { getShaders } from "@/lib/marketplace/actions";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 type Props = {
   searchParams: Promise<{ error?: string }>;
 };
 
 export default async function MarketplacePage({ searchParams }: Props) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/marketplace");
+  }
+
   const params = await searchParams;
   const shaders = params.error ? [] : await getShaders();
 
