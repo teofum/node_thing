@@ -5,7 +5,7 @@ import cn from "classnames";
 import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
-import { Accordion } from "radix-ui";
+import * as Accordion from "@radix-ui/react-accordion";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@/ui/accordion";
 import { NodeType } from "@/schemas/node.schema";
 
