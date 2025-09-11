@@ -1,12 +1,12 @@
 import React, { Fragment, useLayoutEffect, useRef, useState } from "react";
 import { LuGitFork, LuPin } from "react-icons/lu";
-import { Accordion } from "radix-ui";
-import { LuChevronDown } from "react-icons/lu";
 import cn from "classnames";
 
 import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
+import { Accordion } from "radix-ui";
+import { AccordionContent, AccordionItem, AccordionTrigger } from "@/ui/accordion";
 import { NodeType } from "@/schemas/node.schema";
 
 export function Sidebar() {
@@ -67,24 +67,25 @@ export function Sidebar() {
         </div>
         <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
           <Accordion.Root
-            className="AccordionRoot"
             type="single"
             collapsible>
             {Object.entries(nodesByCategory).map(([category, types]) => (
               <Fragment key={category}>
-                <AccordionItem className="AccordionItem" value={category}>
-                  <AccordionTrigger>{category}</AccordionTrigger>
-                  <AccordionContent>
-                    {Object.entries(types).map(([key, type]) => (
-                      <div
-                        key={key}
-                        className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
-                        onDragStart={(event) => onDragStart(event, key)}
-                        draggable
-                      >
-                        {type.name}
-                      </div>
-                    ))}
+                <AccordionItem value={category}>
+                  <AccordionTrigger className="font-semibold text-sm/4 bg-white/2 hover:bg-white/8 transition duration-70">{category}</AccordionTrigger>
+                  <AccordionContent className="font-semibold">
+                    <div className="flex flex-col gap-2">
+                      {Object.entries(types).map(([key, type]) => (
+                        <div
+                          key={key}
+                          className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
+                          onDragStart={(event) => onDragStart(event, key)}
+                          draggable
+                        >
+                          {type.name}
+                        </div>
+                      ))}
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
               </Fragment>
@@ -95,72 +96,3 @@ export function Sidebar() {
     </>
   );
 }
-
-type AccordionItemProps = React.ComponentPropsWithoutRef<typeof Accordion.Item>;
-
-const AccordionItem = React.forwardRef<
-  React.ComponentRef<typeof Accordion.Item>,
-  AccordionItemProps
->(({ children, className, ...props }, forwardedRef) => (
-  <Accordion.Item
-    className={cn(
-      "mt-px overflow-hidden first:mt-0 first:rounded-t last:rounded-b focus-within:relative focus-within:z-10 focus-within:shadow-[0_0_0_2px] focus-within:shadow-mauve12",
-      className
-    )}
-    {...props}
-    ref={forwardedRef}
-  >
-    {children}
-  </Accordion.Item>
-));
-AccordionItem.displayName = "AccordionItem";
-
-type AccordionTriggerProps = React.ComponentPropsWithoutRef<
-  typeof Accordion.Trigger
->;
-
-const AccordionTrigger = React.forwardRef<
-  React.ComponentRef<typeof Accordion.Trigger>,
-  AccordionTriggerProps
->(({ children, className, ...props }, forwardedRef) => (
-  <Accordion.Header className="flex">
-    <Accordion.Trigger
-      className={cn(
-        "group flex h-[45px] flex-1 cursor-default items-center justify-between bg-mauve1 px-5 text-[15px] leading-none text-violet11 shadow-[0_1px_0] shadow-mauve6 outline-none hover:bg-mauve2",
-        className
-      )}
-      {...props}
-      ref={forwardedRef}
-    >
-      {children}
-      <LuChevronDown
-        className="text-violet10 transition-transform duration-200 ease-[cubic-bezier(0.87,_0,_0.13,_1)] group-data-[state=open]:rotate-180"
-        aria-hidden
-      />
-    </Accordion.Trigger>
-  </Accordion.Header>
-));
-AccordionTrigger.displayName = "AccordionTrigger";
-
-type AccordionContentProps = React.ComponentPropsWithoutRef<
-  typeof Accordion.Content
->;
-
-const AccordionContent = React.forwardRef<
-  React.ComponentRef<typeof Accordion.Content>,
-  AccordionContentProps
->(({ children, className, ...props }, ref) => (
-  <Accordion.Content
-    className={cn(
-      "overflow-hidden text-[15px]",
-      "data-[state=open]:animate-[slideDown_200ms_ease-out_forwards]",
-      "data-[state=closed]:animate-[slideUp_200ms_ease-out_forwards]",
-      className
-    )}
-    {...props}
-    ref={ref}
-  >
-    <div className="px-2 py-[15px]">{children}</div>
-  </Accordion.Content>
-));
-AccordionContent.displayName = "AccordionContent";
