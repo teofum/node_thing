@@ -6,7 +6,11 @@ import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
 import * as Accordion from "@radix-ui/react-accordion";
-import { AccordionContent, AccordionItem, AccordionTrigger } from "@/ui/accordion";
+import {
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/ui/accordion";
 import { NodeType } from "@/schemas/node.schema";
 
 export function Sidebar() {
@@ -66,13 +70,14 @@ export function Sidebar() {
           </ToggleButton>
         </div>
         <div className="border-t border-white/15 flex flex-col gap-3 min-h-0 overflow-auto">
-          <Accordion.Root
-            type="multiple">
+          <Accordion.Root type="multiple">
             {Object.entries(nodesByCategory).map(([category, types]) => (
               <Fragment key={category}>
                 <AccordionItem value={category}>
-                  <AccordionTrigger className="font-semibold text-sm/4 bg-white/2 hover:bg-white/8 transition duration-80">{category}</AccordionTrigger>
-                  <AccordionContent className="font-semibold">
+                  <AccordionTrigger className="font-semibold text-sm/4 hover:bg-white/8 transition duration-80">
+                    {category}
+                  </AccordionTrigger>
+                  <AccordionContent className="font-semibold border-b border-white/15 ">
                     <div className="flex flex-col gap-2">
                       {Object.entries(types).map(([key, type]) => (
                         <div

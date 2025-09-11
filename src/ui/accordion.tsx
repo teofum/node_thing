@@ -11,8 +11,8 @@ export const AccordionItem = React.forwardRef<
 >(({ children, className, ...props }, forwardedRef) => (
   <Accordion.Item
     className={cn(
-      "overflow-hidden first:mt-0 first:rounded-t last:rounded-b focus-within:relative focus-within:z-10 focus-within:shadow-[0_0_0_2px]",
-      className
+      "overflow-hidden focus-within:relative focus-within:z-10 focus-within:shadow-[0_0_0_2px]",
+      className,
     )}
     {...props}
     ref={forwardedRef}
@@ -34,8 +34,8 @@ export const AccordionTrigger = React.forwardRef<
     <Accordion.Trigger
       onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
       className={cn(
-        "group flex h-[45px] flex-1 cursor-default items-center justify-between px-3 leading-none shadow-[0_1px_0] shadow-white/15 outline-none focus-visible:ring-2",
-        className
+        "group flex flex-row flex-1 items-center justify-between px-3 py-2 border-b border-white/15 outline-none focus-visible:ring-2",
+        className,
       )}
       {...props}
       ref={forwardedRef}
@@ -63,12 +63,12 @@ export const AccordionContent = React.forwardRef<
       "overflow-hidden",
       "data-[state=open]:animate-[accordionSlideDown_200ms_ease-out_forwards]",
       "data-[state=closed]:animate-[accordionSlideUp_200ms_ease-out_forwards]",
-      className
+      className,
     )}
     {...props}
     ref={ref}
   >
-    <div className="py-[15px]">{children}</div>
+    <div className="p-2">{children}</div>
   </Accordion.Content>
 ));
 AccordionContent.displayName = "AccordionContent";
