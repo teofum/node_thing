@@ -12,6 +12,7 @@ import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 export const NODE_TYPES = {
   __input: {
     name: "Input",
+    category: "Special",
     shader: "",
     inputs: {},
     outputs: {
@@ -24,6 +25,7 @@ export const NODE_TYPES = {
   },
   __output: {
     name: "Output",
+    category: "Special",
     shader: "",
     inputs: {
       output_color: {
@@ -40,6 +42,7 @@ export const NODE_TYPES = {
   },
   test_uv: {
     name: "Test UV gradient",
+    category: "Generate",
     shader: testUVShader,
     inputs: {},
     outputs: {
@@ -52,6 +55,7 @@ export const NODE_TYPES = {
   },
   test_bw: {
     name: "Test Grayscale",
+    category: "Color",
     shader: testBWShader,
     inputs: {
       in_a: {
@@ -69,6 +73,7 @@ export const NODE_TYPES = {
   },
   split_channels: {
     name: "Split channels",
+    category: "Utility",
     shader: splitChannelsShader,
     inputs: {
       in_a: {
@@ -94,6 +99,7 @@ export const NODE_TYPES = {
   },
   threshold: {
     name: "Threshold B/W",
+    category: "Color",
     shader: thresholdShader,
     inputs: {
       in_a: {
@@ -111,6 +117,7 @@ export const NODE_TYPES = {
   },
   boxBlur: {
     name: "Box Blur",
+    category: "Filters",
     shader: boxBlurShader,
     inputs: {
       in_a: {
@@ -128,6 +135,7 @@ export const NODE_TYPES = {
   },
   gaussBlur3x3: {
     name: "Gaussian blur 3x3",
+    category: "Filters",
     shader: gaussianBlurShader3x3,
     inputs: {
       in_a: {
@@ -145,6 +153,7 @@ export const NODE_TYPES = {
   },
   gaussBlur5x5: {
     name: "Gaussian blur 5x5",
+    category: "Filters",
     shader: gaussianBlurShader5x5,
     inputs: {
       in_a: {
@@ -162,6 +171,7 @@ export const NODE_TYPES = {
   },
   mix: {
     name: "Mix",
+    category: "Blend",
     shader: mixShader,
     inputs: {
       in_a: {
