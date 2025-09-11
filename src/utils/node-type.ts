@@ -76,6 +76,7 @@ export const NODE_TYPES = {
   },
   split_channels: {
     name: "Split channels",
+    category: "Utility",
     shader: splitChannelsShader,
     inputs: {
       in_a: {
