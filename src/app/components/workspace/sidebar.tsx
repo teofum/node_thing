@@ -5,6 +5,8 @@ import cn from "classnames";
 import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
+import { RenderShaderNode } from "./shader-node";
+import { NodeType } from "@/schemas/node.schema";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
@@ -54,16 +56,29 @@ export function Sidebar() {
           </ToggleButton>
         </div>
         <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
-          {Object.entries(NODE_TYPES)
+          {(Object.entries(NODE_TYPES) as [keyof typeof NODE_TYPES, NodeType][])
             .filter(([key]) => !key.startsWith("__"))
             .map(([key, type]) => (
               <div
                 key={key}
-                className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
+                className=" border-white/15 bg-black/40 rounded-md cursor-grab"
                 onDragStart={(event) => onDragStart(event, key)}
                 draggable
               >
-                {type.name}
+                <RenderShaderNode
+                  id={key}
+                  data={{ type: key }}
+                  selected={false}
+                  type={""}
+                  dragging={false}
+                  zIndex={0}
+                  selectable={false}
+                  deletable={false}
+                  draggable={false}
+                  isConnectable={false}
+                  positionAbsoluteX={0}
+                  positionAbsoluteY={0}
+                />
               </div>
             ))}
         </div>
