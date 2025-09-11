@@ -1,6 +1,6 @@
 import { Handle, NodeProps, Position } from "@xyflow/react";
 import { NODE_TYPES } from "@/utils/node-type";
-import { ShaderNode as ShaderNodeType } from "@/store/store";
+import { ShaderNode as ShaderNodeType, useStore } from "@/store/store";
 import cn from "classnames";
 
 const HEADER_HEIGHT = 16 + 2 * 8 + 1 + 16;
@@ -10,8 +10,11 @@ const HEADER_HEIGHT = 16 + 2 * 8 + 1 + 16;
 export function RenderShaderNode({
   data,
   selected,
+  id,
 }: NodeProps<ShaderNodeType>) {
   const nodeTypeInfo = NODE_TYPES[data.type];
+
+  const updateDefaultValue = useStore((s) => s.updateNodeDefaultValue);
 
   // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
   const outputOffset =
@@ -45,6 +48,18 @@ export function RenderShaderNode({
               className={cn({ "!bg-teal-500": input.type === "color" })}
             />
             <div className="text-white text-xs/4">{input.name}</div>
+            {input.type === "number" ? (
+              <input
+                type="range"
+                className="nodrag"
+                min={0}
+                max={1}
+                step={0.01}
+                onChange={(ev) =>
+                  updateDefaultValue(id, key, Number(ev.target.value))
+                }
+              />
+            ) : null}
           </div>
         ))}
 

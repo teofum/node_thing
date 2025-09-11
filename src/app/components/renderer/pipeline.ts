@@ -21,6 +21,7 @@ export type RenderPass = {
   nodeType: NodeData["type"];
   inputBindings: Record<string, number | null>;
   outputBindings: Record<string, number>;
+  defaultInputValues: Record<string, number | number[]>;
 };
 
 export type RenderPipeline = {
@@ -183,6 +184,7 @@ export function buildRenderPipeline({
       nodeType: node.data.type,
       inputBindings: {},
       outputBindings: {},
+      defaultInputValues: node.data.defaultValues,
     };
 
     // Add input bindings
