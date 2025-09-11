@@ -1,5 +1,5 @@
 import { LinkButton } from "@/ui/button";
-import { LuArrowLeft } from "react-icons/lu";
+import { LuArrowLeft, LuSearch } from "react-icons/lu";
 import { getShaders } from "@/lib/marketplace/actions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -41,6 +41,20 @@ export default async function MarketplacePage({ searchParams }: Props) {
               </p>
             </div>
             <LinkButton href="/marketplace/upload">Upload Shader</LinkButton>
+          </div>
+
+          <div className="relative mb-10 max-w-3xl mx-auto">
+            <input
+              type="text"
+              placeholder="Search shaders..."
+              className="w-full rounded-full bg-neutral-800 text-white px-5 py-3 pr-12
+                         border border-neutral-700 placeholder-neutral-500 focus:outline-none
+                         focus:ring-2 focus:ring-purple-500"
+            />
+            <LuSearch
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400"
+              size={20}
+            />
           </div>
 
           {params.error ? (
