@@ -8,7 +8,7 @@ import { ToggleButton } from "@/ui/button";
 import { RenderShaderNode } from "./shader-node";
 import { NodeType } from "@/schemas/node.schema";
 
-export function Sidebar() {
+export function SidebarLibrary() {
   const [pin, setPin] = useState(false);
   const [height, setHeight] = useState(0);
   const dummySizingDiv = useRef<HTMLDivElement | null>(null);
