@@ -3,6 +3,7 @@ import { LuArrowLeft } from "react-icons/lu";
 import { getShaders } from "@/lib/marketplace/actions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import ShaderCard from "@/app/components/marketplace/shadercard";
 
 type Props = {
   searchParams: Promise<{ error?: string }>;
@@ -55,17 +56,11 @@ export default async function MarketplacePage({ searchParams }: Props) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {shaders.map((shader) => (
-                <div
+                <ShaderCard
                   key={shader.id}
-                  className="glass glass-border p-6 rounded-2xl"
-                >
-                  <h3 className="text-xl font-semibold text-white mb-4">
-                    {shader.title}
-                  </h3>
-                  <div className="text-2xl font-bold text-teal-400">
-                    ${shader.price}
-                  </div>
-                </div>
+                  title={shader.title}
+                  price={shader.price}
+                />
               ))}
             </div>
           )}
