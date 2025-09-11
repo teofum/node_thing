@@ -46,7 +46,7 @@ const initialNodes: ShaderNode[] = [
   {
     id: "__output",
     position: { x: 0, y: 0 },
-    data: { type: "__output" },
+    data: { type: "__output", defaultValues: {} },
     type: "RenderShaderNode",
     deletable: false,
   },
@@ -62,6 +62,12 @@ type ProjectActions = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+
+  updateNodeDefaultValue: (
+    id: string,
+    input: string,
+    value: number | number[],
+  ) => void;
 
   setZoom: (zoom: number) => void;
   setCanvasSize: (width: number, height: number) => void;
@@ -156,6 +162,29 @@ export const useStore = create<Project & ProjectActions>((set) => ({
         layers: modifyLayer(layers, currentLayer, () => ({
           edges: newEdges,
         })),
+      };
+    }),
+
+  updateNodeDefaultValue: (id, input, value) =>
+    set(({ layers, currentLayer }) => {
+      return {
+        layers: modifyLayer(layers, currentLayer, ({ nodes }) => {
+          const node = nodes.find((n) => n.id === id);
+          if (!node) return {};
+
+          return {
+            nodes: [
+              ...nodes.filter((n) => n.id !== id),
+              {
+                ...node,
+                data: {
+                  ...node.data,
+                  defaultValues: { ...node.data.defaultValues, [input]: value },
+                },
+              },
+            ],
+          };
+        }),
       };
     }),
 

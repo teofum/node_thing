@@ -86,7 +86,7 @@ export function Canvas() {
     return desc;
     // Trust me, we only care about updating when edges change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvas, ctx, device, layers[0].edges]);
+  }, [canvas, ctx, device, layers[0].edges, layers[0].nodes]);
 
   /*
    * Rebuild WebGPU pipeline on render pipeline change, or when the

@@ -1,5 +1,5 @@
 import { NODE_TYPES } from "@/utils/node-type";
-import { RenderPipeline } from "./pipeline";
+import { RenderPass, RenderPipeline } from "./pipeline";
 import { createUniform } from "./uniforms";
 import { HandleType } from "@/schemas/node.schema";
 
@@ -13,6 +13,12 @@ const N_CHANNELS = {
 export type RenderOptions = {
   width: number;
   height: number;
+};
+
+type DummyBuffer = {
+  buffer: GPUBuffer;
+  pass: RenderPass;
+  input: string;
 };
 
 /*
@@ -86,20 +92,20 @@ function createBindGroups(
   desc: RenderPipeline,
   bindGroupLayouts: GPUBindGroupLayout[],
   buffers: GPUBuffer[],
-  dummyBuffers: GPUBuffer[],
+  dummyBuffers: DummyBuffer[],
 ) {
-  return desc.passes.map((pass, i) => {
+  return desc.passes.map((pass, passIdx) => {
     const inputs = Object.entries(pass.inputBindings);
     const outputs = Object.entries(pass.outputBindings);
 
     return device.createBindGroup({
-      layout: bindGroupLayouts[i],
+      layout: bindGroupLayouts[passIdx],
       entries: [
-        ...inputs.map(([, bufferIdx], i): GPUBindGroupEntry => {
+        ...inputs.map(([input, bufferIdx], i): GPUBindGroupEntry => {
           let buffer: GPUBuffer;
           if (bufferIdx === null) {
             buffer = createDummyBuffer(device);
-            dummyBuffers.push(buffer);
+            dummyBuffers.push({ buffer, input, pass });
           } else {
             buffer = buffers[bufferIdx];
           }
@@ -173,7 +179,7 @@ export function preparePipeline(
 ) {
   const bindGroupLayouts = createBindGroupLayouts(device, desc);
 
-  const dummyBuffers: GPUBuffer[] = [];
+  const dummyBuffers: DummyBuffer[] = [];
   const buffers = createBuffers(device, desc, opts);
   const bindGroups = createBindGroups(
     device,
@@ -348,8 +354,13 @@ export function render(
    * Fill in dummy buffers
    */
   for (const buf of dummyBuffers) {
-    const values = Float32Array.from([0.5, 0.5, 0.5, 0.5]);
-    device.queue.writeBuffer(buf, 0, values, 0, values.length);
+    console.log(buf);
+    const value = buf.pass.defaultInputValues[buf.input] ?? 0;
+
+    const values = Float32Array.from(
+      typeof value === "number" ? [value, 0, 0, 0] : value,
+    );
+    device.queue.writeBuffer(buf.buffer, 0, values, 0, values.length);
   }
 
   /*

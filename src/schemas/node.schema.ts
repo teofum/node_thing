@@ -44,6 +44,10 @@ const nodeTypeIdSchema = z.enum(NODE_TYPE_NAMES);
 
 export const nodeDataSchema = z.object({
   type: nodeTypeIdSchema,
+  defaultValues: z.record(
+    z.string(),
+    z.union([z.number(), z.number().array()]),
+  ),
 });
 
 export type NodeData = z.infer<typeof nodeDataSchema>;

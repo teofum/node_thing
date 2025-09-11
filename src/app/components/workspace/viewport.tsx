@@ -52,6 +52,7 @@ export function Viewport() {
         position,
         data: {
           type,
+          defaultValues: {},
         },
       };
 
