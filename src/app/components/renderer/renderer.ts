@@ -40,7 +40,10 @@ function createBuffers(
  * Create a dummy buffer used for fallback values
  */
 function createDummyBuffer(device: GPUDevice) {
-  return device.createBuffer({ size: 16, usage: GPUBufferUsage.STORAGE });
+  return device.createBuffer({
+    size: 16,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  });
 }
 
 /*
@@ -291,8 +294,16 @@ export function render(
   pipeline: PreparedPipeline,
   target: GPUTexture,
 ) {
-  const { desc, opts, buffers, bindGroups, pipelines, finalStage, uniform } =
-    pipeline;
+  const {
+    desc,
+    opts,
+    buffers,
+    dummyBuffers,
+    bindGroups,
+    pipelines,
+    finalStage,
+    uniform,
+  } = pipeline;
 
   /*
    * Bind target texture to final stage
@@ -332,6 +343,14 @@ export function render(
     0,
     uniformValues.length,
   );
+
+  /*
+   * Fill in dummy buffers
+   */
+  for (const buf of dummyBuffers) {
+    const values = Float32Array.from([0.5, 0.5, 0.5, 0.5]);
+    device.queue.writeBuffer(buf, 0, values, 0, values.length);
+  }
 
   /*
    * Create command encoder

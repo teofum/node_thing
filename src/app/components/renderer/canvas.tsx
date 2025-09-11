@@ -83,6 +83,7 @@ export function Canvas() {
     const desc = buildRenderPipeline(layers[0]);
     if (!desc || desc.outputBuffer < 0) return null;
 
+    console.log(desc);
     return desc;
     // Trust me, we only care about updating when edges change
     // eslint-disable-next-line react-hooks/exhaustive-deps
