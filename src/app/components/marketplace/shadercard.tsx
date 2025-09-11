@@ -20,19 +20,3 @@ export default function ShaderCard({ title, price }: ShaderCardProps) {
     </div>
   );
 }
-/*
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {shaders.map((shader) => (
-                <div
-                  key={shader.id}
-                  className="glass glass-border p-6 rounded-2xl"
-                >
-                  <h3 className="text-xl font-semibold text-white mb-4">
-                    {shader.title}
-                  </h3>
-                  <div className="text-2xl font-bold text-teal-400">
-                    ${shader.price}
-                  </div>
-                </div>
-              ))}
-            </div> */
