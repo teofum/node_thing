@@ -2,23 +2,75 @@ import { Handle, NodeProps, Position } from "@xyflow/react";
 import { NODE_TYPES } from "@/utils/node-type";
 import { ShaderNode as ShaderNodeType, useStore } from "@/store/store";
 import cn from "classnames";
+import { NodeType } from "@/schemas/node.schema";
 
-const HEADER_HEIGHT = 16 + 2 * 8 + 1 + 16;
+const HANDLE_HEIGHT = 24;
+const HEADER_HEIGHT = 16 + 2 * 8 + 1 + 8 + HANDLE_HEIGHT / 2;
+
+type NodeInputProps = NodeProps<ShaderNodeType> & {
+  input: [string, NodeType["inputs"][string]];
+  i: number;
+};
+
+function NodeInput({ data, id, input: [key, input], i }: NodeInputProps) {
+  const updateDefaultValue = useStore((s) => s.updateNodeDefaultValue);
+  const edges = useStore((s) => s.layers[s.currentLayer].edges);
+
+  const renderDefaultValueInput =
+    id !== "__output" &&
+    !edges.some((edge) => edge.target === id && edge.targetHandle === key);
+
+  return (
+    <div className="flex flex-row gap-2 h-6 items-center">
+      <Handle
+        type="target"
+        position={Position.Left}
+        id={key}
+        style={{ top: i * HANDLE_HEIGHT + HEADER_HEIGHT }}
+        className={cn({ "!bg-teal-500": input.type === "color" })}
+      />
+      <div className="text-white text-xs/4">{input.name}</div>
+      {renderDefaultValueInput ? (
+        input.type === "number" ? (
+          <input
+            type="range"
+            className="nodrag"
+            min={0}
+            max={1}
+            step={0.01}
+            defaultValue={data.defaultValues[key].toString()}
+            onChange={(ev) =>
+              updateDefaultValue(id, key, Number(ev.target.value))
+            }
+          />
+        ) : (
+          <input
+            type="color"
+            className="nodrag"
+            defaultValue={`#${(data.defaultValues[key] as number[]).map((n) => (~~(n * 255)).toString(16).padStart(2, "0")).join("")}`}
+            onChange={(ev) => {
+              const color = ev.target.value;
+              const r = parseInt(color.substring(1, 3), 16) / 255;
+              const g = parseInt(color.substring(3, 5), 16) / 255;
+              const b = parseInt(color.substring(5, 7), 16) / 255;
+              updateDefaultValue(id, key, [r, g, b, 1]);
+            }}
+          />
+        )
+      ) : null}
+    </div>
+  );
+}
 
 // TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
 // puede que querramos guardar el código del shader en formato string dentro del objeto data:
-export function RenderShaderNode({
-  data,
-  selected,
-  id,
-}: NodeProps<ShaderNodeType>) {
+export function RenderShaderNode(props: NodeProps<ShaderNodeType>) {
+  const { data, selected } = props;
   const nodeTypeInfo = NODE_TYPES[data.type];
-
-  const updateDefaultValue = useStore((s) => s.updateNodeDefaultValue);
 
   // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
   const outputOffset =
-    Object.keys(nodeTypeInfo.inputs).length * 16 + HEADER_HEIGHT;
+    Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
 
   return (
     <div
@@ -39,40 +91,7 @@ export function RenderShaderNode({
       <div className="p-2">
         {/* inputs */}
         {Object.entries(nodeTypeInfo.inputs).map(([key, input], i) => (
-          <div key={key} className="flex flex-row gap-2">
-            <Handle
-              type="target"
-              position={Position.Left}
-              id={key}
-              style={{ top: i * 16 + HEADER_HEIGHT }}
-              className={cn({ "!bg-teal-500": input.type === "color" })}
-            />
-            <div className="text-white text-xs/4">{input.name}</div>
-            {input.type === "number" ? (
-              <input
-                type="range"
-                className="nodrag"
-                min={0}
-                max={1}
-                step={0.01}
-                onChange={(ev) =>
-                  updateDefaultValue(id, key, Number(ev.target.value))
-                }
-              />
-            ) : (
-              <input
-                type="color"
-                className="nodrag"
-                onChange={(ev) => {
-                  const color = ev.target.value;
-                  const r = parseInt(color.substring(1, 3), 16) / 255;
-                  const g = parseInt(color.substring(3, 5), 16) / 255;
-                  const b = parseInt(color.substring(5, 7), 16) / 255;
-                  updateDefaultValue(id, key, [r, g, b, 1]);
-                }}
-              />
-            )}
-          </div>
+          <NodeInput key={key} input={[key, input]} i={i} {...props} />
         ))}
 
         {/* outputs */}
@@ -82,7 +101,7 @@ export function RenderShaderNode({
               type="source"
               position={Position.Right}
               id={key}
-              style={{ top: i * 16 + outputOffset }}
+              style={{ top: i * HANDLE_HEIGHT + outputOffset }}
               className={cn({ "!bg-teal-500": output.type === "color" })}
             />
             <div className="text-white text-xs/4 flex justify-end">

@@ -3,6 +3,7 @@ import { ReactFlow, useReactFlow, Background } from "@xyflow/react";
 import { ShaderNode, useStore } from "@/store/store";
 import { RenderShaderNode } from "./shader-node";
 import { NodeData } from "@/schemas/node.schema";
+import { NODE_TYPES } from "@/utils/node-type";
 
 // TODO esto volarlo, relacionado con lo de IDs duplicadas
 let id = 0;
@@ -46,13 +47,18 @@ export function Viewport() {
       const type = event.dataTransfer.getData("type") as NodeData["type"];
       const currId = `${type === "__input" || type === "__output" ? `${type}_` : ""}${getId()}`;
 
+      const defaultValues: NodeData["defaultValues"] = {};
+      for (const [key, input] of Object.entries(NODE_TYPES[type].inputs)) {
+        defaultValues[key] = input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
+      }
+
       const newNode: ShaderNode = {
         id: currId,
         type: "RenderShaderNode",
         position,
         data: {
           type,
-          defaultValues: {},
+          defaultValues,
         },
       };
 
