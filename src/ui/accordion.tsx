@@ -1,6 +1,6 @@
 import React from "react";
 import cn from "classnames";
-import { Accordion } from "radix-ui";
+import * as Accordion from "@radix-ui/react-accordion";
 import { LuChevronDown } from "react-icons/lu";
 
 type AccordionItemProps = React.ComponentPropsWithoutRef<typeof Accordion.Item>;
