@@ -1,8 +1,8 @@
 @group(0) @binding(0)
-var<storage, read_write> input: array<vec4f>;
+var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
-var<storage, read_write> output: array<vec4f>;
+var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
     width: u32,
@@ -24,9 +24,9 @@ fn main(@builtin(global_invocation_id) id: vec3u) {
     let val: f32 = (dot(input[index].xyz, vec3<f32>(1.0, 1.0, 1.0)) / 3.0);
 
     if val > threshhold {
-        output[index] = vec4<f32>(1.0, 1.0, 1.0, input[index].w);
+        output[index] = vec3f(1.0);
     } else {
-        output[index] = vec4<f32>(0.0, 0.0, 0.0, input[index].w);
+        output[index] = vec3f(0.0);
     }
 }
 
