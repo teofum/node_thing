@@ -67,19 +67,22 @@ export default async function UploadPage({
 
             <div>
               <label
-                htmlFor="code"
+                htmlFor="shaderFile"
                 className="block text-sm font-semibold mb-2"
               >
-                Shader Code
+                Shader File (.wgsl)
               </label>
-              <textarea
-                id="code"
-                name="code"
-                rows={10}
+              <input
+                id="shaderFile"
+                name="shaderFile"
+                type="file"
+                accept=".wgsl"
                 required
-                className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-                placeholder="// Your shader code here..."
+                className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white cursor-pointer hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500 file:hidden"
               />
+              <div className="text-sm text-neutral-400 mt-1">
+                Click to select a .wgsl file
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

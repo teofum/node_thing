@@ -18,7 +18,7 @@ export async function uploadShaderAction(formData: FormData) {
 
   // required fields
   const title = formData.get("title") as string;
-  const code = formData.get("code") as string;
+  const shaderFile = formData.get("shaderFile") as File;
   const priceStr = formData.get("price") as string;
 
   if (!title?.trim()) {
@@ -27,11 +27,19 @@ export async function uploadShaderAction(formData: FormData) {
     );
   }
 
-  if (!code?.trim()) {
+  if (!shaderFile || shaderFile.size === 0) {
     redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Shader code is required")}`,
+      `/marketplace/upload?error=${encodeURIComponent("Shader file is required")}`,
     );
   }
+
+  if (!shaderFile.name.endsWith(".wgsl")) {
+    redirect(
+      `/marketplace/upload?error=${encodeURIComponent("Only .wgsl files are supported")}`,
+    );
+  }
+
+  const code = await shaderFile.text();
 
   const price = parseFloat(priceStr);
   if (isNaN(price) || price < 0) {
