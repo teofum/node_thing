@@ -2,18 +2,27 @@ import React, { useLayoutEffect, useRef, useState } from "react";
 import { LuGitFork, LuPin } from "react-icons/lu";
 import cn from "classnames";
 
-import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
+import { MenuLayers } from "./menu-layers";
+import { MenuLibrary } from "./menu-library";
+import { RiStackLine } from "react-icons/ri";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
   const [height, setHeight] = useState(0);
   const dummySizingDiv = useRef<HTMLDivElement | null>(null);
+  const [menu, setMenu] = useState<"library" | "layers">("library");
 
-  const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("type", nodeType);
+  const renderMenu = () => {
+    switch (menu) {
+      case "layers":
+        return <MenuLayers />;
+      case "library":
+        return <MenuLibrary />;
+      default:
+        return null;
+    }
   };
 
   useResizeObserver(dummySizingDiv.current, () => {
@@ -38,8 +47,16 @@ export function Sidebar() {
         style={{ height }}
       >
         <div className="p-2 pl-4 flex flex-row gap-2 items-center min-h-12">
-          <LuGitFork />
-          <div className="font-semibold text-sm/4">Library</div>
+          {menu === "library" && <LuGitFork />}
+          {menu === "layers" && <RiStackLine />}
+          <select
+            className="font-semibold text-sm/4 bg-black/85 border border-white/15 rounded p-1 w-full"
+            value={menu}
+            onChange={(e) => setMenu(e.target.value as "library" | "layers")}
+          >
+            <option value="library">Library</option>
+            <option value="layers">Layers</option>
+          </select>
 
           <ToggleButton
             icon
@@ -53,20 +70,7 @@ export function Sidebar() {
             <LuPin />
           </ToggleButton>
         </div>
-        <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
-          {Object.entries(NODE_TYPES)
-            .filter(([key]) => !key.startsWith("__"))
-            .map(([key, type]) => (
-              <div
-                key={key}
-                className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
-                onDragStart={(event) => onDragStart(event, key)}
-                draggable
-              >
-                {type.name}
-              </div>
-            ))}
-        </div>
+        {renderMenu()}
       </aside>
     </>
   );
