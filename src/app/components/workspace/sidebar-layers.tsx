@@ -5,16 +5,14 @@ import cn from "classnames";
 import useResizeObserver from "@/utils/use-resize-observer";
 import { Button, ToggleButton } from "@/ui/button";
 import { LuPin } from "react-icons/lu";
+import { useStore } from "@/store/store";
 
 export function SidebarLayers() {
   const [pin, setPin] = useState(false);
   const [height, setHeight] = useState(0);
   const dummySizingDiv = useRef<HTMLDivElement | null>(null);
 
-  const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("type", nodeType);
-  };
+  const { setActiveLayer, addLayer, layersDim, currentLayer } = useStore();
 
   useResizeObserver(dummySizingDiv.current, () => {
     setHeight(dummySizingDiv.current?.clientHeight ?? 0);
@@ -22,6 +20,11 @@ export function SidebarLayers() {
   useLayoutEffect(() => {
     setHeight(dummySizingDiv.current?.clientHeight ?? 0);
   }, []);
+
+  const addLayerButton = () => {
+    addLayer();
+    setActiveLayer(layersDim);
+  };
 
   return (
     <>
@@ -53,8 +56,19 @@ export function SidebarLayers() {
           </ToggleButton>
         </div>
         <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
-          <Button>Add Layer</Button>
-          {/* TODO meterle comportamiento de layer actual seleccionado */}
+          {Array.from({ length: layersDim }).map((_, idx) => (
+            <Button
+              key={idx}
+              variant={currentLayer === idx ? "outline" : "default"}
+              onClick={() => setActiveLayer(idx)}
+            >
+              Layer {idx}
+            </Button>
+          ))}
+
+          <Button variant={"ghost"} onClick={addLayerButton}>
+            Add Layer
+          </Button>
         </div>
       </aside>
     </>
