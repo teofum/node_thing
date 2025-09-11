@@ -1,8 +1,8 @@
 @group(0) @binding(0)
-var<storage, read_write> input: array<vec4f>;
+var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
-var<storage, read_write> output: array<vec4f>;
+var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
     width: u32,
@@ -26,6 +26,6 @@ fn main(
     let in = input[index].xyz;
     let val = dot(in, luma);
 
-    output[index] = vec4f(val, val, val, 1.0);
+    output[index] = vec3f(val);
 }
 

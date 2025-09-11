@@ -1,5 +1,14 @@
 @group(0) @binding(0)
-var<storage, read_write> output: array<vec3f>;
+var<storage, read> input: array<vec3f>;
+
+@group(0) @binding(1)
+var<storage, read_write> red: array<f32>;
+
+@group(0) @binding(2)
+var<storage, read_write> green: array<f32>;
+
+@group(0) @binding(3)
+var<storage, read_write> blue: array<f32>;
 
 struct Uniforms {
     width: u32,
@@ -19,10 +28,8 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
-    output[index] = vec3f(
-        fract(f32(id.x) / 100.0),
-        fract(f32(id.y) / 100.0),
-        0.0
-    );
+    red[index] = input[index].r;
+    green[index] = input[index].g;
+    blue[index] = input[index].b;
 }
 
