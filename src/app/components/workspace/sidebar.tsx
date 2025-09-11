@@ -134,7 +134,7 @@ const AccordionTrigger = React.forwardRef<
     >
       {children}
       <LuChevronDown
-        className="text-violet10 transition-transform duration-300 ease-[cubic-bezier(0.87,_0,_0.13,_1)] group-data-[state=open]:rotate-180"
+        className="text-violet10 transition-transform duration-200 ease-[cubic-bezier(0.87,_0,_0.13,_1)] group-data-[state=open]:rotate-180"
         aria-hidden
       />
     </Accordion.Trigger>
@@ -152,7 +152,9 @@ const AccordionContent = React.forwardRef<
 >(({ children, className, ...props }, ref) => (
   <Accordion.Content
     className={cn(
-      "overflow-hidden bg-mauve2 text-[15px] text-mauve11 data-[state=closed]:animate-slideUp data-[state=open]:animate-slideDown",
+      "overflow-hidden text-[15px]",
+      "data-[state=open]:animate-[slideDown_200ms_ease-out_forwards]",
+      "data-[state=closed]:animate-[slideUp_200ms_ease-out_forwards]",
       className
     )}
     {...props}
