@@ -201,6 +201,10 @@ export const NODE_TYPES = {
         name: "B",
         type: "color",
       },
+      factor: {
+        name: "Factor",
+        type: "number",
+      },
     },
     outputs: {
       out_a: {

@@ -5,6 +5,9 @@ var<storage, read> input_a: array<vec3f>;
 var<storage, read> input_b: array<vec3f>;
 
 @group(0) @binding(2)
+var<storage, read> factor: array<f32>;
+
+@group(0) @binding(3)
 var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
@@ -25,6 +28,27 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
-    output[index] = (input_a[index] + input_b[index]) * 0.5;
+    var in_a: vec3f;
+    if arrayLength(&input_a) == 1u {
+        in_a = input_a[0];
+    } else {
+        in_a = input_a[index];
+    }
+
+    var in_b: vec3f;
+    if arrayLength(&input_b) == 1u {
+        in_b = input_b[0];
+    } else {
+        in_b = input_b[index];
+    }
+
+    var fac: f32;
+    if arrayLength(&factor) <= 4u {
+        fac = factor[0];
+    } else {
+        fac = factor[index];
+    }
+
+    output[index] = in_a * (1.0 - fac) + in_b * fac;
 }
 
