@@ -54,11 +54,11 @@ body {
     );
   }
 
-  @keyframes slideDown {
+  @keyframes accordionSlideDown {
     from { height: 0; }
     to { height: var(--radix-accordion-content-height); }
   }
-  @keyframes slideUp {
+  @keyframes accordionSlideUp {
     from { height: var(--radix-accordion-content-height); }
     to { height: 0; }
   }
