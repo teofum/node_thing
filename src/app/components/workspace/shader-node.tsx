@@ -39,7 +39,7 @@ export function RenderShaderNode({
       <div className="p-2">
         {/* inputs */}
         {Object.entries(nodeTypeInfo.inputs).map(([key, input], i) => (
-          <div key={key}>
+          <div key={key} className="flex flex-row gap-2">
             <Handle
               type="target"
               position={Position.Left}
@@ -59,7 +59,19 @@ export function RenderShaderNode({
                   updateDefaultValue(id, key, Number(ev.target.value))
                 }
               />
-            ) : null}
+            ) : (
+              <input
+                type="color"
+                className="nodrag"
+                onChange={(ev) => {
+                  const color = ev.target.value;
+                  const r = parseInt(color.substring(1, 3), 16) / 255;
+                  const g = parseInt(color.substring(3, 5), 16) / 255;
+                  const b = parseInt(color.substring(5, 7), 16) / 255;
+                  updateDefaultValue(id, key, [r, g, b, 1]);
+                }}
+              />
+            )}
           </div>
         ))}
 
