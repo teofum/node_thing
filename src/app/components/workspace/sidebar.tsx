@@ -113,6 +113,7 @@ const AccordionItem = React.forwardRef<
     {children}
   </Accordion.Item>
 ));
+AccordionItem.displayName = "AccordionItem";
 
 type AccordionTriggerProps = React.ComponentPropsWithoutRef<
   typeof Accordion.Trigger
@@ -139,6 +140,7 @@ const AccordionTrigger = React.forwardRef<
     </Accordion.Trigger>
   </Accordion.Header>
 ));
+AccordionTrigger.displayName = "AccordionTrigger";
 
 type AccordionContentProps = React.ComponentPropsWithoutRef<
   typeof Accordion.Content
@@ -159,3 +161,4 @@ const AccordionContent = React.forwardRef<
     <div className="px-2 py-[15px]">{children}</div>
   </Accordion.Content>
 ));
+AccordionContent.displayName = "AccordionContent";
