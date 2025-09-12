@@ -80,6 +80,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
                   id={shader.id}
                   title={shader.title}
                   price={shader.price}
+                  likes={0} // MODIFICAR
                 />
               ))}
             </div>
