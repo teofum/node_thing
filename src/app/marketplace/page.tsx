@@ -1,26 +1,22 @@
 import { LinkButton } from "@/ui/button";
 import { LuArrowLeft, LuSearch } from "react-icons/lu";
-import { getShaders } from "@/lib/marketplace/actions";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { getShaders, getCategories } from "@/lib/marketplace/actions";
 import ShaderCard from "@/app/components/marketplace/shadercard";
 
 type Props = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; category?: string }>;
 };
 
 export default async function MarketplacePage({ searchParams }: Props) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/marketplace");
-  }
-
   const params = await searchParams;
   const shaders = params.error ? [] : await getShaders();
+  const categories = await getCategories();
+
+  // Filter by category from URL params to not use client-side
+  const selectedCategory = params.category;
+  const filteredShaders = selectedCategory
+    ? shaders.filter((shader) => shader.category?.name === selectedCategory)
+    : shaders;
 
   return (
     <div className="min-h-screen bg-neutral-900 relative">
@@ -62,25 +58,47 @@ export default async function MarketplacePage({ searchParams }: Props) {
             />
           </div>
 
+          <div className="mb-6 flex justify-center gap-2 flex-wrap">
+            <LinkButton
+              href="/marketplace"
+              variant={!selectedCategory ? "default" : "outline"}
+            >
+              All
+            </LinkButton>
+            {categories.map((category) => (
+              <LinkButton
+                key={category.id}
+                href={`/marketplace?category=${category.name}`}
+                variant={
+                  selectedCategory === category.name ? "default" : "outline"
+                }
+              >
+                {category.name}
+              </LinkButton>
+            ))}
+          </div>
+
           {params.error ? (
             <div className="bg-red-900/20 border border-red-700 text-red-400 px-4 py-3 rounded mb-6">
               {decodeURIComponent(params.error)}
             </div>
-          ) : shaders.length === 0 ? (
+          ) : filteredShaders.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-neutral-400">
-                No shaders yet. Be the first to upload one!
+                {selectedCategory
+                  ? `No shaders found in ${selectedCategory} category`
+                  : "No shaders yet. Be the first to upload one!"}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {shaders.map((shader) => (
+              {filteredShaders.map((shader) => (
                 <ShaderCard
                   key={shader.id}
                   id={shader.id}
                   title={shader.title}
                   price={shader.price}
-                  likes={0} // MODIFICAR
+                  likes={0}
                 />
               ))}
             </div>
