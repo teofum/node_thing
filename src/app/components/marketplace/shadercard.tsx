@@ -22,7 +22,7 @@ export default function ShaderCard({ id, title, price }: ShaderCardProps) {
         <button
           type="submit"
           className="absolute bottom-4 right-4 flex items-center justify-center 
-                     w-8 h-8 rounded-md bg-purple-600 hover:bg-purple-500 
+                     w-8 h-8 rounded-md
                      transition-colors shadow-md cursor-pointer"
         >
           <LuCirclePlus className="text-white hover:text-purple-500 w-7 h-7" />
