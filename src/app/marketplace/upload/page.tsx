@@ -1,6 +1,6 @@
 import { Input } from "@/ui/input";
 import { Button, LinkButton } from "@/ui/button";
-import { uploadShaderAction } from "@/lib/marketplace/actions";
+import { uploadShaderAction, getCategories } from "@/lib/marketplace/actions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -19,6 +19,7 @@ export default async function UploadPage({
   }
 
   const params = await searchParams;
+  const categories = await getCategories();
 
   return (
     <div className="min-h-screen bg-neutral-900 p-6">
@@ -107,18 +108,24 @@ export default async function UploadPage({
 
               <div>
                 <label
-                  htmlFor="tags"
+                  htmlFor="category"
                   className="block text-sm font-semibold mb-2"
                 >
-                  Tags
+                  Category
                 </label>
-                <Input
-                  id="tags"
-                  name="tags"
-                  type="text"
-                  className="w-full"
-                  placeholder="fragment, animation, noise"
-                />
+                <select
+                  id="category"
+                  name="category"
+                  required
+                  className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">None selected</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
