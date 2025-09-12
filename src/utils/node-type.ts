@@ -12,6 +12,8 @@ import diffShader from "@/shaders/diff.wgsl";
 import brightness from "@/shaders/brightness.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 import chromaticAberration from "@/shaders/chromatic-aberration.wgsl";
+import splitChannelsShader from "@/shaders/extract-channel.wgsl";
+
 
 export const NODE_TYPES = {
   __input: {
