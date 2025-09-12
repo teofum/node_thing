@@ -6,8 +6,12 @@ import thresholdShader from "@/shaders/threshold-bw.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
 import gaussianBlurShader3x3 from "@/shaders/gaussian-blur-3x3.wgsl";
 import gaussianBlurShader5x5 from "@/shaders/gaussian-blur-5x5.wgsl";
+import gaussianBlurShader from "@/shaders/gaussian-blur.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
+import diffShader from "@/shaders/diff.wgsl";
+import brightness from "@/shaders/brightness.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
+import chromaticAberration from "@/shaders/chromatic-aberration.wgsl";
 
 export const NODE_TYPES = {
   __input: {
@@ -169,6 +173,24 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  gaussBlur: {
+    name: "Gaussian blur",
+    category: "Filters",
+    shader: gaussianBlurShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
   mix: {
     name: "Mix",
     category: "Blend",
@@ -185,6 +207,64 @@ export const NODE_TYPES = {
       factor: {
         name: "Factor",
         type: "number",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  diff: {
+    name: "Diff",
+    category: "Blend",
+    shader: diffShader,
+    inputs: {
+      in_a: {
+        name: "A",
+        type: "color",
+      },
+      in_b: {
+        name: "B",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  brightness: {
+    name: "Brightness",
+    category: "Color",
+    shader: brightness,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  chromaticAberration: {
+    name: "Chromatic Aberration",
+    category: "Color",
+    shader: chromaticAberration,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
       },
     },
     outputs: {
