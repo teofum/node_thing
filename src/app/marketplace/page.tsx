@@ -40,7 +40,12 @@ export default async function MarketplacePage({ searchParams }: Props) {
                 Discover and share amazing shaders
               </p>
             </div>
-            <LinkButton href="/marketplace/upload">Upload Shader</LinkButton>
+            <div className="flex gap-4">
+              <LinkButton href="/marketplace/cart" variant="outline">
+                Cart
+              </LinkButton>
+              <LinkButton href="/marketplace/upload">Upload Shader</LinkButton>
+            </div>
           </div>
 
           <div className="relative mb-10 max-w-3xl mx-auto">
@@ -72,6 +77,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
               {shaders.map((shader) => (
                 <ShaderCard
                   key={shader.id}
+                  id={shader.id}
                   title={shader.title}
                   price={shader.price}
                 />
