@@ -11,6 +11,7 @@ import mixShader from "@/shaders/mix.wgsl";
 import diffShader from "@/shaders/diff.wgsl";
 import brightness from "@/shaders/brightness.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
+import chromaticAberration from "@/shaders/chromatic-aberration.wgsl";
 
 export const NODE_TYPES = {
   __input: {
@@ -174,6 +175,7 @@ export const NODE_TYPES = {
   },
   gaussBlur: {
     name: "Gaussian blur",
+    category: "Filters",
     shader: gaussianBlurShader,
     inputs: {
       in_a: {
@@ -217,6 +219,7 @@ export const NODE_TYPES = {
   },
   diff: {
     name: "Diff",
+    category: "Blend",
     shader: diffShader,
     inputs: {
       in_a: {
@@ -238,7 +241,26 @@ export const NODE_TYPES = {
   },
   brightness: {
     name: "Brightness",
+    category: "Color",
     shader: brightness,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  chromaticAberration: {
+    name: "Chromatic Aberration",
+    category: "Color",
+    shader: chromaticAberration,
     inputs: {
       in_a: {
         name: "Input",
