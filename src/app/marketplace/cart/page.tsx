@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { LinkButton, Button } from "@/ui/button";
 import { LuArrowLeft, LuTrash2 } from "react-icons/lu";
-import { removeFromCart, clearCart } from "@/lib/cart/actions";
+import { removeFromCart, clearCart, getCartItems } from "@/lib/cart/actions";
 
 export default async function CartPage() {
   const supabase = await createClient();
@@ -14,16 +14,7 @@ export default async function CartPage() {
     redirect("/auth/login?next=/marketplace/cart");
   }
 
-  const { data: cartItems } = await supabase
-    .from("cart_items")
-    .select(
-      `
-      shader_id,
-      price_at_time,
-      shader_title
-    `,
-    )
-    .eq("user_id", user.id);
+  const cartItems = await getCartItems();
 
   const total =
     cartItems?.reduce((sum, item) => sum + item.price_at_time, 0) || 0;
@@ -44,14 +35,14 @@ export default async function CartPage() {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-white">Cart</h1>
-              {cartItems && cartItems.length > 0 && (
+              {cartItems.length > 0 && (
                 <p className="text-neutral-400 mt-2">
                   {cartItems.length} {cartItems.length === 1 ? "item" : "items"}{" "}
                   in your cart
                 </p>
               )}
             </div>
-            {cartItems && cartItems.length > 0 && (
+            {cartItems.length > 0 && (
               <form action={clearCart}>
                 <Button variant="outline" type="submit">
                   Clear Cart
@@ -60,7 +51,7 @@ export default async function CartPage() {
             )}
           </div>
 
-          {!cartItems || cartItems.length === 0 ? (
+          {cartItems.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-neutral-400 mb-4">Your cart is empty</p>
               <LinkButton href="/marketplace">Browse Shaders</LinkButton>
@@ -76,7 +67,7 @@ export default async function CartPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="text-white font-semibold mb-2">
-                          {item.shader_title}
+                          {item.shader?.title}
                         </h3>
                         <p className="text-teal-400 font-bold">
                           ${item.price_at_time}

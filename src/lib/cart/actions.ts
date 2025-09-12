@@ -18,7 +18,7 @@ export async function addToCart(formData: FormData) {
 
   const { data: shader, error: shaderError } = await supabase
     .from("shaders")
-    .select("price, user_id, title")
+    .select("price, user_id")
     .eq("id", shaderId)
     .single();
 
@@ -39,16 +39,14 @@ export async function addToCart(formData: FormData) {
     .single();
 
   if (existing) {
-    redirect(
-      `/marketplace?message=${encodeURIComponent("Item already in cart")}`,
-    );
+    revalidatePath("/marketplace");
+    redirect("/marketplace");
   }
 
   const { error } = await supabase.from("cart_items").insert({
     user_id: user.id,
     shader_id: shaderId,
     price_at_time: shader.price,
-    shader_title: shader.title,
   });
 
   if (error) {
@@ -101,7 +99,7 @@ export async function getCartItems() {
       shader_id,
       price_at_time,
       created_at,
-      shaders!inner (
+      shader:shaders (
         id,
         title,
         description
