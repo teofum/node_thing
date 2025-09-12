@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { LuGitFork, LuPin } from "react-icons/lu";
+import { FaAngleDown } from "react-icons/fa6";
 import cn from "classnames";
 
 import useResizeObserver from "@/utils/use-resize-observer";
@@ -7,6 +8,7 @@ import { ToggleButton } from "@/ui/button";
 import { MenuLayers } from "./menu-layers";
 import { MenuLibrary } from "./menu-library";
 import { RiStackLine } from "react-icons/ri";
+import * as Select from "@radix-ui/react-select";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
@@ -49,14 +51,36 @@ export function Sidebar() {
         <div className="p-2 pl-4 flex flex-row gap-2 items-center min-h-12">
           {menu === "library" && <LuGitFork />}
           {menu === "layers" && <RiStackLine />}
-          <select
-            className="font-semibold text-sm/4 bg-black/85 border border-white/15 rounded p-1 w-full"
+          <Select.Root
             value={menu}
-            onChange={(e) => setMenu(e.target.value as "library" | "layers")}
+            onValueChange={(value) => setMenu(value as "library" | "layers")}
           >
-            <option value="library">Library</option>
-            <option value="layers">Layers</option>
-          </select>
+            <Select.Trigger className="flex items-center justify-between font-semibold text-sm/4 bg-black/85 border border-white/15 rounded p-1 w-full">
+              <Select.Value />
+              <Select.Icon>
+                <FaAngleDown />
+              </Select.Icon>
+            </Select.Trigger>
+
+            <Select.Portal>
+              <Select.Content className="bg-black/85 border border-white/15 rounded-md">
+                <Select.Viewport className="p-1">
+                  <Select.Item
+                    value="library"
+                    className="px-2 py-1 rounded hover:bg-white/10 cursor-pointer"
+                  >
+                    <Select.ItemText>Library</Select.ItemText>
+                  </Select.Item>
+                  <Select.Item
+                    value="layers"
+                    className="px-2 py-1 rounded hover:bg-white/10 cursor-pointer"
+                  >
+                    <Select.ItemText>Layers</Select.ItemText>
+                  </Select.Item>
+                </Select.Viewport>
+              </Select.Content>
+            </Select.Portal>
+          </Select.Root>
 
           <ToggleButton
             icon
