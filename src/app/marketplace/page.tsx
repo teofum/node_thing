@@ -4,7 +4,7 @@ import { getShaders, getCategories } from "@/lib/marketplace/actions";
 import ShaderCard from "@/app/components/marketplace/shadercard";
 
 type Props = {
-  searchParams: Promise<{ error?: string; category?: string }>;
+  searchParams: Promise<{ error?: string; category?: string; search?: string }>;
 };
 
 export default async function MarketplacePage({ searchParams }: Props) {
@@ -12,11 +12,23 @@ export default async function MarketplacePage({ searchParams }: Props) {
   const shaders = params.error ? [] : await getShaders();
   const categories = await getCategories();
 
-  // Filter by category from URL params to not use client-side
+  // Filter by category and search from URL params to not use client-side
   const selectedCategory = params.category;
-  const filteredShaders = selectedCategory
+  const searchTerm = params.search;
+
+  let filteredShaders = selectedCategory
     ? shaders.filter((shader) => shader.category?.name === selectedCategory)
     : shaders;
+
+  if (searchTerm) {
+    const searchLower = searchTerm.toLowerCase().trim();
+    filteredShaders = filteredShaders.filter(
+      (shader) =>
+        shader.title.toLowerCase().includes(searchLower) ||
+        (shader.description &&
+          shader.description.toLowerCase().includes(searchLower)),
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-900 relative">
@@ -44,38 +56,55 @@ export default async function MarketplacePage({ searchParams }: Props) {
             </div>
           </div>
 
-          <div className="relative mb-10 max-w-3xl mx-auto">
+          <form method="GET" className="relative mb-10 max-w-3xl mx-auto">
+            {selectedCategory && (
+              <input type="hidden" name="category" value={selectedCategory} />
+            )}
             <input
               type="text"
+              name="search"
+              defaultValue={searchTerm || ""}
               placeholder="Search shaders..."
               className="w-full rounded-full bg-neutral-800 text-white px-5 py-3 pr-12
                          border border-neutral-700 placeholder-neutral-500 focus:outline-none
                          focus:ring-2 focus:ring-purple-500"
             />
-            <LuSearch
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400"
-              size={20}
-            />
-          </div>
+            <button
+              type="submit"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
+            >
+              <LuSearch size={20} />
+            </button>
+          </form>
 
           <div className="mb-6 flex justify-center gap-2 flex-wrap">
             <LinkButton
-              href="/marketplace"
+              href={
+                searchTerm
+                  ? `/marketplace?search=${encodeURIComponent(searchTerm)}`
+                  : "/marketplace"
+              }
               variant={!selectedCategory ? "default" : "outline"}
             >
               All
             </LinkButton>
-            {categories.map((category) => (
-              <LinkButton
-                key={category.id}
-                href={`/marketplace?category=${category.name}`}
-                variant={
-                  selectedCategory === category.name ? "default" : "outline"
-                }
-              >
-                {category.name}
-              </LinkButton>
-            ))}
+            {categories.map((category) => {
+              const categoryUrl = searchTerm
+                ? `/marketplace?category=${category.name}&search=${encodeURIComponent(searchTerm)}`
+                : `/marketplace?category=${category.name}`;
+
+              return (
+                <LinkButton
+                  key={category.id}
+                  href={categoryUrl}
+                  variant={
+                    selectedCategory === category.name ? "default" : "outline"
+                  }
+                >
+                  {category.name}
+                </LinkButton>
+              );
+            })}
           </div>
 
           {params.error ? (
@@ -85,9 +114,13 @@ export default async function MarketplacePage({ searchParams }: Props) {
           ) : filteredShaders.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-neutral-400">
-                {selectedCategory
-                  ? `No shaders found in ${selectedCategory} category`
-                  : "No shaders yet. Be the first to upload one!"}
+                {searchTerm && selectedCategory
+                  ? `No shaders found for "${searchTerm}" in ${selectedCategory} category` // both filters active
+                  : searchTerm
+                    ? `No shaders found for "${searchTerm}"` // only search active
+                    : selectedCategory
+                      ? `No shaders found in ${selectedCategory} category` // only category active
+                      : "No shaders yet. Be the first to upload one!"}
               </p>
             </div>
           ) : (
