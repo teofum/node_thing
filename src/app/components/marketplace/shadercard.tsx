@@ -61,7 +61,7 @@ export default function ShaderCard({
             <button
               type="submit"
               className="group px-3 py-1 text-lg text-white rounded-md bg-emerald-600 
-                         hover:bg-red-700 shadow-md cursor-pointer"
+                         hover:bg-red-700 active:bg-red-800 shadow-md cursor-pointer"
             >
               <span className="inline-flex items-center gap-2 group-hover:hidden">
                 <LuCircleCheckBig /> In cart
@@ -74,8 +74,8 @@ export default function ShaderCard({
           ) : (
             <button
               type="submit"
-              className="inline-flex items-center gap-1 px-3 py-1 text-lg border border-white text-white rounded-md 
-                         hover:bg-emerald-600 transition-colors shadow-md cursor-pointer"
+              className="inline-flex items-center gap-1 px-3 py-1 text-lg border border-emerald-600 text-white rounded-md 
+                         hover:bg-emerald-600 active:bg-emerald-700 transition-colors shadow-md cursor-pointer"
             >
               <LuPlus />
               Add to cart
