@@ -1,7 +1,7 @@
 "use client";
 
-import { LuCirclePlus, LuHeart } from "react-icons/lu";
-import { addToCart } from "@/lib/cart/actions";
+import { LuCircleCheckBig, LuEraser, LuHeart, LuPlus } from "react-icons/lu";
+import { addToCart, removeFromCart } from "@/lib/cart/actions";
 import { useState } from "react";
 
 type ShaderCardProps = {
@@ -9,6 +9,7 @@ type ShaderCardProps = {
   title: string;
   price: number;
   likes: number;
+  inCart: boolean;
 };
 
 export default function ShaderCard({
@@ -16,6 +17,7 @@ export default function ShaderCard({
   title,
   price,
   likes = 0,
+  inCart,
 }: ShaderCardProps) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
@@ -53,16 +55,32 @@ export default function ShaderCard({
           </button>
           <span className="text-white text-base">{likeCount}</span>
         </div>
-        <form action={addToCart}>
+        <form action={inCart ? removeFromCart : addToCart}>
           <input type="hidden" name="shaderId" value={id} />
-          <button
-            type="submit"
-            className="absolute bottom-4 right-4 flex items-center justify-center 
-                      w-8 h-8 rounded-md
-                      transition-colors shadow-md cursor-pointer"
-          >
-            <LuCirclePlus className="text-white hover:text-purple-500 w-7 h-7" />
-          </button>
+          {inCart ? (
+            <button
+              type="submit"
+              className="group px-3 py-1 text-lg text-white rounded-md bg-emerald-600 
+                         hover:bg-red-700 shadow-md cursor-pointer"
+            >
+              <span className="inline-flex items-center gap-2 group-hover:hidden">
+                <LuCircleCheckBig /> In cart
+              </span>
+              <span className="items-center gap-2 hidden group-hover:inline-flex">
+                <LuEraser />
+                Remove from cart
+              </span>
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1 px-3 py-1 text-lg border border-white text-white rounded-md 
+                         hover:bg-emerald-600 transition-colors shadow-md cursor-pointer"
+            >
+              <LuPlus />
+              Add to cart
+            </button>
+          )}
         </form>
       </div>
     </div>

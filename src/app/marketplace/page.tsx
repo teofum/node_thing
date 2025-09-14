@@ -1,6 +1,7 @@
 import { LinkButton } from "@/ui/button";
 import { LuArrowLeft, LuSearch } from "react-icons/lu";
 import { getShaders, getCategories } from "@/lib/marketplace/actions";
+import { getCartItems } from "@/lib/cart/actions";
 import ShaderCard from "@/app/components/marketplace/shadercard";
 
 type Props = {
@@ -11,6 +12,8 @@ export default async function MarketplacePage({ searchParams }: Props) {
   const params = await searchParams;
   const shaders = params.error ? [] : await getShaders();
   const categories = await getCategories();
+  const cartItems = await getCartItems();
+  const cartIds = new Set(cartItems.map((item) => item.shader_id));
 
   // Filter by category and search from URL params to not use client-side
   const selectedCategory = params.category;
@@ -132,6 +135,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
                   title={shader.title}
                   price={shader.price}
                   likes={0}
+                  inCart={cartIds.has(shader.id)}
                 />
               ))}
             </div>
