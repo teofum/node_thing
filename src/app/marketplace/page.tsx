@@ -1,5 +1,5 @@
 import { LinkButton } from "@/ui/button";
-import { LuArrowLeft, LuSearch } from "react-icons/lu";
+import { LuArrowLeft, LuSearch, LuShoppingCart } from "react-icons/lu";
 import { getShaders, getCategories } from "@/lib/marketplace/actions";
 import { getCartItems } from "@/lib/cart/actions";
 import ShaderCard from "@/app/components/marketplace/shadercard";
@@ -52,8 +52,12 @@ export default async function MarketplacePage({ searchParams }: Props) {
               </p>
             </div>
             <div className="flex gap-4">
-              <LinkButton href="/marketplace/cart" variant="outline">
-                Cart
+              <LinkButton
+                href="/marketplace/cart"
+                variant="outline"
+                className="px-5 py-3 text-xl"
+              >
+                <LuShoppingCart />
               </LinkButton>
               <LinkButton href="/marketplace/upload">Upload Shader</LinkButton>
             </div>
