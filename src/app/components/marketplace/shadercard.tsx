@@ -55,21 +55,15 @@ export default function ShaderCard({
           </button>
           <span className="text-white text-base">{likeCount}</span>
         </div>
-        <form action={inCart ? removeFromCart : addToCart}>
+        <form action={inCart ? undefined : addToCart}>
           <input type="hidden" name="shaderId" value={id} />
           {inCart ? (
             <button
-              type="submit"
-              className="group px-3 py-1 text-lg text-white rounded-md bg-emerald-600 
-                         hover:bg-red-700 active:bg-red-800 shadow-md cursor-pointer"
+              type="button"
+              className="inline-flex items-center gap-2 px-3 py-1 text-lg text-white rounded-md bg-emerald-600 
+                        shadow-md cursor-default"
             >
-              <span className="inline-flex items-center gap-2 group-hover:hidden">
-                <LuCircleCheckBig /> In cart
-              </span>
-              <span className="items-center gap-2 hidden group-hover:inline-flex">
-                <LuEraser />
-                Remove from cart
-              </span>
+              <LuCircleCheckBig /> In cart
             </button>
           ) : (
             <button
