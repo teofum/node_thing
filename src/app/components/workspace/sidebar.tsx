@@ -1,18 +1,18 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { LuGitFork, LuPin, LuLayers, LuChevronDown } from "react-icons/lu";
+import { LuGitFork, LuPin, LuLayers } from "react-icons/lu";
 import cn from "classnames";
 
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
+import { Select, SelectItem } from "@/ui/select";
 import { MenuLayers } from "./menu-layers";
 import { MenuLibrary } from "./menu-library";
-import { Select, SelectItem } from "@/ui/select";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
   const [height, setHeight] = useState(0);
-  const dummySizingDiv = useRef<HTMLDivElement | null>(null);
   const [menu, setMenu] = useState<"library" | "layers">("library");
+  const dummySizingDiv = useRef<HTMLDivElement | null>(null);
 
   const renderMenu = () => {
     switch (menu) {
@@ -40,7 +40,7 @@ export function Sidebar() {
       />
       <aside
         className={cn(
-          "absolute left-1 top-1 z-10 w-48 flex flex-col rounded-xl group",
+          "absolute left-1 top-1 z-10 w-56 flex flex-col rounded-xl group",
           "glass glass-border transition-[height] duration-300 overflow-hidden",
           { "not-hover:!h-[50px]": !pin },
         )}
@@ -79,6 +79,7 @@ export function Sidebar() {
             <LuPin />
           </ToggleButton>
         </div>
+
         {renderMenu()}
       </aside>
     </>

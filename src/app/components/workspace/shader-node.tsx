@@ -30,7 +30,19 @@ function NodeInput({
 
   return (
     <div className="flex flex-row gap-2 h-6 items-center">
-      {mock ? null : (
+      {mock ? (
+        <div
+          className={cn(
+            "react-flow__handle react-flow__handle-left",
+            "!border-neutral-600 !border",
+            {
+              "!bg-teal-500": input.type === "color",
+              "!bg-neutral-100": input.type === "number",
+            },
+          )}
+          style={{ top: i * HANDLE_HEIGHT + HEADER_HEIGHT }}
+        />
+      ) : (
         <Handle
           type="target"
           position={Position.Left}
@@ -124,8 +136,23 @@ export function RenderShaderNode(
 
         {/* outputs */}
         {Object.entries(nodeTypeInfo.outputs).map(([key, output], i) => (
-          <div key={key}>
-            {props.mock ? null : (
+          <div
+            key={key}
+            className="flex flex-row-reverse gap-2 h-6 items-center"
+          >
+            {props.mock ? (
+              <div
+                className={cn(
+                  "react-flow__handle react-flow__handle-right",
+                  "!border-neutral-600 !border",
+                  {
+                    "!bg-teal-500": output.type === "color",
+                    "!bg-neutral-100": output.type === "number",
+                  },
+                )}
+                style={{ top: i * HANDLE_HEIGHT + outputOffset }}
+              />
+            ) : (
               <Handle
                 type="source"
                 position={Position.Right}

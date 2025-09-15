@@ -1,8 +1,7 @@
+import { forwardRef } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
-
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 import cn from "classnames";
-import { forwardRef } from "react";
 
 type Props = Omit<SelectPrimitive.SelectProps, "children"> &
   Pick<SelectPrimitive.SelectTriggerProps, "className"> &
