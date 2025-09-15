@@ -10,7 +10,8 @@ import {
 } from "@xyflow/react";
 import { create } from "zustand";
 
-import { NodeData } from "@/schemas/node.schema";
+import { NodeData, NodeType } from "@/schemas/node.schema";
+import { NODE_TYPES } from "@/utils/node-type";
 
 // !! cuidado: Node que se guarda es de RF
 // tiene campos id: y type: pero no son los de nuestro node.schema.ts
@@ -46,7 +47,7 @@ const initialNodes: ShaderNode[] = [
   {
     id: "__output",
     position: { x: 0, y: 0 },
-    data: { type: "__output" },
+    data: { type: "__output", defaultValues: {} },
     type: "RenderShaderNode",
     deletable: false,
   },
@@ -62,6 +63,12 @@ type ProjectActions = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+
+  updateNodeDefaultValue: (
+    id: string,
+    input: string,
+    value: number | number[],
+  ) => void;
 
   setZoom: (zoom: number) => void;
   setCanvasSize: (width: number, height: number) => void;
@@ -131,6 +138,22 @@ export const useStore = create<Project & ProjectActions>((set) => ({
     set(({ layers, currentLayer }) => {
       const layer = layers[currentLayer];
 
+      const targetType = layer.nodes.find(
+        (node) => node.id === connection.target,
+      )!.data.type;
+      const sourceType = layer.nodes.find(
+        (node) => node.id === connection.source,
+      )!.data.type;
+
+      const targetHandleType = (
+        NODE_TYPES[targetType].inputs as NodeType["inputs"]
+      )[connection.targetHandle ?? ""].type;
+      const sourceHandleType = (
+        NODE_TYPES[sourceType].outputs as NodeType["outputs"]
+      )[connection.sourceHandle ?? ""].type;
+
+      if (targetHandleType !== sourceHandleType) return {};
+
       const filteredEdges = layer.edges.filter(
         (e) =>
           e.target !== connection.target ||
@@ -143,6 +166,29 @@ export const useStore = create<Project & ProjectActions>((set) => ({
         layers: modifyLayer(layers, currentLayer, () => ({
           edges: newEdges,
         })),
+      };
+    }),
+
+  updateNodeDefaultValue: (id, input, value) =>
+    set(({ layers, currentLayer }) => {
+      return {
+        layers: modifyLayer(layers, currentLayer, ({ nodes }) => {
+          const node = nodes.find((n) => n.id === id);
+          if (!node) return {};
+
+          return {
+            nodes: [
+              ...nodes.filter((n) => n.id !== id),
+              {
+                ...node,
+                data: {
+                  ...node.data,
+                  defaultValues: { ...node.data.defaultValues, [input]: value },
+                },
+              },
+            ],
+          };
+        }),
       };
     }),
 

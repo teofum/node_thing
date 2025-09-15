@@ -1,9 +1,10 @@
-import { NodeData } from "@/schemas/node.schema";
+import { HandleType, NodeData } from "@/schemas/node.schema";
 import { Layer, ShaderNode } from "@/store/store";
 import { NODE_TYPES } from "@/utils/node-type";
 
 type Buffer = {
   idx: number;
+  type: HandleType;
   users: {
     nodeId: string;
     input: string;
@@ -18,23 +19,29 @@ type Input = {
 
 export type RenderPass = {
   nodeType: NodeData["type"];
-  inputBindings: Record<string, number>;
+  inputBindings: Record<string, number | null>;
   outputBindings: Record<string, number>;
+  defaultInputValues: Record<string, number | number[]>;
 };
 
 export type RenderPipeline = {
   passes: RenderPass[];
   inputs: Input[];
   outputBuffer: number;
-  bufferCount: number;
+  outputAlphaBuffer: number;
+  bufferTypes: HandleType[];
 };
 
-export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
+export function buildRenderPipeline({
+  nodes,
+  edges,
+}: Layer): RenderPipeline | null {
   const queue: ShaderNode[] = [];
   const buffers: Buffer[] = [];
   const passes: RenderPass[] = [];
   const inputs: Input[] = [];
   let outputBuffer = -1;
+  let outputAlphaBuffer = -1;
 
   /*
    * Find outputs for pre-process culling step
@@ -42,8 +49,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
   const outputs = nodes.filter((node) => node.data.type === "__output");
 
   // If there are no outputs, do nothing!
-  if (outputs.length === 0)
-    return { passes, inputs, outputBuffer, bufferCount: 0 };
+  if (outputs.length === 0) return null;
 
   if (outputs.length > 1) console.warn("More than one output in render graph!");
   const output = outputs[0]; // There shouldn't be multiple outputs per graph!
@@ -60,6 +66,12 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
     // We just asserted the array has items, unshift will never return undefined
     const node = queue.shift() as ShaderNode;
     const nodeType = NODE_TYPES[node.data.type];
+
+    // // Detect loops
+    // if (connectedIds.has(node.id)) {
+    //   console.error("loop detected in shader graph");
+    //   return null;
+    // }
 
     // Tag the node as connected to output
     connectedIds.add(node.id);
@@ -99,12 +111,15 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
 
   /*
    * Helper function.
-   * Get a buffer suitable for writing, or create one if there are none.
+   * Get a buffer of the right type suitable for writing, or create one if there are none.
    */
-  const findOrCreateBuffer = () => {
-    let freeBuffer = buffers.find((buf) => buf.users.length === 0);
+  const findOrCreateBuffer = (type: Buffer["type"], used: Buffer["idx"][]) => {
+    let freeBuffer = buffers.find(
+      (buf) =>
+        buf.type === type && buf.users.length === 0 && !used.includes(buf.idx),
+    );
     if (!freeBuffer) {
-      freeBuffer = { idx: buffers.length, users: [] };
+      freeBuffer = { idx: buffers.length, users: [], type };
       buffers.push(freeBuffer);
     }
 
@@ -118,7 +133,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
   while (queue.length > 0) {
     if (i++ > 1000) {
       console.error("max iteration count exceeded");
-      break;
+      return null;
     }
 
     // We just asserted the array has items, unshift will never return undefined
@@ -156,6 +171,9 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
       outputBuffer = dependencies[0]
         ? buffers.indexOf(dependencies[0].buf)
         : -1;
+      outputAlphaBuffer = dependencies[1]
+        ? buffers.indexOf(dependencies[1].buf)
+        : -1;
       break;
     }
 
@@ -166,21 +184,29 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
       nodeType: node.data.type,
       inputBindings: {},
       outputBindings: {},
+      defaultInputValues: node.data.defaultValues,
     };
 
     // Add input bindings
-    for (const dep of dependencies) {
-      pass.inputBindings[dep.input] = dep.buf.idx;
+    for (const input of Object.keys(nodeType.inputs)) {
+      pass.inputBindings[input] =
+        dependencies.find((dep) => dep.input === input)?.buf.idx ?? null;
     }
 
     /*
-     * Assign a buffer to each output
+     * Assign a buffer to each output, making sure not to reuse buffers.
+     * This may allocate more buffers than actually necessary for nodes with
+     * multiple unused outputs. Too bad! Limitation of WebGPU's bindful API.
      */
-    for (const out of Object.keys(nodeType.outputs)) {
-      const buf = findOrCreateBuffer();
+    const buffersUsed: Buffer["idx"][] = [];
+    for (const [outputKey, output] of Object.entries(nodeType.outputs)) {
+      const buf = findOrCreateBuffer(output.type, buffersUsed);
+      buffersUsed.push(buf.idx);
 
       edges
-        .filter((edge) => edge.source === node.id && edge.sourceHandle === out)
+        .filter(
+          (edge) => edge.source === node.id && edge.sourceHandle === outputKey,
+        )
         .forEach((edge) => {
           // Connect relevant inputs to buffer
           buf.users.push({
@@ -196,7 +222,7 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
         });
 
       // Add render pass output bindings
-      pass.outputBindings[out] = buf.idx;
+      pass.outputBindings[outputKey] = buf.idx;
     }
 
     /*
@@ -221,5 +247,11 @@ export function buildRenderPipeline({ nodes, edges }: Layer): RenderPipeline {
     }
   }
 
-  return { passes, inputs, outputBuffer, bufferCount: buffers.length };
+  return {
+    passes,
+    inputs,
+    outputBuffer,
+    outputAlphaBuffer,
+    bufferTypes: buffers.map((buf) => buf.type),
+  };
 }
