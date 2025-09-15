@@ -11,17 +11,26 @@ import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 
 export const NODE_TYPES = {
   __input: {
-    name: "Input",
-    category: "Special",
+    name: "Image",
+    category: "Input",
     shader: "",
     inputs: {},
     outputs: {
-      out_a: {
-        name: "Input",
+      image: {
+        name: "Color",
         type: "color",
       },
+      alpha: {
+        name: "Aplha",
+        type: "number",
+      },
     },
-    parameters: {},
+    parameters: {
+      image: {
+        name: "Image",
+        type: "image",
+      },
+    },
   },
   __output: {
     name: "Output",

@@ -14,6 +14,7 @@ type Buffer = {
 type Input = {
   nodeId: string;
   type: string;
+  image: string | null;
   outputBindings: Record<string, number>;
 };
 
@@ -240,6 +241,7 @@ export function buildRenderPipeline({
       inputs.push({
         nodeId: node.id,
         type: node.data.type,
+        image: node.data.parameters.image?.value ?? null,
         outputBindings: pass.outputBindings,
       });
     } else {

@@ -1,27 +1,28 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { LuGitFork, LuPin, LuLayers } from "react-icons/lu";
-import { FaAngleDown } from "react-icons/fa6";
+import { LuGitFork, LuPin, LuLayers, LuImage } from "react-icons/lu";
 import cn from "classnames";
 
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
+import { Select, SelectItem } from "@/ui/select";
 import { MenuLayers } from "./menu-layers";
 import { MenuLibrary } from "./menu-library";
-import { RiStackLine } from "react-icons/ri";
-import * as Select from "@radix-ui/react-select";
+import { MenuAssets } from "./menu-assets";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
   const [height, setHeight] = useState(0);
+  const [menu, setMenu] = useState<"library" | "layers" | "assets">("library");
   const dummySizingDiv = useRef<HTMLDivElement | null>(null);
-  const [menu, setMenu] = useState<"library" | "layers">("library");
 
   const renderMenu = () => {
     switch (menu) {
-      case "layers":
-        return <MenuLayers />;
       case "library":
         return <MenuLibrary />;
+      case "layers":
+        return <MenuLayers />;
+      case "assets":
+        return <MenuAssets />;
       default:
         return null;
     }
@@ -42,45 +43,39 @@ export function Sidebar() {
       />
       <aside
         className={cn(
-          "absolute left-1 top-1 z-10 w-48 flex flex-col rounded-xl group",
+          "absolute left-1 top-1 z-10 w-56 flex flex-col rounded-xl group",
           "glass glass-border transition-[height] duration-300 overflow-hidden",
           { "not-hover:!h-[50px]": !pin },
         )}
         style={{ height }}
       >
-        <div className="p-2 pl-4 flex flex-row gap-2 items-center min-h-12">
-          {menu === "library" && <LuGitFork />}
-          {menu === "layers" && <LuLayers />}
-          <Select.Root
+        <div className="p-0.75 pr-2 flex flex-row gap-2 items-center min-h-12">
+          <Select
+            variant="ghost"
             value={menu}
-            onValueChange={(value) => setMenu(value as "library" | "layers")}
+            onValueChange={(value) => setMenu(value as typeof menu)}
           >
-            <Select.Trigger className="flex items-center justify-between font-semibold text-sm/4 bg-black/85 border border-white/15 rounded p-1 w-full">
-              <Select.Value />
-              <Select.Icon>
-                <FaAngleDown />
-              </Select.Icon>
-            </Select.Trigger>
+            <SelectItem value="library">
+              <div className="flex items-center gap-2">
+                <LuGitFork className="text-base" />
+                <div className="font-semibold">Library</div>
+              </div>
+            </SelectItem>
 
-            <Select.Portal>
-              <Select.Content className="bg-black/85 border border-white/15 rounded-md">
-                <Select.Viewport className="p-1">
-                  <Select.Item
-                    value="library"
-                    className="px-2 py-1 rounded hover:bg-white/10 cursor-pointer"
-                  >
-                    <Select.ItemText>Library</Select.ItemText>
-                  </Select.Item>
-                  <Select.Item
-                    value="layers"
-                    className="px-2 py-1 rounded hover:bg-white/10 cursor-pointer"
-                  >
-                    <Select.ItemText>Layers</Select.ItemText>
-                  </Select.Item>
-                </Select.Viewport>
-              </Select.Content>
-            </Select.Portal>
-          </Select.Root>
+            <SelectItem value="layers">
+              <div className="flex items-center gap-2">
+                <LuLayers className="text-base" />
+                <div className="font-semibold">Layers</div>
+              </div>
+            </SelectItem>
+
+            <SelectItem value="assets">
+              <div className="flex items-center gap-2">
+                <LuImage className="text-base" />
+                <div className="font-semibold">Assets</div>
+              </div>
+            </SelectItem>
+          </Select>
 
           <ToggleButton
             icon
@@ -94,6 +89,7 @@ export function Sidebar() {
             <LuPin />
           </ToggleButton>
         </div>
+
         {renderMenu()}
       </aside>
     </>

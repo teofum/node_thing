@@ -1,7 +1,10 @@
 import { NODE_TYPES } from "@/utils/node-type";
+import { HandleType } from "@/schemas/node.schema";
 import { RenderPass, RenderPipeline } from "./pipeline";
 import { createUniform } from "./uniforms";
-import { HandleType } from "@/schemas/node.schema";
+
+import outputShader from "@/shaders/output.wgsl";
+import inputShader from "@/shaders/input.wgsl";
 
 const THREADS_PER_WORKGROUP = 16;
 
@@ -168,6 +171,99 @@ function createComputePSOs(
   );
 }
 
+function createInputStage(
+  device: GPUDevice,
+  uniformBindGroupLayout: GPUBindGroupLayout,
+) {
+  const inputStageShader = device.createShaderModule({
+    code: inputShader,
+  });
+
+  const inputStageLayout = device.createBindGroupLayout({
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "storage",
+        },
+      },
+      {
+        binding: 1,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "storage",
+        },
+      },
+      {
+        binding: 2,
+        visibility: GPUShaderStage.COMPUTE,
+        texture: {},
+      },
+      {
+        binding: 3,
+        visibility: GPUShaderStage.COMPUTE,
+        sampler: {},
+      },
+    ],
+  });
+
+  return device.createComputePipeline({
+    compute: {
+      module: inputStageShader,
+      entryPoint: "main",
+    },
+    layout: device.createPipelineLayout({
+      bindGroupLayouts: [inputStageLayout, uniformBindGroupLayout],
+    }),
+  });
+}
+
+function createOuputStage(
+  device: GPUDevice,
+  uniformBindGroupLayout: GPUBindGroupLayout,
+) {
+  const outputStageShader = device.createShaderModule({
+    code: outputShader,
+  });
+
+  const outputStageLayout = device.createBindGroupLayout({
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "read-only-storage",
+        },
+      },
+      {
+        binding: 1,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "read-only-storage",
+        },
+      },
+      {
+        binding: 2,
+        visibility: GPUShaderStage.COMPUTE,
+        storageTexture: {
+          format: "rgba8unorm",
+        },
+      },
+    ],
+  });
+
+  return device.createComputePipeline({
+    compute: {
+      module: outputStageShader,
+      entryPoint: "main",
+    },
+    layout: device.createPipelineLayout({
+      bindGroupLayouts: [outputStageLayout, uniformBindGroupLayout],
+    }),
+  });
+}
+
 /*
  * Prepare a render pipeline for rendering by creating all the necessary
  * objects: buffers, binding groups, and compute PSOs.
@@ -196,85 +292,8 @@ export function preparePipeline(
     uniform.bindGroupLayout,
   );
 
-  // TODO pass render size in uniforms
-  const finalStageShader = device.createShaderModule({
-    code: `
-    @group(0) @binding(0)
-    var<storage, read> input: array<vec3f>;
-
-    @group(0) @binding(1)
-    var<storage, read> alpha: array<f32>;
-
-    @group(0) @binding(2)
-    var tex: texture_storage_2d<rgba8unorm, write>;
-
-    struct Uniforms {
-        width: u32,
-        height: u32,
-        has_alpha: u32,
-    };
-
-    @group(1) @binding(0)
-    var<uniform> u: Uniforms;
-
-    @compute @workgroup_size(16, 16)
-    fn main(
-      @builtin(global_invocation_id) id: vec3u
-    ) {
-      // Avoid accessing the buffer out of bounds
-      if id.x >= u.width || id.y >= u.height {
-          return;
-      }
-      let index = id.x + id.y * u.width;
-
-      let color = input[index];
-      if u.has_alpha != 0 {
-        textureStore(tex, id.xy, vec4f(color * alpha[index], alpha[index]));
-      } else {
-        textureStore(tex, id.xy, vec4f(color, 1.0));
-      }
-    }
-    `,
-  });
-
-  const finalStageLayout = device.createBindGroupLayout({
-    entries: [
-      {
-        binding: 0,
-        visibility: GPUShaderStage.COMPUTE,
-        buffer: {
-          type: "read-only-storage",
-        },
-      },
-      {
-        binding: 1,
-        visibility: GPUShaderStage.COMPUTE,
-        buffer: {
-          type: "read-only-storage",
-        },
-      },
-      {
-        binding: 2,
-        visibility: GPUShaderStage.COMPUTE,
-        storageTexture: {
-          format: "rgba8unorm",
-        },
-      },
-    ],
-  });
-
-  const finalStage = {
-    pipeline: device.createComputePipeline({
-      compute: {
-        module: finalStageShader,
-        entryPoint: "main",
-      },
-      layout: device.createPipelineLayout({
-        bindGroupLayouts: [finalStageLayout, uniform.bindGroupLayout],
-      }),
-    }),
-    layout: finalStageLayout,
-  };
+  const inputStage = createInputStage(device, uniform.bindGroupLayout);
+  const outputStage = createOuputStage(device, uniform.bindGroupLayout);
 
   return {
     desc,
@@ -283,7 +302,8 @@ export function preparePipeline(
     dummyBuffers,
     bindGroups,
     pipelines,
-    finalStage,
+    inputStage,
+    outputStage,
     uniform,
   };
 }
@@ -299,6 +319,8 @@ export function render(
   device: GPUDevice,
   pipeline: PreparedPipeline,
   target: GPUTexture,
+  textures: [string, GPUTexture][],
+  sampler: GPUSampler,
 ) {
   const {
     desc,
@@ -307,7 +329,8 @@ export function render(
     dummyBuffers,
     bindGroups,
     pipelines,
-    finalStage,
+    inputStage,
+    outputStage,
     uniform,
   } = pipeline;
 
@@ -316,8 +339,8 @@ export function render(
    */
   const alphaBuffer =
     desc.outputAlphaBuffer === -1 ? 0 : desc.outputAlphaBuffer;
-  const finalStageBindGroup = device.createBindGroup({
-    layout: finalStage.layout,
+  const outputStageBindGroup = device.createBindGroup({
+    layout: outputStage.getBindGroupLayout(0),
     entries: [
       {
         binding: 0,
@@ -354,7 +377,6 @@ export function render(
    * Fill in dummy buffers
    */
   for (const buf of dummyBuffers) {
-    console.log(buf);
     const value = buf.pass.defaultInputValues[buf.input] ?? 0;
 
     const values = Float32Array.from(
@@ -369,8 +391,43 @@ export function render(
   const enc = device.createCommandEncoder();
 
   for (const input of desc.inputs) {
-    // TODO copy input textures to buffers...
-    console.log(input.nodeId);
+    console.log(input, textures, buffers);
+    const textureEntry = textures.find(([name]) => name === input.image);
+    if (!textureEntry) continue;
+
+    const [, texture] = textureEntry;
+
+    const bindGroup = device.createBindGroup({
+      layout: inputStage.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: { buffer: buffers[input.outputBindings.image] },
+        },
+        {
+          binding: 1,
+          resource: { buffer: buffers[input.outputBindings.alpha] },
+        },
+        {
+          binding: 2,
+          resource: texture.createView(),
+        },
+        {
+          binding: 3,
+          resource: sampler,
+        },
+      ],
+    });
+
+    const pass = enc.beginComputePass();
+    pass.setPipeline(inputStage);
+    pass.setBindGroup(0, bindGroup);
+    pass.setBindGroup(1, uniform.bindGroup);
+    pass.dispatchWorkgroups(
+      Math.ceil(opts.width / THREADS_PER_WORKGROUP),
+      Math.ceil(opts.height / THREADS_PER_WORKGROUP),
+    );
+    pass.end();
   }
 
   /*
@@ -393,15 +450,15 @@ export function render(
   /*
    * Copy output buffer to final render target
    */
-  const finalPass = enc.beginComputePass();
-  finalPass.setPipeline(finalStage.pipeline);
-  finalPass.setBindGroup(0, finalStageBindGroup);
-  finalPass.setBindGroup(1, uniform.bindGroup);
-  finalPass.dispatchWorkgroups(
+  const outputPass = enc.beginComputePass();
+  outputPass.setPipeline(outputStage);
+  outputPass.setBindGroup(0, outputStageBindGroup);
+  outputPass.setBindGroup(1, uniform.bindGroup);
+  outputPass.dispatchWorkgroups(
     Math.ceil(opts.width / THREADS_PER_WORKGROUP),
     Math.ceil(opts.height / THREADS_PER_WORKGROUP),
   );
-  finalPass.end();
+  outputPass.end();
 
   device.queue.submit([enc.finish()]);
 }
