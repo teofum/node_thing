@@ -70,6 +70,12 @@ type ProjectActions = {
     value: number | number[],
   ) => void;
 
+  updateNodeParameter: (
+    id: string,
+    param: string,
+    value: string | null,
+  ) => void;
+
   setZoom: (zoom: number) => void;
   setCanvasSize: (width: number, height: number) => void;
 
@@ -93,6 +99,24 @@ function modifyLayer(
       ...f(layerToModify),
     },
     ...layersOver,
+  ];
+}
+
+function modifyNode(
+  nodes: ShaderNode[],
+  id: string,
+  f: (node: ShaderNode) => Partial<ShaderNode>,
+): ShaderNode[] {
+  const node = nodes.find((n) => n.id === id);
+  if (!node) return nodes;
+
+  return [
+    ...nodes.filter((n) => n.id !== id),
+    {
+      ...node,
+      ...f(node),
+      id: node.id,
+    },
   ];
 }
 
@@ -172,23 +196,28 @@ export const useStore = create<Project & ProjectActions>((set) => ({
   updateNodeDefaultValue: (id, input, value) =>
     set(({ layers, currentLayer }) => {
       return {
-        layers: modifyLayer(layers, currentLayer, ({ nodes }) => {
-          const node = nodes.find((n) => n.id === id);
-          if (!node) return {};
+        layers: modifyLayer(layers, currentLayer, ({ nodes }) => ({
+          nodes: modifyNode(nodes, id, (node) => ({
+            data: {
+              ...node.data,
+              defaultValues: { ...node.data.defaultValues, [input]: value },
+            },
+          })),
+        })),
+      };
+    }),
 
-          return {
-            nodes: [
-              ...nodes.filter((n) => n.id !== id),
-              {
-                ...node,
-                data: {
-                  ...node.data,
-                  defaultValues: { ...node.data.defaultValues, [input]: value },
-                },
-              },
-            ],
-          };
-        }),
+  updateNodeParameter: (id, param, value) =>
+    set(({ layers, currentLayer }) => {
+      return {
+        layers: modifyLayer(layers, currentLayer, ({ nodes }) => ({
+          nodes: modifyNode(nodes, id, (node) => ({
+            data: {
+              ...node.data,
+              parameters: { ...node.data.parameters, [param]: { value } },
+            },
+          })),
+        })),
       };
     }),
 

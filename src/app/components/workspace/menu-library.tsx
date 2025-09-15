@@ -19,7 +19,7 @@ export function MenuLibrary() {
   // Group nodes by category
   const nodesByCategory: Record<string, Record<string, NodeType>> = {};
   Object.entries(NODE_TYPES)
-    .filter(([key]) => !key.startsWith("__"))
+    .filter(([key]) => !key.startsWith("__output"))
     .forEach(([key, type]) => {
       if (!nodesByCategory[type.category]) nodesByCategory[type.category] = {};
       nodesByCategory[type.category][key] = type;

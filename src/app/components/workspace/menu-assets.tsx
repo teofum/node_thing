@@ -1,4 +1,5 @@
-import { useAssetStore } from "@/store/image-store";
+import { useAssetStore } from "@/store/asset-store";
+import { imageURLFromAsset } from "@/utils/image-url-from-asset";
 
 export function MenuAssets() {
   const images = useAssetStore((s) => s.images);
@@ -37,10 +38,12 @@ export function MenuAssets() {
           <div className="absolute bottom-0 left-0 right-0 p-1 text-xs/3 bg-black/40 opacity-0 group-hover/asset:opacity-100 transition-opacity duration-150">
             {key}
           </div>
+          {/* We don't care about nextjs image optimization here, it's a local data url */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             alt=""
             className="aspect-square object-cover"
-            src={`data:image/${image.type};base64,${Buffer.from(image.data).toString("base64")}`}
+            src={imageURLFromAsset(image)}
           />
         </div>
       ))}

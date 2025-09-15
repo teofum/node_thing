@@ -6,6 +6,7 @@ import { NODE_TYPES } from "@/utils/node-type";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { NodeInput } from "./node-input";
 import { NodeOutput } from "./node-output";
+import { NodeParameter } from "./node-parameter";
 
 // TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
 // puede que querramos guardar el código del shader en formato string dentro del objeto data:
@@ -56,11 +57,11 @@ export function RenderShaderNode(
         ))}
 
         {/* parameters */}
-        {Object.entries(nodeTypeInfo.parameters).map(([key, param]) => (
-          <div key={key} className="bg-red-500">
-            {param.name}: {data.parameters[key]?.value ?? "[unset]"}
-          </div>
-        ))}
+        {!props.mock
+          ? Object.entries(nodeTypeInfo.parameters).map(([key, param]) => (
+              <NodeParameter key={key} name={key} param={param} {...props} />
+            ))
+          : null}
       </div>
     </div>
   );
