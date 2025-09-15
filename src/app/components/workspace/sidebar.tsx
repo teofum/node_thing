@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { LuGitFork, LuPin } from "react-icons/lu";
+import { LuGitFork, LuPin, LuLayers } from "react-icons/lu";
 import { FaAngleDown } from "react-icons/fa6";
 import cn from "classnames";
 
@@ -50,7 +50,7 @@ export function Sidebar() {
       >
         <div className="p-2 pl-4 flex flex-row gap-2 items-center min-h-12">
           {menu === "library" && <LuGitFork />}
-          {menu === "layers" && <RiStackLine />}
+          {menu === "layers" && <LuLayers />}
           <Select.Root
             value={menu}
             onValueChange={(value) => setMenu(value as "library" | "layers")}
