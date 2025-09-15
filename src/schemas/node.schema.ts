@@ -52,8 +52,7 @@ export const nodeDataSchema = z.object({
   parameters: z.record(
     z.string(),
     z.object({
-      type: z.literal("image"),
-      value: z.string(),
+      value: z.string().nullable(),
     }),
   ),
 });

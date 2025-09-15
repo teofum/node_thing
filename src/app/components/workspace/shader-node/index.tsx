@@ -54,6 +54,13 @@ export function RenderShaderNode(
             {...props}
           />
         ))}
+
+        {/* parameters */}
+        {Object.entries(nodeTypeInfo.parameters).map(([key, param]) => (
+          <div key={key} className="bg-red-500">
+            {param.name}: {data.parameters[key]?.value ?? "[unset]"}
+          </div>
+        ))}
       </div>
     </div>
   );

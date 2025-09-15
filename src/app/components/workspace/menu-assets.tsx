@@ -19,9 +19,10 @@ export function MenuAssets() {
     reader.readAsArrayBuffer(files[0]);
   };
 
-  const onDragStart = (event: React.DragEvent) => {
+  const onDragStart = (event: React.DragEvent, name: string) => {
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("type", "__input");
+    event.dataTransfer.setData("params.image", name);
   };
 
   return (
@@ -31,7 +32,7 @@ export function MenuAssets() {
           key={key}
           className="relative flex flex-col rounded-lg border border-white/15 overflow-hidden group/asset cursor-grab"
           draggable
-          onDragStart={onDragStart}
+          onDragStart={(ev) => onDragStart(ev, key)}
         >
           <div className="absolute bottom-0 left-0 right-0 p-1 text-xs/3 bg-black/40 opacity-0 group-hover/asset:opacity-100 transition-opacity duration-150">
             {key}
@@ -45,7 +46,7 @@ export function MenuAssets() {
       ))}
 
       <input
-        className="bg-teal-50 rounded-lg text-black p-2 mt-4 w-40 text-xs"
+        className="bg-teal-50 rounded-lg text-black p-2 mt-4 w-40 text-xs col-start-1 col-span-2"
         type="file"
         accept="image/png, image/jpeg, image/webp"
         onChange={uploadImage}
