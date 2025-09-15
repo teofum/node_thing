@@ -7,6 +7,9 @@ var<storage, read_write> alpha_out: array<f32>;
 @group(0) @binding(2)
 var tex: texture_2d<f32>;
 
+@group(0) @binding(3)
+var s: sampler;
+
 struct Uniforms {
     width: u32,
     height: u32,
@@ -25,14 +28,12 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
-    let tex_coord = vec2<f32>(
+    let tex_coord = vec2f(
         f32(id.x) / f32(u.width),
-        f32(id.y) / f32(u.height),
+        1.0 - f32(id.y) / f32(u.height),
     );
-    let dim = textureDimensions(tex);
-    let load_coord = vec2<u32>(tex_coord * vec2<f32>(dim));
 
-    let color = textureLoad(tex, load_coord, 0);
+    let color = textureSampleLevel(tex, s, tex_coord, 0.0);
 
     output[index] = color.rgb;
     alpha_out[index] = color.a;

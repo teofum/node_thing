@@ -16,9 +16,13 @@ export const NODE_TYPES = {
     shader: "",
     inputs: {},
     outputs: {
-      out_a: {
-        name: "Input",
+      image: {
+        name: "Color",
         type: "color",
+      },
+      alpha: {
+        name: "Aplha",
+        type: "number",
       },
     },
     parameters: {

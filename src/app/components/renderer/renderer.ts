@@ -4,6 +4,7 @@ import { RenderPass, RenderPipeline } from "./pipeline";
 import { createUniform } from "./uniforms";
 
 import outputShader from "@/shaders/output.wgsl";
+import inputShader from "@/shaders/input.wgsl";
 
 const THREADS_PER_WORKGROUP = 16;
 
@@ -170,6 +171,54 @@ function createComputePSOs(
   );
 }
 
+function createInputStage(
+  device: GPUDevice,
+  uniformBindGroupLayout: GPUBindGroupLayout,
+) {
+  const inputStageShader = device.createShaderModule({
+    code: inputShader,
+  });
+
+  const inputStageLayout = device.createBindGroupLayout({
+    entries: [
+      {
+        binding: 0,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "storage",
+        },
+      },
+      {
+        binding: 1,
+        visibility: GPUShaderStage.COMPUTE,
+        buffer: {
+          type: "storage",
+        },
+      },
+      {
+        binding: 2,
+        visibility: GPUShaderStage.COMPUTE,
+        texture: {},
+      },
+      {
+        binding: 3,
+        visibility: GPUShaderStage.COMPUTE,
+        sampler: {},
+      },
+    ],
+  });
+
+  return device.createComputePipeline({
+    compute: {
+      module: inputStageShader,
+      entryPoint: "main",
+    },
+    layout: device.createPipelineLayout({
+      bindGroupLayouts: [inputStageLayout, uniformBindGroupLayout],
+    }),
+  });
+}
+
 function createOuputStage(
   device: GPUDevice,
   uniformBindGroupLayout: GPUBindGroupLayout,
@@ -204,18 +253,15 @@ function createOuputStage(
     ],
   });
 
-  return {
-    pipeline: device.createComputePipeline({
-      compute: {
-        module: outputStageShader,
-        entryPoint: "main",
-      },
-      layout: device.createPipelineLayout({
-        bindGroupLayouts: [outputStageLayout, uniformBindGroupLayout],
-      }),
+  return device.createComputePipeline({
+    compute: {
+      module: outputStageShader,
+      entryPoint: "main",
+    },
+    layout: device.createPipelineLayout({
+      bindGroupLayouts: [outputStageLayout, uniformBindGroupLayout],
     }),
-    layout: outputStageLayout,
-  };
+  });
 }
 
 /*
@@ -246,6 +292,7 @@ export function preparePipeline(
     uniform.bindGroupLayout,
   );
 
+  const inputStage = createInputStage(device, uniform.bindGroupLayout);
   const outputStage = createOuputStage(device, uniform.bindGroupLayout);
 
   return {
@@ -255,6 +302,7 @@ export function preparePipeline(
     dummyBuffers,
     bindGroups,
     pipelines,
+    inputStage,
     outputStage,
     uniform,
   };
@@ -271,6 +319,8 @@ export function render(
   device: GPUDevice,
   pipeline: PreparedPipeline,
   target: GPUTexture,
+  textures: [string, GPUTexture][],
+  sampler: GPUSampler,
 ) {
   const {
     desc,
@@ -279,6 +329,7 @@ export function render(
     dummyBuffers,
     bindGroups,
     pipelines,
+    inputStage,
     outputStage,
     uniform,
   } = pipeline;
@@ -289,7 +340,7 @@ export function render(
   const alphaBuffer =
     desc.outputAlphaBuffer === -1 ? 0 : desc.outputAlphaBuffer;
   const outputStageBindGroup = device.createBindGroup({
-    layout: outputStage.layout,
+    layout: outputStage.getBindGroupLayout(0),
     entries: [
       {
         binding: 0,
@@ -340,8 +391,43 @@ export function render(
   const enc = device.createCommandEncoder();
 
   for (const input of desc.inputs) {
-    // TODO copy input textures to buffers...
-    console.log(input.nodeId);
+    console.log(input, textures, buffers);
+    const textureEntry = textures.find(([name]) => name === input.image);
+    if (!textureEntry) continue;
+
+    const [, texture] = textureEntry;
+
+    const bindGroup = device.createBindGroup({
+      layout: inputStage.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: { buffer: buffers[input.outputBindings.image] },
+        },
+        {
+          binding: 1,
+          resource: { buffer: buffers[input.outputBindings.alpha] },
+        },
+        {
+          binding: 2,
+          resource: texture.createView(),
+        },
+        {
+          binding: 3,
+          resource: sampler,
+        },
+      ],
+    });
+
+    const pass = enc.beginComputePass();
+    pass.setPipeline(inputStage);
+    pass.setBindGroup(0, bindGroup);
+    pass.setBindGroup(1, uniform.bindGroup);
+    pass.dispatchWorkgroups(
+      Math.ceil(opts.width / THREADS_PER_WORKGROUP),
+      Math.ceil(opts.height / THREADS_PER_WORKGROUP),
+    );
+    pass.end();
   }
 
   /*
@@ -365,7 +451,7 @@ export function render(
    * Copy output buffer to final render target
    */
   const outputPass = enc.beginComputePass();
-  outputPass.setPipeline(outputStage.pipeline);
+  outputPass.setPipeline(outputStage);
   outputPass.setBindGroup(0, outputStageBindGroup);
   outputPass.setBindGroup(1, uniform.bindGroup);
   outputPass.dispatchWorkgroups(

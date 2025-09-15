@@ -7,6 +7,8 @@ import { Layer, useStore } from "@/store/store";
 import { preparePipeline, render } from "./renderer";
 import { buildRenderPipeline, RenderPipeline } from "./pipeline";
 import { compareLayers } from "./compare-layers";
+import { zip } from "@/utils/zip";
+import { useAssetStore } from "@/store/asset-store";
 
 async function getDevice() {
   if (!navigator.gpu) throw new Error("webgpu not supported");
@@ -25,6 +27,7 @@ export function Canvas() {
    */
   const layers = useStore((s) => s.layers);
   const { canvas: canvasProperties, view } = useStore((s) => s.properties);
+  const images = useAssetStore((s) => s.images);
 
   const [device, setDevice] = useState<GPUDevice | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
@@ -75,6 +78,16 @@ export function Canvas() {
   }, [canvas, device]);
 
   /*
+   * Get the sampler used for sampling textures
+   */
+  const sampler = useMemo(
+    () =>
+      device?.createSampler({ magFilter: "linear", minFilter: "linear" }) ??
+      null,
+    [device],
+  );
+
+  /*
    * Rebuild render pipeline when node graph state changes
    */
   const lastDesc = useRef<RenderPipeline | null>(null);
@@ -103,6 +116,68 @@ export function Canvas() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, ctx, device, layers[0]]);
 
+  const [textures, setTextures] = useState<[string, GPUTexture][]>([]);
+  useEffect(() => {
+    if (!device) return;
+
+    const imageNamesArray = layers[0].nodes
+      .map((node) => node.data.parameters["image"]?.value ?? null)
+      .filter((name) => name !== null);
+    const imageNames = [...new Set(imageNamesArray)]; // Deduplicate
+
+    const cachedNames = textures.map(([name]) => name);
+
+    const hasUpdates =
+      imageNames.length !== cachedNames.length ||
+      zip(imageNames, cachedNames).some(([image, cached]) => image !== cached);
+
+    if (!hasUpdates) return;
+
+    const createTexture = async (name: string) => {
+      const asset = images[name];
+
+      const blob = new Blob([asset.data], { type: `image/${asset.type}` });
+      const imageBitmap = await createImageBitmap(blob, {
+        colorSpaceConversion: "none",
+      });
+
+      const texture = device.createTexture({
+        format: "rgba8unorm",
+        size: [imageBitmap.width, imageBitmap.height],
+        usage:
+          GPUTextureUsage.TEXTURE_BINDING |
+          GPUTextureUsage.COPY_DST |
+          GPUTextureUsage.RENDER_ATTACHMENT,
+      });
+
+      device.queue.copyExternalImageToTexture(
+        { source: imageBitmap, flipY: true },
+        { texture },
+        { width: imageBitmap.width, height: imageBitmap.height },
+      );
+
+      return texture;
+    };
+
+    const updateTextures = async () => {
+      const newTextures = zip(
+        imageNames.filter((name) => !cachedNames.includes(name)),
+        await Promise.all(
+          imageNames
+            .filter((name) => !cachedNames.includes(name))
+            .map((name) => createTexture(name)),
+        ),
+      );
+
+      setTextures([
+        ...textures.filter(([name]) => imageNames.includes(name)),
+        ...newTextures,
+      ] as [string, GPUTexture][]);
+    };
+
+    updateTextures();
+  }, [device, layers, textures, images]);
+
   /*
    * Rebuild WebGPU pipeline on render pipeline change, or when the
    * canvas is resized.
@@ -123,16 +198,16 @@ export function Canvas() {
     if (frameRequestHandle.current)
       cancelAnimationFrame(frameRequestHandle.current);
 
-    if (!canvas || !ctx || !device || !pipeline) return;
+    if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
     const renderFrame = () => {
       const target = ctx.getCurrentTexture();
-      render(device, pipeline, target);
+      render(device, pipeline, target, textures, sampler);
       // requestAnimationFrame(renderFrame);
     };
 
     frameRequestHandle.current = requestAnimationFrame(renderFrame);
-  }, [canvas, ctx, device, pipeline]);
+  }, [canvas, ctx, device, pipeline, textures, sampler]);
 
   return (
     <canvas

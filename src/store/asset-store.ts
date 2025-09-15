@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export type ImageAsset = {
   type: string; // TODO type this shit
-  data: Uint8Array;
+  data: Uint8Array<ArrayBuffer>;
 };
 
 type Assets = {
