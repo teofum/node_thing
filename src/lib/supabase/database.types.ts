@@ -58,6 +58,72 @@ export type Database = {
         };
         Relationships: [];
       };
+      order_items: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          order_id: string;
+          price: number;
+          shader_id: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          order_id: string;
+          price: number;
+          shader_id: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          order_id?: string;
+          price?: number;
+          shader_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "order_items_shader_id_fkey";
+            columns: ["shader_id"];
+            isOneToOne: false;
+            referencedRelation: "shaders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      orders: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          status: string;
+          total_amount: number;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          status?: string;
+          total_amount: number;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          status?: string;
+          total_amount?: number;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           id: string;
@@ -73,9 +139,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      purchases: {
+        Row: {
+          id: string;
+          order_id: string;
+          purchased_at: string | null;
+          shader_id: string;
+          user_id: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          purchased_at?: string | null;
+          shader_id: string;
+          user_id: string;
+        };
+        Update: {
+          id?: string;
+          order_id?: string;
+          purchased_at?: string | null;
+          shader_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "purchases_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "purchases_shader_id_fkey";
+            columns: ["shader_id"];
+            isOneToOne: false;
+            referencedRelation: "shaders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       shaders: {
         Row: {
-          category_id: number | null;
+          category_id: number;
           code: string;
           created_at: string;
           description: string | null;
@@ -86,7 +191,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
-          category_id?: number | null;
+          category_id: number;
           code: string;
           created_at?: string;
           description?: string | null;
@@ -97,7 +202,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
-          category_id?: number | null;
+          category_id?: number;
           code?: string;
           created_at?: string;
           description?: string | null;
@@ -122,6 +227,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      checkout_cart: {
+        Args: { user_uuid: string };
+        Returns: string;
+      };
+      finish_payment: {
+        Args: { order_uuid: string; user_uuid: string };
+        Returns: boolean;
+      };
       get_user_email_by_username: {
         Args: { username_param: string };
         Returns: string;

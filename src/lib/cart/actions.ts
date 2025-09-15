@@ -16,41 +16,54 @@ export async function addToCart(formData: FormData) {
 
   const shaderId = formData.get("shaderId") as string;
 
-  const { data: shader, error: shaderError } = await supabase
+  const { data: result, error } = await supabase
     .from("shaders")
-    .select("price, user_id")
+    .select(
+      `
+      id,
+      price,
+      user_id,
+      purchases!left(shader_id),
+      cart_items!left(shader_id)
+    `,
+    )
     .eq("id", shaderId)
+    .eq("purchases.user_id", user.id)
+    .eq("cart_items.user_id", user.id)
     .single();
 
-  if (shaderError || !shader) {
+  if (error || !result) {
     redirect(`/marketplace?error=${encodeURIComponent("Shader not found")}`);
   }
 
+  if (result.purchases?.length > 0) {
+    redirect(
+      `/marketplace?error=${encodeURIComponent("You already own this shader")}`,
+    );
+  }
+
   // currently commented to allow adding own shaders to cart for testing
-  // if (shader.user_id === user.id) {
+  // if (result.user_id === user.id) {
   //   redirect(`/marketplace?error=${encodeURIComponent("Cannot add your own shader to cart")}`);
   // }
 
-  const { data: existing } = await supabase
-    .from("cart_items")
-    .select("shader_id")
-    .eq("user_id", user.id)
-    .eq("shader_id", shaderId)
-    .single();
+  const existing = result.cart_items?.length > 0;
 
   if (existing) {
     revalidatePath("/marketplace");
     redirect("/marketplace");
   }
 
-  const { error } = await supabase.from("cart_items").insert({
+  const { error: insertErr } = await supabase.from("cart_items").insert({
     user_id: user.id,
     shader_id: shaderId,
-    price_at_time: shader.price,
+    price_at_time: result.price,
   });
 
-  if (error) {
-    redirect(`/marketplace?error=${encodeURIComponent(error.message)}`);
+  if (insertErr) {
+    redirect(
+      `/marketplace?error=${encodeURIComponent("Couldn't add to cart")}`,
+    );
   }
 
   revalidatePath("/marketplace");
@@ -76,7 +89,9 @@ export async function removeFromCart(formData: FormData) {
     .eq("shader_id", shaderId);
 
   if (error) {
-    redirect(`/marketplace/cart?error=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/marketplace/cart?error=${encodeURIComponent("Couldn't remove from cart")}`,
+    );
   }
 
   revalidatePath("/marketplace/cart");
@@ -111,7 +126,7 @@ export async function getCartItems() {
 
   if (error) {
     redirect(
-      `/marketplace/cart?error=${encodeURIComponent("Failed to load cart")}`,
+      `/marketplace/cart?error=${encodeURIComponent("Couldn't load cart")}`,
     );
   }
 
@@ -134,7 +149,9 @@ export async function clearCart() {
     .eq("user_id", user.id);
 
   if (error) {
-    redirect(`/marketplace/cart?error=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/marketplace/cart?error=${encodeURIComponent("Couldn't clear cart")}`,
+    );
   }
 
   revalidatePath("/marketplace/cart");

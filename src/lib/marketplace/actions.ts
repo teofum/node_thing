@@ -95,7 +95,14 @@ export async function getShaders() {
     redirect("/auth/login?next=/marketplace");
   }
 
-  const { data, error } = await supabase
+  const { data: purchases } = await supabase
+    .from("purchases")
+    .select("shader_id")
+    .eq("user_id", user.id);
+
+  const owned = purchases?.map((p) => p.shader_id) || [];
+
+  let query = supabase
     .from("shaders")
     .select(
       `
@@ -111,9 +118,15 @@ export async function getShaders() {
     )
     .order("created_at", { ascending: false });
 
+  if (owned.length) {
+    query = query.not("id", "in", `(${owned.join(",")})`);
+  }
+
+  const { data, error } = await query;
+
   if (error) {
     redirect(
-      `/marketplace?error=${encodeURIComponent("Failed to load shaders")}`,
+      `/marketplace?error=${encodeURIComponent("Couldn't load shaders")}`,
     );
   }
 

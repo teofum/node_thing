@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { LinkButton, Button } from "@/ui/button";
 import { LuArrowLeft, LuTrash2 } from "react-icons/lu";
 import { removeFromCart, clearCart, getCartItems } from "@/lib/cart/actions";
+import { createOrderAndRedirect } from "@/lib/purchase/actions";
 
 export default async function CartPage() {
   const supabase = await createClient();
@@ -58,15 +59,15 @@ export default async function CartPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {cartItems.map((item) => (
                   <div
                     key={item.shader_id}
-                    className="glass glass-border p-4 rounded-lg"
+                    className="glass glass-border p-6 rounded-xl"
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className="text-white font-semibold mb-2">
+                        <h3 className="text-white font-semibold mb-3">
                           {item.shader?.title}
                         </h3>
                         <p className="text-teal-400 font-bold">
@@ -92,7 +93,7 @@ export default async function CartPage() {
               </div>
 
               <div className="glass glass-border p-6 rounded-xl">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mb-6">
                   <span className="text-xl font-semibold text-white">
                     Total
                   </span>
@@ -100,6 +101,11 @@ export default async function CartPage() {
                     ${total.toFixed(2)}
                   </span>
                 </div>
+                <form action={createOrderAndRedirect}>
+                  <Button type="submit" className="w-full">
+                    Proceed to Checkout
+                  </Button>
+                </form>
               </div>
             </div>
           )}
