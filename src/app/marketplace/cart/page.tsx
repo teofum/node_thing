@@ -64,7 +64,7 @@ export default async function CartPage() {
                     key={item.shader_id}
                     className="glass glass-border p-4 rounded-lg"
                   >
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-center">
                       <div>
                         <h3 className="text-white font-semibold mb-2">
                           {item.shader?.title}
