@@ -3,9 +3,10 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import cn from "classnames";
 
-import { useStore } from "@/store/store";
+import { Layer, useStore } from "@/store/store";
 import { preparePipeline, render } from "./renderer";
-import { buildRenderPipeline } from "./pipeline";
+import { buildRenderPipeline, RenderPipeline } from "./pipeline";
+import { compareLayers } from "./compare-layers";
 
 async function getDevice() {
   if (!navigator.gpu) throw new Error("webgpu not supported");
@@ -76,18 +77,31 @@ export function Canvas() {
   /*
    * Rebuild render pipeline when node graph state changes
    */
+  const lastDesc = useRef<RenderPipeline | null>(null);
+  const lastLayer = useRef<Layer | null>(null);
   const desc = useMemo(() => {
-    if (!canvas || !ctx || !device) return null;
+    if (!canvas || !ctx || !device) {
+      lastDesc.current = null;
+      return null;
+    }
+
+    const shouldRebuild =
+      !lastLayer.current || compareLayers(layers[0], lastLayer.current);
+    lastLayer.current = layers[0];
+    if (!shouldRebuild) {
+      return lastDesc.current;
+    }
 
     console.log("Rebuilding render graph...");
-    const desc = buildRenderPipeline(layers[0]);
-    if (!desc || desc.outputBuffer < 0) return null;
+    lastDesc.current = buildRenderPipeline(layers[0]);
+    if (!lastDesc.current || lastDesc.current.outputBuffer < 0)
+      lastDesc.current = null;
 
-    console.log(desc);
-    return desc;
+    console.log(lastDesc.current);
+    return lastDesc.current;
     // Trust me, we only care about updating when edges change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvas, ctx, device, layers[0].edges, layers[0].nodes]);
+  }, [canvas, ctx, device, layers[0]]);
 
   /*
    * Rebuild WebGPU pipeline on render pipeline change, or when the
