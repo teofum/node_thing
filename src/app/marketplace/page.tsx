@@ -5,7 +5,11 @@ import { getCartItems } from "@/lib/cart/actions";
 import ShaderCard from "@/app/components/marketplace/shadercard";
 
 type Props = {
-  searchParams: Promise<{ error?: string; category?: string; search?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    category?: string | string[];
+    search?: string;
+  }>;
 };
 
 export default async function MarketplacePage({ searchParams }: Props) {
@@ -16,12 +20,21 @@ export default async function MarketplacePage({ searchParams }: Props) {
   const cartIds = new Set(cartItems.map((item) => item.shader_id));
 
   // Filter by category and search from URL params to not use client-side
-  const selectedCategory = params.category;
+  const selectedCategories = Array.isArray(params.category)
+    ? params.category
+    : params.category
+      ? [params.category]
+      : [];
   const searchTerm = params.search;
 
-  let filteredShaders = selectedCategory
-    ? shaders.filter((shader) => shader.category?.name === selectedCategory)
-    : shaders;
+  let filteredShaders =
+    selectedCategories.length > 0
+      ? shaders.filter(
+          (shader) =>
+            shader.category?.name &&
+            selectedCategories.includes(shader.category.name),
+        )
+      : shaders;
 
   if (searchTerm) {
     const searchLower = searchTerm.toLowerCase().trim();
@@ -64,9 +77,14 @@ export default async function MarketplacePage({ searchParams }: Props) {
           </div>
 
           <form method="GET" className="relative mb-10 max-w-3xl mx-auto">
-            {selectedCategory && (
-              <input type="hidden" name="category" value={selectedCategory} />
-            )}
+            {selectedCategories.map((category) => (
+              <input
+                key={category}
+                type="hidden"
+                name="category"
+                value={category}
+              />
+            ))}
             <input
               type="text"
               name="search"
@@ -91,22 +109,32 @@ export default async function MarketplacePage({ searchParams }: Props) {
                   ? `/marketplace?search=${encodeURIComponent(searchTerm)}`
                   : "/marketplace"
               }
-              variant={!selectedCategory ? "default" : "outline"}
+              variant={selectedCategories.length === 0 ? "default" : "outline"}
             >
               All
             </LinkButton>
             {categories.map((category) => {
-              const categoryUrl = searchTerm
-                ? `/marketplace?category=${category.name}&search=${encodeURIComponent(searchTerm)}`
-                : `/marketplace?category=${category.name}`;
+              const isSelected = selectedCategories.includes(category.name);
+              const otherCategories = selectedCategories.filter(
+                (c) => c !== category.name,
+              );
+              const newCategories = isSelected
+                ? otherCategories
+                : [...selectedCategories, category.name];
+
+              const categoryParams = new URLSearchParams();
+              if (searchTerm) categoryParams.set("search", searchTerm);
+              newCategories.forEach((cat) =>
+                categoryParams.append("category", cat),
+              );
+
+              const categoryUrl = `/marketplace${categoryParams.toString() ? "?" + categoryParams.toString() : ""}`;
 
               return (
                 <LinkButton
                   key={category.id}
                   href={categoryUrl}
-                  variant={
-                    selectedCategory === category.name ? "default" : "outline"
-                  }
+                  variant={isSelected ? "default" : "outline"}
                 >
                   {category.name}
                 </LinkButton>
@@ -121,12 +149,12 @@ export default async function MarketplacePage({ searchParams }: Props) {
           ) : filteredShaders.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-neutral-400">
-                {searchTerm && selectedCategory
-                  ? `No shaders found for "${searchTerm}" in ${selectedCategory} category` // both filters active
+                {searchTerm && selectedCategories.length > 0
+                  ? `No shaders found for "${searchTerm}" in ${selectedCategories.join(", ")} categories` // both filters active
                   : searchTerm
                     ? `No shaders found for "${searchTerm}"` // only search active
-                    : selectedCategory
-                      ? `No shaders found in ${selectedCategory} category` // only category active
+                    : selectedCategories.length > 0
+                      ? `No shaders found in ${selectedCategories.join(", ")} categories` // only category active
                       : "No shaders yet. Be the first to upload one!"}
               </p>
             </div>
