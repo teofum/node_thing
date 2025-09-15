@@ -39,6 +39,7 @@ export type ProjectProperties = {
 export type Project = {
   layers: Layer[];
   currentLayer: number;
+  layersDim: number;
   properties: ProjectProperties;
 };
 
@@ -71,6 +72,8 @@ type ProjectActions = {
 
   setZoom: (zoom: number) => void;
   setCanvasSize: (width: number, height: number) => void;
+
+  addLayer: () => void;
 };
 
 function modifyLayer(
@@ -98,6 +101,7 @@ export const useStore = create<Project & ProjectActions>((set) => ({
    * State
    */
   layers: [{ nodes: [...initialNodes], edges: [...initialEdges] }],
+  layersDim: 1,
   currentLayer: 0,
   properties: { canvas: { width: 1920, height: 1080 }, view: { zoom: 1 } },
 
@@ -208,5 +212,17 @@ export const useStore = create<Project & ProjectActions>((set) => ({
         ...properties,
         canvas: { ...properties.canvas, width, height },
       },
+    })),
+
+  addLayer: () =>
+    set(({ layers, layersDim }) => ({
+      layers: [
+        ...layers,
+        {
+          nodes: [...initialNodes],
+          edges: [...initialEdges],
+        },
+      ],
+      layersDim: layersDim + 1,
     })),
 }));
