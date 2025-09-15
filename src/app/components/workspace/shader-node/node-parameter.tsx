@@ -23,8 +23,6 @@ export function NodeParameter({ id, data, name, param }: ParameterProps) {
     setParameter(id, name, value);
   };
 
-  console.log(id, name, image);
-
   return (
     <Select
       variant="outline"
