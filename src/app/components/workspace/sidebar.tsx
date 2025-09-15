@@ -1,22 +1,30 @@
-import React, { Fragment, useLayoutEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { LuGitFork, LuPin } from "react-icons/lu";
+import { FaAngleDown } from "react-icons/fa6";
 import cn from "classnames";
 
-import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
-import * as Accordion from "@radix-ui/react-accordion";
-import { AccordionContent, AccordionItem, AccordionTrigger } from "@/ui/accordion";
-import { NodeType } from "@/schemas/node.schema";
+import { MenuLayers } from "./menu-layers";
+import { MenuLibrary } from "./menu-library";
+import { RiStackLine } from "react-icons/ri";
+import * as Select from "@radix-ui/react-select";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
   const [height, setHeight] = useState(0);
   const dummySizingDiv = useRef<HTMLDivElement | null>(null);
+  const [menu, setMenu] = useState<"library" | "layers">("library");
 
-  const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("type", nodeType);
+  const renderMenu = () => {
+    switch (menu) {
+      case "layers":
+        return <MenuLayers />;
+      case "library":
+        return <MenuLibrary />;
+      default:
+        return null;
+    }
   };
 
   useResizeObserver(dummySizingDiv.current, () => {
@@ -25,15 +33,6 @@ export function Sidebar() {
   useLayoutEffect(() => {
     setHeight(dummySizingDiv.current?.clientHeight ?? 0);
   }, []);
-
-  // Group nodes by category
-  const nodesByCategory: Record<string, Record<string, NodeType>> = {};
-  Object.entries(NODE_TYPES)
-    .filter(([key]) => !key.startsWith("__"))
-    .forEach(([key, type]) => {
-      if (!nodesByCategory[type.category]) nodesByCategory[type.category] = {};
-      nodesByCategory[type.category][key] = type;
-    });
 
   return (
     <>
@@ -50,8 +49,38 @@ export function Sidebar() {
         style={{ height }}
       >
         <div className="p-2 pl-4 flex flex-row gap-2 items-center min-h-12">
-          <LuGitFork />
-          <div className="font-semibold text-sm/4">Library</div>
+          {menu === "library" && <LuGitFork />}
+          {menu === "layers" && <RiStackLine />}
+          <Select.Root
+            value={menu}
+            onValueChange={(value) => setMenu(value as "library" | "layers")}
+          >
+            <Select.Trigger className="flex items-center justify-between font-semibold text-sm/4 bg-black/85 border border-white/15 rounded p-1 w-full">
+              <Select.Value />
+              <Select.Icon>
+                <FaAngleDown />
+              </Select.Icon>
+            </Select.Trigger>
+
+            <Select.Portal>
+              <Select.Content className="bg-black/85 border border-white/15 rounded-md">
+                <Select.Viewport className="p-1">
+                  <Select.Item
+                    value="library"
+                    className="px-2 py-1 rounded hover:bg-white/10 cursor-pointer"
+                  >
+                    <Select.ItemText>Library</Select.ItemText>
+                  </Select.Item>
+                  <Select.Item
+                    value="layers"
+                    className="px-2 py-1 rounded hover:bg-white/10 cursor-pointer"
+                  >
+                    <Select.ItemText>Layers</Select.ItemText>
+                  </Select.Item>
+                </Select.Viewport>
+              </Select.Content>
+            </Select.Portal>
+          </Select.Root>
 
           <ToggleButton
             icon
@@ -65,32 +94,7 @@ export function Sidebar() {
             <LuPin />
           </ToggleButton>
         </div>
-        <div className="border-t border-white/15 flex flex-col gap-3 min-h-0 overflow-auto">
-          <Accordion.Root
-            type="multiple">
-            {Object.entries(nodesByCategory).map(([category, types]) => (
-              <Fragment key={category}>
-                <AccordionItem value={category}>
-                  <AccordionTrigger className="font-semibold text-sm/4 bg-white/2 hover:bg-white/8 transition duration-80">{category}</AccordionTrigger>
-                  <AccordionContent className="font-semibold">
-                    <div className="flex flex-col gap-2">
-                      {Object.entries(types).map(([key, type]) => (
-                        <div
-                          key={key}
-                          className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
-                          onDragStart={(event) => onDragStart(event, key)}
-                          draggable
-                        >
-                          {type.name}
-                        </div>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Fragment>
-            ))}
-          </Accordion.Root>
-        </div>
+        {renderMenu()}
       </aside>
     </>
   );

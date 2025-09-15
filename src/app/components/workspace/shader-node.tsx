@@ -10,25 +10,35 @@ const HEADER_HEIGHT = 16 + 2 * 8 + 1 + 8 + HANDLE_HEIGHT / 2;
 type NodeInputProps = NodeProps<ShaderNodeType> & {
   input: [string, NodeType["inputs"][string]];
   i: number;
+  mock?: boolean;
 };
 
-function NodeInput({ data, id, input: [key, input], i }: NodeInputProps) {
+function NodeInput({
+  data,
+  id,
+  input: [key, input],
+  i,
+  mock = false,
+}: NodeInputProps) {
   const updateDefaultValue = useStore((s) => s.updateNodeDefaultValue);
   const edges = useStore((s) => s.layers[s.currentLayer].edges);
 
   const renderDefaultValueInput =
+    !mock &&
     id !== "__output" &&
     !edges.some((edge) => edge.target === id && edge.targetHandle === key);
 
   return (
     <div className="flex flex-row gap-2 h-6 items-center">
-      <Handle
-        type="target"
-        position={Position.Left}
-        id={key}
-        style={{ top: i * HANDLE_HEIGHT + HEADER_HEIGHT }}
-        className={cn({ "!bg-teal-500": input.type === "color" })}
-      />
+      {mock ? null : (
+        <Handle
+          type="target"
+          position={Position.Left}
+          id={key}
+          style={{ top: i * HANDLE_HEIGHT + HEADER_HEIGHT }}
+          className={cn({ "!bg-teal-500": input.type === "color" })}
+        />
+      )}
       <div className="text-white text-xs/4">{input.name}</div>
       {renderDefaultValueInput ? (
         input.type === "number" ? (
@@ -64,7 +74,9 @@ function NodeInput({ data, id, input: [key, input], i }: NodeInputProps) {
 
 // TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
 // puede que querramos guardar el código del shader en formato string dentro del objeto data:
-export function RenderShaderNode(props: NodeProps<ShaderNodeType>) {
+export function RenderShaderNode(
+  props: NodeProps<ShaderNodeType> & { mock?: boolean },
+) {
   const { data, selected } = props;
   const nodeTypeInfo = NODE_TYPES[data.type];
 
@@ -97,13 +109,15 @@ export function RenderShaderNode(props: NodeProps<ShaderNodeType>) {
         {/* outputs */}
         {Object.entries(nodeTypeInfo.outputs).map(([key, output], i) => (
           <div key={key}>
-            <Handle
-              type="source"
-              position={Position.Right}
-              id={key}
-              style={{ top: i * HANDLE_HEIGHT + outputOffset }}
-              className={cn({ "!bg-teal-500": output.type === "color" })}
-            />
+            {props.mock ? null : (
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={key}
+                style={{ top: i * HANDLE_HEIGHT + outputOffset }}
+                className={cn({ "!bg-teal-500": output.type === "color" })}
+              />
+            )}
             <div className="text-white text-xs/4 flex justify-end">
               {output.name}
             </div>
