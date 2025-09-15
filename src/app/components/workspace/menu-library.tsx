@@ -35,7 +35,7 @@ export function MenuLibrary() {
                 <AccordionTrigger className="font-semibold text-sm/4 hover:bg-white/8 transition duration-80">
                   {category}
                 </AccordionTrigger>
-                <AccordionContent className="font-semibold border-b border-white/15 ">
+                <AccordionContent className="border-b border-white/15">
                   <div className="flex flex-col gap-2">
                     {Object.entries(types).map(([key]) => (
                       <div

@@ -84,6 +84,19 @@ export function RenderShaderNode(
   const outputOffset =
     Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
 
+  const uploadImage = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const { files } = ev.target;
+    if (!files?.length) return;
+
+    const createImage = async () => {
+      const image = await createImageBitmap(files[0], {
+        colorSpaceConversion: "none",
+      });
+      console.log(image);
+    };
+    createImage();
+  };
+
   return (
     <div
       className={cn("glass rounded-lg border min-w-32", {
@@ -94,7 +107,10 @@ export function RenderShaderNode(
       <div
         className={cn(
           "text-xs/4 px-3 py-2 font-bold border-b border-white/15 bg-clip-padding rounded-t-[7px]",
-          { "bg-purple-400/15": data.type === "__output" },
+          {
+            "bg-purple-400/15": data.type === "__output",
+            "bg-orange-400/15": data.type === "__input",
+          },
         )}
       >
         {nodeTypeInfo.name}
@@ -123,6 +139,16 @@ export function RenderShaderNode(
             </div>
           </div>
         ))}
+
+        {/* disgusting hardcoded garbage for testing get rid of this shit asap */}
+        {data.type === "__input" ? (
+          <input
+            className="bg-teal-50 rounded-lg text-black p-2 mt-4 w-40 text-xs"
+            type="file"
+            accept="image/png, image/jpeg, image/webp"
+            onChange={uploadImage}
+          />
+        ) : null}
       </div>
     </div>
   );
