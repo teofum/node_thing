@@ -1,11 +1,16 @@
 import { create } from "zustand";
 
+type ImageAsset = {
+  type: string;
+  data: Uint8Array;
+};
+
 type Assets = {
-  images: Record<string, Blob>;
+  images: Record<string, ImageAsset>;
 };
 
 type AssetActions = {
-  addImage: (name: string, data: Blob) => void;
+  addImage: (name: string, data: ImageAsset) => void;
   removeImage: (name: string) => void;
 };
 

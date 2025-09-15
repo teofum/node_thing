@@ -41,7 +41,7 @@ export const Select = forwardRef<HTMLButtonElement, Props>(
         </SelectPrimitive.Trigger>
 
         <SelectPrimitive.Portal>
-          <SelectPrimitive.Content className="bg-black/40 backdrop-blur-sm border border-white/15 rounded-xl">
+          <SelectPrimitive.Content className="bg-black/60 backdrop-blur-md border border-white/15 rounded-xl">
             <SelectPrimitive.ScrollUpButton>
               <LuChevronUp />
             </SelectPrimitive.ScrollUpButton>

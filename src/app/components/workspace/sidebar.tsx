@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { LuGitFork, LuPin, LuLayers } from "react-icons/lu";
+import { LuGitFork, LuPin, LuLayers, LuImage } from "react-icons/lu";
 import cn from "classnames";
 
 import useResizeObserver from "@/utils/use-resize-observer";
@@ -7,19 +7,22 @@ import { ToggleButton } from "@/ui/button";
 import { Select, SelectItem } from "@/ui/select";
 import { MenuLayers } from "./menu-layers";
 import { MenuLibrary } from "./menu-library";
+import { MenuAssets } from "./menu-assets";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
   const [height, setHeight] = useState(0);
-  const [menu, setMenu] = useState<"library" | "layers">("library");
+  const [menu, setMenu] = useState<"library" | "layers" | "assets">("library");
   const dummySizingDiv = useRef<HTMLDivElement | null>(null);
 
   const renderMenu = () => {
     switch (menu) {
-      case "layers":
-        return <MenuLayers />;
       case "library":
         return <MenuLibrary />;
+      case "layers":
+        return <MenuLayers />;
+      case "assets":
+        return <MenuAssets />;
       default:
         return null;
     }
@@ -50,7 +53,7 @@ export function Sidebar() {
           <Select
             variant="ghost"
             value={menu}
-            onValueChange={(value) => setMenu(value as "library" | "layers")}
+            onValueChange={(value) => setMenu(value as typeof menu)}
           >
             <SelectItem value="library">
               <div className="flex items-center gap-2">
@@ -63,6 +66,13 @@ export function Sidebar() {
               <div className="flex items-center gap-2">
                 <LuLayers className="text-base" />
                 <div className="font-semibold">Layers</div>
+              </div>
+            </SelectItem>
+
+            <SelectItem value="assets">
+              <div className="flex items-center gap-2">
+                <LuImage className="text-base" />
+                <div className="font-semibold">Assets</div>
               </div>
             </SelectItem>
           </Select>
