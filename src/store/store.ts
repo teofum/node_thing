@@ -47,7 +47,7 @@ const initialNodes: ShaderNode[] = [
   {
     id: "__output",
     position: { x: 0, y: 0 },
-    data: { type: "__output", defaultValues: {} },
+    data: { type: "__output", defaultValues: {}, parameters: {} },
     type: "RenderShaderNode",
     deletable: false,
   },

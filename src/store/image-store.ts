@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 type ImageAsset = {
-  type: string;
+  type: string; // TODO type this shit
   data: Uint8Array;
 };
 

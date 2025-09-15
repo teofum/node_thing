@@ -49,6 +49,7 @@ export function MenuLibrary() {
                         data={{
                           type: key as keyof typeof NODE_TYPES,
                           defaultValues: {},
+                          parameters: {},
                         }}
                         selected={false}
                         type={""}
