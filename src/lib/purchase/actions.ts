@@ -19,7 +19,13 @@ export async function createOrderFromCart() {
   });
 
   if (error) {
-    redirect(`/marketplace/cart?error=${encodeURIComponent("Cart is empty")}`);
+    if (error.message?.includes("empty")) {
+      redirect(
+        `/marketplace/cart?error=${encodeURIComponent("Cart is empty")}`,
+      );
+    } else {
+      throw new Error(`Failed to create order: ${error.message}`);
+    }
   }
 
   return orderId;
@@ -41,9 +47,7 @@ export async function completePayment(orderId: string) {
   });
 
   if (error) {
-    redirect(
-      `/marketplace/checkout/${orderId}?error=${encodeURIComponent("Payment failed")}`,
-    );
+    throw new Error(`Payment processing failed: ${error.message}`);
   }
 
   revalidatePath("/marketplace");
@@ -83,8 +87,8 @@ export async function getOrderDetails(orderId: string) {
     .single();
 
   if (error || !order) {
-    redirect(
-      `/marketplace/cart?error=${encodeURIComponent("Order not found")}`,
+    throw new Error(
+      `Order not found or access denied: ${error?.message || "Invalid order ID"}`,
     );
   }
 

@@ -33,7 +33,9 @@ export async function addToCart(formData: FormData) {
     .single();
 
   if (error || !result) {
-    redirect(`/marketplace?error=${encodeURIComponent("Shader not found")}`);
+    throw new Error(
+      `Shader not found: ${error?.message || "Invalid shader ID"}`,
+    );
   }
 
   if (result.purchases?.length > 0) {
@@ -61,9 +63,7 @@ export async function addToCart(formData: FormData) {
   });
 
   if (insertErr) {
-    redirect(
-      `/marketplace?error=${encodeURIComponent("Couldn't add to cart")}`,
-    );
+    throw new Error(`Failed to add to cart: ${insertErr.message}`);
   }
 
   revalidatePath("/marketplace");
@@ -89,9 +89,7 @@ export async function removeFromCart(formData: FormData) {
     .eq("shader_id", shaderId);
 
   if (error) {
-    redirect(
-      `/marketplace/cart?error=${encodeURIComponent("Couldn't remove from cart")}`,
-    );
+    throw new Error(`Failed to remove from cart: ${error.message}`);
   }
 
   revalidatePath("/marketplace/cart");
@@ -125,9 +123,7 @@ export async function getCartItems() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    redirect(
-      `/marketplace/cart?error=${encodeURIComponent("Couldn't load cart")}`,
-    );
+    throw new Error(`Failed to load cart: ${error.message}`);
   }
 
   return cartItems || [];
@@ -149,9 +145,7 @@ export async function clearCart() {
     .eq("user_id", user.id);
 
   if (error) {
-    redirect(
-      `/marketplace/cart?error=${encodeURIComponent("Couldn't clear cart")}`,
-    );
+    throw new Error(`Failed to clear cart: ${error.message}`);
   }
 
   revalidatePath("/marketplace/cart");

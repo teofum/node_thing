@@ -45,6 +45,12 @@ export async function uploadShaderAction(formData: FormData) {
 
   const code = await shaderFile.text();
 
+  if (!code.trim()) {
+    redirect(
+      `/marketplace/upload?error=${encodeURIComponent("Shader file cannot be empty")}`,
+    );
+  }
+
   const price = parseFloat(priceStr);
   if (isNaN(price) || price < 0) {
     redirect(
@@ -125,9 +131,7 @@ export async function getShaders() {
   const { data, error } = await query;
 
   if (error) {
-    redirect(
-      `/marketplace?error=${encodeURIComponent("Couldn't load shaders")}`,
-    );
+    throw new Error(`Failed to load shaders: ${error.message}`);
   }
 
   return data || [];
@@ -149,9 +153,7 @@ export async function getCategories(): Promise<Category[]> {
     .order("name");
 
   if (error) {
-    redirect(
-      `/marketplace?error=${encodeURIComponent("Failed to load categories")}`,
-    );
+    throw new Error(`Failed to load categories: ${error.message}`);
   }
 
   return categories || [];
