@@ -11,7 +11,6 @@ export function usePipeline(
   ctx: GPUCanvasContext | null,
 ) {
   const layers = useStore((s) => s.layers);
-  const canvas = useStore((s) => s.properties.canvas);
 
   /*
    * Pipeline descriptor and layer cache
@@ -64,10 +63,15 @@ export function usePipeline(
 
     // TODO rebuild per layer...
     console.log("Rebuilding pipeline...");
-    return desc.map((layer) =>
-      layer ? preparePipeline(device, layer, canvas) : null,
+    return desc.map((layerDesc, i) =>
+      layerDesc
+        ? preparePipeline(device, layerDesc, {
+            ...layers[i].size,
+            ...layers[i].position,
+          })
+        : null,
     );
-  }, [ctx, device, desc, canvas]);
+  }, [ctx, device, layers, desc]);
 
   return pipeline;
 }

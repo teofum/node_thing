@@ -14,6 +14,8 @@ const N_CHANNELS = {
 } satisfies Record<HandleType, number>;
 
 export type RenderOptions = {
+  x: number;
+  y: number;
   width: number;
   height: number;
 };
@@ -363,6 +365,8 @@ export function render(
   const uniformValues = Uint32Array.from([
     opts.width,
     opts.height,
+    opts.x,
+    opts.y,
     desc.outputAlphaBuffer === -1 ? 0 : 1,
   ]);
   device.queue.writeBuffer(

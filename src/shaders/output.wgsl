@@ -10,6 +10,8 @@ var tex: texture_storage_2d<rgba8unorm, write>;
 struct Uniforms {
     width: u32,
     height: u32,
+    x: u32,
+    y: u32,
     has_alpha: u32,
 };
 
@@ -26,11 +28,13 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
+    let offset = vec2i(vec2u(u.x, u.y));
+
     let color = input[index];
     if u.has_alpha != 0u {
-        textureStore(tex, vec2<i32>(id.xy), vec4f(color * alpha[index], alpha[index]));
+        textureStore(tex, vec2i(id.xy) + offset, vec4f(color * alpha[index], alpha[index]));
     } else {
-        textureStore(tex, vec2<i32>(id.xy), vec4f(color, 1.0));
+        textureStore(tex, vec2i(id.xy) + offset, vec4f(color, 1.0));
     }
 }
 
