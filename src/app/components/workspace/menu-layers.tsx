@@ -24,6 +24,11 @@ export function MenuLayers() {
       <Button variant={"ghost"} onClick={addLayerButton}>
         Add Layer
       </Button>
+
+      <hr className="border-white/15" />
+
+      <Button variant={"ghost"}>Export Layer</Button>
+      <Button variant={"ghost"}>Import Layer</Button>
     </div>
   );
 }
