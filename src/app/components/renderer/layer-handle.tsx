@@ -48,13 +48,13 @@ export function LayerHandle() {
   return (
     <div
       ref={ref}
-      className="absolute rounded-xs border border-teal-400 outline outline-black"
+      className="absolute rounded-xs border border-teal-400 fancy-outline drop-shadow-black"
     >
       {directions.map((dir) => (
         <div
           key={dir}
           className={cn(
-            "absolute rounded-xs w-1.75 h-1.75 border border-teal-400 outline outline-black bg-black",
+            "absolute rounded-xs w-1.75 h-1.75 border border-teal-400 bg-black",
             {
               "cursor-ns-resize": dir === "N" || dir === "S",
               "cursor-ew-resize": dir === "E" || dir === "W",
