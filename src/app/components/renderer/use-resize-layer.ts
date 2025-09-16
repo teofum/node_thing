@@ -122,8 +122,6 @@ export function useResizeLayer(
     const w = Math.round(Number(width.slice(0, -2)) * scale);
     const h = Math.round(Number(height.slice(0, -2)) * scale);
 
-    console.log(x, y, w, h);
-
     setLayerBounds(x, y, w, h);
   };
 
