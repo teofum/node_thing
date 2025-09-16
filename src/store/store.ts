@@ -81,7 +81,7 @@ type ProjectActions = {
 
   addLayer: () => void;
 
-  reorderLayers: (from, to) => void;
+  reorderLayers: (from: number, to: number) => void;
 };
 
 function modifyLayer(
