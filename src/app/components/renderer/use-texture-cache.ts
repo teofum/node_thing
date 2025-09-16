@@ -13,9 +13,11 @@ export function useTextureCache(device: GPUDevice | null) {
   useEffect(() => {
     if (!device) return;
 
-    const imageNamesArray = layers[0].nodes
-      .map((node) => node.data.parameters["image"]?.value ?? null)
-      .filter((name) => name !== null);
+    const imageNamesArray = layers.flatMap((layer) =>
+      layer.nodes
+        .map((node) => node.data.parameters["image"]?.value ?? null)
+        .filter((name) => name !== null),
+    );
     const imageNames = [...new Set(imageNamesArray)]; // Deduplicate
 
     const cachedNames = textures.map(([name]) => name);
