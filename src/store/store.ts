@@ -12,6 +12,7 @@ import { create } from "zustand";
 
 import { NodeData, NodeType } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
+import { Newsreader } from "next/font/google";
 
 // !! cuidado: Node que se guarda es de RF
 // tiene campos id: y type: pero no son los de nuestro node.schema.ts
@@ -79,6 +80,8 @@ type ProjectActions = {
   setCanvasSize: (width: number, height: number) => void;
 
   addLayer: () => void;
+
+  reorderLayers: (from, to) => void;
 };
 
 function modifyLayer(
@@ -251,4 +254,26 @@ export const useStore = create<Project & ProjectActions>((set) => ({
         },
       ],
     })),
+
+  reorderLayers: (from, to) =>
+    set(({ layers, currentLayer }) => {
+      const newLayers = [...layers];
+      const [moved] = newLayers.splice(from, 1);
+      newLayers.splice(to, 0, moved);
+
+      let newCurrent = currentLayer;
+
+      if (currentLayer === from) {
+        newCurrent = to;
+      } else if (from < currentLayer && to >= currentLayer) {
+        newCurrent = currentLayer - 1;
+      } else if (from > currentLayer && to <= currentLayer) {
+        newCurrent = currentLayer + 1;
+      }
+
+      return {
+        layers: newLayers,
+        currentLayer: newCurrent,
+      };
+    }),
 }));
