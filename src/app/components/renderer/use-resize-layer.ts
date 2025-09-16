@@ -1,5 +1,6 @@
 import { RefObject } from "react";
 
+import { useStore } from "@/store/store";
 import { useDrag } from "@/utils/use-drag";
 import { clamp } from "@/utils/clamp";
 
@@ -20,6 +21,9 @@ export function useResizeLayer(
   ref: RefObject<HTMLDivElement | null>,
   direction: Direction,
 ) {
+  const setLayerBounds = useStore((s) => s.setLayerBounds);
+  const view = useStore((s) => s.properties.view);
+
   const onDragStart = (ev: PointerEvent) => {
     const el = ref.current;
     if (!el) return;
@@ -53,23 +57,32 @@ export function useResizeLayer(
     // Get dimension limits
     const minWidth = 1;
     const minHeight = 1;
+    const windowX = Number(el.dataset.windowX || "0");
+    const windowY = Number(el.dataset.windowY || "0");
     const maxWidth = Number(el.dataset.maxWidth || "1");
     const maxHeight = Number(el.dataset.maxHeight || "1");
 
     // Horizontal resizing
     if (direction.includes("E")) {
       const windowWidth = Number(el.dataset.windowWidth || "0");
-      const newWidth = clamp(windowWidth + deltaX, minWidth, maxWidth);
+      const newWidth = clamp(
+        windowWidth + deltaX,
+        minWidth,
+        maxWidth - windowX,
+      );
 
       el.style.setProperty("width", `${~~newWidth}px`);
     } else if (direction.includes("W")) {
       const windowWidth = Number(el.dataset.windowWidth || "0");
-      const newWidth = clamp(windowWidth - deltaX, minWidth, maxWidth);
+      const newWidth = clamp(
+        windowWidth - deltaX,
+        minWidth,
+        windowX + windowWidth,
+      );
 
-      const windowX = Number(el.dataset.windowX || "0");
       const maxDeltaX = windowWidth - minWidth;
       const minDeltaX = windowWidth - (maxWidth ?? Number.MAX_VALUE);
-      const newX = windowX + clamp(deltaX, minDeltaX, maxDeltaX);
+      const newX = Math.max(windowX + clamp(deltaX, minDeltaX, maxDeltaX), 0);
 
       el.style.setProperty("width", `${~~newWidth}px`);
       el.style.setProperty("left", `${~~newX}px`);
@@ -78,24 +91,40 @@ export function useResizeLayer(
     // Vertical resizing
     if (direction.includes("S")) {
       const windowHeight = Number(el.dataset.windowHeight || "0");
-      const newHeight = clamp(windowHeight + deltaY, minHeight, maxHeight);
+      const newHeight = clamp(
+        windowHeight + deltaY,
+        minHeight,
+        maxHeight - windowY,
+      );
 
       el.style.setProperty("height", `${~~newHeight}px`);
     } else if (direction.includes("N")) {
       const windowHeight = Number(el.dataset.windowHeight || "0");
-      const newHeight = clamp(windowHeight - deltaY, minHeight, maxHeight);
+      const newHeight = clamp(
+        windowHeight - deltaY,
+        minHeight,
+        windowY + windowHeight,
+      );
 
-      const windowY = Number(el.dataset.windowY || "0");
       const maxDeltaY = windowHeight - minHeight;
       const minDeltaY = windowHeight - (maxHeight ?? Number.MAX_VALUE);
-      const newY = windowY + clamp(deltaY, minDeltaY, maxDeltaY);
+      const newY = Math.max(windowY + clamp(deltaY, minDeltaY, maxDeltaY), 0);
 
       el.style.setProperty("height", `${~~newHeight}px`);
       el.style.setProperty("top", `${~~newY}px`);
     }
 
     const { top, left, width, height } = el.style;
-    console.log(top, left, width, height);
+    const scale = window.devicePixelRatio / view.zoom;
+
+    const x = Math.round(Number(left.slice(0, -2)) * scale);
+    const y = Math.round(Number(top.slice(0, -2)) * scale);
+    const w = Math.round(Number(width.slice(0, -2)) * scale);
+    const h = Math.round(Number(height.slice(0, -2)) * scale);
+
+    console.log(x, y, w, h);
+
+    setLayerBounds(x, y, w, h);
   };
 
   const onDragEnd = () => {

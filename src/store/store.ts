@@ -85,6 +85,7 @@ type ProjectActions = {
   setCanvasSize: (width: number, height: number) => void;
 
   addLayer: () => void;
+  setLayerBounds: (x: number, y: number, width: number, height: number) => void;
 };
 
 function modifyLayer(
@@ -265,5 +266,14 @@ export const useStore = create<Project & ProjectActions>((set) => ({
           size: initialSize,
         },
       ],
+    })),
+
+  setLayerBounds: (x, y, width, height) =>
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        ...layer,
+        position: { x, y },
+        size: { width, height },
+      })),
     })),
 }));

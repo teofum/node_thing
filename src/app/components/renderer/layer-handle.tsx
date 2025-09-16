@@ -12,7 +12,6 @@ export function LayerHandle() {
   const layers = useStore((s) => s.layers);
   const currentLayer = useStore((s) => s.currentLayer);
   const view = useStore((s) => s.properties.view);
-  const canvas = useStore((s) => s.properties.canvas);
 
   const layer = layers[currentLayer];
 
@@ -40,8 +39,8 @@ export function LayerHandle() {
 
   useLayoutEffect(() => {
     const scale = view.zoom / window.devicePixelRatio;
-    ref.current?.style.setProperty("top", `${layer.position.y}px`);
-    ref.current?.style.setProperty("left", `${layer.position.x}px`);
+    ref.current?.style.setProperty("top", `${layer.position.y * scale}px`);
+    ref.current?.style.setProperty("left", `${layer.position.x * scale}px`);
     ref.current?.style.setProperty("width", `${layer.size.width * scale}px`);
     ref.current?.style.setProperty("height", `${layer.size.height * scale}px`);
   }, [layer, view.zoom]);
