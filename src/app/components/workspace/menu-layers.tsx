@@ -1,9 +1,9 @@
 import { ToggleGroup, ToggleGroupItem } from "@radix-ui/react-toggle-group";
+import { LuEllipsisVertical, LuGripVertical, LuPlus } from "react-icons/lu";
 import cn from "classnames";
 
 import { Button } from "@/ui/button";
 import { useStore } from "@/store/store";
-import { LuEllipsisVertical, LuGripVertical, LuPlus } from "react-icons/lu";
 
 export function MenuLayers() {
   const { setActiveLayer, addLayer, layers, currentLayer } = useStore();
