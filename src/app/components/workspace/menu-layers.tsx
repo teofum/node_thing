@@ -33,64 +33,53 @@ export function MenuLayers() {
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="layers">
           {(provided) => (
-            <ToggleGroup
-              type="single"
-              value={currentLayer.toString()}
-              onValueChange={(v) => setActiveLayer(Number(v))}
-              orientation="vertical"
-              className="flex flex-col-reverse"
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              {layers.map((layer, idx) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {Array.from({ length: layers.length }).map((_, idx) => (
                 <Draggable key={idx} draggableId={`${idx}`} index={idx}>
                   {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      key={idx}
                       style={{
                         ...provided.draggableProps.style,
-                        background: snapshot.isDragging
-                          ? "rgba(255,255,255,0.05)"
-                          : idx === currentLayer
-                            ? "rgba(255,255,255,0.05)"
-                            : "transparent",
-                        transform: provided.draggableProps.style?.transform
-                          ? `${provided.draggableProps.style.transform} translate(-5%, -100%)`
-                          : undefined,
+                        transform: provided.draggableProps.style?.transform,
+                        position: snapshot.isDragging ? "absolute" : undefined,
                       }}
-                      className={cn(
-                        "relative p-3 pl-1 gap-3 flex flex-row items-center border-b border-white/15 hover:bg-white/5",
-                        { "bg-white/5": idx === currentLayer },
-                      )}
                     >
-                      <div {...provided.dragHandleProps} className="z-20">
-                        <LuGripVertical className="text-white/40" />
-                      </div>
+                      <Button
+                        key={idx}
+                        variant={"outline"}
+                        onClick={() => setActiveLayer(idx)}
+                        className={cn(
+                          "transition-colors w-full border-white/15 hover:bg-white/5",
+                          idx === currentLayer && "bg-white/7",
+                        )}
+                      >
+                        <div {...provided.dragHandleProps} className="z-20">
+                          <LuGripVertical className="text-white/40" />
+                        </div>
 
-                      <ToggleGroupItem
-                        value={idx.toString()}
-                        className="absolute inset-0 cursor-pointer z-10"
-                      />
-                      <div className="grow flex flex-col gap-1">
-                        <div className="text-sm/4 font-semibold">
-                          Layer {idx + 1}
+                        <div className="grow flex flex-col gap-1 text-left">
+                          <div className="text-sm/4 font-semibold">
+                            Layer {idx + 1}
+                          </div>
+                          <div className="text-xs/4 font-medium text-white/65">
+                            {layers[idx].nodes.length} node
+                            {layers[idx].nodes.length === 1 ? "" : "s"}
+                            {/* TODO acá mostrar nombre layer */}
+                          </div>
                         </div>
-                        <div className="text-xs/4 font-medium text-white/65">
-                          {layers[idx].nodes.length} node
-                          {layers[idx].nodes.length === 1 ? "" : "s"}
-                        </div>
-                      </div>
-                      <Button icon variant="ghost" className="relative z-10">
-                        <LuEllipsisVertical />
+
+                        <Button icon variant="ghost" className="relative z-10">
+                          <LuEllipsisVertical />
+                          {/* TODO acá opción cambiar nombre */}
+                        </Button>
                       </Button>
                     </div>
                   )}
                 </Draggable>
               ))}
-              {provided.placeholder}
-            </ToggleGroup>
+            </div>
           )}
         </Droppable>
       </DragDropContext>
