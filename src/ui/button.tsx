@@ -14,7 +14,7 @@ function buttonClassnames(
   className?: string,
 ) {
   return cn(
-    "font-semibold text-white rounded-lg",
+    "font-semibold rounded-lg",
     "flex flex-row items-center justify-center gap-2",
     "cursor-pointer transition duration-150 data-[state=on]:text-teal-500",
     "focus-visible:outline outline-offset-0 outline-teal-400",

@@ -1,4 +1,4 @@
-import { LinkButton } from "@/ui/button";
+import { Button, LinkButton } from "@/ui/button";
 import { LuArrowLeft, LuSearch, LuShoppingCart } from "react-icons/lu";
 import { getShaders, getCategories } from "./actions";
 import { getCartItems } from "./cart/actions";
@@ -48,7 +48,12 @@ export default async function MarketplacePage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-neutral-900 relative">
-      <LinkButton variant="ghost" href="/" className="absolute top-4 left-4">
+      <LinkButton
+        variant="ghost"
+        href="/"
+        size="md"
+        className="absolute top-4 left-4"
+      >
         <LuArrowLeft />
         Back
       </LinkButton>
@@ -68,11 +73,18 @@ export default async function MarketplacePage({ searchParams }: Props) {
               <LinkButton
                 href="/marketplace/cart"
                 variant="outline"
-                className="px-5 py-3 text-xl"
+                size="lg"
+                icon
               >
                 <LuShoppingCart />
               </LinkButton>
-              <LinkButton href="/marketplace/upload">Upload Shader</LinkButton>
+              <LinkButton
+                href="/marketplace/upload"
+                variant="default"
+                size="lg"
+              >
+                Upload Shader
+              </LinkButton>
             </div>
           </div>
 
@@ -94,12 +106,15 @@ export default async function MarketplacePage({ searchParams }: Props) {
                          border border-neutral-700 placeholder-neutral-500 focus:outline-none
                          focus:ring-2 focus:ring-purple-500"
             />
-            <button
+            <Button
               type="submit"
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
+              variant="ghost"
+              size="md"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
+              icon
             >
               <LuSearch size={20} />
-            </button>
+            </Button>
           </form>
 
           <div className="mb-6 flex justify-center gap-2 flex-wrap">

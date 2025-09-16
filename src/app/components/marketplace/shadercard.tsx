@@ -39,27 +39,25 @@ export default function ShaderCard({
           </Button>
           <span className="text-white text-base">{likes}</span>
         </div>
-        <form action={inCart ? undefined : addToCart}>
-          <input type="hidden" name="shaderId" value={id} />
-          {inCart ? (
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 px-3 py-1 text-lg text-white rounded-md bg-emerald-600 
-                        shadow-md cursor-default"
-            >
-              <LuCircleCheckBig /> In cart
-            </button>
-          ) : (
-            <button
-              type="submit"
-              className="inline-flex items-center gap-1 px-3 py-1 text-lg border border-emerald-600 text-white rounded-md 
-                         hover:bg-emerald-600 active:bg-emerald-700 transition-colors shadow-md cursor-pointer"
+        {inCart ? (
+          <div className="p-4 text-base/5 font-semibold text-white rounded-lg">
+            <LuCircleCheckBig className="inline mr-2 text-emerald-600" />
+            In cart
+          </div>
+        ) : (
+          <form action={addToCart}>
+            <input type="hidden" name="shaderId" value={id} />
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-emerald-600"
+              icon
             >
               <LuPlus />
               Add to cart
-            </button>
-          )}
-        </form>
+            </Button>
+          </form>
+        )}
       </div>
     </div>
   );
