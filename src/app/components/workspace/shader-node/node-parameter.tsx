@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { NodeProps } from "@xyflow/react";
 
 import { ShaderNode as ShaderNodeType, useStore } from "@/store/store";
@@ -5,7 +6,6 @@ import { useAssetStore } from "@/store/asset-store";
 import { NodeType } from "@/schemas/node.schema";
 import { Select, SelectItem } from "@/ui/select";
 import { imageURLFromAsset } from "@/utils/image-url-from-asset";
-import { useMemo } from "react";
 
 type ParameterProps = NodeProps<ShaderNodeType> & {
   name: string;

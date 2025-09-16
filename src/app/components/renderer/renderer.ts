@@ -391,7 +391,6 @@ export function render(
   const enc = device.createCommandEncoder();
 
   for (const input of desc.inputs) {
-    console.log(input, textures, buffers);
     const textureEntry = textures.find(([name]) => name === input.image);
     if (!textureEntry) continue;
 
