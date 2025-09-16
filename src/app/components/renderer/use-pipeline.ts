@@ -4,6 +4,7 @@ import { Layer, useStore } from "@/store/store";
 import { preparePipeline } from "./renderer";
 import { buildRenderPipeline, RenderPipeline } from "./pipeline";
 import { compareLayers } from "./compare-layers";
+import { enumerate } from "@/utils/enumerate";
 
 export function usePipeline(
   device: GPUDevice | null,
@@ -13,29 +14,44 @@ export function usePipeline(
   const canvas = useStore((s) => s.properties.canvas);
 
   /*
+   * Pipeline descriptor and layer cache
+   */
+  const descCache = useRef<(RenderPipeline | null)[] | null>(null);
+  const layersCache = useRef<Layer[] | null>(null);
+
+  /*
    * Rebuild render pipeline when node graph state changes
    */
-  const lastDesc = useRef<RenderPipeline | null>(null);
-  const lastLayer = useRef<Layer | null>(null);
   const desc = useMemo(() => {
     if (!ctx || !device) {
-      lastDesc.current = null;
+      descCache.current = null;
       return null;
     }
 
-    const shouldRebuild =
-      !lastLayer.current || compareLayers(layers[0], lastLayer.current);
-    lastLayer.current = layers[0];
-    if (!shouldRebuild) {
-      return lastDesc.current;
+    if (!layersCache.current) layersCache.current = [];
+    if (!descCache.current) descCache.current = [];
+
+    let rebuiltAnyLayers = false;
+    for (const [layer, i] of enumerate(layers)) {
+      const shouldRebuildLayer =
+        !layersCache.current[i] || compareLayers(layer, layersCache.current[i]);
+
+      layersCache.current[i] = layers[i];
+
+      if (shouldRebuildLayer) {
+        console.log(`Rebuilding render graph [layer ${i}]...`);
+        rebuiltAnyLayers = true;
+
+        descCache.current[i] = buildRenderPipeline(layer);
+        if (!descCache.current[i] || descCache.current[i].outputBuffer < 0)
+          descCache.current[i] = null;
+      }
     }
 
-    console.log("Rebuilding render graph...");
-    lastDesc.current = buildRenderPipeline(layers[0]);
-    if (!lastDesc.current || lastDesc.current.outputBuffer < 0)
-      lastDesc.current = null;
+    // Rebuild the array as a different object, so react knows it's changed
+    if (rebuiltAnyLayers) descCache.current = [...descCache.current];
 
-    return lastDesc.current;
+    return descCache.current;
   }, [ctx, device, layers]);
 
   /*
@@ -46,8 +62,11 @@ export function usePipeline(
   const pipeline = useMemo(() => {
     if (!ctx || !device || !desc) return null;
 
+    // TODO rebuild per layer...
     console.log("Rebuilding pipeline...");
-    return preparePipeline(device, desc, canvas);
+    return desc.map((layer) =>
+      layer ? preparePipeline(device, layer, canvas) : null,
+    );
   }, [ctx, device, desc, canvas]);
 
   return pipeline;

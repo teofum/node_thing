@@ -65,7 +65,12 @@ export function Canvas() {
 
     const renderFrame = () => {
       const target = ctx.getCurrentTexture();
-      render(device, pipeline, target, textures, sampler);
+
+      for (const layerPipeline of pipeline) {
+        if (layerPipeline)
+          render(device, layerPipeline, target, textures, sampler);
+      }
+
       // requestAnimationFrame(renderFrame);
     };
 
