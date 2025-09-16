@@ -39,7 +39,6 @@ export type ProjectProperties = {
 export type Project = {
   layers: Layer[];
   currentLayer: number;
-  layersDim: number;
   properties: ProjectProperties;
 };
 
@@ -125,7 +124,6 @@ export const useStore = create<Project & ProjectActions>((set) => ({
    * State
    */
   layers: [{ nodes: [...initialNodes], edges: [...initialEdges] }],
-  layersDim: 1,
   currentLayer: 0,
   properties: { canvas: { width: 1920, height: 1080 }, view: { zoom: 1 } },
 
@@ -244,7 +242,7 @@ export const useStore = create<Project & ProjectActions>((set) => ({
     })),
 
   addLayer: () =>
-    set(({ layers, layersDim }) => ({
+    set(({ layers }) => ({
       layers: [
         ...layers,
         {
@@ -252,6 +250,5 @@ export const useStore = create<Project & ProjectActions>((set) => ({
           edges: [...initialEdges],
         },
       ],
-      layersDim: layersDim + 1,
     })),
 }));

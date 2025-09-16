@@ -1,6 +1,8 @@
 import { ComponentProps, forwardRef } from "react";
-import { Toggle } from "@radix-ui/react-toggle";
-import Link from "next/link";
+import {
+  ToggleGroupItem,
+  ToggleGroup as ToggleGroupPrimitive,
+} from "@radix-ui/react-toggle-group";
 import cn from "classnames";
 
 type CommonProps = {
@@ -14,8 +16,9 @@ function buttonClassnames(
   className?: string,
 ) {
   return cn(
-    "font-semibold text-white rounded-lg",
-    "flex flex-row items-center justify-center gap-2",
+    "font-semibold text-white flex flex-row items-center justify-center gap-2",
+    "data-[orientation=horizontal]:first:rounded-l-lg data-[orientation=horizontal]:last:rounded-r-lg",
+    "data-[orientation=vertical]:first:rounded-t-lg data-[orientation=vertical]:last:rounded-b-lg",
     "cursor-pointer transition duration-150 data-[state=on]:text-teal-500",
     "focus-visible:outline outline-offset-0 outline-teal-400",
     "focus-visible:shadow-[0_0_0_3px] shadow-teal-400/30",
@@ -34,60 +37,45 @@ function buttonClassnames(
     className,
   );
 }
+// orientation = "horizontal",
+type ToggleGroupProps = ComponentProps<typeof ToggleGroupPrimitive> &
+  CommonProps;
 
-type ButtonProps = ComponentProps<"button"> & CommonProps;
-
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  function ButtonImpl(
-    { className, children, variant, size, icon, ...props },
+export const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
+  (
+    { className, children, orientation = "horizontal", ...props },
     forwardedRef,
-  ) {
+  ) => {
     return (
-      <button
+      <ToggleGroupPrimitive
         ref={forwardedRef}
-        className={buttonClassnames({ variant, size, icon }, className)}
+        className={cn(
+          "flex data-[orientation=horizontal]:flex-row data-[orientation=vertical]:flex-col",
+          className,
+        )}
+        orientation={orientation}
         {...props}
       >
         {children}
-      </button>
+      </ToggleGroupPrimitive>
     );
   },
 );
+ToggleGroup.displayName = "ToggleGroup";
 
-type LinkButtonProps = ComponentProps<typeof Link> & CommonProps;
+type ToggleItemProps = ComponentProps<typeof ToggleGroupItem> & CommonProps;
 
-export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
-  function LinkButtonImpl(
-    { className, children, variant, size, icon, ...props },
-    forwardedRef,
-  ) {
+export const ToggleItem = forwardRef<HTMLButtonElement, ToggleItemProps>(
+  ({ className, children, variant, icon, ...props }, forwardedRef) => {
     return (
-      <Link
-        ref={forwardedRef}
-        className={buttonClassnames({ variant, size, icon }, className)}
-        {...props}
-      >
-        {children}
-      </Link>
-    );
-  },
-);
-
-type ToggleButtonProps = ComponentProps<typeof Toggle> & CommonProps;
-
-export const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
-  function ButtonImpl(
-    { className, children, variant, icon, ...props },
-    forwardedRef,
-  ) {
-    return (
-      <Toggle
+      <ToggleGroupItem
         ref={forwardedRef}
         className={buttonClassnames({ variant, icon }, className)}
         {...props}
       >
         {children}
-      </Toggle>
+      </ToggleGroupItem>
     );
   },
 );
+ToggleItem.displayName = "ToggleItem";
