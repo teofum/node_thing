@@ -119,6 +119,9 @@ export async function getShaders() {
       category:categories (
         id,
         name
+      ),
+      profiles!fk_shaders_user_id (
+        username
       )
     `,
     )
