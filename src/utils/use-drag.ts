@@ -38,6 +38,7 @@ export function useDrag({ onDragStart, onDragMove, onDragEnd }: Handlers) {
 
   const pointerDownHandler = (ev?: React.PointerEvent) => {
     if (ev && ev.button > 0) return;
+    ev?.stopPropagation();
 
     const start = (ev: PointerEvent) => {
       const { target } = ev;
