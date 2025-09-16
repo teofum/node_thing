@@ -1,11 +1,11 @@
 import { NODE_TYPE_NAMES } from "@/utils/node-type";
 import * as z from "zod/v4";
 
-const parameterTypeSchema = z.enum(["number", "color", "select", "string"]);
+const parameterTypeSchema = z.enum(["select", "image"]);
 
 export type ParameterType = z.infer<typeof parameterTypeSchema>;
 
-const handleTypeSchema = parameterTypeSchema.extract(["number", "color"]);
+const handleTypeSchema = z.enum(["number", "color"]);
 
 export type HandleType = z.infer<typeof handleTypeSchema>;
 
@@ -48,6 +48,12 @@ export const nodeDataSchema = z.object({
   defaultValues: z.record(
     z.string(),
     z.union([z.number(), z.number().array()]),
+  ),
+  parameters: z.record(
+    z.string(),
+    z.object({
+      value: z.string().nullable(),
+    }),
   ),
 });
 

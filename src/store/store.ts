@@ -39,6 +39,7 @@ export type ProjectProperties = {
 export type Project = {
   layers: Layer[];
   currentLayer: number;
+  layersDim: number;
   properties: ProjectProperties;
 };
 
@@ -46,7 +47,7 @@ const initialNodes: ShaderNode[] = [
   {
     id: "__output",
     position: { x: 0, y: 0 },
-    data: { type: "__output", defaultValues: {} },
+    data: { type: "__output", defaultValues: {}, parameters: {} },
     type: "RenderShaderNode",
     deletable: false,
   },
@@ -69,8 +70,16 @@ type ProjectActions = {
     value: number | number[],
   ) => void;
 
+  updateNodeParameter: (
+    id: string,
+    param: string,
+    value: string | null,
+  ) => void;
+
   setZoom: (zoom: number) => void;
   setCanvasSize: (width: number, height: number) => void;
+
+  addLayer: () => void;
 };
 
 function modifyLayer(
@@ -93,11 +102,30 @@ function modifyLayer(
   ];
 }
 
+function modifyNode(
+  nodes: ShaderNode[],
+  id: string,
+  f: (node: ShaderNode) => Partial<ShaderNode>,
+): ShaderNode[] {
+  const node = nodes.find((n) => n.id === id);
+  if (!node) return nodes;
+
+  return [
+    ...nodes.filter((n) => n.id !== id),
+    {
+      ...node,
+      ...f(node),
+      id: node.id,
+    },
+  ];
+}
+
 export const useStore = create<Project & ProjectActions>((set) => ({
   /*
    * State
    */
   layers: [{ nodes: [...initialNodes], edges: [...initialEdges] }],
+  layersDim: 1,
   currentLayer: 0,
   properties: { canvas: { width: 1920, height: 1080 }, view: { zoom: 1 } },
 
@@ -168,23 +196,28 @@ export const useStore = create<Project & ProjectActions>((set) => ({
   updateNodeDefaultValue: (id, input, value) =>
     set(({ layers, currentLayer }) => {
       return {
-        layers: modifyLayer(layers, currentLayer, ({ nodes }) => {
-          const node = nodes.find((n) => n.id === id);
-          if (!node) return {};
+        layers: modifyLayer(layers, currentLayer, ({ nodes }) => ({
+          nodes: modifyNode(nodes, id, (node) => ({
+            data: {
+              ...node.data,
+              defaultValues: { ...node.data.defaultValues, [input]: value },
+            },
+          })),
+        })),
+      };
+    }),
 
-          return {
-            nodes: [
-              ...nodes.filter((n) => n.id !== id),
-              {
-                ...node,
-                data: {
-                  ...node.data,
-                  defaultValues: { ...node.data.defaultValues, [input]: value },
-                },
-              },
-            ],
-          };
-        }),
+  updateNodeParameter: (id, param, value) =>
+    set(({ layers, currentLayer }) => {
+      return {
+        layers: modifyLayer(layers, currentLayer, ({ nodes }) => ({
+          nodes: modifyNode(nodes, id, (node) => ({
+            data: {
+              ...node.data,
+              parameters: { ...node.data.parameters, [param]: { value } },
+            },
+          })),
+        })),
       };
     }),
 
@@ -208,5 +241,17 @@ export const useStore = create<Project & ProjectActions>((set) => ({
         ...properties,
         canvas: { ...properties.canvas, width, height },
       },
+    })),
+
+  addLayer: () =>
+    set(({ layers, layersDim }) => ({
+      layers: [
+        ...layers,
+        {
+          nodes: [...initialNodes],
+          edges: [...initialEdges],
+        },
+      ],
+      layersDim: layersDim + 1,
     })),
 }));

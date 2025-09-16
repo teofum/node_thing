@@ -52,6 +52,13 @@ export function Viewport() {
         defaultValues[key] = input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
       }
 
+      const parameters: NodeData["parameters"] = {};
+      for (const key in NODE_TYPES[type].parameters) {
+        const value = event.dataTransfer.getData(`params.${key}`) || null;
+
+        parameters[key] = { value };
+      }
+
       const newNode: ShaderNode = {
         id: currId,
         type: "RenderShaderNode",
@@ -59,6 +66,7 @@ export function Viewport() {
         data: {
           type,
           defaultValues,
+          parameters,
         },
       };
 
