@@ -11,6 +11,7 @@ export function usePipeline(
   ctx: GPUCanvasContext | null,
 ) {
   const layers = useStore((s) => s.layers);
+  const canvas = useStore((s) => s.properties.canvas);
 
   /*
    * Pipeline descriptor and layer cache
@@ -50,6 +51,7 @@ export function usePipeline(
     // Rebuild the array as a different object, so react knows it's changed
     if (rebuiltAnyLayers) descCache.current = [...descCache.current];
 
+    console.log(descCache.current);
     return descCache.current;
   }, [ctx, device, layers]);
 
@@ -66,12 +68,14 @@ export function usePipeline(
     return desc.map((layerDesc, i) =>
       layerDesc
         ? preparePipeline(device, layerDesc, {
+            globalWidth: canvas.width,
+            globalHeight: canvas.height,
             ...layers[i].size,
             ...layers[i].position,
           })
         : null,
     );
-  }, [ctx, device, layers, desc]);
+  }, [ctx, device, layers, desc, canvas]);
 
   return pipeline;
 }

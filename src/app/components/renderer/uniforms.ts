@@ -1,4 +1,5 @@
-const UNIFORM_BUFFER_SIZE = 5 * 4; // 5 * u32 (width, height, x, y, has_alpha)
+// 7 * u32 (width, height, x, y, global_width, global_height, has_alpha)
+const UNIFORM_BUFFER_SIZE = 7 * 4;
 
 function createUniformBuffer(device: GPUDevice) {
   return device.createBuffer({

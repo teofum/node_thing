@@ -14,7 +14,9 @@ export function useWebGPUContext(
       device,
       format: "rgba8unorm",
       usage:
-        GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.STORAGE_BINDING,
+        GPUTextureUsage.RENDER_ATTACHMENT |
+        GPUTextureUsage.STORAGE_BINDING |
+        GPUTextureUsage.TEXTURE_BINDING,
       alphaMode: "premultiplied",
     });
 
