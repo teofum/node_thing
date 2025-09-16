@@ -109,7 +109,8 @@ export default async function MarketplacePage({ searchParams }: Props) {
                   ? `/marketplace?search=${encodeURIComponent(searchTerm)}`
                   : "/marketplace"
               }
-              variant={selectedCategories.length === 0 ? "default" : "outline"}
+              variant="outline"
+              data-state={selectedCategories.length === 0 ? "on" : "off"}
             >
               All
             </LinkButton>
@@ -134,7 +135,8 @@ export default async function MarketplacePage({ searchParams }: Props) {
                 <LinkButton
                   key={category.id}
                   href={categoryUrl}
-                  variant={isSelected ? "default" : "outline"}
+                  variant="outline"
+                  data-state={isSelected ? "on" : "off"}
                 >
                   {category.name}
                 </LinkButton>
