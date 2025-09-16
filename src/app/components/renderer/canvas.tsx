@@ -10,6 +10,11 @@ import { useWebGPUContext } from "./use-webgpu-context";
 import { usePipeline } from "./use-pipeline";
 import { useTextureCache } from "./use-texture-cache";
 
+const SAMPLER_DESC: GPUSamplerDescriptor = {
+  magFilter: "linear",
+  minFilter: "linear",
+};
+
 export function Canvas() {
   /*
    * State
@@ -35,19 +40,13 @@ export function Canvas() {
   const ctx = useWebGPUContext(device, canvas);
 
   /*
-   * Get the sampler used for sampling textures
-   */
-  const sampler = useMemo(
-    () =>
-      device?.createSampler({ magFilter: "linear", minFilter: "linear" }) ??
-      null,
-    [device],
-  );
-
-  /*
-   * Texture cache
+   * Texture cache and sampler
    */
   const textures = useTextureCache(device);
+  const sampler = useMemo(
+    () => device?.createSampler(SAMPLER_DESC) ?? null,
+    [device],
+  );
 
   /*
    * Get the WebGPU pipeline
