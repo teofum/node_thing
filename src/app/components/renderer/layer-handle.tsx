@@ -5,6 +5,7 @@ import cn from "classnames";
 import { useStore } from "@/store/store";
 import { DIR, useResizeLayer, type Direction } from "./use-resize-layer";
 import { useLayoutEffect, useRef } from "react";
+import { useMoveLayer } from "./use-move-layer";
 
 const directions = Object.keys(DIR) as Direction[];
 
@@ -25,6 +26,7 @@ export function LayerHandle() {
   const resizeSW = useResizeLayer(ref, "SW");
   const resizeW = useResizeLayer(ref, "W");
   const resizeNW = useResizeLayer(ref, "NW");
+  const moveHandler = useMoveLayer(ref);
 
   const resizeHandlers = {
     N: resizeN,
@@ -49,6 +51,7 @@ export function LayerHandle() {
     <div
       ref={ref}
       className="absolute rounded-xs border border-teal-400 fancy-outline drop-shadow-black"
+      onPointerDown={moveHandler}
     >
       {directions.map((dir) => (
         <div
