@@ -53,7 +53,9 @@ export function MenuLayers() {
                         ...provided.draggableProps.style,
                         background: snapshot.isDragging
                           ? "rgba(255,255,255,0.05)"
-                          : "transparent",
+                          : idx === currentLayer
+                            ? "rgba(255,255,255,0.05)"
+                            : "transparent",
                         transform: provided.draggableProps.style?.transform
                           ? `${provided.draggableProps.style.transform} translate(-5%, -100%)`
                           : undefined,
@@ -69,7 +71,7 @@ export function MenuLayers() {
 
                       <ToggleGroupItem
                         value={idx.toString()}
-                        className="absolute inset-0 cursor-pointe z-10"
+                        className="absolute inset-0 cursor-pointer z-10"
                       />
                       <div className="grow flex flex-col gap-1">
                         <div className="text-sm/4 font-semibold">
