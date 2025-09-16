@@ -1,6 +1,6 @@
 import { Input } from "@/ui/input";
 import { Button, LinkButton } from "@/ui/button";
-import { uploadShaderAction, getCategories } from "@/lib/marketplace/actions";
+import { uploadShaderAction, getCategories } from "../actions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 

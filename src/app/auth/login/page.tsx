@@ -1,4 +1,4 @@
-import { signInAction } from "@/lib/auth/actions";
+import { signInAction } from "../actions";
 import { OAuthButtons } from "@/app/auth/components/oauth-buttons";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";

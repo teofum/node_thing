@@ -1,4 +1,4 @@
-import { onboardingAction } from "@/lib/auth/actions";
+import { onboardingAction } from "../auth/actions";
 import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";
 import { createClient } from "@/lib/supabase/server";

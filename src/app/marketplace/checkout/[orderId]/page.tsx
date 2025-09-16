@@ -1,9 +1,6 @@
 import { LinkButton, Button } from "@/ui/button";
 import { LuArrowLeft } from "react-icons/lu";
-import {
-  getOrderDetails,
-  completePaymentAndRedirect,
-} from "@/lib/purchase/actions";
+import { getOrderDetails, completePaymentAndRedirect } from "../actions";
 import { redirect } from "next/navigation";
 
 type Props = {

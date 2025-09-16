@@ -1,4 +1,4 @@
-import { forgotPasswordAction } from "@/lib/auth/actions";
+import { forgotPasswordAction } from "../actions";
 import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";
 import { createClient } from "@/lib/supabase/server";

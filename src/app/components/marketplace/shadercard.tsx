@@ -1,7 +1,7 @@
 "use client";
 
 import { LuCircleCheckBig, LuEraser, LuHeart, LuPlus } from "react-icons/lu";
-import { addToCart, removeFromCart } from "@/lib/cart/actions";
+import { addToCart, removeFromCart } from "../../marketplace/cart/actions";
 import { useState } from "react";
 
 type ShaderCardProps = {

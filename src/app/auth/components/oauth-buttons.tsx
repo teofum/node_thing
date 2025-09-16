@@ -2,7 +2,7 @@ import {
   signInWithGoogleAction,
   signInWithGithubAction,
   signInWithDiscordAction,
-} from "@/lib/auth/actions";
+} from "../actions";
 import { Button } from "@/ui/button";
 
 interface OAuthButtonsProps {

@@ -1,7 +1,7 @@
 import { LinkButton } from "@/ui/button";
 import { LuArrowLeft, LuSearch, LuShoppingCart } from "react-icons/lu";
-import { getShaders, getCategories } from "@/lib/marketplace/actions";
-import { getCartItems } from "@/lib/cart/actions";
+import { getShaders, getCategories } from "./actions";
+import { getCartItems } from "./cart/actions";
 import ShaderCard from "@/app/components/marketplace/shadercard";
 
 type Props = {

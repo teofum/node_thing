@@ -2,8 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { LinkButton, Button } from "@/ui/button";
 import { LuArrowLeft, LuTrash2 } from "react-icons/lu";
-import { removeFromCart, clearCart, getCartItems } from "@/lib/cart/actions";
-import { createOrderAndRedirect } from "@/lib/purchase/actions";
+import { removeFromCart, clearCart, getCartItems } from "./actions";
+import { createOrderAndRedirect } from "../checkout/actions";
 
 export default async function CartPage() {
   const supabase = await createClient();
