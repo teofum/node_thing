@@ -1,8 +1,6 @@
-"use client";
-
-import { LuCircleCheckBig, LuEraser, LuHeart, LuPlus } from "react-icons/lu";
-import { addToCart, removeFromCart } from "../../marketplace/cart/actions";
-import { useState } from "react";
+import { LuCircleCheckBig, LuHeart, LuPlus } from "react-icons/lu";
+import { addToCart } from "../../marketplace/cart/actions";
+import { Button } from "@/ui/button";
 
 type ShaderCardProps = {
   id: string;
@@ -19,19 +17,6 @@ export default function ShaderCard({
   likes = 0,
   inCart,
 }: ShaderCardProps) {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
-
-  const toggleLike = () => {
-    if (liked) {
-      setLiked(false);
-      setLikeCount((prev) => prev - 1);
-    } else {
-      setLiked(true);
-      setLikeCount((prev) => prev + 1);
-    }
-  };
-
   return (
     <div className="glass glass-border p-6 rounded-2xl relative">
       <h3 className="text-xl font-semibold text-white mb-4">{title}</h3>
@@ -44,16 +29,15 @@ export default function ShaderCard({
 
       <div className="flex items-center justify-between mt-2">
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleLike}
-            type="button"
-            className="text-white hover:text-purple-500 "
+          <Button
+            icon
+            variant="ghost"
+            disabled
+            className="text-white cursor-default"
           >
-            <LuHeart
-              className={`w-6 h-6 ${liked ? "fill-purple-500 text-purple-500" : ""}`}
-            />
-          </button>
-          <span className="text-white text-base">{likeCount}</span>
+            <LuHeart className="w-6 h-6" />
+          </Button>
+          <span className="text-white text-base">{likes}</span>
         </div>
         <form action={inCart ? undefined : addToCart}>
           <input type="hidden" name="shaderId" value={id} />
