@@ -1,5 +1,6 @@
 import { Button } from "@/ui/button";
 import { useStore } from "@/store/store";
+import cn from "classnames";
 
 export function MenuLayers() {
   const { setActiveLayer, addLayer, layersDim, currentLayer } = useStore();
@@ -14,8 +15,12 @@ export function MenuLayers() {
       {Array.from({ length: layersDim }).map((_, idx) => (
         <Button
           key={idx}
-          variant={currentLayer === idx ? "outline" : "default"}
+          variant={"outline"}
           onClick={() => setActiveLayer(idx)}
+          className={cn(
+            "transition-colors",
+            idx === currentLayer && "bg-white/7",
+          )}
         >
           Layer {idx}
         </Button>
