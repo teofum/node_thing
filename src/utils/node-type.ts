@@ -12,8 +12,10 @@ import diffShader from "@/shaders/diff.wgsl";
 import brightness from "@/shaders/brightness.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 import chromaticAberration from "@/shaders/chromatic-aberration.wgsl";
+import posterizerShader from "@/shaders/posterizer.wgsl";
 
 export const NODE_TYPES = {
+  // Input y output ///////////////////////////////
   __input: {
     name: "Image",
     category: "Input",
@@ -65,25 +67,7 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
-  },
-  test_bw: {
-    name: "Test Grayscale",
-    category: "Color",
-    shader: testBWShader,
-    inputs: {
-      in_a: {
-        name: "Input",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
+  }, // Utility category ///////////////////////////////
   split_channels: {
     name: "Split channels",
     category: "Utility",
@@ -109,28 +93,10 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
-  },
-  threshold: {
-    name: "Threshold B/W",
-    category: "Color",
-    shader: thresholdShader,
-    inputs: {
-      in_a: {
-        name: "Input",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
+  }, // Blurs category ///////////////////////////////
   boxBlur: {
     name: "Box Blur",
-    category: "Filters",
+    category: "Blurs",
     shader: boxBlurShader,
     inputs: {
       in_a: {
@@ -148,7 +114,7 @@ export const NODE_TYPES = {
   },
   gaussBlur3x3: {
     name: "Gaussian blur 3x3",
-    category: "Filters",
+    category: "Blurs",
     shader: gaussianBlurShader3x3,
     inputs: {
       in_a: {
@@ -166,7 +132,7 @@ export const NODE_TYPES = {
   },
   gaussBlur5x5: {
     name: "Gaussian blur 5x5",
-    category: "Filters",
+    category: "Blurs",
     shader: gaussianBlurShader5x5,
     inputs: {
       in_a: {
@@ -184,7 +150,7 @@ export const NODE_TYPES = {
   },
   gaussBlur: {
     name: "Gaussian blur",
-    category: "Filters",
+    category: "Blurs",
     shader: gaussianBlurShader,
     inputs: {
       in_a: {
@@ -199,7 +165,7 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
-  },
+  }, // Blend category ///////////////////////////////
   mix: {
     name: "Mix",
     category: "Blend",
@@ -247,6 +213,42 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
+  }, // Color category ///////////////////////////////
+  test_bw: {
+    name: "Test Grayscale",
+    category: "Color",
+    shader: testBWShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  threshold: {
+    name: "Threshold B/W",
+    category: "Color",
+    shader: thresholdShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
   },
   brightness: {
     name: "Brightness",
@@ -270,6 +272,24 @@ export const NODE_TYPES = {
     name: "Chromatic Aberration",
     category: "Color",
     shader: chromaticAberration,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  posterizer: {
+    name: "Posterizer",
+    category: "Color",
+    shader: posterizerShader,
     inputs: {
       in_a: {
         name: "Input",
