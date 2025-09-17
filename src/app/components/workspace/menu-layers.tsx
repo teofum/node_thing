@@ -99,10 +99,21 @@ export function MenuLayers() {
         </Button>
       </div>
 
-      <hr className="border-white/15" />
+      <hr className="border-white/15 p-1" />
 
-      <Button variant={"ghost"}>Export Layer</Button>
-      <Button variant={"ghost"}>Import Layer</Button>
+      {/* TODO add onClick export/import */}
+      <div className="px-3 py-1 flex flex-col">
+        <Button variant="outline">
+          <LuPlus />
+          Export Layer
+        </Button>
+      </div>
+      <div className="px-3 py-1 flex flex-col">
+        <Button variant="outline">
+          <LuPlus />
+          Import Layer
+        </Button>
+      </div>
     </div>
   );
 }
