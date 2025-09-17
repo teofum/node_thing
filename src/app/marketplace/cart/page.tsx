@@ -1,7 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { LinkButton, Button } from "@/ui/button";
-import { LuArrowLeft, LuTrash2 } from "react-icons/lu";
+import {
+  LuArrowLeft,
+  LuTrash2,
+  LuEraser,
+  LuShoppingCart,
+} from "react-icons/lu";
 import { removeFromCart, clearCart, getCartItems } from "./actions";
 import { createOrderAndRedirect } from "../checkout/actions";
 
@@ -35,7 +40,10 @@ export default async function CartPage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-white">Cart</h1>
+              <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                <LuShoppingCart />
+                Cart
+              </h1>
               {cartItems.length > 0 && (
                 <p className="text-neutral-400 mt-2">
                   {cartItems.length} {cartItems.length === 1 ? "item" : "items"}{" "}
@@ -45,7 +53,14 @@ export default async function CartPage() {
             </div>
             {cartItems.length > 0 && (
               <form action={clearCart}>
-                <Button variant="outline" type="submit">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  type="submit"
+                  className="text-red-400"
+                  icon
+                >
+                  <LuEraser />
                   Clear Cart
                 </Button>
               </form>
@@ -80,12 +95,15 @@ export default async function CartPage() {
                           name="shaderId"
                           value={item.shader_id}
                         />
-                        <button
+                        <Button
                           type="submit"
-                          className="flex items-center justify-center w-10 h-10 rounded-md bg-red-600 hover:bg-red-700 transition-colors cursor-pointer"
+                          variant="outline"
+                          size="lg"
+                          className="text-red-400"
+                          icon
                         >
                           <LuTrash2 className="text-white w-5 h-5" />
-                        </button>
+                        </Button>
                       </form>
                     </div>
                   </div>
@@ -102,7 +120,12 @@ export default async function CartPage() {
                   </span>
                 </div>
                 <form action={createOrderAndRedirect}>
-                  <Button type="submit" className="w-full">
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    size="lg"
+                    className="w-full"
+                  >
                     Proceed to Checkout
                   </Button>
                 </form>
