@@ -50,7 +50,7 @@ export function LayerHandle() {
   return (
     <div
       ref={ref}
-      className="absolute rounded-xs border border-teal-400 fancy-outline drop-shadow-black"
+      className="absolute rounded-xs border border-teal-400"
       onPointerDown={moveHandler}
     >
       {directions.map((dir) => (
