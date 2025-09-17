@@ -9,11 +9,12 @@ import gaussianBlurShader5x5 from "@/shaders/gaussian-blur-5x5.wgsl";
 import gaussianBlurShader from "@/shaders/gaussian-blur.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
 import diffShader from "@/shaders/diff.wgsl";
-import brightness from "@/shaders/brightness.wgsl";
+import brightnessShader from "@/shaders/brightness.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
-import chromaticAberration from "@/shaders/chromatic-aberration.wgsl";
+import chromaticAberrationShader from "@/shaders/chromatic-aberration.wgsl";
 import posterizerShader from "@/shaders/posterizer.wgsl";
 import lumPosterizerShader from "@/shaders/luminance-posterizer.wgsl";
+import basicSharpnessShader from "@/shaders/basicSharpness.wgsl";
 
 export const NODE_TYPES = {
   // Input y output ///////////////////////////////
@@ -254,7 +255,7 @@ export const NODE_TYPES = {
   brightness: {
     name: "Brightness",
     category: "Color",
-    shader: brightness,
+    shader: brightnessShader,
     inputs: {
       in_a: {
         name: "Input",
@@ -272,7 +273,7 @@ export const NODE_TYPES = {
   chromaticAberration: {
     name: "Chromatic Aberration",
     category: "Color",
-    shader: chromaticAberration,
+    shader: chromaticAberrationShader,
     inputs: {
       in_a: {
         name: "Input",
@@ -309,6 +310,24 @@ export const NODE_TYPES = {
     name: "Luminance Posterizer",
     category: "Color",
     shader: lumPosterizerShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  basicSharpness: {
+    name: "Basic Sharpness",
+    category: "Color",
+    shader: basicSharpnessShader,
     inputs: {
       in_a: {
         name: "Input",
