@@ -92,6 +92,12 @@ type ProjectActions = {
   setLayerBounds: (x: number, y: number, width: number, height: number) => void;
 
   reorderLayers: (from: number, to: number) => void;
+
+  exportLayer: (i: number) => string;
+  importLayer: (json: string) => void;
+
+  exportProject: () => string;
+  importProject: (json: string) => void;
 };
 
 function modifyLayer(
@@ -132,7 +138,7 @@ function modifyNode(
   ];
 }
 
-export const useStore = create<Project & ProjectActions>((set) => ({
+export const useStore = create<Project & ProjectActions>((set, get) => ({
   /*
    * State
    */
@@ -308,4 +314,40 @@ export const useStore = create<Project & ProjectActions>((set) => ({
         currentLayer: newCurrent,
       };
     }),
+
+  exportLayer: (i) => {
+    const layers = get().layers;
+    const layer = layers[i];
+    return JSON.stringify(layer, null, 2);
+  },
+
+  importLayer: (json) => {
+    set(({ layers }) => {
+      const parsedLayer: Layer = JSON.parse(json);
+
+      // hardcodeo y les concateno 'import-' cuando son importandos, se generaban conflictos con IDs
+      parsedLayer.id = "import-" + parsedLayer.id;
+
+      return {
+        layers: [...layers, parsedLayer],
+      };
+    });
+  },
+
+  exportProject: () => {
+    const project = get();
+    return JSON.stringify(project, null, 2);
+  },
+
+  importProject: (json) => {
+    set(({ layers, currentLayer, properties }) => {
+      const parsedProject: Project = JSON.parse(json);
+
+      return {
+        layers: parsedProject.layers,
+        currentLayer: parsedProject.currentLayer,
+        properties: parsedProject.properties,
+      };
+    });
+  },
 }));

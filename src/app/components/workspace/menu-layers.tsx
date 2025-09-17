@@ -4,11 +4,17 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
-import { LuEllipsisVertical, LuGripVertical, LuPlus } from "react-icons/lu";
-import cn from "classnames";
+import {
+  LuEllipsisVertical,
+  LuGripVertical,
+  LuPlus,
+  LuSquareArrowOutDownLeft,
+  LuSquareArrowOutUpRight,
+} from "react-icons/lu";
 
 import { Button } from "@/ui/button";
 import { useStore } from "@/store/store";
+import cn from "classnames";
 
 export function MenuLayers() {
   const setActiveLayer = useStore((s) => s.setActiveLayer);
@@ -16,6 +22,8 @@ export function MenuLayers() {
   const layers = useStore((s) => s.layers);
   const currentLayer = useStore((s) => s.currentLayer);
   const reorderLayers = useStore((s) => s.reorderLayers);
+  const exportLayer = useStore((s) => s.exportLayer);
+  const importLayer = useStore((s) => s.importLayer);
 
   const addLayerButton = () => {
     addLayer();
@@ -28,6 +36,19 @@ export function MenuLayers() {
     }
 
     reorderLayers(result.source.index, result.destination.index);
+  };
+
+  const layerExport = () => {
+    const json = exportLayer(currentLayer);
+    navigator.clipboard.writeText(json);
+    alert("Layer copied to clipboard!"); // TODO esto tal vez cambiarlo a notifiación toast o similar
+  };
+
+  const layerImport = () => {
+    const json = prompt("JSON import layer: "); // TODO mejorar input
+    if (json !== null) {
+      importLayer(json);
+    }
   };
 
   return (
@@ -96,6 +117,22 @@ export function MenuLayers() {
         <Button variant="outline" onClick={addLayerButton}>
           <LuPlus />
           Add Layer
+        </Button>
+      </div>
+
+      <hr className="border-white/15 p-1" />
+
+      {/* TODO add onClick export/import */}
+      <div className="px-3 py-1 flex flex-col">
+        <Button variant="outline" onClick={layerImport}>
+          <LuSquareArrowOutDownLeft />
+          Import Layer
+        </Button>
+      </div>
+      <div className="px-3 py-1 flex flex-col">
+        <Button variant="outline" onClick={layerExport}>
+          <LuSquareArrowOutUpRight />
+          Export Layer
         </Button>
       </div>
     </div>
