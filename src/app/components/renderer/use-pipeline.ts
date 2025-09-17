@@ -51,7 +51,6 @@ export function usePipeline(
     // Rebuild the array as a different object, so react knows it's changed
     if (rebuiltAnyLayers) descCache.current = [...descCache.current];
 
-    console.log(descCache.current);
     return descCache.current;
   }, [ctx, device, layers]);
 

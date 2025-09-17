@@ -1,4 +1,3 @@
-import { ToggleGroup, ToggleGroupItem } from "@radix-ui/react-toggle-group";
 import {
   DragDropContext,
   Droppable,
@@ -10,7 +9,6 @@ import cn from "classnames";
 
 import { Button } from "@/ui/button";
 import { useStore } from "@/store/store";
-import { BsTranslate } from "react-icons/bs";
 
 export function MenuLayers() {
   const setActiveLayer = useStore((s) => s.setActiveLayer);
@@ -39,17 +37,14 @@ export function MenuLayers() {
           {/* TODO quite flex-col-reverse porque rompe dnd */}
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              {Array.from({ length: layers.length }).map((_, idx) => (
-                <Draggable key={idx} draggableId={`${idx}`} index={idx}>
+              {layers.map((layer, idx) => (
+                <Draggable key={layer.id} draggableId={layer.id} index={idx}>
                   {(provided, snapshot) => (
                     // TODO no supe cómo centrar la preview del dnd (sale como si uno lo agarrase de izq arriba)
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      style={{
-                        ...provided.draggableProps.style,
-                        position: snapshot.isDragging ? "absolute" : "static",
-                      }}
+                      style={provided.draggableProps.style}
                     >
                       <div
                         key={idx}
@@ -57,7 +52,11 @@ export function MenuLayers() {
                         className={cn(
                           "relative p-3 pl-1 gap-3 flex flex-row items-center border-b border-white/15 hover:bg-white/5",
                           "transition-colors w-full border-white/15 hover:bg-white/5",
-                          idx === currentLayer && "bg-white/7",
+                          {
+                            "bg-black/50 backdrop-blur-md border":
+                              snapshot.isDragging,
+                            "bg-white/7": idx === currentLayer,
+                          },
                         )}
                       >
                         <div
@@ -69,7 +68,7 @@ export function MenuLayers() {
 
                         <div className="grow flex flex-col gap-1 text-left">
                           <div className="text-sm/4 font-semibold">
-                            Layer {idx + 1}
+                            {layer.name}
                           </div>
                           <div className="text-xs/4 font-medium text-white/65">
                             {layers[idx].nodes.length} node

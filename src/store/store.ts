@@ -12,7 +12,6 @@ import { create } from "zustand";
 
 import { NodeData, NodeType } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
-import { Newsreader } from "next/font/google";
 
 // !! cuidado: Node que se guarda es de RF
 // tiene campos id: y type: pero no son los de nuestro node.schema.ts
@@ -22,12 +21,16 @@ import { Newsreader } from "next/font/google";
 
 export type ShaderNode = Node<NodeData>;
 
+let layerId = 0;
 export type Layer = {
   nodes: ShaderNode[];
   edges: Edge[];
 
   position: { x: number; y: number };
   size: { width: number; height: number };
+
+  id: string;
+  name: string;
 };
 
 export type ProjectProperties = {
@@ -139,6 +142,8 @@ export const useStore = create<Project & ProjectActions>((set) => ({
       edges: [...initialEdges],
       position: { x: 0, y: 0 },
       size: initialSize,
+      id: `layer_${layerId++}`,
+      name: "Background",
     },
   ],
   currentLayer: 0,
@@ -267,6 +272,8 @@ export const useStore = create<Project & ProjectActions>((set) => ({
           edges: [...initialEdges],
           position: { x: 0, y: 0 },
           size: initialSize,
+          id: `layer_${layerId++}`,
+          name: `Layer ${layers.length}`,
         },
       ],
     })),
