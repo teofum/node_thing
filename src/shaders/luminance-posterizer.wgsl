@@ -1,4 +1,3 @@
-
 @group(0) @binding(0)
 var<storage, read> input: array<vec3f>;
 
@@ -12,7 +11,7 @@ struct Uniforms {
 @group(1) @binding(0)
 var<uniform> u: Uniforms;
 
-const RANGE : i32 = 4; //color amount
+const RANGE : i32 = 9; //color amount
 
 @compute @workgroup_size(16, 16) 
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
@@ -23,12 +22,10 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
 
     let luminance = 0.2126 * input[index].r + 0.7152 * input[index].g + 0.0722 * input[index].b;
 
-    let steps: f32 = f32(RANGE);
+    let step: f32 = f32(RANGE);
 
-    let r = floor(input[index].r * steps) / (steps - 1.0);
-    let g = floor(input[index].g * steps) / (steps - 1.0);
-    let b = floor(input[index].b * steps) / (steps - 1.0);
-
-    output[index] = vec3<f32>(r, g, b);
+    let i = ( floor(luminance * step) / (step - 1.0) );
+    
+    output[index] = vec3f(i);
     return;
 }

@@ -13,6 +13,7 @@ import brightness from "@/shaders/brightness.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 import chromaticAberration from "@/shaders/chromatic-aberration.wgsl";
 import posterizerShader from "@/shaders/posterizer.wgsl";
+import lumPosterizerShader from "@/shaders/luminance-posterizer.wgsl";
 
 export const NODE_TYPES = {
   // Input y output ///////////////////////////////
@@ -290,6 +291,24 @@ export const NODE_TYPES = {
     name: "Posterizer",
     category: "Color",
     shader: posterizerShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  lumPosterizer: {
+    name: "Luminance Posterizer",
+    category: "Color",
+    shader: lumPosterizerShader,
     inputs: {
       in_a: {
         name: "Input",
