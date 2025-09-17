@@ -95,6 +95,9 @@ type ProjectActions = {
 
   exportLayer: (i: number) => string;
   importLayer: (json: string) => void;
+
+  exportProject: () => string;
+  importProject: (json: string) => void;
 };
 
 function modifyLayer(
@@ -322,12 +325,28 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
     set(({ layers }) => {
       const parsedLayer: Layer = JSON.parse(json);
 
-      // TODO acá se generaban conflictos con IDs
-      // hardcodeo y les concateno 'import-' cuando son importandos
+      // hardcodeo y les concateno 'import-' cuando son importandos, se generaban conflictos con IDs
       parsedLayer.id = "import-" + parsedLayer.id;
 
       return {
         layers: [...layers, parsedLayer],
+      };
+    });
+  },
+
+  exportProject: () => {
+    const project = get();
+    return JSON.stringify(project, null, 2);
+  },
+
+  importProject: (json) => {
+    set(({ layers, currentLayer, properties }) => {
+      const parsedProject: Project = JSON.parse(json);
+
+      return {
+        layers: parsedProject.layers,
+        currentLayer: parsedProject.currentLayer,
+        properties: parsedProject.properties,
       };
     });
   },

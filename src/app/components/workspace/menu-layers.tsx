@@ -39,13 +39,13 @@ export function MenuLayers() {
   };
 
   const layerExport = () => {
-    const exportJSON = exportLayer(currentLayer);
-    navigator.clipboard.writeText(exportJSON);
+    const json = exportLayer(currentLayer);
+    navigator.clipboard.writeText(json);
     alert("Layer copied to clipboard!"); // TODO esto tal vez cambiarlo a notifiación toast o similar
   };
 
   const layerImport = () => {
-    const json = prompt("JSON import layer: ");
+    const json = prompt("JSON import layer: "); // TODO mejorar input
     if (json !== null) {
       importLayer(json);
     }
