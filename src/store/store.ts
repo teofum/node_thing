@@ -92,6 +92,9 @@ type ProjectActions = {
   setLayerBounds: (x: number, y: number, width: number, height: number) => void;
 
   reorderLayers: (from: number, to: number) => void;
+
+  exportLayer: (i: number) => string;
+  importLayer: (json: string) => void;
 };
 
 function modifyLayer(
@@ -132,7 +135,7 @@ function modifyNode(
   ];
 }
 
-export const useStore = create<Project & ProjectActions>((set) => ({
+export const useStore = create<Project & ProjectActions>((set, get) => ({
   /*
    * State
    */
@@ -308,4 +311,12 @@ export const useStore = create<Project & ProjectActions>((set) => ({
         currentLayer: newCurrent,
       };
     }),
+
+  exportLayer: (i) => {
+    const layers = get().layers;
+    const layer = layers[i];
+    return JSON.stringify(layer, null, 2);
+  },
+
+  importLayer: (json) => {},
 }));

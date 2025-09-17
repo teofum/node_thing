@@ -22,6 +22,7 @@ export function MenuLayers() {
   const layers = useStore((s) => s.layers);
   const currentLayer = useStore((s) => s.currentLayer);
   const reorderLayers = useStore((s) => s.reorderLayers);
+  const exportLayer = useStore((s) => s.exportLayer);
 
   const addLayerButton = () => {
     addLayer();
@@ -35,6 +36,16 @@ export function MenuLayers() {
 
     reorderLayers(result.source.index, result.destination.index);
   };
+
+  const layerExport = () => {
+    const exportJSON = exportLayer(currentLayer);
+    navigator.clipboard.writeText(exportJSON);
+    alert("Layer copied to clipboard!"); // TODO esto tal vez cambiarlo a notifiación toast o similar
+  };
+
+  // const layerImport = () = {
+
+  // }
 
   return (
     <div className="border-t border-white/15 flex flex-col min-h-0 overflow-auto">
@@ -115,7 +126,7 @@ export function MenuLayers() {
         </Button>
       </div>
       <div className="px-3 py-1 flex flex-col">
-        <Button variant="outline">
+        <Button variant="outline" onClick={layerExport}>
           <LuSquareArrowOutUpRight />
           Export Layer
         </Button>
