@@ -30,22 +30,14 @@ export default async function Home() {
       {/* header */}
       <div className="flex items-center px-2 pl-4 pt-3 gap-4">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
+
         <Menubar className="mr-auto">
           <FileMenu />
           <LayerMenu />
         </Menubar>
+
         <AuthButton />
       </div>
-
-      {/* barra de herramientas */}
-      {/*<div className="p-4">
-        <button className="bg-stone-800 px-2 py-1 rounded hover:bg-blue-700">
-          Import
-        </button>
-        <button className="bg-stone-800 px-2 py-1 rounded hover:bg-blue-700">
-          Export
-        </button>
-      </div>*/}
 
       {/* Main panel */}
       <main className="flex flex-row min-h-0 max-w-full select-none p-2">
