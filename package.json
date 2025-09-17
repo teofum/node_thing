@@ -20,6 +20,7 @@
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
     "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-menubar": "^1.1.16",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",

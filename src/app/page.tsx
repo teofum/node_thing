@@ -4,6 +4,9 @@ import { Workspace } from "./components/workspace";
 import { AuthButton } from "./auth/components/auth-button";
 import { createClient } from "@/lib/supabase/server";
 import { Renderer } from "./components/renderer";
+import { Menubar } from "@/ui/menu-bar";
+import { FileMenu } from "./components/menu/file";
+import { LayerMenu } from "./components/menu/layer";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -25,8 +28,12 @@ export default async function Home() {
   return (
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}
-      <div className="flex justify-between items-center px-2 pl-4 pt-3">
+      <div className="flex items-center px-2 pl-4 pt-3 gap-4">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
+        <Menubar className="mr-auto">
+          <FileMenu />
+          <LayerMenu />
+        </Menubar>
         <AuthButton />
       </div>
 
