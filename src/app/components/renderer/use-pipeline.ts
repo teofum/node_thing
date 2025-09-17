@@ -1,10 +1,17 @@
 import { useMemo, useRef } from "react";
 
 import { Layer, useStore } from "@/store/store";
-import { preparePipeline } from "./renderer";
+import { PreparedPipeline, preparePipeline } from "./renderer";
 import { buildRenderPipeline, RenderPipeline } from "./pipeline";
-import { compareLayers } from "./compare-layers";
+import { compareLayerDims, compareLayers } from "./compare-layers";
 import { enumerate } from "@/utils/enumerate";
+
+function compareSize(
+  a: { width: number; height: number },
+  b: { width: number; height: number },
+) {
+  return a.width !== b.width || a.height !== b.height;
+}
 
 export function usePipeline(
   device: GPUDevice | null,
@@ -17,64 +24,93 @@ export function usePipeline(
    * Pipeline descriptor and layer cache
    */
   const descCache = useRef<(RenderPipeline | null)[] | null>(null);
+  const pipelineCache = useRef<(PreparedPipeline | null)[] | null>(null);
   const layersCache = useRef<Layer[] | null>(null);
+  const canvasDimsCache = useRef<typeof canvas | null>(null);
 
   /*
    * Rebuild render pipeline when node graph state changes
    */
-  const desc = useMemo(() => {
+  const pipeline = useMemo(() => {
     if (!ctx || !device) {
       descCache.current = null;
+      pipelineCache.current = null;
+      layersCache.current = null;
       return null;
     }
 
-    if (!layersCache.current) layersCache.current = [];
     if (!descCache.current) descCache.current = [];
+    if (!pipelineCache.current) pipelineCache.current = [];
+    if (!layersCache.current) layersCache.current = [];
 
-    let rebuiltAnyLayers = false;
+    /*
+     * Check what needs rebuilding
+     */
+    const needsRebuild = layers.map((layer, i) => {
+      const cachedLayers = layersCache.current!;
+
+      // Pipeline descriptor must me rebuilt from node graph if...
+      const desc =
+        !cachedLayers[i] || //                              layer is not cached, or
+        compareLayers(layer, cachedLayers[i]); //           layer has changed
+
+      // GPU pipeline object must be rebuilt from descriptor if...
+      const pipeline =
+        desc || //                                          descriptor has changed, or
+        !pipelineCache.current?.[i] || //                   pipeline is not cached, or
+        !canvasDimsCache.current || //                      canvas size is not cached, or
+        compareSize(canvasDimsCache.current, canvas); //    canvas size has changed
+
+      cachedLayers[i] = layers[i];
+
+      return { desc, pipeline };
+    });
+
+    canvasDimsCache.current = canvas;
+
+    /*
+     * Rebuild whatever needs to be rebuilt
+     */
     for (const [layer, i] of enumerate(layers)) {
-      const shouldRebuildLayer =
-        !layersCache.current[i] || compareLayers(layer, layersCache.current[i]);
-
-      layersCache.current[i] = layers[i];
-
-      if (shouldRebuildLayer) {
+      // Rebuild layer pipeline descriptor
+      if (needsRebuild[i].desc) {
         console.log(`Rebuilding render graph [layer ${i}]...`);
-        rebuiltAnyLayers = true;
 
         descCache.current[i] = buildRenderPipeline(layer);
         if (!descCache.current[i] || descCache.current[i].outputBuffer < 0)
           descCache.current[i] = null;
       }
+
+      // Rebuild layer pipeline objects
+      if (needsRebuild[i].pipeline) {
+        if (descCache.current[i]) {
+          console.log(`Rebuilding pipeline [layer ${i}]...`);
+
+          pipelineCache.current[i] = preparePipeline(
+            device,
+            descCache.current[i],
+            {
+              globalWidth: canvas.width,
+              globalHeight: canvas.height,
+              ...layers[i].size,
+              ...layers[i].position,
+            },
+          );
+        } else {
+          pipelineCache.current[i] = null;
+        }
+      }
     }
 
-    // Rebuild the array as a different object, so react knows it's changed
-    if (rebuiltAnyLayers) descCache.current = [...descCache.current];
+    /*
+     * Rebuild pipeline cache array as needed so react detects changes
+     */
+    if (needsRebuild.some((nr) => nr.pipeline)) {
+      pipelineCache.current = [...pipelineCache.current];
+    }
 
-    return descCache.current;
-  }, [ctx, device, layers]);
-
-  /*
-   * Rebuild WebGPU pipeline on render pipeline change, or when the
-   * canvas is resized.
-   * TODO: this recompiles the shaders, which is not necessary
-   */
-  const pipeline = useMemo(() => {
-    if (!ctx || !device || !desc) return null;
-
-    // TODO rebuild per layer...
-    console.log("Rebuilding pipeline...");
-    return desc.map((layerDesc, i) =>
-      layerDesc
-        ? preparePipeline(device, layerDesc, {
-            globalWidth: canvas.width,
-            globalHeight: canvas.height,
-            ...layers[i].size,
-            ...layers[i].position,
-          })
-        : null,
-    );
-  }, [ctx, device, layers, desc, canvas]);
+    return pipelineCache.current;
+  }, [ctx, device, layers, canvas]);
 
   return pipeline;
 }

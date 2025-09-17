@@ -328,7 +328,7 @@ export function preparePipeline(
   };
 }
 
-type PreparedPipeline = ReturnType<typeof preparePipeline>;
+export type PreparedPipeline = ReturnType<typeof preparePipeline>;
 
 /*
  * Executes a render pipeline, given the lists of PSOs and binding groups
