@@ -6,6 +6,8 @@ import { NodeType } from "@/schemas/node.schema";
 import { HandleWithMock } from "./mock-handle";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 
+import * as Slider from "@radix-ui/react-slider";
+
 type NodeInputProps = NodeProps<ShaderNodeType> & {
   input: [string, NodeType["inputs"][string]];
   i: number;
@@ -44,17 +46,24 @@ export function NodeInput({
 
       {renderDefaultValueInput ? (
         input.type === "number" ? (
-          <input
-            type="range"
-            className="nodrag"
+          <Slider.Root
+            className="relative flex h-5 w-[60px] items-center"
             min={0}
             max={1}
             step={0.01}
-            defaultValue={data.defaultValues[key].toString()}
-            onChange={(ev) =>
-              updateDefaultValue(id, key, Number(ev.target.value))
+            defaultValue={[data.defaultValues[key] as number]}
+            onValueChange={(values) =>
+              updateDefaultValue(id, key, Number(values))
             }
-          />
+          >
+            <Slider.Track className="relative h-[3px] grow rounded-full bg-black">
+              <Slider.Range className="absolute h-full rounded-full bg-white" />
+            </Slider.Track>
+            <Slider.Thumb
+              className="block size-3 rounded-[10px] bg-white shadow-[0_0_5px] shadow-white/75 hover:bg-neutral-300 focus:shadow-[0_0_0_2px] focus:shadow-white/25 focus:outline-none"
+              aria-label="Volume"
+            />
+          </Slider.Root>
         ) : (
           <input
             type="color"
