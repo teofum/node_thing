@@ -25,6 +25,9 @@ export type ShaderNode = Node<NodeData>;
 export type Layer = {
   nodes: ShaderNode[];
   edges: Edge[];
+
+  position: { x: number; y: number };
+  size: { width: number; height: number };
 };
 
 export type ProjectProperties = {
@@ -52,7 +55,10 @@ const initialNodes: ShaderNode[] = [
     deletable: false,
   },
 ];
+
 const initialEdges: Edge[] = [];
+
+const initialSize = { width: 1920, height: 1080 };
 
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
@@ -80,6 +86,7 @@ type ProjectActions = {
   setCanvasSize: (width: number, height: number) => void;
 
   addLayer: () => void;
+  setLayerBounds: (x: number, y: number, width: number, height: number) => void;
 
   reorderLayers: (from: number, to: number) => void;
 };
@@ -126,9 +133,16 @@ export const useStore = create<Project & ProjectActions>((set) => ({
   /*
    * State
    */
-  layers: [{ nodes: [...initialNodes], edges: [...initialEdges] }],
+  layers: [
+    {
+      nodes: [...initialNodes],
+      edges: [...initialEdges],
+      position: { x: 0, y: 0 },
+      size: initialSize,
+    },
+  ],
   currentLayer: 0,
-  properties: { canvas: { width: 1920, height: 1080 }, view: { zoom: 1 } },
+  properties: { canvas: initialSize, view: { zoom: 1 } },
 
   /*
    * Actions
@@ -251,8 +265,19 @@ export const useStore = create<Project & ProjectActions>((set) => ({
         {
           nodes: [...initialNodes],
           edges: [...initialEdges],
+          position: { x: 0, y: 0 },
+          size: initialSize,
         },
       ],
+    })),
+
+  setLayerBounds: (x, y, width, height) =>
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        ...layer,
+        position: { x, y },
+        size: { width, height },
+      })),
     })),
 
   reorderLayers: (from, to) =>

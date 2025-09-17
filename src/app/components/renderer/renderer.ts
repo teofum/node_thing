@@ -5,6 +5,7 @@ import { createUniform } from "./uniforms";
 
 import outputShader from "@/shaders/output.wgsl";
 import inputShader from "@/shaders/input.wgsl";
+import layerShader from "@/shaders/layer-under.wgsl";
 
 const THREADS_PER_WORKGROUP = 16;
 
@@ -14,8 +15,12 @@ const N_CHANNELS = {
 } satisfies Record<HandleType, number>;
 
 export type RenderOptions = {
+  x: number;
+  y: number;
   width: number;
   height: number;
+  globalWidth: number;
+  globalHeight: number;
 };
 
 type DummyBuffer = {
@@ -175,8 +180,12 @@ function createInputStage(
   device: GPUDevice,
   uniformBindGroupLayout: GPUBindGroupLayout,
 ) {
-  const inputStageShader = device.createShaderModule({
+  const inputStageImageShader = device.createShaderModule({
     code: inputShader,
+  });
+
+  const inputStageLayerShader = device.createShaderModule({
+    code: layerShader,
   });
 
   const inputStageLayout = device.createBindGroupLayout({
@@ -208,15 +217,26 @@ function createInputStage(
     ],
   });
 
-  return device.createComputePipeline({
-    compute: {
-      module: inputStageShader,
-      entryPoint: "main",
-    },
-    layout: device.createPipelineLayout({
-      bindGroupLayouts: [inputStageLayout, uniformBindGroupLayout],
+  return {
+    __input_image: device.createComputePipeline({
+      compute: {
+        module: inputStageImageShader,
+        entryPoint: "main",
+      },
+      layout: device.createPipelineLayout({
+        bindGroupLayouts: [inputStageLayout, uniformBindGroupLayout],
+      }),
     }),
-  });
+    __input_layer: device.createComputePipeline({
+      compute: {
+        module: inputStageLayerShader,
+        entryPoint: "main",
+      },
+      layout: device.createPipelineLayout({
+        bindGroupLayouts: [inputStageLayout, uniformBindGroupLayout],
+      }),
+    }),
+  };
 }
 
 function createOuputStage(
@@ -363,6 +383,10 @@ export function render(
   const uniformValues = Uint32Array.from([
     opts.width,
     opts.height,
+    opts.x,
+    opts.y,
+    opts.globalWidth,
+    opts.globalHeight,
     desc.outputAlphaBuffer === -1 ? 0 : 1,
   ]);
   device.queue.writeBuffer(
@@ -391,17 +415,29 @@ export function render(
   const enc = device.createCommandEncoder();
 
   for (const input of desc.inputs) {
-    const textureEntry = textures.find(([name]) => name === input.image);
-    if (!textureEntry) continue;
+    let texture: GPUTexture;
+    switch (input.type) {
+      case "__input_image": {
+        const textureEntry = textures.find(([name]) => name === input.image);
+        if (!textureEntry) continue;
 
-    const [, texture] = textureEntry;
+        [, texture] = textureEntry;
+        break;
+      }
+      case "__input_layer": {
+        texture = target;
+        break;
+      }
+      default:
+        continue;
+    }
 
     const bindGroup = device.createBindGroup({
-      layout: inputStage.getBindGroupLayout(0),
+      layout: inputStage[input.type].getBindGroupLayout(0),
       entries: [
         {
           binding: 0,
-          resource: { buffer: buffers[input.outputBindings.image] },
+          resource: { buffer: buffers[input.outputBindings.color] },
         },
         {
           binding: 1,
@@ -419,7 +455,7 @@ export function render(
     });
 
     const pass = enc.beginComputePass();
-    pass.setPipeline(inputStage);
+    pass.setPipeline(inputStage[input.type]);
     pass.setBindGroup(0, bindGroup);
     pass.setBindGroup(1, uniform.bindGroup);
     pass.dispatchWorkgroups(

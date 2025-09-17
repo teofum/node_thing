@@ -51,6 +51,7 @@ export function usePipeline(
     // Rebuild the array as a different object, so react knows it's changed
     if (rebuiltAnyLayers) descCache.current = [...descCache.current];
 
+    console.log(descCache.current);
     return descCache.current;
   }, [ctx, device, layers]);
 
@@ -64,10 +65,17 @@ export function usePipeline(
 
     // TODO rebuild per layer...
     console.log("Rebuilding pipeline...");
-    return desc.map((layer) =>
-      layer ? preparePipeline(device, layer, canvas) : null,
+    return desc.map((layerDesc, i) =>
+      layerDesc
+        ? preparePipeline(device, layerDesc, {
+            globalWidth: canvas.width,
+            globalHeight: canvas.height,
+            ...layers[i].size,
+            ...layers[i].position,
+          })
+        : null,
     );
-  }, [ctx, device, desc, canvas]);
+  }, [ctx, device, layers, desc, canvas]);
 
   return pipeline;
 }
