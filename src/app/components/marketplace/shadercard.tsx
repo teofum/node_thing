@@ -23,7 +23,9 @@ export default function ShaderCard({
     <div className="glass glass-border p-6 rounded-2xl relative">
       <h3 className="text-xl font-semibold text-white mb-1">{title}</h3>
       {username && (
-        <p className="text-sm text-neutral-400 mb-4">by {username}</p>
+        <p className="text-sm text-neutral-400 mb-4">
+          by <span className="font-bold">{username}</span>
+        </p>
       )}
       <img
         src="https://redthread.uoregon.edu/files/original/affd16fd5264cab9197da4cd1a996f820e601ee4.png"
