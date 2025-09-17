@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import * as MB from "@radix-ui/react-menubar";
 import cn from "classnames";
+import { LuCheck } from "react-icons/lu";
 
 type MenubarProps = MB.MenubarProps;
 
@@ -60,24 +61,88 @@ Menu.displayName = "Menu";
 
 export const MenuGroup = MB.Group;
 
-type MenuItemProps = MB.MenubarItemProps;
+const menuItemClassNames = [
+  "min-w-40 select-none outline-none flex flex-row gap-2",
+  "text-sm/4 rounded-lg cursor-pointer py-1.5 px-3 pl-1",
+  "transition-colors duration-150 hover:bg-current/10",
+];
+
+type MenuItemProps = MB.MenubarItemProps & { icon?: React.ReactNode };
 
 export const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
-  ({ className, children, ...props }, forwardedRef) => {
+  ({ className, children, icon, ...props }, forwardedRef) => {
     return (
       <MB.Item
         ref={forwardedRef}
-        className={cn(
-          "min-w-40 select-none outline-none",
-          "text-sm/4 rounded-lg cursor-pointer py-1.5 px-3",
-          "transition-colors duration-150 hover:bg-current/10",
-          className,
-        )}
+        className={cn(...menuItemClassNames, className)}
         {...props}
       >
+        <div className="w-4 h-4 min-w-4 max-w-4 p-px">{icon}</div>
         {children}
       </MB.Item>
     );
   },
 );
 MenuItem.displayName = "MenuItem";
+
+type MenuCheckboxItemProps = MB.MenubarCheckboxItemProps;
+
+export const MenuCheckboxItem = forwardRef<
+  HTMLDivElement,
+  MenuCheckboxItemProps
+>(({ className, children, ...props }, forwardedRef) => {
+  return (
+    <MB.CheckboxItem
+      ref={forwardedRef}
+      className={cn(...menuItemClassNames, className)}
+      {...props}
+    >
+      <div className="w-4 h-4 min-w-4 max-w-4">
+        <MB.ItemIndicator>
+          <LuCheck className="text-base" />
+        </MB.ItemIndicator>
+      </div>
+      {children}
+    </MB.CheckboxItem>
+  );
+});
+MenuCheckboxItem.displayName = "MenuCheckboxItem";
+
+export const MenuRadioGroup = MB.RadioGroup;
+
+type MenuRadioItemProps = MB.MenubarRadioItemProps;
+
+export const MenuRadioItem = forwardRef<HTMLDivElement, MenuRadioItemProps>(
+  ({ className, children, ...props }, forwardedRef) => {
+    return (
+      <MB.RadioItem
+        ref={forwardedRef}
+        className={cn(...menuItemClassNames, className)}
+        {...props}
+      >
+        <div className="w-4 h-4 min-w-4 max-w-4">
+          <MB.ItemIndicator>
+            <LuCheck className="text-base" />
+          </MB.ItemIndicator>
+        </div>
+        {children}
+      </MB.RadioItem>
+    );
+  },
+);
+MenuRadioItem.displayName = "MenuRadioItem";
+
+type MenuSeparatorProps = MB.MenubarSeparatorProps;
+
+export const MenuSeparator = forwardRef<HTMLDivElement, MenuSeparatorProps>(
+  ({ className, ...props }, forwardedRef) => {
+    return (
+      <MB.Separator
+        ref={forwardedRef}
+        className={cn("border-b border-white/15 m-1", className)}
+        {...props}
+      />
+    );
+  },
+);
+MenuSeparator.displayName = "MenuSeparator";
