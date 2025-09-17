@@ -55,7 +55,7 @@ export const SliderInput = React.forwardRef<HTMLInputElement, SliderInputProps>(
           ref={forwardedRef}
           variant="outline"
           size="sm"
-          className="min-w-10 w-0 !text-xs"
+          className="min-w-10 w-0 !text-xs nodrag"
           value={internalValue}
           onChange={(ev) => {
             setInternalValue(ev.target.value);
