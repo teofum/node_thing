@@ -1,8 +1,8 @@
 @group(0) @binding(0)
-var<storage, read_write> input: array<vec4f>;
+var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
-var<storage, read_write> output: array<vec4f>;
+var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
     width: u32,
@@ -22,7 +22,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
     let index = id.x + id.y * u.width;
 
-    var out: vec4<f32> = vec4<f32>(0.0);
+    var out: vec3<f32> = vec3<f32>(0.0);
 
     var intensity: f32 = 0.0;
     const sigma = 8.0;
@@ -44,7 +44,6 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
 
     out /= intensity;
-    out.w = 1.0;
 
     output[index] = out;
 }
