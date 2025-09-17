@@ -21,9 +21,16 @@ import { NODE_TYPES } from "@/utils/node-type";
 
 export type ShaderNode = Node<NodeData>;
 
+let layerId = 0;
 export type Layer = {
   nodes: ShaderNode[];
   edges: Edge[];
+
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+
+  id: string;
+  name: string;
 };
 
 export type ProjectProperties = {
@@ -39,7 +46,6 @@ export type ProjectProperties = {
 export type Project = {
   layers: Layer[];
   currentLayer: number;
-  layersDim: number;
   properties: ProjectProperties;
 };
 
@@ -52,7 +58,10 @@ const initialNodes: ShaderNode[] = [
     deletable: false,
   },
 ];
+
 const initialEdges: Edge[] = [];
+
+const initialSize = { width: 1920, height: 1080 };
 
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
@@ -80,6 +89,15 @@ type ProjectActions = {
   setCanvasSize: (width: number, height: number) => void;
 
   addLayer: () => void;
+  setLayerBounds: (x: number, y: number, width: number, height: number) => void;
+
+  reorderLayers: (from: number, to: number) => void;
+
+  exportLayer: (i: number) => string;
+  importLayer: (json: string) => void;
+
+  exportProject: () => string;
+  importProject: (json: string) => void;
 };
 
 function modifyLayer(
@@ -120,14 +138,22 @@ function modifyNode(
   ];
 }
 
-export const useStore = create<Project & ProjectActions>((set) => ({
+export const useStore = create<Project & ProjectActions>((set, get) => ({
   /*
    * State
    */
-  layers: [{ nodes: [...initialNodes], edges: [...initialEdges] }],
-  layersDim: 1,
+  layers: [
+    {
+      nodes: [...initialNodes],
+      edges: [...initialEdges],
+      position: { x: 0, y: 0 },
+      size: initialSize,
+      id: `layer_${layerId++}`,
+      name: "Background",
+    },
+  ],
   currentLayer: 0,
-  properties: { canvas: { width: 1920, height: 1080 }, view: { zoom: 1 } },
+  properties: { canvas: initialSize, view: { zoom: 1 } },
 
   /*
    * Actions
@@ -244,14 +270,84 @@ export const useStore = create<Project & ProjectActions>((set) => ({
     })),
 
   addLayer: () =>
-    set(({ layers, layersDim }) => ({
+    set(({ layers }) => ({
       layers: [
         ...layers,
         {
           nodes: [...initialNodes],
           edges: [...initialEdges],
+          position: { x: 0, y: 0 },
+          size: initialSize,
+          id: `layer_${layerId++}`,
+          name: `Layer ${layers.length}`,
         },
       ],
-      layersDim: layersDim + 1,
     })),
+
+  setLayerBounds: (x, y, width, height) =>
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        ...layer,
+        position: { x, y },
+        size: { width, height },
+      })),
+    })),
+
+  reorderLayers: (from, to) =>
+    set(({ layers, currentLayer }) => {
+      const newLayers = [...layers];
+      const [moved] = newLayers.splice(from, 1);
+      newLayers.splice(to, 0, moved);
+
+      let newCurrent = currentLayer;
+
+      if (currentLayer === from) {
+        newCurrent = to;
+      } else if (from < currentLayer && to >= currentLayer) {
+        newCurrent = currentLayer - 1;
+      } else if (from > currentLayer && to <= currentLayer) {
+        newCurrent = currentLayer + 1;
+      }
+
+      return {
+        layers: newLayers,
+        currentLayer: newCurrent,
+      };
+    }),
+
+  exportLayer: (i) => {
+    const layers = get().layers;
+    const layer = layers[i];
+    return JSON.stringify(layer, null, 2);
+  },
+
+  importLayer: (json) => {
+    set(({ layers }) => {
+      const parsedLayer: Layer = JSON.parse(json);
+
+      // hardcodeo y les concateno 'import-' cuando son importandos, se generaban conflictos con IDs
+      parsedLayer.id = "import-" + parsedLayer.id;
+
+      return {
+        layers: [...layers, parsedLayer],
+      };
+    });
+  },
+
+  exportProject: () => {
+    const project = get();
+    return JSON.stringify(project, null, 2);
+  },
+
+  importProject: (json) => {
+    set(({ layers, currentLayer, properties }) => {
+      const parsedProject: Project = JSON.parse(json);
+
+      return {
+        layers: parsedProject.layers,
+        currentLayer: parsedProject.currentLayer,
+        properties: parsedProject.properties,
+      };
+    });
+  },
 }));

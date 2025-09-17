@@ -22,7 +22,7 @@ export function MenuAssets() {
 
   const onDragStart = (event: React.DragEvent, name: string) => {
     event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("type", "__input");
+    event.dataTransfer.setData("type", "__input_image");
     event.dataTransfer.setData("params.image", name);
   };
 
