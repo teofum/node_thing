@@ -4,7 +4,13 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
-import { LuEllipsisVertical, LuGripVertical, LuPlus } from "react-icons/lu";
+import {
+  LuEllipsisVertical,
+  LuGripVertical,
+  LuPlus,
+  LuSquareArrowOutDownLeft,
+  LuSquareArrowOutUpRight,
+} from "react-icons/lu";
 
 import { Button } from "@/ui/button";
 import { useStore } from "@/store/store";
@@ -104,14 +110,14 @@ export function MenuLayers() {
       {/* TODO add onClick export/import */}
       <div className="px-3 py-1 flex flex-col">
         <Button variant="outline">
-          <LuPlus />
-          Export Layer
+          <LuSquareArrowOutDownLeft />
+          Import Layer
         </Button>
       </div>
       <div className="px-3 py-1 flex flex-col">
         <Button variant="outline">
-          <LuPlus />
-          Import Layer
+          <LuSquareArrowOutUpRight />
+          Export Layer
         </Button>
       </div>
     </div>
