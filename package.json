@@ -18,9 +18,11 @@
     ]
   },
   "dependencies": {
-    "@radix-ui/react-select": "^2.2.6",
+    "@hello-pangea/dnd": "^18.0.1",
     "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-toggle": "^1.1.10",
+    "@radix-ui/react-toggle-group": "^1.1.11",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.0",
     "@xyflow/react": "^12.8.4",

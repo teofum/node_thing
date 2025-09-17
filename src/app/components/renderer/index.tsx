@@ -6,6 +6,7 @@ import { Button } from "@/ui/button";
 import { LuMinus, LuPlus } from "react-icons/lu";
 import { useLayoutEffect, useRef } from "react";
 import { Input } from "@/ui/input";
+import { LayerHandle } from "./layer-handle";
 
 const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
 const ZOOM_SPEED = 0.01;
@@ -142,7 +143,10 @@ export function Renderer() {
         ref={viewport}
         className="overflow-auto grow grid place-items-center p-4"
       >
-        <Canvas />
+        <div className="relative">
+          <Canvas />
+          <LayerHandle />
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { NodeProps } from "@xyflow/react";
 
 import { ShaderNode as ShaderNodeType, useStore } from "@/store/store";
@@ -15,6 +16,10 @@ export function NodeParameter({ id, data, name, param }: ParameterProps) {
   const images = useAssetStore((s) => s.images);
   const setParameter = useStore((s) => s.updateNodeParameter);
 
+  const imageUrls = useMemo(() => {
+    return Object.values(images).map(imageURLFromAsset);
+  }, [images]);
+
   if (param.type === "select") return "not implemented yet";
 
   const image = data.parameters[name]?.value ?? "none";
@@ -30,7 +35,7 @@ export function NodeParameter({ id, data, name, param }: ParameterProps) {
       value={image}
       onValueChange={setImage}
     >
-      {Object.entries(images).map(([name, asset]) => (
+      {Object.entries(images).map(([name], i) => (
         <SelectItem key={name} value={name} className="!p-1">
           <div className="flex flex-row items-center gap-2">
             {/* We don't care about nextjs image optimization here, it's a local data url */}
@@ -38,7 +43,7 @@ export function NodeParameter({ id, data, name, param }: ParameterProps) {
             <img
               alt=""
               className="aspect-square object-cover w-8 min-w-8 rounded"
-              src={imageURLFromAsset(asset)}
+              src={imageUrls[i]}
             />
             <div>{name}</div>
           </div>

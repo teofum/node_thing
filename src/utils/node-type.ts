@@ -10,18 +10,18 @@ import mixShader from "@/shaders/mix.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 
 export const NODE_TYPES = {
-  __input: {
+  __input_image: {
     name: "Image",
     category: "Input",
     shader: "",
     inputs: {},
     outputs: {
-      image: {
+      color: {
         name: "Color",
         type: "color",
       },
       alpha: {
-        name: "Aplha",
+        name: "Alpha",
         type: "number",
       },
     },
@@ -31,6 +31,23 @@ export const NODE_TYPES = {
         type: "image",
       },
     },
+  },
+  __input_layer: {
+    name: "Underlying layer",
+    category: "Input",
+    shader: "",
+    inputs: {},
+    outputs: {
+      color: {
+        name: "Color",
+        type: "color",
+      },
+      alpha: {
+        name: "Alpha",
+        type: "number",
+      },
+    },
+    parameters: {},
   },
   __output: {
     name: "Output",
