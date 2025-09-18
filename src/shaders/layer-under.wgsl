@@ -1,11 +1,14 @@
 @group(0) @binding(0)
-var<storage, read> input: array<vec3f>;
+var<storage, read_write> output: array<vec3f>;
 
 @group(0) @binding(1)
-var<storage, read> alpha: array<f32>;
+var<storage, read_write> alpha_out: array<f32>;
 
 @group(0) @binding(2)
-var tex: texture_storage_2d<rgba8unorm, write>;
+var tex: texture_2d<f32>;
+
+@group(0) @binding(3)
+var s: sampler;
 
 struct Uniforms {
     width: u32,
@@ -14,7 +17,6 @@ struct Uniforms {
     y: u32,
     global_width: u32,
     global_height: u32,
-    has_alpha: u32,
 };
 
 @group(1) @binding(0)
@@ -30,13 +32,13 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
-    let offset = vec2i(vec2u(u.x, u.y));
+    let tex_coord = vec2f(
+        f32(id.x + u.x) / f32(u.global_width),
+        f32(id.y + u.y) / f32(u.global_height),
+    );
 
-    let color = input[index];
-    if u.has_alpha != 0u {
-        textureStore(tex, vec2i(id.xy) + offset, vec4f(color * alpha[index], alpha[index]));
-    } else {
-        textureStore(tex, vec2i(id.xy) + offset, vec4f(color, 1.0));
-    }
+    let color = textureSampleLevel(tex, s, tex_coord, 0.0);
+
+    output[index] = color.rgb;
+    alpha_out[index] = color.a;
 }
-

@@ -45,7 +45,7 @@ export function Viewport() {
       });
 
       const type = event.dataTransfer.getData("type") as NodeData["type"];
-      const currId = `${type === "__input" || type === "__output" ? `${type}_` : ""}${getId()}`;
+      const currId = `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${getId()}`;
 
       const defaultValues: NodeData["defaultValues"] = {};
       for (const [key, input] of Object.entries(NODE_TYPES[type].inputs)) {

@@ -39,3 +39,10 @@ export function compareLayers(current: Layer, last: Layer) {
 
   return false; // Nothing significant changed
 }
+
+export function compareLayerDims(current: Layer, last: Layer) {
+  return (
+    JSON.stringify({ ...current.size, ...current.position }) !==
+    JSON.stringify({ ...last.size, ...last.position })
+  );
+}
