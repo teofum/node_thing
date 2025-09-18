@@ -30,7 +30,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let w = i32(u.width);
     let h = i32(u.height);
 
-    // Apply sharpen kernel
+    // Apply sharpen kernel // para expandir podria hacer un kernel generico y loop
     let center = get_index(x, y, w, h) * 5.0;
     let up     = get_index(x, y - 1, w, h) * -1.0;
     let down   = get_index(x, y + 1, w, h) * -1.0;
