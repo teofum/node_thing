@@ -9,10 +9,21 @@ export function FileMenu() {
   const exportProject = useStore((s) => s.exportProject);
 
   const projectImport = () => {
-    const json = prompt("project JSON: "); // TODO mejorar input
-    if (json !== null) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+
+    input.onchange = async (e: Event) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file === undefined) {
+        return;
+      }
+
+      const json = await file.text();
       importProject(json);
-    }
+    };
+
+    input.click();
   };
 
   const projectExport = () => {
