@@ -2,10 +2,11 @@
 
 import { useStore } from "@/store/store";
 import { Canvas } from "./canvas";
-import { Button } from "@/ui/button";
-import { LuMinus, LuPlus } from "react-icons/lu";
-import { useLayoutEffect, useRef } from "react";
+import { Button, ToggleButton } from "@/ui/button";
+import { LuCrop, LuMinus, LuPlus } from "react-icons/lu";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Input } from "@/ui/input";
+import { LayerHandle } from "./layer-handle";
 
 const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
 const ZOOM_SPEED = 0.01;
@@ -14,6 +15,7 @@ export function Renderer() {
   const { canvas, view } = useStore((s) => s.properties);
   const setZoom = useStore((s) => s.setZoom);
   const setCanvasSize = useStore((s) => s.setCanvasSize);
+  const [showLayerHandle, setShowLayerHandle] = useState(false);
 
   const viewport = useRef<HTMLDivElement | null>(null);
 
@@ -113,7 +115,7 @@ export function Renderer() {
           </Button>
         </div>
 
-        <div className="flex fle-row items-center gap-1 ml-auto">
+        <div className="flex flex-row items-center gap-1 ml-auto">
           <div className="font-medium text-sm">Canvas size</div>
           <Input
             variant="outline"
@@ -137,12 +139,24 @@ export function Renderer() {
             }}
           />
         </div>
+
+        <ToggleButton
+          icon
+          variant="outline"
+          pressed={showLayerHandle}
+          onPressedChange={setShowLayerHandle}
+        >
+          <LuCrop />
+        </ToggleButton>
       </div>
       <div
         ref={viewport}
         className="overflow-auto grow grid place-items-center p-4"
       >
-        <Canvas />
+        <div className="relative">
+          <Canvas />
+          {showLayerHandle ? <LayerHandle /> : null}
+        </div>
       </div>
     </div>
   );

@@ -10,7 +10,8 @@ import {
 } from "@xyflow/react";
 import { create } from "zustand";
 
-import { NodeData } from "@/schemas/node.schema";
+import { NodeData, NodeType } from "@/schemas/node.schema";
+import { NODE_TYPES } from "@/utils/node-type";
 
 // !! cuidado: Node que se guarda es de RF
 // tiene campos id: y type: pero no son los de nuestro node.schema.ts
@@ -20,9 +21,16 @@ import { NodeData } from "@/schemas/node.schema";
 
 export type ShaderNode = Node<NodeData>;
 
+let layerId = 0;
 export type Layer = {
   nodes: ShaderNode[];
   edges: Edge[];
+
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+
+  id: string;
+  name: string;
 };
 
 export type ProjectProperties = {
@@ -45,12 +53,15 @@ const initialNodes: ShaderNode[] = [
   {
     id: "__output",
     position: { x: 0, y: 0 },
-    data: { type: "__output" },
+    data: { type: "__output", defaultValues: {}, parameters: {} },
     type: "RenderShaderNode",
     deletable: false,
   },
 ];
+
 const initialEdges: Edge[] = [];
+
+const initialSize = { width: 1920, height: 1080 };
 
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
@@ -62,8 +73,31 @@ type ProjectActions = {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
 
+  updateNodeDefaultValue: (
+    id: string,
+    input: string,
+    value: number | number[],
+  ) => void;
+
+  updateNodeParameter: (
+    id: string,
+    param: string,
+    value: string | null,
+  ) => void;
+
   setZoom: (zoom: number) => void;
   setCanvasSize: (width: number, height: number) => void;
+
+  addLayer: () => void;
+  setLayerBounds: (x: number, y: number, width: number, height: number) => void;
+
+  reorderLayers: (from: number, to: number) => void;
+
+  exportLayer: (i: number) => string;
+  importLayer: (json: string) => void;
+
+  exportProject: () => string;
+  importProject: (json: string) => void;
 };
 
 function modifyLayer(
@@ -86,13 +120,40 @@ function modifyLayer(
   ];
 }
 
-export const useStore = create<Project & ProjectActions>((set) => ({
+function modifyNode(
+  nodes: ShaderNode[],
+  id: string,
+  f: (node: ShaderNode) => Partial<ShaderNode>,
+): ShaderNode[] {
+  const node = nodes.find((n) => n.id === id);
+  if (!node) return nodes;
+
+  return [
+    ...nodes.filter((n) => n.id !== id),
+    {
+      ...node,
+      ...f(node),
+      id: node.id,
+    },
+  ];
+}
+
+export const useStore = create<Project & ProjectActions>((set, get) => ({
   /*
    * State
    */
-  layers: [{ nodes: [...initialNodes], edges: [...initialEdges] }],
+  layers: [
+    {
+      nodes: [...initialNodes],
+      edges: [...initialEdges],
+      position: { x: 0, y: 0 },
+      size: initialSize,
+      id: `layer_${layerId++}`,
+      name: "Background",
+    },
+  ],
   currentLayer: 0,
-  properties: { canvas: { width: 1920, height: 1080 }, view: { zoom: 1 } },
+  properties: { canvas: initialSize, view: { zoom: 1 } },
 
   /*
    * Actions
@@ -127,6 +188,22 @@ export const useStore = create<Project & ProjectActions>((set) => ({
     set(({ layers, currentLayer }) => {
       const layer = layers[currentLayer];
 
+      const targetType = layer.nodes.find(
+        (node) => node.id === connection.target,
+      )!.data.type;
+      const sourceType = layer.nodes.find(
+        (node) => node.id === connection.source,
+      )!.data.type;
+
+      const targetHandleType = (
+        NODE_TYPES[targetType].inputs as NodeType["inputs"]
+      )[connection.targetHandle ?? ""].type;
+      const sourceHandleType = (
+        NODE_TYPES[sourceType].outputs as NodeType["outputs"]
+      )[connection.sourceHandle ?? ""].type;
+
+      if (targetHandleType !== sourceHandleType) return {};
+
       const filteredEdges = layer.edges.filter(
         (e) =>
           e.target !== connection.target ||
@@ -138,6 +215,34 @@ export const useStore = create<Project & ProjectActions>((set) => ({
       return {
         layers: modifyLayer(layers, currentLayer, () => ({
           edges: newEdges,
+        })),
+      };
+    }),
+
+  updateNodeDefaultValue: (id, input, value) =>
+    set(({ layers, currentLayer }) => {
+      return {
+        layers: modifyLayer(layers, currentLayer, ({ nodes }) => ({
+          nodes: modifyNode(nodes, id, (node) => ({
+            data: {
+              ...node.data,
+              defaultValues: { ...node.data.defaultValues, [input]: value },
+            },
+          })),
+        })),
+      };
+    }),
+
+  updateNodeParameter: (id, param, value) =>
+    set(({ layers, currentLayer }) => {
+      return {
+        layers: modifyLayer(layers, currentLayer, ({ nodes }) => ({
+          nodes: modifyNode(nodes, id, (node) => ({
+            data: {
+              ...node.data,
+              parameters: { ...node.data.parameters, [param]: { value } },
+            },
+          })),
         })),
       };
     }),
@@ -163,4 +268,86 @@ export const useStore = create<Project & ProjectActions>((set) => ({
         canvas: { ...properties.canvas, width, height },
       },
     })),
+
+  addLayer: () =>
+    set(({ layers }) => ({
+      layers: [
+        ...layers,
+        {
+          nodes: [...initialNodes],
+          edges: [...initialEdges],
+          position: { x: 0, y: 0 },
+          size: initialSize,
+          id: `layer_${layerId++}`,
+          name: `Layer ${layers.length}`,
+        },
+      ],
+    })),
+
+  setLayerBounds: (x, y, width, height) =>
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        ...layer,
+        position: { x, y },
+        size: { width, height },
+      })),
+    })),
+
+  reorderLayers: (from, to) =>
+    set(({ layers, currentLayer }) => {
+      const newLayers = [...layers];
+      const [moved] = newLayers.splice(from, 1);
+      newLayers.splice(to, 0, moved);
+
+      let newCurrent = currentLayer;
+
+      if (currentLayer === from) {
+        newCurrent = to;
+      } else if (from < currentLayer && to >= currentLayer) {
+        newCurrent = currentLayer - 1;
+      } else if (from > currentLayer && to <= currentLayer) {
+        newCurrent = currentLayer + 1;
+      }
+
+      return {
+        layers: newLayers,
+        currentLayer: newCurrent,
+      };
+    }),
+
+  exportLayer: (i) => {
+    const layers = get().layers;
+    const layer = layers[i];
+    return JSON.stringify(layer, null, 2);
+  },
+
+  importLayer: (json) => {
+    set(({ layers }) => {
+      const parsedLayer: Layer = JSON.parse(json);
+
+      // hardcodeo y les concateno 'import-' cuando son importandos, se generaban conflictos con IDs
+      parsedLayer.id = "import-" + parsedLayer.id;
+
+      return {
+        layers: [...layers, parsedLayer],
+      };
+    });
+  },
+
+  exportProject: () => {
+    const project = get();
+    return JSON.stringify(project, null, 2);
+  },
+
+  importProject: (json) => {
+    set(({ layers, currentLayer, properties }) => {
+      const parsedProject: Project = JSON.parse(json);
+
+      return {
+        layers: parsedProject.layers,
+        currentLayer: parsedProject.currentLayer,
+        properties: parsedProject.properties,
+      };
+    });
+  },
 }));

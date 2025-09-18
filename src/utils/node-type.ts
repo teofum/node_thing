@@ -7,27 +7,60 @@ import boxBlurShader from "@/shaders/box-blur.wgsl";
 import gaussianBlurShader3x3 from "@/shaders/gaussian-blur-3x3.wgsl";
 import gaussianBlurShader5x5 from "@/shaders/gaussian-blur-5x5.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
+import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 
 export const NODE_TYPES = {
-  __input: {
-    name: "Input",
+  __input_image: {
+    name: "Image",
+    category: "Input",
     shader: "",
     inputs: {},
     outputs: {
-      out_a: {
-        name: "Input",
+      color: {
+        name: "Color",
         type: "color",
+      },
+      alpha: {
+        name: "Alpha",
+        type: "number",
+      },
+    },
+    parameters: {
+      image: {
+        name: "Image",
+        type: "image",
+      },
+    },
+  },
+  __input_layer: {
+    name: "Underlying layer",
+    category: "Input",
+    shader: "",
+    inputs: {},
+    outputs: {
+      color: {
+        name: "Color",
+        type: "color",
+      },
+      alpha: {
+        name: "Alpha",
+        type: "number",
       },
     },
     parameters: {},
   },
   __output: {
     name: "Output",
+    category: "Special",
     shader: "",
     inputs: {
-      in_a: {
+      output_color: {
         name: "Layer output",
         type: "color",
+      },
+      alpha: {
+        name: "Layer alpha",
+        type: "number",
       },
     },
     outputs: {},
@@ -35,6 +68,7 @@ export const NODE_TYPES = {
   },
   test_uv: {
     name: "Test UV gradient",
+    category: "Generate",
     shader: testUVShader,
     inputs: {},
     outputs: {
@@ -47,6 +81,7 @@ export const NODE_TYPES = {
   },
   test_bw: {
     name: "Test Grayscale",
+    category: "Color",
     shader: testBWShader,
     inputs: {
       in_a: {
@@ -62,8 +97,35 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  split_channels: {
+    name: "Split channels",
+    category: "Utility",
+    shader: splitChannelsShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      red: {
+        name: "R",
+        type: "number",
+      },
+      green: {
+        name: "G",
+        type: "number",
+      },
+      blue: {
+        name: "B",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
   threshold: {
     name: "Threshold B/W",
+    category: "Color",
     shader: thresholdShader,
     inputs: {
       in_a: {
@@ -81,6 +143,7 @@ export const NODE_TYPES = {
   },
   boxBlur: {
     name: "Box Blur",
+    category: "Filters",
     shader: boxBlurShader,
     inputs: {
       in_a: {
@@ -98,6 +161,7 @@ export const NODE_TYPES = {
   },
   gaussBlur3x3: {
     name: "Gaussian blur 3x3",
+    category: "Filters",
     shader: gaussianBlurShader3x3,
     inputs: {
       in_a: {
@@ -115,6 +179,7 @@ export const NODE_TYPES = {
   },
   gaussBlur5x5: {
     name: "Gaussian blur 5x5",
+    category: "Filters",
     shader: gaussianBlurShader5x5,
     inputs: {
       in_a: {
@@ -132,6 +197,7 @@ export const NODE_TYPES = {
   },
   mix: {
     name: "Mix",
+    category: "Blend",
     shader: mixShader,
     inputs: {
       in_a: {
@@ -141,6 +207,10 @@ export const NODE_TYPES = {
       in_b: {
         name: "B",
         type: "color",
+      },
+      factor: {
+        name: "Factor",
+        type: "number",
       },
     },
     outputs: {

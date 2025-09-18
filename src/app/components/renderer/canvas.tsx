@@ -4,28 +4,23 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import cn from "classnames";
 
 import { useStore } from "@/store/store";
-import { preparePipeline, render } from "./renderer";
-import { buildRenderPipeline } from "./pipeline";
+import { render } from "./renderer";
+import { useGPU } from "./use-gpu";
+import { useWebGPUContext } from "./use-webgpu-context";
+import { usePipeline } from "./use-pipeline";
+import { useTextureCache } from "./use-texture-cache";
 
-async function getDevice() {
-  if (!navigator.gpu) throw new Error("webgpu not supported");
-
-  const adapter = await navigator.gpu.requestAdapter();
-  if (!adapter) throw new Error("couldn't get adapter");
-
-  const device = await adapter.requestDevice();
-
-  return device;
-}
+const SAMPLER_DESC: GPUSamplerDescriptor = {
+  magFilter: "linear",
+  minFilter: "linear",
+};
 
 export function Canvas() {
   /*
    * State
    */
-  const layers = useStore((s) => s.layers);
   const { canvas: canvasProperties, view } = useStore((s) => s.properties);
 
-  const [device, setDevice] = useState<GPUDevice | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const frameRequestHandle = useRef<number | null>(null);
 
@@ -33,72 +28,30 @@ export function Canvas() {
    * Handle resize
    */
   useLayoutEffect(() => {
-    canvas?.style.setProperty(
-      "width",
-      `${(canvas.width * view.zoom) / window.devicePixelRatio}px`,
-    );
-    canvas?.style.setProperty(
-      "height",
-      `${(canvas.height * view.zoom) / window.devicePixelRatio}px`,
-    );
-  }, [canvas, view, canvasProperties]); // Autosize on first render
+    const scale = view.zoom / window.devicePixelRatio;
+    canvas?.style.setProperty("width", `${canvas.width * scale}px`);
+    canvas?.style.setProperty("height", `${canvas.height * scale}px`);
+  }, [canvas, view, canvasProperties]);
 
   /*
-   * Initialize GPU device on component init
+   * Get GPU device and configure canvas WebGPU context
    */
-  useEffect(() => {
-    async function initWebGPUDevice() {
-      setDevice(await getDevice());
-    }
-    initWebGPUDevice();
-  }, []);
+  const device = useGPU();
+  const ctx = useWebGPUContext(device, canvas);
 
   /*
-   * Get and configure canvas WebGPU context
+   * Texture cache and sampler
    */
-  const ctx = useMemo(() => {
-    if (!canvas || !device) return null;
-
-    const ctx = canvas.getContext("webgpu");
-    if (!ctx) return null;
-
-    ctx.configure({
-      device,
-      format: "rgba8unorm",
-      usage:
-        GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.STORAGE_BINDING,
-      alphaMode: "premultiplied",
-    });
-
-    return ctx;
-  }, [canvas, device]);
+  const textures = useTextureCache(device);
+  const sampler = useMemo(
+    () => device?.createSampler(SAMPLER_DESC) ?? null,
+    [device],
+  );
 
   /*
-   * Rebuild render pipeline when node graph state changes
+   * Get the WebGPU pipeline
    */
-  const desc = useMemo(() => {
-    if (!canvas || !ctx || !device) return null;
-
-    console.log("Rebuilding render graph...");
-    const desc = buildRenderPipeline(layers[0]);
-    if (desc.outputBuffer < 0) return null;
-
-    return desc;
-    // Trust me, we only care about updating when edges change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvas, ctx, device, layers[0].edges]);
-
-  /*
-   * Rebuild WebGPU pipeline on render pipeline change, or when the
-   * canvas is resized.
-   * TODO: this recompiles the shaders, which is not necessary
-   */
-  const pipeline = useMemo(() => {
-    if (!canvas || !ctx || !device || !desc) return null;
-
-    console.log("Rebuilding pipeline...");
-    return preparePipeline(device, desc, canvasProperties);
-  }, [canvas, ctx, device, desc, canvasProperties]);
+  const pipeline = usePipeline(device, ctx);
 
   /*
    * Render a frame
@@ -108,16 +61,21 @@ export function Canvas() {
     if (frameRequestHandle.current)
       cancelAnimationFrame(frameRequestHandle.current);
 
-    if (!canvas || !ctx || !device || !pipeline) return;
+    if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
     const renderFrame = () => {
       const target = ctx.getCurrentTexture();
-      render(device, pipeline, target);
+
+      for (const layerPipeline of pipeline) {
+        if (layerPipeline)
+          render(device, layerPipeline, target, textures, sampler);
+      }
+
       // requestAnimationFrame(renderFrame);
     };
 
     frameRequestHandle.current = requestAnimationFrame(renderFrame);
-  }, [canvas, ctx, device, pipeline]);
+  }, [canvas, ctx, device, pipeline, textures, sampler]);
 
   return (
     <canvas

@@ -1,19 +1,31 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { LuGitFork, LuPin } from "react-icons/lu";
+import { LuGitFork, LuPin, LuLayers, LuImage } from "react-icons/lu";
 import cn from "classnames";
 
-import { NODE_TYPES } from "@/utils/node-type";
 import useResizeObserver from "@/utils/use-resize-observer";
 import { ToggleButton } from "@/ui/button";
+import { Select, SelectItem } from "@/ui/select";
+import { MenuLayers } from "./menu-layers";
+import { MenuLibrary } from "./menu-library";
+import { MenuAssets } from "./menu-assets";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
   const [height, setHeight] = useState(0);
+  const [menu, setMenu] = useState<"library" | "layers" | "assets">("library");
   const dummySizingDiv = useRef<HTMLDivElement | null>(null);
 
-  const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("type", nodeType);
+  const renderMenu = () => {
+    switch (menu) {
+      case "library":
+        return <MenuLibrary />;
+      case "layers":
+        return <MenuLayers />;
+      case "assets":
+        return <MenuAssets />;
+      default:
+        return null;
+    }
   };
 
   useResizeObserver(dummySizingDiv.current, () => {
@@ -31,15 +43,40 @@ export function Sidebar() {
       />
       <aside
         className={cn(
-          "absolute left-1 top-1 z-10 w-48 flex flex-col rounded-xl group",
-          "glass glass-border transition-[height] duration-300 overflow-hidden",
+          "absolute left-1 top-1 z-10 w-56 flex flex-col rounded-xl group p-px",
+          "transition-[height] duration-300 overflow-hidden",
           { "not-hover:!h-[50px]": !pin },
         )}
         style={{ height }}
       >
-        <div className="p-2 pl-4 flex flex-row gap-2 items-center min-h-12">
-          <LuGitFork />
-          <div className="font-semibold text-sm/4">Library</div>
+        <div className="absolute inset-0 glass glass-border rounded-[inherit]" />
+        <div className="p-0.75 pr-2 flex flex-row gap-2 items-center min-h-12 relative z-10">
+          <Select
+            variant="ghost"
+            value={menu}
+            onValueChange={(value) => setMenu(value as typeof menu)}
+          >
+            <SelectItem value="library">
+              <div className="flex items-center gap-2">
+                <LuGitFork className="text-base" />
+                <div className="font-semibold">Library</div>
+              </div>
+            </SelectItem>
+
+            <SelectItem value="layers">
+              <div className="flex items-center gap-2">
+                <LuLayers className="text-base" />
+                <div className="font-semibold">Layers</div>
+              </div>
+            </SelectItem>
+
+            <SelectItem value="assets">
+              <div className="flex items-center gap-2">
+                <LuImage className="text-base" />
+                <div className="font-semibold">Assets</div>
+              </div>
+            </SelectItem>
+          </Select>
 
           <ToggleButton
             icon
@@ -53,20 +90,8 @@ export function Sidebar() {
             <LuPin />
           </ToggleButton>
         </div>
-        <div className="border-t border-white/15 p-2 flex flex-col gap-3 min-h-0 overflow-auto">
-          {Object.entries(NODE_TYPES)
-            .filter(([key]) => !key.startsWith("__"))
-            .map(([key, type]) => (
-              <div
-                key={key}
-                className="p-3 border border-white/15 bg-black/40 rounded-md cursor-grab"
-                onDragStart={(event) => onDragStart(event, key)}
-                draggable
-              >
-                {type.name}
-              </div>
-            ))}
-        </div>
+
+        <div className="relative z-10">{renderMenu()}</div>
       </aside>
     </>
   );
