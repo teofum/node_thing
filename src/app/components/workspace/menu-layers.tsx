@@ -38,10 +38,17 @@ export function MenuLayers() {
     reorderLayers(result.source.index, result.destination.index);
   };
 
-  const layerExport = () => {
+  const layerExport = async () => {
     const json = exportLayer(currentLayer);
-    navigator.clipboard.writeText(json);
-    alert("Layer copied to clipboard!"); // TODO esto tal vez cambiarlo a notifiación toast o similar
+
+    const handle = await window.showSaveFilePicker({
+      suggestedName: "project.json",
+      types: [{ accept: { "application/json": [".json"] } }],
+    });
+
+    const writable = await handle.createWritable();
+    await writable.write(json);
+    await writable.close();
   };
 
   const layerImport = () => {
@@ -56,7 +63,7 @@ export function MenuLayers() {
       }
 
       const json = await file.text();
-      importLayer(json);
+      importLayer(json); // TODO manejo de errores
     };
 
     input.click();

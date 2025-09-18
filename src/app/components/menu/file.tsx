@@ -20,16 +20,23 @@ export function FileMenu() {
       }
 
       const json = await file.text();
-      importProject(json);
+      importProject(json); // TODO manejo de errores
     };
 
     input.click();
   };
 
-  const projectExport = () => {
+  const projectExport = async () => {
     const json = exportProject();
-    navigator.clipboard.writeText(json);
-    alert("Layer copied to clipboard!"); // TODO esto tal vez cambiarlo a notifiación toast o similar
+
+    const handle = await window.showSaveFilePicker({
+      suggestedName: "project.json",
+      types: [{ accept: { "application/json": [".json"] } }],
+    });
+
+    const writable = await handle.createWritable();
+    await writable.write(json);
+    await writable.close();
   };
 
   return (

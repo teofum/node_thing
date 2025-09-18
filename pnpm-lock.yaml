@@ -32,6 +32,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.57.0
         version: 2.57.2
+      '@types/wicg-file-system-access':
+        specifier: ^2023.10.6
+        version: 2023.10.6
       '@xyflow/react':
         specifier: ^12.8.4
         version: 12.8.4(@types/react@19.1.10)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -987,6 +990,9 @@ packages:
 
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
+
+  '@types/wicg-file-system-access@2023.10.6':
+    resolution: {integrity: sha512-YO/183gNRzZFSdKu+ikkD7ambAj4PhgjFAF2A/Mw/7wroSF6ne8r804RkpZzqrJ/F6DO2/IYlQF/ULOZ/bhKyA==}
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -3952,6 +3958,8 @@ snapshots:
       '@types/node': 20.19.11
 
   '@types/use-sync-external-store@0.0.6': {}
+
+  '@types/wicg-file-system-access@2023.10.6': {}
 
   '@types/ws@8.18.1':
     dependencies:
