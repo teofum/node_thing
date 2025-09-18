@@ -2,11 +2,12 @@ import {
   signInWithGoogleAction,
   signInWithGithubAction,
   signInWithDiscordAction,
-} from "@/lib/auth/actions";
+} from "../actions";
 import { Button } from "@/ui/button";
 
 interface OAuthButtonsProps {
   mode: "signin" | "signup";
+  next?: string;
 }
 
 function GoogleLogo() {
@@ -53,7 +54,7 @@ function DiscordLogo() {
   );
 }
 
-export function OAuthButtons({ mode }: OAuthButtonsProps) {
+export function OAuthButtons({ mode, next }: OAuthButtonsProps) {
   const actionText = mode === "signin" ? "Sign in" : "Sign up";
 
   return (
@@ -61,16 +62,19 @@ export function OAuthButtons({ mode }: OAuthButtonsProps) {
       <div className="font-medium text-lg">{actionText} with</div>
       <div className="flex flex-row justify-center gap-4">
         <form action={signInWithGoogleAction}>
+          {next && <input type="hidden" name="next" value={next} />}
           <Button icon size="lg" type="submit">
             <GoogleLogo />
           </Button>
         </form>
         <form action={signInWithGithubAction}>
+          {next && <input type="hidden" name="next" value={next} />}
           <Button icon size="lg" type="submit">
             <GithubLogo />
           </Button>
         </form>
         <form action={signInWithDiscordAction}>
+          {next && <input type="hidden" name="next" value={next} />}
           <Button icon size="lg" type="submit">
             <DiscordLogo />
           </Button>

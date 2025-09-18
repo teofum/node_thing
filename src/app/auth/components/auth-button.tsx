@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { signOutAction } from "@/lib/auth/actions";
+import { signOutAction } from "../actions";
 import { LinkButton, Button } from "@/ui/button";
 
 export async function AuthButton() {

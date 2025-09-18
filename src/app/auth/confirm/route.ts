@@ -19,9 +19,11 @@ export async function GET(request: NextRequest) {
     if (!error) {
       redirect(next);
     } else {
-      redirect(`/auth/error?error=${error?.message}`);
+      redirect(
+        `/auth/error?error=${encodeURIComponent(error?.message || "Unknown error")}`,
+      );
     }
   }
 
-  redirect(`/auth/error?error=No token hash or type`);
+  redirect(`/auth/error?error=${encodeURIComponent("No token hash or type")}`);
 }

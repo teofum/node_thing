@@ -1,4 +1,4 @@
-import { signInAction } from "@/lib/auth/actions";
+import { signInAction } from "../actions";
 import { OAuthButtons } from "@/app/auth/components/oauth-buttons";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
@@ -9,7 +9,7 @@ import Link from "next/link";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -29,13 +29,16 @@ export default async function LoginPage({
       </div>
 
       <div className="glass glass-border p-6 w-96 mx-auto rounded-2xl">
-        <OAuthButtons mode="signin" />
+        <OAuthButtons mode="signin" next={params.next} />
 
         <div className="font-medium mt-6 mb-3 text-center">
           or sign in using email or username
         </div>
 
         <form action={signInAction} className="space-y-6">
+          {params.next && (
+            <input type="hidden" name="next" value={params.next} />
+          )}
           <div>
             <label
               htmlFor="emailOrUsername"

@@ -4,6 +4,7 @@ import { Workspace } from "./components/workspace";
 import { AuthButton } from "./auth/components/auth-button";
 import { createClient } from "@/lib/supabase/server";
 import { Renderer } from "./components/renderer";
+import { LinkButton } from "@/ui/button";
 import { Menubar } from "@/ui/menu-bar";
 import { FileMenu } from "./components/menu/file";
 import { LayerMenu } from "./components/menu/layer";
@@ -35,6 +36,10 @@ export default async function Home() {
           <FileMenu />
           <LayerMenu />
         </Menubar>
+
+        <LinkButton href="/marketplace" variant="outline">
+          Marketplace
+        </LinkButton>
 
         <AuthButton />
       </div>
