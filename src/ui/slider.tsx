@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useRef } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import { Input } from "@/ui/input";
 import cn from "classnames";
@@ -23,16 +23,16 @@ export const SliderInput = React.forwardRef<HTMLInputElement, SliderInputProps>(
     { value, onChange, min = 0, max = 1, step = 0.01, className, ...props },
     forwardedRef,
   ) => {
-    const [internalValue, setInternalValue] = useState(value.toString());
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-      setInternalValue(value.toString());
-    }, [value]);
-
-    const updateValue = () => {
-      let newVal = clamp(parseFloat(internalValue), min, max);
+    const updateValue = (v: string) => {
+      const parsed = parseFloat(v);
+      let newVal = clamp(parsed, min, max);
       if (isNaN(newVal)) newVal = 0;
-      setInternalValue(newVal.toString());
+      const newStr = newVal.toString();
+      if (v != newStr) {
+        if (inputRef.current) inputRef.current.value = newStr;
+      }
       onChange(newVal);
     };
 
@@ -45,7 +45,7 @@ export const SliderInput = React.forwardRef<HTMLInputElement, SliderInputProps>(
           step={step}
           value={[value]}
           onValueChange={(values) => {
-            setInternalValue(values[0].toString());
+            if (inputRef.current) inputRef.current.value = values[0].toString();
             onChange(values[0]);
           }}
           {...props}
@@ -53,20 +53,20 @@ export const SliderInput = React.forwardRef<HTMLInputElement, SliderInputProps>(
           <Slider.Track className="relative h-[3px] grow rounded-full bg-neutral-800">
             <Slider.Range className="absolute h-full rounded-full bg-white" />
           </Slider.Track>
-          <Slider.Thumb className="block size-3 rounded-[10px] bg-white shadow-[0_0_5px] shadow-white/75 hover:bg-neutral-300 focus:shadow-[0_0_0_2px] focus:shadow-white/25 focus:outline-none transition duration-100" />
+          <Slider.Thumb className="block size-3 rounded-[10px] bg-white shadow-[0_0_5px] shadow-white/75 hover:bg-teal-100 focus:shadow-[0_0_0_2px] focus:shadow-teal-400 focus:outline-none transition duration-150" />
         </Slider.Root>
 
         <Input
+          ref={inputRef}
           variant="outline"
           size="sm"
           className="min-w-10 w-0 !text-xs"
-          value={internalValue}
-          onChange={(ev) => {
-            setInternalValue(ev.target.value);
+          defaultValue={value}
+          onBlur={(ev) => {
+            updateValue(ev.currentTarget.value);
           }}
-          onBlur={updateValue}
           onKeyDown={(ev) => {
-            if (ev.key === "Enter") updateValue();
+            if (ev.key === "Enter") updateValue(ev.currentTarget.value);
           }}
         />
       </div>

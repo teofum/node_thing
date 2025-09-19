@@ -9,13 +9,8 @@ import {
   ColorField,
   Color,
 } from "react-aria-components";
-import {
-  DialogTrigger,
-  Dialog,
-  Popover,
-  Button,
-  Input,
-} from "react-aria-components";
+import { DialogTrigger, Dialog, Popover, Button } from "react-aria-components";
+import { Input } from "@/ui/input";
 import cn from "classnames";
 
 type ColorInputProps = {
@@ -48,19 +43,19 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
           onChange={changeColor}
         >
           <DialogTrigger>
-            <Button className="flex items-center gap-2 px-0 py-0 bg-transparent border-0 rounded-md text-base text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500">
+            <Button className="flex items-center gap-2 px-0 py-0 bg-transparent border-0 rounded-md text-base text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-400">
               <ColorSwatch color={color} className="w-5 h-5 rounded-sm" />
             </Button>
             <Popover
               className={cn(
-                "rounded-lg bg-white text-black",
+                "rounded-lg text-black",
                 "shadow-black shadow-[0_0_40px] w-auto",
                 "transform transition-transform duration-200 ease-out",
                 "data-[entering]:opacity-0 data-[entering]:scale-90",
                 "data-[exiting]:opacity-0 data-[exiting]:scale-90",
               )}
             >
-              <Dialog className="flex flex-col gap-4 p-4 min-w-48 box-border rounded-md bg-neutral-900 text-white focus-visible:outline-none">
+              <Dialog className="flex flex-col gap-4 p-4 min-w-48 box-border rounded-md glass glass-border focus-visible:outline-none">
                 <ColorArea
                   className="w-48 h-48 rounded-md flex-shrink-0 relative"
                   colorSpace="hsb"
@@ -81,7 +76,7 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
                 </ColorSlider>
 
                 <ColorField>
-                  <Input className="bg-white/5 rounded p-2 h-7 w-22" />
+                  <Input className="bg-white/5 rounded p-2 h-7 w-22 text-white" />
                 </ColorField>
               </Dialog>
             </Popover>
