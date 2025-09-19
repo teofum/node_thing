@@ -1,12 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { LinkButton, Button } from "@/ui/button";
-import {
-  LuArrowLeft,
-  LuTrash2,
-  LuEraser,
-  LuShoppingCart,
-} from "react-icons/lu";
+import { LuArrowLeft, LuTrash2, LuEraser } from "react-icons/lu";
 import { removeFromCart, clearCart, getCartItems } from "./actions";
 import { createOrderAndRedirect } from "../checkout/actions";
 
@@ -41,7 +36,6 @@ export default async function CartPage() {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                <LuShoppingCart />
                 Cart
               </h1>
               {cartItems.length > 0 && (
@@ -68,18 +62,22 @@ export default async function CartPage() {
           </div>
 
           {cartItems.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-neutral-400 mb-4">Your cart is empty</p>
-              <LinkButton href="/marketplace">Browse Shaders</LinkButton>
+            <div className="text-center py-12 ">
+              <p className="text-neutral-400 mb-8">Your cart is empty!</p>
+              <LinkButton
+                href="/marketplace"
+                type="submit"
+                variant="default"
+                size="lg"
+              >
+                Browse Shaders
+              </LinkButton>
             </div>
           ) : (
-            <div className="space-y-6">
-              <div className="space-y-6">
+            <div className="space-y-6 glass glass-border p-6 rounded-xl ">
+              <div className="space-y-1 ">
                 {cartItems.map((item) => (
-                  <div
-                    key={item.shader_id}
-                    className="glass glass-border p-6 rounded-xl"
-                  >
+                  <div key={item.shader_id} className="border-b py-6">
                     <div className="flex justify-between items-center">
                       <div>
                         <h3 className="text-white font-semibold mb-3">
@@ -110,7 +108,7 @@ export default async function CartPage() {
                 ))}
               </div>
 
-              <div className="glass glass-border p-6 rounded-xl">
+              <div>
                 <div className="flex justify-between items-center mb-6">
                   <span className="text-xl font-semibold text-white">
                     Total
