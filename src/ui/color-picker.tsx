@@ -8,6 +8,7 @@ import {
   SliderTrack,
   ColorField,
   Color,
+  ColorFieldRenderProps,
 } from "react-aria-components";
 import { DialogTrigger, Dialog, Popover, Button } from "react-aria-components";
 import { Input } from "@/ui/input";
@@ -76,7 +77,41 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
                 </ColorSlider>
 
                 <ColorField>
-                  <Input className="bg-white/5 rounded p-2 h-7 w-22 text-white" />
+                  {(
+                    props: ColorFieldRenderProps & {
+                      defaultChildren?: React.ReactNode;
+                    },
+                  ) => {
+                    const {
+                      isDisabled,
+                      isInvalid,
+                      defaultChildren,
+                      ...inputProps
+                    } = props;
+                    void isInvalid;
+                    void defaultChildren;
+                    const commitChange = () => {
+                      inputProps.state.commit();
+                    };
+
+                    return (
+                      <Input
+                        {...inputProps}
+                        className="h-7 w-22 text-white"
+                        onChange={(ev) => {
+                          inputProps.state.setInputValue(
+                            ev.currentTarget.value,
+                          );
+                        }}
+                        onBlur={commitChange}
+                        onKeyDown={(ev) => {
+                          if (ev.key === "Enter") commitChange();
+                        }}
+                        value={inputProps.state.inputValue}
+                        disabled={isDisabled}
+                      />
+                    );
+                  }}
                 </ColorField>
               </Dialog>
             </Popover>
