@@ -77,7 +77,10 @@ export default async function CartPage() {
             <div className="space-y-6 glass glass-border p-6 rounded-xl ">
               <div className="space-y-1 ">
                 {cartItems.map((item) => (
-                  <div key={item.shader_id} className="border-b py-6">
+                  <div
+                    key={item.shader_id}
+                    className="border-b py-6 border-white/15"
+                  >
                     <div className="flex justify-between items-center">
                       <div>
                         <h3 className="text-white font-semibold mb-3">
