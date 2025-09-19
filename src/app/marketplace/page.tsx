@@ -104,7 +104,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
               placeholder="Search shaders..."
               className="w-full rounded-full bg-neutral-800 text-white px-5 py-3 pr-12
                          border border-neutral-700 placeholder-neutral-500 focus:outline-none
-                         focus:ring-2 focus:ring-purple-500"
+                         focus:ring-1 focus:ring-purple-500 "
             />
             <Button
               type="submit"
