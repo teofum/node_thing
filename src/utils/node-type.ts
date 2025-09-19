@@ -15,6 +15,7 @@ import chromaticAberrationShader from "@/shaders/chromatic-aberration.wgsl";
 import posterizerShader from "@/shaders/posterizer.wgsl";
 import lumPosterizerShader from "@/shaders/luminance-posterizer.wgsl";
 import basicSharpnessShader from "@/shaders/basicSharpness.wgsl";
+import bloomShader from "@/shaders/bloom.wgsl";
 
 export const NODE_TYPES = {
   // Input y output ///////////////////////////////
@@ -328,6 +329,24 @@ export const NODE_TYPES = {
     name: "Basic Sharpness",
     category: "Color",
     shader: basicSharpnessShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  bloom: {
+    name: "Bloom",
+    category: "Color",
+    shader: bloomShader,
     inputs: {
       in_a: {
         name: "Input",

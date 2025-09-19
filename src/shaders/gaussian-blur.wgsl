@@ -25,19 +25,19 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     var out: vec3<f32> = vec3<f32>(0.0);
 
     var intensity: f32 = 0.0;
-    const sigma = 8.0;
+    const SIGMA = 8.0;
     const PI = 3.1415926538;
  
     for(var dy: i32 = -kernelSize; dy <= kernelSize; dy += 1){
         for(var dx: i32 = -kernelSize; dx <= kernelSize; dx += 1){
             let y = clamp(i32(id.y) + dy, 0, i32(u.height) - 1);
             let x = clamp(i32(id.x) + dx, 0, i32(u.width) - 1);
-            let kIndex: u32 = u32(x) + u32(y) * u.width;
+            let sampleIndex: u32 = u32(x) + u32(y) * u.width;
 
             let dx_f = f32(dx);
             let dy_f = f32(dy);
-            let gaussian_v = 1.0 / (2.0 * PI * sigma * sigma) * exp(-(dx_f * dx_f + dy_f * dy_f) / (2.0 * sigma * sigma));
-            let c = input[kIndex];
+            let gaussian_v = 1.0 / (2.0 * PI * SIGMA * SIGMA) * exp(-(dx_f * dx_f + dy_f * dy_f) / (2.0 * SIGMA * SIGMA));
+            let c = input[sampleIndex];
             out += c * gaussian_v;
             intensity += gaussian_v;
         }
