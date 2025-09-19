@@ -6,6 +6,9 @@ import { NodeType } from "@/schemas/node.schema";
 import { HandleWithMock } from "./mock-handle";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 
+import { SliderInput } from "@/ui/slider";
+import { ColorInput } from "@/ui/color-picker";
+
 type NodeInputProps = NodeProps<ShaderNodeType> & {
   input: [string, NodeType["inputs"][string]];
   i: number;
@@ -44,28 +47,19 @@ export function NodeInput({
 
       {renderDefaultValueInput ? (
         input.type === "number" ? (
-          <input
-            type="range"
-            className="nodrag"
+          <SliderInput
+            value={data.defaultValues[key] as number}
+            onChange={(v) => updateDefaultValue(id, key, v)}
             min={0}
             max={1}
             step={0.01}
-            defaultValue={data.defaultValues[key].toString()}
-            onChange={(ev) =>
-              updateDefaultValue(id, key, Number(ev.target.value))
-            }
+            className="w-[100px]"
           />
         ) : (
-          <input
-            type="color"
-            className="nodrag"
-            defaultValue={`#${(data.defaultValues[key] as number[]).map((n) => (~~(n * 255)).toString(16).padStart(2, "0")).join("")}`}
-            onChange={(ev) => {
-              const color = ev.target.value;
-              const r = parseInt(color.substring(1, 3), 16) / 255;
-              const g = parseInt(color.substring(3, 5), 16) / 255;
-              const b = parseInt(color.substring(5, 7), 16) / 255;
-              updateDefaultValue(id, key, [r, g, b, 1]);
+          <ColorInput
+            defaultColor={data.defaultValues[key] as number[]}
+            onChange={(c) => {
+              updateDefaultValue(id, key, c);
             }}
           />
         )

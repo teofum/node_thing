@@ -54,7 +54,9 @@ export function Sidebar() {
           <Select
             variant="ghost"
             value={menu}
-            onValueChange={(value) => setMenu(value as typeof menu)}
+            onValueChange={(value: typeof menu) =>
+              setMenu(value as typeof menu)
+            }
           >
             <SelectItem value="library">
               <div className="flex items-center gap-2">
