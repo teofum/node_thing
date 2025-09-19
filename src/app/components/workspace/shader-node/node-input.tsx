@@ -57,12 +57,9 @@ export function NodeInput({
           />
         ) : (
           <ColorInput
-            defaultColor={`#${(data.defaultValues[key] as number[]).map((n) => (~~(n * 255)).toString(16).padStart(2, "0")).join("")}`}
+            defaultColor={data.defaultValues[key] as number[]}
             onChange={(c) => {
-              const r = parseInt(c.substring(1, 3), 16) / 255;
-              const g = parseInt(c.substring(3, 5), 16) / 255;
-              const b = parseInt(c.substring(5, 7), 16) / 255;
-              updateDefaultValue(id, key, [r, g, b, 1]);
+              updateDefaultValue(id, key, c);
             }}
           />
         )

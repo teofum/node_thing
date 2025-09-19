@@ -15,21 +15,27 @@ import { Input } from "@/ui/input";
 import cn from "classnames";
 
 type ColorInputProps = {
-  defaultColor?: string;
-  onChange?: (color: string) => void;
+  defaultColor?: number[];
+  onChange?: (color: number[]) => void;
 } & Omit<React.HTMLAttributes<HTMLDivElement>, "onChange">;
 
 export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
   (
-    { defaultColor = "#000000", onChange, className, ...props },
+    { defaultColor = [0, 0, 1, 1], onChange, className, ...props },
     forwardedRef,
   ) => {
-    const [color, setColor] = useState(defaultColor);
+    const rgbaColor = defaultColor.map((val) => Math.round(val * 255));
+    const [color, setColor] = useState(`rgba(${rgbaColor.toString()})`);
 
-    const changeColor = (v: Color) => {
-      const colorStr = v.toString("hex");
+    const changeColor = (c: Color) => {
+      const colorStr = c.toString("rgba");
       setColor(colorStr);
-      if (onChange) onChange(colorStr);
+
+      const colorRgb = c.toFormat("rgba");
+      const rgb = colorRgb
+        .getColorChannels()
+        .map((ch) => colorRgb.getChannelValue(ch) / 255);
+      if (onChange) onChange(rgb);
     };
 
     return (
@@ -38,11 +44,7 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
         className={cn("flex gap-2 items-center", className)}
         {...props}
       >
-        <ColorPicker
-          defaultValue={defaultColor}
-          value={color}
-          onChange={changeColor}
-        >
+        <ColorPicker value={color} onChange={changeColor}>
           <DialogTrigger>
             <Button className="flex items-center gap-2 px-0 py-0 bg-transparent border-0 rounded-md text-base text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-400">
               <ColorSwatch color={color} className="w-5 h-5 rounded-sm" />
@@ -97,7 +99,8 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
                     return (
                       <Input
                         {...inputProps}
-                        className="h-7 w-22 text-white"
+                        variant="outline"
+                        className="h-7 w-23 text-white"
                         onChange={(ev) => {
                           inputProps.state.setInputValue(
                             ev.currentTarget.value,
