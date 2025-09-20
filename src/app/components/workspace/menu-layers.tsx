@@ -7,10 +7,17 @@ import {
 import {
   LuEllipsisVertical,
   LuGripVertical,
+  LuPencilLine,
   LuPlus,
   LuSquareArrowOutDownLeft,
   LuSquareArrowOutUpRight,
 } from "react-icons/lu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/ui/dropdown-menu";
 
 import { Button } from "@/ui/button";
 import { useStore } from "@/store/store";
@@ -24,6 +31,7 @@ export function MenuLayers() {
   const reorderLayers = useStore((s) => s.reorderLayers);
   const exportLayer = useStore((s) => s.exportLayer);
   const importLayer = useStore((s) => s.importLayer);
+  const changeLayerName = useStore((s) => s.changeLayerName);
 
   const addLayerButton = () => {
     addLayer();
@@ -69,6 +77,14 @@ export function MenuLayers() {
     input.click();
   };
 
+  const changeLayerNameButton = (idx: number) => {
+    const name = prompt("new name: ");
+
+    if (name === null || name === "") return;
+
+    changeLayerName(name, idx);
+  };
+
   return (
     <div className="border-t border-white/15 flex flex-col min-h-0 overflow-auto">
       <DragDropContext onDragEnd={onDragEnd}>
@@ -112,14 +128,31 @@ export function MenuLayers() {
                           <div className="text-xs/4 font-medium text-white/65">
                             {layers[idx].nodes.length} node
                             {layers[idx].nodes.length === 1 ? "" : "s"}
-                            {/* TODO acá mostrar nombre layer */}
                           </div>
                         </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger>
+                            <Button
+                              icon
+                              variant="ghost"
+                              className="relative z-10"
+                            >
+                              <LuEllipsisVertical />
+                            </Button>
+                          </DropdownMenuTrigger>
 
-                        <Button icon variant="ghost" className="relative z-10">
-                          <LuEllipsisVertical />
-                          {/* TODO acá opción cambiar nombre */}
-                        </Button>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem
+                              asChild
+                              onClick={() => changeLayerNameButton(idx)}
+                            >
+                              <div className="px-1 flex flex-row items-center gap-2">
+                                <LuPencilLine />
+                                Change Name
+                              </div>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   )}

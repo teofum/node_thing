@@ -98,6 +98,8 @@ type ProjectActions = {
     position: { x: number; y: number },
     parameters?: NodeData["parameters"],
   ) => void;
+
+  changeLayerName: (name: string, idx: number) => void;
 };
 
 function modifyLayer(
@@ -378,5 +380,15 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
         nodes: [...layer.nodes, newNode],
       })),
     });
+  },
+
+  changeLayerName: (name, idx) => {
+    const { layers } = get();
+
+    const newLayers = layers.map((layer, i) =>
+      i === idx ? { ...layer, name } : layer,
+    );
+
+    set({ layers: newLayers });
   },
 }));
