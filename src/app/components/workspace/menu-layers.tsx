@@ -131,7 +131,7 @@ export function MenuLayers() {
                           </div>
                         </div>
                         <DropdownMenu>
-                          <DropdownMenuTrigger>
+                          <DropdownMenuTrigger asChild>
                             <Button
                               icon
                               variant="ghost"
