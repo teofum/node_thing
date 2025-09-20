@@ -23,7 +23,10 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 );
 Menubar.displayName = "Menubar";
 
-type MenuProps = Omit<MB.MenubarProps & MB.MenubarTriggerProps, "asChild"> & {
+type MenuProps = Omit<
+  MB.MenubarMenuProps & MB.MenubarTriggerProps,
+  "asChild"
+> & {
   label: string;
 };
 

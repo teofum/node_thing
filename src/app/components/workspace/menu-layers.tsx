@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import cn from "classnames";
 import {
   DragDropContext,
@@ -16,12 +16,7 @@ import {
 } from "react-icons/lu";
 
 import { useStore } from "@/store/store";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
 import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";
 import { handleExport } from "@/utils/handle-export";
@@ -132,8 +127,8 @@ export function MenuLayers() {
                             {layers[idx].nodes.length === 1 ? "" : "s"}
                           </div>
                         </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
+                        <DropdownMenu
+                          trigger={
                             <Button
                               icon
                               variant="ghost"
@@ -141,16 +136,14 @@ export function MenuLayers() {
                             >
                               <LuEllipsisVertical />
                             </Button>
-                          </DropdownMenuTrigger>
-
-                          <DropdownMenuContent>
-                            <DropdownMenuItem
-                              icon={<LuPencilLine />}
-                              onClick={() => setEditingLayerId(idx)}
-                            >
-                              Rename
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
+                          }
+                        >
+                          <DropdownMenuItem
+                            icon={<LuPencilLine />}
+                            onClick={() => setEditingLayerId(idx)}
+                          >
+                            Rename
+                          </DropdownMenuItem>
                         </DropdownMenu>
                       </div>
                     </div>
