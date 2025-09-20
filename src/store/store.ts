@@ -344,6 +344,8 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
     set(({ layers, currentLayer, properties }) => {
       const parsedProject: Project = JSON.parse(json);
 
+      layerId = parsedProject.layers.length;
+
       return {
         layers: parsedProject.layers,
         currentLayer: parsedProject.currentLayer,
