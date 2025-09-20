@@ -22,6 +22,7 @@ import {
 import { Button } from "@/ui/button";
 import { useStore } from "@/store/store";
 import cn from "classnames";
+import { useState } from "react";
 
 export function MenuLayers() {
   const setActiveLayer = useStore((s) => s.setActiveLayer);
@@ -77,12 +78,14 @@ export function MenuLayers() {
     input.click();
   };
 
-  const changeLayerNameButton = (idx: number) => {
-    const name = prompt("new name: ");
+  const [editingLayerId, setEditingLayerId] = useState<number | null>(null);
 
-    if (name === null || name === "") return;
+  const handleLayerNameChange = (newName: string, idx: number) => {
+    if (newName === null || newName === "") return;
 
-    changeLayerName(name, idx);
+    changeLayerName(newName, idx);
+
+    setEditingLayerId(null);
   };
 
   return (
@@ -95,7 +98,6 @@ export function MenuLayers() {
               {layers.map((layer, idx) => (
                 <Draggable key={layer.id} draggableId={layer.id} index={idx}>
                   {(provided, snapshot) => (
-                    // TODO no supe cómo centrar la preview del dnd (sale como si uno lo agarrase de izq arriba)
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
@@ -122,9 +124,37 @@ export function MenuLayers() {
                         </div>
 
                         <div className="grow flex flex-col gap-1 text-left">
-                          <div className="text-sm/4 font-semibold">
-                            {layer.name}
-                          </div>
+                          {editingLayerId === idx ? (
+                            <div className="text-sm/4 font-semibold">
+                              <form
+                                onSubmit={(e) => {
+                                  e.preventDefault();
+                                  const formData = new FormData(
+                                    e.currentTarget,
+                                  );
+                                  const newName =
+                                    formData.get("layerName")?.toString() || "";
+                                  handleLayerNameChange(newName, idx);
+                                }}
+                              >
+                                <input
+                                  name="layerName"
+                                  defaultValue={layer.name}
+                                  onBlur={(e) =>
+                                    handleLayerNameChange(
+                                      e.currentTarget.value,
+                                      idx,
+                                    )
+                                  }
+                                  className="bg-transparent border border-white/20 rounded px-1 w-full"
+                                />
+                              </form>
+                            </div>
+                          ) : (
+                            <div className="text-sm/4 font-semibold">
+                              {layer.name}
+                            </div>
+                          )}
                           <div className="text-xs/4 font-medium text-white/65">
                             {layers[idx].nodes.length} node
                             {layers[idx].nodes.length === 1 ? "" : "s"}
@@ -144,7 +174,7 @@ export function MenuLayers() {
                           <DropdownMenuContent>
                             <DropdownMenuItem
                               asChild
-                              onClick={() => changeLayerNameButton(idx)}
+                              onClick={() => setEditingLayerId(idx)}
                             >
                               <div className="px-1 flex flex-row items-center gap-2">
                                 <LuPencilLine />
@@ -173,7 +203,6 @@ export function MenuLayers() {
 
       <hr className="border-white/15 p-1" />
 
-      {/* TODO add onClick export/import */}
       <div className="px-3 py-1 flex flex-col">
         <Button variant="outline" onClick={layerImport}>
           <LuSquareArrowOutDownLeft />
