@@ -23,6 +23,8 @@ import { Button } from "@/ui/button";
 import { useStore } from "@/store/store";
 import cn from "classnames";
 import { useState } from "react";
+import { handleExport } from "@/utils/handle-export";
+import { handleImport } from "@/utils/handle-import";
 
 export function MenuLayers() {
   const setActiveLayer = useStore((s) => s.setActiveLayer);
@@ -45,37 +47,6 @@ export function MenuLayers() {
     }
 
     reorderLayers(result.source.index, result.destination.index);
-  };
-
-  const layerExport = async () => {
-    const json = exportLayer(currentLayer);
-
-    const handle = await window.showSaveFilePicker({
-      suggestedName: "project.json",
-      types: [{ accept: { "application/json": [".json"] } }],
-    });
-
-    const writable = await handle.createWritable();
-    await writable.write(json);
-    await writable.close();
-  };
-
-  const layerImport = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
-
-    input.onchange = async (e: Event) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file === undefined) {
-        return;
-      }
-
-      const json = await file.text();
-      importLayer(json); // TODO manejo de errores
-    };
-
-    input.click();
   };
 
   const [editingLayerId, setEditingLayerId] = useState<number | null>(null);
@@ -202,13 +173,18 @@ export function MenuLayers() {
       <hr className="border-white/15 p-1" />
 
       <div className="px-3 py-1 flex flex-col">
-        <Button variant="outline" onClick={layerImport}>
+        <Button variant="outline" onClick={() => handleImport(importLayer)}>
           <LuSquareArrowOutDownLeft />
           Import Layer
         </Button>
       </div>
       <div className="px-3 py-1 flex flex-col">
-        <Button variant="outline" onClick={layerExport}>
+        <Button
+          variant="outline"
+          onClick={() =>
+            handleExport(exportLayer(currentLayer), layers[currentLayer].name)
+          }
+        >
           <LuSquareArrowOutUpRight />
           Export Layer
         </Button>
