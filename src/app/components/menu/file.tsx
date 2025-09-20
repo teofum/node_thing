@@ -9,16 +9,34 @@ export function FileMenu() {
   const exportProject = useStore((s) => s.exportProject);
 
   const projectImport = () => {
-    const json = prompt("project JSON: "); // TODO mejorar input
-    if (json !== null) {
-      importProject(json);
-    }
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+
+    input.onchange = async (e: Event) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file === undefined) {
+        return;
+      }
+
+      const json = await file.text();
+      importProject(json); // TODO manejo de errores
+    };
+
+    input.click();
   };
 
-  const projectExport = () => {
+  const projectExport = async () => {
     const json = exportProject();
-    navigator.clipboard.writeText(json);
-    alert("Layer copied to clipboard!"); // TODO esto tal vez cambiarlo a notifiación toast o similar
+
+    const handle = await window.showSaveFilePicker({
+      suggestedName: "project.json",
+      types: [{ accept: { "application/json": [".json"] } }],
+    });
+
+    const writable = await handle.createWritable();
+    await writable.write(json);
+    await writable.close();
   };
 
   return (
