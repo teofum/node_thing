@@ -105,7 +105,8 @@ export function MenuLayers() {
                               >
                                 <Input
                                   ref={(self) => {
-                                    setTimeout(() => self?.focus(), 10);
+                                    // Set a short timeout because radix messes with focus
+                                    setTimeout(() => self?.focus(), 1);
                                   }}
                                   size="sm"
                                   variant="outline"
@@ -144,11 +145,10 @@ export function MenuLayers() {
 
                           <DropdownMenuContent>
                             <DropdownMenuItem
+                              icon={<LuPencilLine />}
                               onClick={() => setEditingLayerId(idx)}
-                              className="px-1 flex flex-row items-center gap-2"
                             >
-                              <LuPencilLine />
-                              Change Name
+                              Rename
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
