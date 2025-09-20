@@ -173,13 +173,11 @@ export function MenuLayers() {
 
                           <DropdownMenuContent>
                             <DropdownMenuItem
-                              asChild
                               onClick={() => setEditingLayerId(idx)}
+                              className="px-1 flex flex-row items-center gap-2"
                             >
-                              <div className="px-1 flex flex-row items-center gap-2">
-                                <LuPencilLine />
-                                Change Name
-                              </div>
+                              <LuPencilLine />
+                              Change Name
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
