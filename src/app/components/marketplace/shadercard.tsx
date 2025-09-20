@@ -9,6 +9,7 @@ type ShaderCardProps = {
   likes: number;
   inCart: boolean;
   username?: string;
+  category: string;
 };
 
 export default function ShaderCard({
@@ -18,14 +19,22 @@ export default function ShaderCard({
   likes = 0,
   inCart,
   username,
+  category,
 }: ShaderCardProps) {
   return (
     <div className="glass glass-border p-6 rounded-2xl relative">
       <h3 className="text-xl font-semibold text-white mb-1">{title}</h3>
       {username && (
-        <p className="text-sm text-neutral-400 mb-4">
-          by <span className="font-bold">{username}</span>
-        </p>
+        <>
+          <p className="text-sm text-neutral-400 mb-2">
+            by <span className="font-bold">{username}</span>
+          </p>
+          {category && (
+            <p className="inline-block text-sm text-teal-400 border border-current/15 mb-4 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
+              {category}
+            </p>
+          )}
+        </>
       )}
       <img
         src="https://redthread.uoregon.edu/files/original/affd16fd5264cab9197da4cd1a996f820e601ee4.png"
@@ -36,14 +45,7 @@ export default function ShaderCard({
 
       <div className="flex items-center justify-between mt-2">
         <div className="flex items-center gap-2">
-          <Button
-            icon
-            variant="ghost"
-            disabled
-            className="text-white cursor-default"
-          >
-            <LuHeart className="w-6 h-6" />
-          </Button>
+          <LuHeart className="w-6 h-6" />
           <span className="text-white text-base">{likes}</span>
         </div>
         {inCart ? (

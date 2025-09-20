@@ -186,6 +186,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
                   likes={0}
                   inCart={cartIds.has(shader.id)}
                   username={shader.profiles?.username}
+                  category={shader.category.name}
                 />
               ))}
             </div>
