@@ -39,11 +39,11 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
               Order Summary
             </h2>
 
-            <div className="space-y-4 mb-6">
+            <div className="mb-8">
               {order.order_items.map((item) => (
                 <div
                   key={item.shader.id}
-                  className="flex justify-between items-center py-3 border-b border-neutral-700 last:border-b-0"
+                  className="flex justify-between items-center py-4 border-b border-neutral-700 last:border-b-0 "
                 >
                   <h3 className="text-white font-medium">
                     {item.shader.title}
@@ -69,7 +69,9 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
             <h2 className="text-xl font-semibold text-white mb-6">
               Payment stuff
             </h2>
-            <p className="text-neutral-400 mb-6">TODO: next sprint</p>
+            <p className="text-neutral-400 text-center mb-6">
+              TODO: Next sprint
+            </p>
           </div>
 
           {error && (
@@ -82,8 +84,8 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
             action={completePaymentAndRedirect.bind(null, orderId)}
             className="space-y-4"
           >
-            <Button type="submit" className="w-full">
-              Complete Payment - ${order.total_amount.toFixed(2)}
+            <Button type="submit" size="lg" className="w-full">
+              Confirm Payment
             </Button>
           </form>
         </div>
