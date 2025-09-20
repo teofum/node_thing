@@ -7,14 +7,24 @@ import {
 import {
   LuEllipsisVertical,
   LuGripVertical,
+  LuPencilLine,
   LuPlus,
   LuSquareArrowOutDownLeft,
   LuSquareArrowOutUpRight,
 } from "react-icons/lu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/ui/dropdown-menu";
 
 import { Button } from "@/ui/button";
 import { useStore } from "@/store/store";
 import cn from "classnames";
+import { useState } from "react";
+import { handleExport } from "@/utils/handle-export";
+import { handleImport } from "@/utils/handle-import";
 
 export function MenuLayers() {
   const setActiveLayer = useStore((s) => s.setActiveLayer);
@@ -24,6 +34,7 @@ export function MenuLayers() {
   const reorderLayers = useStore((s) => s.reorderLayers);
   const exportLayer = useStore((s) => s.exportLayer);
   const importLayer = useStore((s) => s.importLayer);
+  const changeLayerName = useStore((s) => s.changeLayerName);
 
   const addLayerButton = () => {
     addLayer();
@@ -38,17 +49,14 @@ export function MenuLayers() {
     reorderLayers(result.source.index, result.destination.index);
   };
 
-  const layerExport = () => {
-    const json = exportLayer(currentLayer);
-    navigator.clipboard.writeText(json);
-    alert("Layer copied to clipboard!"); // TODO esto tal vez cambiarlo a notifiación toast o similar
-  };
+  const [editingLayerId, setEditingLayerId] = useState<number | null>(null);
 
-  const layerImport = () => {
-    const json = prompt("JSON import layer: "); // TODO mejorar input
-    if (json !== null) {
-      importLayer(json);
-    }
+  const handleLayerNameChange = (newName: string, idx: number) => {
+    if (newName === null || newName === "") return;
+
+    changeLayerName(newName, idx);
+
+    setEditingLayerId(null);
   };
 
   return (
@@ -61,7 +69,6 @@ export function MenuLayers() {
               {layers.map((layer, idx) => (
                 <Draggable key={layer.id} draggableId={layer.id} index={idx}>
                   {(provided, snapshot) => (
-                    // TODO no supe cómo centrar la preview del dnd (sale como si uno lo agarrase de izq arriba)
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
@@ -88,20 +95,63 @@ export function MenuLayers() {
                         </div>
 
                         <div className="grow flex flex-col gap-1 text-left">
-                          <div className="text-sm/4 font-semibold">
-                            {layer.name}
-                          </div>
+                          {editingLayerId === idx ? (
+                            <div className="text-sm/4 font-semibold">
+                              <form
+                                onSubmit={(e) => {
+                                  e.preventDefault();
+                                  const formData = new FormData(
+                                    e.currentTarget,
+                                  );
+                                  const newName =
+                                    formData.get("layerName")?.toString() || "";
+                                  handleLayerNameChange(newName, idx);
+                                }}
+                              >
+                                <input
+                                  name="layerName"
+                                  defaultValue={layer.name}
+                                  onBlur={(e) =>
+                                    handleLayerNameChange(
+                                      e.currentTarget.value,
+                                      idx,
+                                    )
+                                  }
+                                  className="bg-transparent border border-white/20 rounded px-1 w-full"
+                                />
+                              </form>
+                            </div>
+                          ) : (
+                            <div className="text-sm/4 font-semibold">
+                              {layer.name}
+                            </div>
+                          )}
                           <div className="text-xs/4 font-medium text-white/65">
                             {layers[idx].nodes.length} node
                             {layers[idx].nodes.length === 1 ? "" : "s"}
-                            {/* TODO acá mostrar nombre layer */}
                           </div>
                         </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              icon
+                              variant="ghost"
+                              className="relative z-10"
+                            >
+                              <LuEllipsisVertical />
+                            </Button>
+                          </DropdownMenuTrigger>
 
-                        <Button icon variant="ghost" className="relative z-10">
-                          <LuEllipsisVertical />
-                          {/* TODO acá opción cambiar nombre */}
-                        </Button>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem
+                              onClick={() => setEditingLayerId(idx)}
+                              className="px-1 flex flex-row items-center gap-2"
+                            >
+                              <LuPencilLine />
+                              Change Name
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   )}
@@ -122,15 +172,19 @@ export function MenuLayers() {
 
       <hr className="border-white/15 p-1" />
 
-      {/* TODO add onClick export/import */}
       <div className="px-3 py-1 flex flex-col">
-        <Button variant="outline" onClick={layerImport}>
+        <Button variant="outline" onClick={() => handleImport(importLayer)}>
           <LuSquareArrowOutDownLeft />
           Import Layer
         </Button>
       </div>
       <div className="px-3 py-1 flex flex-col">
-        <Button variant="outline" onClick={layerExport}>
+        <Button
+          variant="outline"
+          onClick={() =>
+            handleExport(exportLayer(currentLayer), layers[currentLayer].name)
+          }
+        >
           <LuSquareArrowOutUpRight />
           Export Layer
         </Button>
