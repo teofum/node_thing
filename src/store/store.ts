@@ -13,12 +13,6 @@ import { create } from "zustand";
 import { NodeData, NodeType } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 
-// !! cuidado: Node que se guarda es de RF
-// tiene campos id: y type: pero no son los de nuestro node.schema.ts
-// en Node[] se guardarían solamente ShaderNode, que en data.node: y data.id: se guarda lo de nuestro node.schema.ts
-
-// TODO, sería acá hacer una función de key, y eliminar redundancia de doble id
-
 export type ShaderNode = Node<NodeData>;
 
 let layerId = 0;
@@ -66,7 +60,7 @@ const initialSize = { width: 1920, height: 1080 };
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
 
-  setNodes: (nodes: ShaderNode[]) => void;
+  setNodes: (nodes: ShaderNode[]) => void; // TODO, agregado addNode, puede que no se esté usando más setNodes
   setEdges: (edges: Edge[]) => void;
 
   onNodesChange: OnNodesChange;
@@ -98,6 +92,12 @@ type ProjectActions = {
 
   exportProject: () => string;
   importProject: (json: string) => void;
+
+  addNode: (
+    type: NodeData["type"],
+    position: { x: number; y: number },
+    parameters?: NodeData["parameters"],
+  ) => void;
 };
 
 function modifyLayer(
@@ -348,6 +348,36 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
         currentLayer: parsedProject.currentLayer,
         properties: parsedProject.properties,
       };
+    });
+  },
+
+  addNode: (type, position, parameters = {}) => {
+    const { layers, currentLayer } = get();
+
+    const getId = () => `node_${layers[currentLayer].nodes.length}`;
+
+    const currId = `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${getId()}`;
+
+    const defaultValues: NodeData["defaultValues"] = {};
+    for (const [key, input] of Object.entries(NODE_TYPES[type].inputs)) {
+      defaultValues[key] = input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
+    }
+
+    const newNode: ShaderNode = {
+      id: currId,
+      type: "RenderShaderNode",
+      position,
+      data: {
+        type,
+        defaultValues,
+        parameters,
+      },
+    };
+
+    set({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        nodes: [...layer.nodes, newNode],
+      })),
     });
   },
 }));
