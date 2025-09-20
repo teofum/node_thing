@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+import cn from "classnames";
 import {
   DragDropContext,
   Droppable,
@@ -12,17 +14,16 @@ import {
   LuSquareArrowOutDownLeft,
   LuSquareArrowOutUpRight,
 } from "react-icons/lu";
+
+import { useStore } from "@/store/store";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/ui/dropdown-menu";
-
+import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";
-import { useStore } from "@/store/store";
-import cn from "classnames";
-import { useState } from "react";
 import { handleExport } from "@/utils/handle-export";
 import { handleImport } from "@/utils/handle-import";
 
@@ -42,10 +43,7 @@ export function MenuLayers() {
   };
 
   const onDragEnd = (result: DropResult) => {
-    if (!result.destination) {
-      return;
-    }
-
+    if (!result.destination) return;
     reorderLayers(result.source.index, result.destination.index);
   };
 
@@ -53,9 +51,7 @@ export function MenuLayers() {
 
   const handleLayerNameChange = (newName: string, idx: number) => {
     if (newName === null || newName === "") return;
-
     changeLayerName(newName, idx);
-
     setEditingLayerId(null);
   };
 
@@ -63,7 +59,6 @@ export function MenuLayers() {
     <div className="border-t border-white/15 flex flex-col min-h-0 overflow-auto">
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="layers">
-          {/* TODO quite flex-col-reverse porque rompe dnd */}
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {layers.map((layer, idx) => (
@@ -108,7 +103,12 @@ export function MenuLayers() {
                                   handleLayerNameChange(newName, idx);
                                 }}
                               >
-                                <input
+                                <Input
+                                  ref={(self) => {
+                                    setTimeout(() => self?.focus(), 10);
+                                  }}
+                                  size="sm"
+                                  variant="outline"
                                   name="layerName"
                                   defaultValue={layer.name}
                                   onBlur={(e) =>
@@ -117,7 +117,7 @@ export function MenuLayers() {
                                       idx,
                                     )
                                   }
-                                  className="bg-transparent border border-white/20 rounded px-1 w-full"
+                                  className="-mx-2 px-1.75 py-1 -my-1.5 !text-sm/4 w-full"
                                 />
                               </form>
                             </div>
