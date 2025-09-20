@@ -325,8 +325,7 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
     set(({ layers }) => {
       const parsedLayer: Layer = JSON.parse(json);
 
-      // hardcodeo y les concateno 'import-' cuando son importandos, se generaban conflictos con IDs
-      parsedLayer.id = "import-" + parsedLayer.id;
+      parsedLayer.id = "layer_" + layerId++;
 
       return {
         layers: [...layers, parsedLayer],
