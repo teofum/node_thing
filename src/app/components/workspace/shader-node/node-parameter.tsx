@@ -6,6 +6,8 @@ import { useAssetStore } from "@/store/asset-store";
 import { NodeType } from "@/schemas/node.schema";
 import { Select, SelectItem } from "@/ui/select";
 import { imageURLFromAsset } from "@/utils/image-url-from-asset";
+import { AssetManager } from "../asset-manager";
+import { Button } from "@/ui/button";
 
 type ParameterProps = NodeProps<ShaderNodeType> & {
   name: string;
@@ -16,46 +18,34 @@ export function NodeParameter({ id, data, name, param }: ParameterProps) {
   const images = useAssetStore((s) => s.images);
   const setParameter = useStore((s) => s.updateNodeParameter);
 
-  const imageUrls = useMemo(() => {
-    return Object.values(images).map(imageURLFromAsset);
-  }, [images]);
+  const imageUrl = useMemo(() => {
+    const imageName = data.parameters[name]?.value;
+    return imageName && imageURLFromAsset(images[imageName]);
+  }, [images, data.parameters, name]);
 
   if (param.type === "select") return "not implemented yet";
 
-  const image = data.parameters[name]?.value ?? "none";
+  const image = data.parameters[name]?.value ?? "Np image";
   const setImage = (newValue: string) => {
     const value = newValue === "none" ? null : newValue;
     setParameter(id, name, value);
   };
 
   return (
-    <Select
-      variant="outline"
-      className="w-full mt-2 !p-1 overflow-hidden"
-      value={image}
-      onValueChange={setImage}
-    >
-      {Object.entries(images).map(([name], i) => (
-        <SelectItem key={name} value={name} className="!p-1">
-          <div className="flex flex-row items-center gap-2">
-            {/* We don't care about nextjs image optimization here, it's a local data url */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              alt=""
-              className="aspect-square object-cover w-8 min-w-8 rounded"
-              src={imageUrls[i]}
-            />
-            <div>{name}</div>
-          </div>
-        </SelectItem>
-      ))}
-
-      <SelectItem value="none" className="!p-1">
-        <div className="flex flex-row items-center gap-2">
-          <div className="bg-pattern-squares bg-neutral-950 text-fuchsia-500 aspect-square object-cover w-8 min-w-8 rounded" />
-          <div>No image</div>
-        </div>
-      </SelectItem>
-    </Select>
+    <AssetManager
+      trigger={
+        <Button variant="outline" className="col-start-1 col-span-2">
+          {/* We don't care about nextjs image optimization here, it's a local data url */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt=""
+            className="aspect-square object-cover w-8 min-w-8 rounded"
+            src={imageUrl ?? undefined}
+          />
+          <div>{image}</div>
+        </Button>
+      }
+      onSelect={(name) => setImage(name)}
+    />
   );
 }
