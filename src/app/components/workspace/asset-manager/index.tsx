@@ -23,19 +23,21 @@ export function AssetManager({ trigger, onSelect }: AssetManagerProps) {
       title="Asset manager"
       description="View, modify and upload assets"
     >
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] gap-2">
-        {Object.entries(images).map(([key, image]) => (
-          <AssetThumbnail key={key} name={key} asset={image}>
-            <DialogClose asChild>
-              <button
-                className="absolute inset-0 hover:bg-white/10 cursor-pointer"
-                onClick={() => onSelect?.(key)}
-              />
-            </DialogClose>
-          </AssetThumbnail>
-        ))}
+      <div className="flex-1 overflow-auto border-b border-white/15">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] gap-2 p-3">
+          {Object.entries(images).map(([key, image]) => (
+            <AssetThumbnail key={key} name={key} asset={image}>
+              <DialogClose asChild>
+                <button
+                  className="absolute inset-0 hover:bg-white/10 cursor-pointer"
+                  onClick={() => onSelect?.(key)}
+                />
+              </DialogClose>
+            </AssetThumbnail>
+          ))}
+        </div>
       </div>
-      <div className="mt-3 flex flex-row gap-2 justify-end items-end grow">
+      <div className="p-3 flex flex-row gap-2 justify-end items-end">
         <Button
           variant="outline"
           className="col-start-1 col-span-2"

@@ -17,32 +17,37 @@ export function MenuAssets() {
   };
 
   return (
-    <div className="border-t border-white/15 p-2 grid grid-cols-2 gap-2 min-h-0 overflow-auto">
-      {Object.entries(images).map(([key, image]) => (
-        <AssetThumbnail
-          key={key}
-          name={key}
-          asset={image}
-          draggable
-          onDragStart={(ev) => onDragStart(ev, key)}
+    <div className="flex flex-col h-full border-t border-white/15">
+      <div className="grow overflow-auto min-h-0 border-b border-white/15">
+        <div className="grid grid-cols-2 gap-2 p-2">
+          {Object.entries(images).map(([key, image]) => (
+            <AssetThumbnail
+              key={key}
+              name={key}
+              asset={image}
+              draggable
+              onDragStart={(ev) => onDragStart(ev, key)}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-col gap-2 p-2">
+        <Button
+          variant="outline"
+          className="col-start-1 col-span-2"
+          onClick={uploadImageAsset}
+        >
+          Upload image
+        </Button>
+
+        <AssetManager
+          trigger={
+            <Button variant="outline" className="col-start-1 col-span-2">
+              Asset manager
+            </Button>
+          }
         />
-      ))}
-
-      <Button
-        variant="outline"
-        className="col-start-1 col-span-2"
-        onClick={uploadImageAsset}
-      >
-        Upload image
-      </Button>
-
-      <AssetManager
-        trigger={
-          <Button variant="outline" className="col-start-1 col-span-2">
-            Asset manager
-          </Button>
-        }
-      />
+      </div>
     </div>
   );
 }

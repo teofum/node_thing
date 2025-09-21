@@ -43,7 +43,7 @@ export function Dialog({
               </Button>
             </D.Close>
           </div>
-          <div className="p-3 flex flex-col grow">{children}</div>
+          <div className="flex flex-col grow min-h-0">{children}</div>
         </D.Content>
       </D.Portal>
     </D.Root>
