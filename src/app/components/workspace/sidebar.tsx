@@ -93,7 +93,9 @@ export function Sidebar() {
           </ToggleButton>
         </div>
 
-        <div className="relative z-10 min-h-0">{renderMenu()}</div>
+        <div className="relative z-10 min-h-0 flex flex-col grow">
+          {renderMenu()}
+        </div>
       </aside>
     </>
   );
