@@ -4,10 +4,9 @@ import { NodeProps } from "@xyflow/react";
 import { ShaderNode as ShaderNodeType, useStore } from "@/store/store";
 import { useAssetStore } from "@/store/asset-store";
 import { NodeType } from "@/schemas/node.schema";
-import { Select, SelectItem } from "@/ui/select";
 import { imageURLFromAsset } from "@/utils/image-url-from-asset";
-import { AssetManager } from "../asset-manager";
 import { Button } from "@/ui/button";
+import { AssetManager } from "../asset-manager";
 
 type ParameterProps = NodeProps<ShaderNodeType> & {
   name: string;
@@ -25,7 +24,7 @@ export function NodeParameter({ id, data, name, param }: ParameterProps) {
 
   if (param.type === "select") return "not implemented yet";
 
-  const image = data.parameters[name]?.value ?? "Np image";
+  const image = data.parameters[name]?.value ?? "No image";
   const setImage = (newValue: string) => {
     const value = newValue === "none" ? null : newValue;
     setParameter(id, name, value);
@@ -34,15 +33,20 @@ export function NodeParameter({ id, data, name, param }: ParameterProps) {
   return (
     <AssetManager
       trigger={
-        <Button variant="outline" className="col-start-1 col-span-2">
+        <Button
+          variant="outline"
+          className="col-start-1 col-span-2 justify-start pl-1 pt-1 pb-1 pr-2 mt-2 w-40"
+        >
           {/* We don't care about nextjs image optimization here, it's a local data url */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             alt=""
-            className="aspect-square object-cover w-8 min-w-8 rounded"
+            className="aspect-square object-cover w-8 min-w-8 rounded bg-pattern-squares bg-neutral-950 text-fuchsia-500"
             src={imageUrl ?? undefined}
           />
-          <div>{image}</div>
+          <div className="whitespace-nowrap overflow-hidden overflow-ellipsis">
+            {image}
+          </div>
         </Button>
       }
       onSelect={(name) => setImage(name)}
