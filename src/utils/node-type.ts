@@ -115,42 +115,6 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  gaussBlur3x3: {
-    name: "Gaussian blur 3x3",
-    category: "Blurs",
-    shader: gaussianBlurShader3x3,
-    inputs: {
-      in_a: {
-        name: "Input",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  gaussBlur5x5: {
-    name: "Gaussian blur 5x5",
-    category: "Blurs",
-    shader: gaussianBlurShader5x5,
-    inputs: {
-      in_a: {
-        name: "Input",
-        type: "color",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
   gaussBlur: {
     name: "Gaussian blur",
     category: "Blurs",
