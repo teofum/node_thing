@@ -1,37 +1,54 @@
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import cn from "classnames";
 import React from "react";
+import * as DM from "@radix-ui/react-dropdown-menu";
+import cn from "classnames";
 
-export const DropdownMenu = DropdownMenuPrimitive.Root;
-export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
+import { menuItemClassNames } from "./menu-bar";
 
-export const DropdownMenuContent = ({
+type MenuProps = Omit<
+  DM.DropdownMenuProps & DM.DropdownMenuTriggerProps,
+  "asChild"
+> & {
+  trigger: React.ReactNode;
+};
+
+export const DropdownMenu = ({
   className,
+  children,
+  trigger,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) => (
-  <DropdownMenuPrimitive.Portal>
-    <DropdownMenuPrimitive.Content
-      side="right"
-      sideOffset={17}
-      align="center"
-      className={cn(
-        "rounded-lg border border-white/15 bg-neutral-900 p-1 text-sm",
-        className,
-      )}
-      {...props}
-    />
-  </DropdownMenuPrimitive.Portal>
+}: MenuProps) => (
+  <DM.Root>
+    <DM.Trigger asChild {...props}>
+      {trigger}
+    </DM.Trigger>
+    <DM.Portal>
+      <DM.Content
+        side="right"
+        sideOffset={4}
+        align="start"
+        className={cn(
+          "glass glass-border rounded-xl p-1 select-none",
+          className,
+        )}
+      >
+        {children}
+      </DM.Content>
+    </DM.Portal>
+  </DM.Root>
 );
+
+type MenuItemProps = DM.DropdownMenuItemProps & {
+  icon?: React.ReactNode;
+};
 
 export const DropdownMenuItem = ({
   className,
+  children,
+  icon,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Item>) => (
-  <DropdownMenuPrimitive.Item
-    className={cn(
-      "cursor-pointer select-none rounded-md px-3 py-2 text-white/80 outline-none hover:bg-white/10 hover:text-white",
-      className,
-    )}
-    {...props}
-  />
+}: MenuItemProps) => (
+  <DM.Item className={cn(menuItemClassNames, className)} {...props}>
+    <div className="w-4 h-4 min-w-4 max-w-4 p-px">{icon}</div>
+    {children}
+  </DM.Item>
 );

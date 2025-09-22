@@ -71,14 +71,20 @@ body {
     }
   }
 
-  .fancy-outline {
-    filter: drop-shadow(0 0.5px 0 var(--tw-drop-shadow-color))
-      drop-shadow(0 -0.5px 0 var(--tw-drop-shadow-color))
-      drop-shadow(0.5px 0 0 var(--tw-drop-shadow-color))
-      drop-shadow(-0.5px 0 0 var(--tw-drop-shadow-color))
-      drop-shadow(0.5px 0.5px 0 var(--tw-drop-shadow-color))
-      drop-shadow(-0.5px -0.5px 0 var(--tw-drop-shadow-color))
-      drop-shadow(0.5px -0.5px 0 var(--tw-drop-shadow-color))
-      drop-shadow(-0.5px 0.5px 0 var(--tw-drop-shadow-color));
+  @property --overlay-blur {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @keyframes dialogOverlay {
+    from {
+      --overlay-blur: 0px;
+      backdrop-filter: blur(var(--overlay-blur)) saturate(1);
+    }
+    to {
+      --overlay-blur: 2px;
+      backdrop-filter: blur(var(--overlay-blur)) saturate(0.3);
+    }
   }
 }
