@@ -106,7 +106,7 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      factor: {
+      kernelSize: {
         name: "Kernel size",
         type: "number",
       },
@@ -128,7 +128,7 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      factor: {
+      kernelSize: {
         name: "Kernel size",
         type: "number",
       },
@@ -216,7 +216,7 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      factor: {
+      Threshold: {
         name: "Threshold",
         type: "number",
       },
@@ -284,7 +284,7 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      factor: {
+      range: {
         name: "Range",
         type: "number",
       },
@@ -306,7 +306,7 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      factor: {
+      range: {
         name: "Range",
         type: "number",
       },
@@ -346,11 +346,11 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      factor: {
+      kernelSize: {
         name: "Kernel size",
         type: "number",
       },
-      factor2: {
+      threshold: {
         name: "Threshold",
         type: "number",
       },
