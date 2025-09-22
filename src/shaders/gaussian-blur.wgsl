@@ -2,6 +2,9 @@
 var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
+var<storage, read> in_KERNEL_SIZE: array<f32>;
+
+@group(0) @binding(2)
 var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
@@ -12,7 +15,7 @@ struct Uniforms {
 var<uniform> u: Uniforms;
 
 
-const kernelSize: i32 = 8;
+//const kernelSize: i32 = 8;
 
 
 @compute @workgroup_size(16, 16) 
@@ -21,6 +24,14 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         return;
     }
     let index = id.x + id.y * u.width;
+
+    var fKERNEL_SIZE: f32;
+    if arrayLength(&in_KERNEL_SIZE) <= 4u {
+        fKERNEL_SIZE = in_KERNEL_SIZE[0];
+    } else {
+        fKERNEL_SIZE = in_KERNEL_SIZE[index];
+    }
+    let kernelSize: i32 = i32(floor(fKERNEL_SIZE*10))+2;
 
     var out: vec3<f32> = vec3<f32>(0.0);
 
