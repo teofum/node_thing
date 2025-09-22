@@ -208,6 +208,10 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
+      factor: {
+        name: "Threshold",
+        type: "number",
+      },
     },
     outputs: {
       out_a: {
