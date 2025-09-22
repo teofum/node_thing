@@ -4,8 +4,6 @@ import testUVShader from "@/shaders/test-uv.wgsl";
 import testBWShader from "@/shaders/test-grayscale.wgsl";
 import thresholdShader from "@/shaders/threshold-bw.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
-import gaussianBlurShader3x3 from "@/shaders/gaussian-blur-3x3.wgsl";
-import gaussianBlurShader5x5 from "@/shaders/gaussian-blur-5x5.wgsl";
 import gaussianBlurShader from "@/shaders/gaussian-blur.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
 import diffShader from "@/shaders/diff.wgsl";
