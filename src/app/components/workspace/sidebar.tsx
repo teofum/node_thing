@@ -43,17 +43,20 @@ export function Sidebar() {
       />
       <aside
         className={cn(
-          "absolute left-1 top-1 z-10 w-56 flex flex-col rounded-xl group",
-          "glass glass-border transition-[height] duration-300 overflow-hidden",
+          "absolute left-1 top-1 z-10 w-56 flex flex-col rounded-xl group p-px",
+          "transition-[height] duration-300 overflow-hidden",
           { "not-hover:!h-[50px]": !pin },
         )}
         style={{ height }}
       >
-        <div className="p-0.75 pr-2 flex flex-row gap-2 items-center min-h-12">
+        <div className="absolute inset-0 glass glass-border rounded-[inherit]" />
+        <div className="p-0.75 pr-2 flex flex-row gap-2 items-center min-h-12 relative z-10 mb-px">
           <Select
             variant="ghost"
             value={menu}
-            onValueChange={(value) => setMenu(value as typeof menu)}
+            onValueChange={(value: typeof menu) =>
+              setMenu(value as typeof menu)
+            }
           >
             <SelectItem value="library">
               <div className="flex items-center gap-2">
@@ -90,7 +93,9 @@ export function Sidebar() {
           </ToggleButton>
         </div>
 
-        {renderMenu()}
+        <div className="relative z-10 min-h-0 flex flex-col grow">
+          {renderMenu()}
+        </div>
       </aside>
     </>
   );

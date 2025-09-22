@@ -5,24 +5,17 @@ import { RenderShaderNode } from "./shader-node";
 import { NodeData } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 
-// TODO esto volarlo, relacionado con lo de IDs duplicadas
-let id = 0;
-const getId = () => `node_${id++}`;
-
 const nodeTypes = {
   RenderShaderNode,
 };
 
 export function Viewport() {
-  // NOTA: esto sería el ejemplo de uso, está todo guardado en zustand
-  const {
-    layers,
-    currentLayer,
-    setNodes,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-  } = useStore();
+  const layers = useStore((s) => s.layers);
+  const currentLayer = useStore((s) => s.currentLayer);
+  const onNodesChange = useStore((s) => s.onNodesChange);
+  const onEdgesChange = useStore((s) => s.onEdgesChange);
+  const onConnect = useStore((s) => s.onConnect);
+  const addNode = useStore((s) => s.addNode);
 
   const { screenToFlowPosition } = useReactFlow();
 
@@ -45,12 +38,6 @@ export function Viewport() {
       });
 
       const type = event.dataTransfer.getData("type") as NodeData["type"];
-      const currId = `${type === "__input" || type === "__output" ? `${type}_` : ""}${getId()}`;
-
-      const defaultValues: NodeData["defaultValues"] = {};
-      for (const [key, input] of Object.entries(NODE_TYPES[type].inputs)) {
-        defaultValues[key] = input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
-      }
 
       const parameters: NodeData["parameters"] = {};
       for (const key in NODE_TYPES[type].parameters) {
@@ -59,20 +46,9 @@ export function Viewport() {
         parameters[key] = { value };
       }
 
-      const newNode: ShaderNode = {
-        id: currId,
-        type: "RenderShaderNode",
-        position,
-        data: {
-          type,
-          defaultValues,
-          parameters,
-        },
-      };
-
-      setNodes([...useStore.getState().layers[currentLayer].nodes, newNode]);
+      addNode(type, position, parameters);
     },
-    [screenToFlowPosition, setNodes, currentLayer],
+    [screenToFlowPosition, addNode],
   );
 
   /*

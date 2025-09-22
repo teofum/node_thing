@@ -55,11 +55,36 @@ body {
   }
 
   @keyframes accordionSlideDown {
-    from { height: 0; }
-    to { height: var(--radix-accordion-content-height); }
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
   }
   @keyframes accordionSlideUp {
-    from { height: var(--radix-accordion-content-height); }
-    to { height: 0; }
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  @property --overlay-blur {
+    syntax: "<length>";
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  @keyframes dialogOverlay {
+    from {
+      --overlay-blur: 0px;
+      backdrop-filter: blur(var(--overlay-blur)) saturate(1);
+    }
+    to {
+      --overlay-blur: 2px;
+      backdrop-filter: blur(var(--overlay-blur)) saturate(0.3);
+    }
   }
 }
