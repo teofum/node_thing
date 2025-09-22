@@ -266,6 +266,10 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
+      factor: {
+        name: "Range",
+        type: "number",
+      },
     },
     outputs: {
       out_a: {
