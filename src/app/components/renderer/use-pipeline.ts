@@ -19,6 +19,7 @@ export function usePipeline(
 ) {
   const layers = useStore((s) => s.layers);
   const canvas = useStore((s) => s.properties.canvas);
+  const nodeTypes = useStore((s) => s.nodeTypes);
 
   /*
    * Pipeline descriptor and layer cache
@@ -76,7 +77,7 @@ export function usePipeline(
       if (needsRebuild[i].desc) {
         console.log(`Rebuilding render graph [layer ${i}]...`);
 
-        descCache.current[i] = buildRenderPipeline(layer);
+        descCache.current[i] = buildRenderPipeline(layer, nodeTypes);
         if (!descCache.current[i] || descCache.current[i].outputBuffer < 0)
           descCache.current[i] = null;
       }
@@ -95,6 +96,7 @@ export function usePipeline(
               ...layers[i].size,
               ...layers[i].position,
             },
+            nodeTypes,
           );
         } else {
           pipelineCache.current[i] = null;
@@ -110,7 +112,7 @@ export function usePipeline(
     }
 
     return pipelineCache.current;
-  }, [ctx, device, layers, canvas]);
+  }, [ctx, device, layers, canvas, nodeTypes]);
 
   return pipeline;
 }

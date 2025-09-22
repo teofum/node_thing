@@ -19,9 +19,9 @@ export async function uploadShaderAction(formData: FormData) {
     );
   }
 
-  // required fields
   const title = formData.get("title") as string;
-  const shaderFile = formData.get("shaderFile") as File;
+  const description = formData.get("description") as string;
+  const code = formData.get("code") as string;
   const priceStr = formData.get("price") as string;
   const categoryIdStr = formData.get("category") as string;
 
@@ -31,23 +31,9 @@ export async function uploadShaderAction(formData: FormData) {
     );
   }
 
-  if (!shaderFile || shaderFile.size === 0) {
+  if (!code?.trim()) {
     redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Shader file is required")}`,
-    );
-  }
-
-  if (!shaderFile.name.endsWith(".wgsl")) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Only .wgsl files are supported")}`,
-    );
-  }
-
-  const code = await shaderFile.text();
-
-  if (!code.trim()) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Shader file cannot be empty")}`,
+      `/marketplace/upload?error=${encodeURIComponent("Shader code cannot be empty")}`,
     );
   }
 
@@ -71,9 +57,6 @@ export async function uploadShaderAction(formData: FormData) {
     );
   }
 
-  // optional fields
-  const description = formData.get("description") as string;
-
   const { error } = await supabase.from("shaders").insert({
     user_id: user.id,
     title: title.trim(),
@@ -81,6 +64,7 @@ export async function uploadShaderAction(formData: FormData) {
     code: code.trim(),
     price,
     category_id: categoryId,
+    node_config: null,
   });
 
   if (error) {
@@ -125,6 +109,7 @@ export async function getShaders() {
       )
     `,
     )
+    .eq("published", true)
     .order("created_at", { ascending: false });
 
   if (owned.length) {
@@ -160,4 +145,34 @@ export async function getCategories(): Promise<Category[]> {
   }
 
   return categories || [];
+}
+
+// get shaders that the user bought so they can use them in the editor
+// it's not a marketplace action, but I don't know where else to put it :/
+export async function getPurchasedShaders() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const { data: purchases } = await supabase
+    .from("purchases")
+    .select(
+      `
+      shader:shaders (
+        id,
+        title,
+        code,
+        node_config,
+        category:categories(name)
+      )
+    `,
+    )
+    .eq("user_id", user.id);
+
+  return purchases?.map((p) => p.shader).filter(Boolean) || [];
 }

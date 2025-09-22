@@ -1,6 +1,5 @@
-import { HandleType, NodeData } from "@/schemas/node.schema";
+import { HandleType, NodeData, NodeType } from "@/schemas/node.schema";
 import { Layer, ShaderNode } from "@/store/store";
-import { NODE_TYPES } from "@/utils/node-type";
 
 type Buffer = {
   idx: number;
@@ -33,10 +32,10 @@ export type RenderPipeline = {
   bufferTypes: HandleType[];
 };
 
-export function buildRenderPipeline({
-  nodes,
-  edges,
-}: Layer): RenderPipeline | null {
+export function buildRenderPipeline(
+  { nodes, edges }: Layer,
+  nodeTypes: Record<string, NodeType>,
+): RenderPipeline | null {
   const queue: ShaderNode[] = [];
   const buffers: Buffer[] = [];
   const passes: RenderPass[] = [];
@@ -66,7 +65,7 @@ export function buildRenderPipeline({
   while (queue.length > 0) {
     // We just asserted the array has items, unshift will never return undefined
     const node = queue.shift() as ShaderNode;
-    const nodeType = NODE_TYPES[node.data.type];
+    const nodeType = nodeTypes[node.data.type];
 
     // // Detect loops
     // if (connectedIds.has(node.id)) {
@@ -139,7 +138,7 @@ export function buildRenderPipeline({
 
     // We just asserted the array has items, unshift will never return undefined
     const node = queue.shift() as ShaderNode;
-    const nodeType = NODE_TYPES[node.data.type];
+    const nodeType = nodeTypes[node.data.type];
 
     /*
      * Get a list of dependencies

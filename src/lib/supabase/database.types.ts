@@ -185,7 +185,10 @@ export type Database = {
           created_at: string;
           description: string | null;
           id: string;
+          node_config: Json | null;
           price: number;
+          published: boolean | null;
+          step: number | null;
           title: string;
           updated_at: string;
           user_id: string;
@@ -196,7 +199,10 @@ export type Database = {
           created_at?: string;
           description?: string | null;
           id?: string;
+          node_config?: Json | null;
           price: number;
+          published?: boolean | null;
+          step?: number | null;
           title: string;
           updated_at?: string;
           user_id: string;
@@ -207,7 +213,10 @@ export type Database = {
           created_at?: string;
           description?: string | null;
           id?: string;
+          node_config?: Json | null;
           price?: number;
+          published?: boolean | null;
+          step?: number | null;
           title?: string;
           updated_at?: string;
           user_id?: string;

@@ -50,7 +50,7 @@ export function NodeInput({
             min={0}
             max={1}
             step={0.01}
-            defaultValue={data.defaultValues[key].toString()}
+            defaultValue={(data.defaultValues[key] ?? 0.5).toString()}
             onChange={(ev) =>
               updateDefaultValue(id, key, Number(ev.target.value))
             }
@@ -59,7 +59,7 @@ export function NodeInput({
           <input
             type="color"
             className="nodrag"
-            defaultValue={`#${(data.defaultValues[key] as number[]).map((n) => (~~(n * 255)).toString(16).padStart(2, "0")).join("")}`}
+            defaultValue={`#${((data.defaultValues[key] as number[]) ?? [0.8, 0.8, 0.8, 1]).map((n) => (~~(n * 255)).toString(16).padStart(2, "0")).join("")}`}
             onChange={(ev) => {
               const color = ev.target.value;
               const r = parseInt(color.substring(1, 3), 16) / 255;

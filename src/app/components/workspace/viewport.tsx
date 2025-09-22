@@ -3,7 +3,6 @@ import { ReactFlow, useReactFlow, Background } from "@xyflow/react";
 import { ShaderNode, useStore } from "@/store/store";
 import { RenderShaderNode } from "./shader-node";
 import { NodeData } from "@/schemas/node.schema";
-import { NODE_TYPES } from "@/utils/node-type";
 
 // TODO esto volarlo, relacionado con lo de IDs duplicadas
 let id = 0;
@@ -18,6 +17,7 @@ export function Viewport() {
   const {
     layers,
     currentLayer,
+    nodeTypes: NODE_TYPES,
     setNodes,
     onNodesChange,
     onEdgesChange,
@@ -72,7 +72,7 @@ export function Viewport() {
 
       setNodes([...useStore.getState().layers[currentLayer].nodes, newNode]);
     },
-    [screenToFlowPosition, setNodes, currentLayer],
+    [screenToFlowPosition, setNodes, currentLayer, NODE_TYPES],
   );
 
   /*
