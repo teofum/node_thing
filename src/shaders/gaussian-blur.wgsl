@@ -31,7 +31,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     } else {
         fKERNEL_SIZE = in_KERNEL_SIZE[index];
     }
-    let kernelSize: i32 = i32(floor(fKERNEL_SIZE*10))+1;
+    let kernelSize: i32 = i32(floor(fKERNEL_SIZE*20))+1;
 
     var out: vec3<f32> = vec3<f32>(0.0);
 

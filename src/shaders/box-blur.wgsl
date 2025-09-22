@@ -2,6 +2,9 @@
 var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
+var<storage, read> in_KERNEL_SIZE: array<f32>;
+
+@group(0) @binding(2)
 var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
@@ -11,7 +14,7 @@ struct Uniforms {
 @group(1) @binding(0)
 var<uniform> u: Uniforms;
 
-const R : i32 = 9; //el radio del blur
+//const kernelSize : i32 = 9; //el radio del blur
 
 @compute @workgroup_size(16, 16) 
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
@@ -19,6 +22,14 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         return;
     }
     let index = id.x + id.y * u.width;
+
+    var fKERNEL_SIZE: f32;
+    if arrayLength(&in_KERNEL_SIZE) <= 4u {
+        fKERNEL_SIZE = in_KERNEL_SIZE[0];
+    } else {
+        fKERNEL_SIZE = in_KERNEL_SIZE[index];
+    }
+    let R: i32 = i32(floor(fKERNEL_SIZE*20))+1;
 
     var sum: vec3f = vec3f(0.0);
 
@@ -32,8 +43,8 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         }
     }
 
-    let kernelSize = f32((2 * R + 1) * (2 * R + 1));
-    let avg = sum / kernelSize;
+    
+    let avg = sum / f32((2 * R + 1) * (2 * R + 1));
 
     output[index] = avg;
 }
