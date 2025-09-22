@@ -340,6 +340,14 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
+      factor: {
+        name: "Kernel size",
+        type: "number",
+      },
+      factor2: {
+        name: "Threshold",
+        type: "number",
+      },
     },
     outputs: {
       out_a: {

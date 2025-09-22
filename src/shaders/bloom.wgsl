@@ -2,6 +2,12 @@
 var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
+var<storage, read> in_KERNEL_SIZE: array<f32>;
+
+@group(0) @binding(2)
+var<storage, read> in_threshold: array<f32>;
+
+@group(0) @binding(3)
 var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
@@ -18,8 +24,8 @@ fn get_index(x: i32, y: i32, w: i32, h: i32) -> vec3f {
     return input[index];
 }
 
-const kernelSize: i32 = 10;
-const threshhold: f32 = 0.8;
+//const kernelSize: i32 = 10;
+//const threshold: f32 = 0.8;
 
 fn get_lum(test: vec3f) -> f32 {
     return 0.2126 * test.r + 0.7152 * test.g + 0.0722 * test.b;;
@@ -32,6 +38,21 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
     let index = id.x + id.y * u.width;
 
+        var fKERNEL_SIZE: f32;
+    if arrayLength(&in_KERNEL_SIZE) <= 4u {
+        fKERNEL_SIZE = in_KERNEL_SIZE[0];
+    } else {
+        fKERNEL_SIZE = in_KERNEL_SIZE[index];
+    }
+    let kernelSize: i32 = i32(floor(fKERNEL_SIZE*20))+1;
+
+    var threshold: f32;
+    if arrayLength(&in_threshold) <= 4u {
+        threshold = in_threshold[0];
+    } else {
+        threshold = in_threshold[index];
+    }
+
     const SIGMA = 8.0; // standard deviation of gaussian (creo)
     const PI = 3.1415926538;
  
@@ -43,7 +64,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
             let x = clamp(i32(id.x) + dx, 0, i32(u.width) - 1);
             let sampleIndex: u32 = u32(x) + u32(y) * u.width;
 
-            if(get_lum(input[sampleIndex])>=threshhold){
+            if(get_lum(input[sampleIndex])>=threshold){
                 let dx_f = f32(dx);let dy_f = f32(dy);
                 let gaussian_v = 1.0 / (2.0 * PI * SIGMA * SIGMA) * exp(-(dx_f * dx_f + dy_f * dy_f) / (2.0 * SIGMA * SIGMA));
 
