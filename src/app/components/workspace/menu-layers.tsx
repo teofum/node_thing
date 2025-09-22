@@ -146,6 +146,14 @@ export function MenuLayers() {
                             >
                               Rename
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                              icon={<LuSquareArrowOutUpRight />}
+                              onClick={() =>
+                                handleExport(exportLayer(idx), layers[idx].name)
+                              }
+                            >
+                              Export
+                            </DropdownMenuItem>
                           </DropdownMenu>
                         </div>
                       </div>
@@ -157,28 +165,16 @@ export function MenuLayers() {
             )}
           </Droppable>
         </DragDropContext>
-
-        <div className="p-3 flex flex-col">
-          <Button variant="outline" onClick={addLayerButton}>
-            <LuPlus />
-            Add Layer
-          </Button>
-        </div>
       </div>
 
       <div className="p-3 gap-2 flex flex-col">
+        <Button variant="outline" onClick={addLayerButton}>
+          <LuPlus />
+          New Layer
+        </Button>
         <Button variant="outline" onClick={() => handleImport(importLayer)}>
           <LuSquareArrowOutDownLeft />
           Import Layer
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            handleExport(exportLayer(currentLayer), layers[currentLayer].name)
-          }
-        >
-          <LuSquareArrowOutUpRight />
-          Export Layer
         </Button>
       </div>
     </div>

@@ -25,7 +25,7 @@ export const DropdownMenu = ({
       <DM.Content
         side="right"
         sideOffset={4}
-        align="center"
+        align="start"
         className={cn(
           "glass glass-border rounded-xl p-1 select-none",
           className,
