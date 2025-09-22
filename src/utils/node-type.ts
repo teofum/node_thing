@@ -260,6 +260,12 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
+      angleR: { name: "Angle R", type: "number" },
+      angleG: { name: "Angle G", type: "number" },
+      angleB: { name: "Angle B", type: "number" },
+      magniR: { name: "magni R", type: "number" },
+      magniG: { name: "magni G", type: "number" },
+      magniB: { name: "magni B", type: "number" },
     },
     outputs: {
       out_a: {
