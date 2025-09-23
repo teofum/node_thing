@@ -12,6 +12,7 @@ import { create } from "zustand";
 
 import { NodeData, NodeType } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
+import { getPurchasedShaders } from "@/app/marketplace/actions";
 
 export type ShaderNode = Node<NodeData>;
 
@@ -41,6 +42,7 @@ export type Project = {
   layers: Layer[];
   currentLayer: number;
   properties: ProjectProperties;
+  nodeTypes: Record<string, NodeType>;
 };
 
 const initialNodes: ShaderNode[] = [
@@ -62,6 +64,8 @@ type ProjectActions = {
 
   setNodes: (nodes: ShaderNode[]) => void; // TODO, agregado addNode, puede que no se esté usando más setNodes
   setEdges: (edges: Edge[]) => void;
+
+  loadNodeTypes: () => Promise<void>;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -156,6 +160,7 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
   ],
   currentLayer: 0,
   properties: { canvas: initialSize, view: { zoom: 1 } },
+  nodeTypes: NODE_TYPES,
 
   /*
    * Actions
@@ -190,6 +195,7 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
     set(({ layers, currentLayer }) => {
       const layer = layers[currentLayer];
 
+      const nodeTypes = get().nodeTypes || NODE_TYPES;
       const targetType = layer.nodes.find(
         (node) => node.id === connection.target,
       )!.data.type;
@@ -198,10 +204,10 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
       )!.data.type;
 
       const targetHandleType = (
-        NODE_TYPES[targetType].inputs as NodeType["inputs"]
+        nodeTypes[targetType].inputs as NodeType["inputs"]
       )[connection.targetHandle ?? ""].type;
       const sourceHandleType = (
-        NODE_TYPES[sourceType].outputs as NodeType["outputs"]
+        nodeTypes[sourceType].outputs as NodeType["outputs"]
       )[connection.sourceHandle ?? ""].type;
 
       if (targetHandleType !== sourceHandleType) return {};
@@ -341,7 +347,7 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
   },
 
   importProject: (json) => {
-    set(({ layers, currentLayer, properties }) => {
+    set(({ nodeTypes }) => {
       const parsedProject: Project = JSON.parse(json);
 
       layerId = parsedProject.layers.length;
@@ -350,8 +356,30 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
         layers: parsedProject.layers,
         currentLayer: parsedProject.currentLayer,
         properties: parsedProject.properties,
+        nodeTypes,
       };
     });
+  },
+
+  loadNodeTypes: async () => {
+    const purchased = await getPurchasedShaders();
+    const purchasedNodeTypes = Object.fromEntries(
+      purchased
+        .filter((shader) => shader.node_config)
+        .map((shader) => {
+          const config = shader.node_config as NodeType;
+          return [
+            shader.id,
+            {
+              ...config,
+              shader: config.shader,
+              isPurchased: true,
+            },
+          ];
+        }),
+    );
+
+    set({ nodeTypes: { ...NODE_TYPES, ...purchasedNodeTypes } });
   },
 
   addNode: (type, position, parameters = {}) => {
@@ -361,8 +389,9 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
 
     const currId = `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${getId()}`;
 
+    const { nodeTypes } = get();
     const defaultValues: NodeData["defaultValues"] = {};
-    for (const [key, input] of Object.entries(NODE_TYPES[type].inputs)) {
+    for (const [key, input] of Object.entries(nodeTypes[type].inputs)) {
       defaultValues[key] = input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
     }
 
