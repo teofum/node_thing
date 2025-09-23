@@ -1,22 +1,21 @@
 import { NodeType } from "@/schemas/node.schema";
 
 import testUVShader from "@/shaders/test-uv.wgsl";
-import testBWShader from "@/shaders/test-grayscale.wgsl";
-import thresholdShader from "@/shaders/threshold-bw.wgsl";
+import grayscaleShader from "@/shaders/test-grayscale.wgsl";
+import thresholdShader from "@/shaders/threshold.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
 import gaussianBlurShader from "@/shaders/gaussian-blur.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
 import diffShader from "@/shaders/diff.wgsl";
-import brightnessShader from "@/shaders/brightness.wgsl";
+import exposureShader from "@/shaders/exposure.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 import chromaticAberrationShader from "@/shaders/chromatic-aberration.wgsl";
-import posterizerShader from "@/shaders/posterizer.wgsl";
-import lumPosterizerShader from "@/shaders/luminance-posterizer.wgsl";
-import basicSharpnessShader from "@/shaders/basicSharpness.wgsl";
+import posterizeShader from "@/shaders/posterize.wgsl";
+import sharpnessShader from "@/shaders/sharpness.wgsl";
 import bloomShader from "@/shaders/bloom.wgsl";
 
 export const NODE_TYPES = {
-  // Input y output ///////////////////////////////
+  // Input & output ///////////////////////////////
   __input_image: {
     name: "Image",
     category: "Input",
@@ -85,7 +84,8 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
-  }, // Utility category ///////////////////////////////
+  },
+  // Utility category ///////////////////////////////
   split_channels: {
     name: "Split channels",
     category: "Utility",
@@ -111,10 +111,11 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
-  }, // Blurs category ///////////////////////////////
+  },
+  // Filters category ///////////////////////////////
   boxBlur: {
     name: "Box Blur",
-    category: "Blurs",
+    category: "Filter",
     shader: boxBlurShader,
     inputs: {
       in_a: {
@@ -124,6 +125,8 @@ export const NODE_TYPES = {
       kernelSize: {
         name: "Kernel size",
         type: "number",
+        max: 25,
+        step: 1,
       },
     },
     outputs: {
@@ -136,7 +139,7 @@ export const NODE_TYPES = {
   },
   gaussBlur: {
     name: "Gaussian blur",
-    category: "Blurs",
+    category: "Filter",
     shader: gaussianBlurShader,
     inputs: {
       in_a: {
@@ -146,6 +149,8 @@ export const NODE_TYPES = {
       kernelSize: {
         name: "Kernel size",
         type: "number",
+        max: 25,
+        step: 1,
       },
     },
     outputs: {
@@ -155,7 +160,26 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
-  }, // Blend category ///////////////////////////////
+  },
+  basicSharpness: {
+    name: "Sharpness",
+    category: "Filter",
+    shader: sharpnessShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  // Blend category ///////////////////////////////
   mix: {
     name: "Mix",
     category: "Blend",
@@ -183,7 +207,7 @@ export const NODE_TYPES = {
     parameters: {},
   },
   diff: {
-    name: "Diff",
+    name: "Difference",
     category: "Blend",
     shader: diffShader,
     inputs: {
@@ -203,11 +227,12 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
-  }, // Color category ///////////////////////////////
-  test_bw: {
-    name: "Test Grayscale",
+  },
+  // Color category ///////////////////////////////
+  grayscale: {
+    name: "Grayscale",
     category: "Color",
-    shader: testBWShader,
+    shader: grayscaleShader,
     inputs: {
       in_a: {
         name: "Input",
@@ -223,7 +248,7 @@ export const NODE_TYPES = {
     parameters: {},
   },
   threshold: {
-    name: "Threshold B/W",
+    name: "Threshold",
     category: "Color",
     shader: thresholdShader,
     inputs: {
@@ -245,16 +270,16 @@ export const NODE_TYPES = {
     parameters: {},
   },
   brightness: {
-    name: "Brightness",
+    name: "Exposure",
     category: "Color",
-    shader: brightnessShader,
+    shader: exposureShader,
     inputs: {
       in_a: {
         name: "Input",
         type: "color",
       },
       factor: {
-        name: "Factor",
+        name: "EV",
         type: "number",
       },
     },
@@ -278,9 +303,9 @@ export const NODE_TYPES = {
       angleR: { name: "Angle R", type: "number" },
       angleG: { name: "Angle G", type: "number" },
       angleB: { name: "Angle B", type: "number" },
-      magniR: { name: "magni R", type: "number" },
-      magniG: { name: "magni G", type: "number" },
-      magniB: { name: "magni B", type: "number" },
+      magniR: { name: "Magnitude R", type: "number" },
+      magniG: { name: "Magnitude G", type: "number" },
+      magniB: { name: "Magnitude B", type: "number" },
     },
     outputs: {
       out_a: {
@@ -291,9 +316,9 @@ export const NODE_TYPES = {
     parameters: {},
   },
   posterizer: {
-    name: "Posterizer",
+    name: "Posterize",
     category: "Color",
-    shader: posterizerShader,
+    shader: posterizeShader,
     inputs: {
       in_a: {
         name: "Input",
@@ -302,46 +327,6 @@ export const NODE_TYPES = {
       range: {
         name: "Range",
         type: "number",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  lumPosterizer: {
-    name: "Luminance Posterizer",
-    category: "Color",
-    shader: lumPosterizerShader,
-    inputs: {
-      in_a: {
-        name: "Input",
-        type: "color",
-      },
-      range: {
-        name: "Range",
-        type: "number",
-      },
-    },
-    outputs: {
-      out_a: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  basicSharpness: {
-    name: "Basic Sharpness",
-    category: "Color",
-    shader: basicSharpnessShader,
-    inputs: {
-      in_a: {
-        name: "Input",
-        type: "color",
       },
     },
     outputs: {
