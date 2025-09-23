@@ -9,6 +9,7 @@ import mixShader from "@/shaders/mix.wgsl";
 import diffShader from "@/shaders/diff.wgsl";
 import exposureShader from "@/shaders/exposure.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
+import mergeChannelsShader from "@/shaders/combine-channels.wgsl";
 import chromaticAberrationShader from "@/shaders/chromatic-aberration.wgsl";
 import posterizeShader from "@/shaders/posterize.wgsl";
 import sharpnessShader from "@/shaders/sharpness.wgsl";
@@ -16,6 +17,7 @@ import bloomShader from "@/shaders/bloom.wgsl";
 import addShader from "@/shaders/add.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
 import absShader from "@/shaders/abs.wgsl";
+import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -90,6 +92,20 @@ export const NODE_TYPES = {
       },
     },
     outputs: {},
+    parameters: {},
+  },
+  // Generate category ///////////////////////////////
+  white_noise: {
+    name: "White Noise",
+    category: "Generate",
+    shader: whiteNoiseShader,
+    inputs: {},
+    outputs: {
+      output: {
+        name: "Noise",
+        type: "number",
+      },
+    },
     parameters: {},
   },
   // Math category ///////////////////////////////
@@ -424,7 +440,7 @@ export const NODE_TYPES = {
     shader: splitChannelsShader,
     inputs: {
       in_a: {
-        name: "Input",
+        name: "Color",
         type: "color",
       },
     },
@@ -440,6 +456,32 @@ export const NODE_TYPES = {
       blue: {
         name: "B",
         type: "number",
+      },
+    },
+    parameters: {},
+  },
+  merge_channels: {
+    name: "Merge channels",
+    category: "Utility",
+    shader: mergeChannelsShader,
+    inputs: {
+      red: {
+        name: "R",
+        type: "number",
+      },
+      green: {
+        name: "G",
+        type: "number",
+      },
+      blue: {
+        name: "B",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Color",
+        type: "color",
       },
     },
     parameters: {},
