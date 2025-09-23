@@ -13,6 +13,9 @@ import chromaticAberrationShader from "@/shaders/chromatic-aberration.wgsl";
 import posterizeShader from "@/shaders/posterize.wgsl";
 import sharpnessShader from "@/shaders/sharpness.wgsl";
 import bloomShader from "@/shaders/bloom.wgsl";
+import addShader from "@/shaders/add.wgsl";
+import multiplyShader from "@/shaders/multiply.wgsl";
+import absShader from "@/shaders/abs.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -89,28 +92,64 @@ export const NODE_TYPES = {
     outputs: {},
     parameters: {},
   },
-  // Utility category ///////////////////////////////
-  split_channels: {
-    name: "Split channels",
-    category: "Utility",
-    shader: splitChannelsShader,
+  // Math category ///////////////////////////////
+  add: {
+    name: "Add",
+    category: "Math",
+    shader: addShader,
     inputs: {
       in_a: {
-        name: "Input",
-        type: "color",
+        name: "x",
+        type: "number",
+      },
+      in_b: {
+        name: "y",
+        type: "number",
       },
     },
     outputs: {
-      red: {
-        name: "R",
+      out_a: {
+        name: "x + y",
         type: "number",
       },
-      green: {
-        name: "G",
+    },
+    parameters: {},
+  },
+  multiply: {
+    name: "Multiply",
+    category: "Math",
+    shader: multiplyShader,
+    inputs: {
+      in_a: {
+        name: "x",
         type: "number",
       },
-      blue: {
-        name: "B",
+      in_b: {
+        name: "y",
+        type: "number",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "x × y",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  abs: {
+    name: "Absolute value",
+    category: "Math",
+    shader: absShader,
+    inputs: {
+      in_a: {
+        name: "x",
+        type: "number",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "|x|",
         type: "number",
       },
     },
@@ -299,9 +338,10 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  // Effects category ///////////////////////////////
   chromaticAberration: {
     name: "Chromatic Aberration",
-    category: "Color",
+    category: "Effects",
     shader: chromaticAberrationShader,
     inputs: {
       in_a: {
@@ -323,18 +363,21 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  posterizer: {
+  posterize: {
     name: "Posterize",
-    category: "Color",
+    category: "Effects",
     shader: posterizeShader,
     inputs: {
       in_a: {
         name: "Input",
         type: "color",
       },
-      range: {
-        name: "Range",
+      steps: {
+        name: "Steps",
         type: "number",
+        min: 2,
+        max: 16,
+        step: 1,
       },
     },
     outputs: {
@@ -347,7 +390,7 @@ export const NODE_TYPES = {
   },
   bloom: {
     name: "Bloom",
-    category: "Color",
+    category: "Effects",
     shader: bloomShader,
     inputs: {
       in_a: {
@@ -370,6 +413,33 @@ export const NODE_TYPES = {
       out_a: {
         name: "Output",
         type: "color",
+      },
+    },
+    parameters: {},
+  },
+  // Utility category ///////////////////////////////
+  split_channels: {
+    name: "Split channels",
+    category: "Utility",
+    shader: splitChannelsShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      red: {
+        name: "R",
+        type: "number",
+      },
+      green: {
+        name: "G",
+        type: "number",
+      },
+      blue: {
+        name: "B",
+        type: "number",
       },
     },
     parameters: {},

@@ -26,8 +26,7 @@ export const SliderInput = React.forwardRef<HTMLInputElement, SliderInputProps>(
     const inputRef = useRef<HTMLInputElement>(null);
 
     const updateValue = (v: string) => {
-      const parsed = parseFloat(v);
-      let newVal = clamp(parsed, min, max);
+      let newVal = parseFloat(v);
       if (isNaN(newVal)) newVal = 0;
       const newStr = newVal.toString();
       if (v != newStr) {
