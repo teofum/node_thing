@@ -14,12 +14,6 @@ import { NodeData, NodeType } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 import { getPurchasedShaders } from "@/app/marketplace/actions";
 
-// !! cuidado: Node que se guarda es de RF
-// tiene campos id: y type: pero no son los de nuestro node.schema.ts
-// en Node[] se guardarían solamente ShaderNode, que en data.node: y data.id: se guarda lo de nuestro node.schema.ts
-
-// TODO, sería acá hacer una función de key, y eliminar redundancia de doble id
-
 export type ShaderNode = Node<NodeData>;
 
 let layerId = 0;
@@ -68,7 +62,7 @@ const initialSize = { width: 1920, height: 1080 };
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
 
-  setNodes: (nodes: ShaderNode[]) => void;
+  setNodes: (nodes: ShaderNode[]) => void; // TODO, agregado addNode, puede que no se esté usando más setNodes
   setEdges: (edges: Edge[]) => void;
 
   loadNodeTypes: () => Promise<void>;
@@ -102,6 +96,14 @@ type ProjectActions = {
 
   exportProject: () => string;
   importProject: (json: string) => void;
+
+  addNode: (
+    type: NodeData["type"],
+    position: { x: number; y: number },
+    parameters?: NodeData["parameters"],
+  ) => void;
+
+  changeLayerName: (name: string, idx: number) => void;
 };
 
 function modifyLayer(
@@ -331,8 +333,7 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
     set(({ layers }) => {
       const parsedLayer: Layer = JSON.parse(json);
 
-      // hardcodeo y les concateno 'import-' cuando son importandos, se generaban conflictos con IDs
-      parsedLayer.id = "import-" + parsedLayer.id;
+      parsedLayer.id = "layer_" + layerId++;
 
       return {
         layers: [...layers, parsedLayer],
@@ -348,6 +349,8 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
   importProject: (json) => {
     set(({ nodeTypes }) => {
       const parsedProject: Project = JSON.parse(json);
+
+      layerId = parsedProject.layers.length;
 
       return {
         layers: parsedProject.layers,
@@ -377,5 +380,46 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
     );
 
     set({ nodeTypes: { ...NODE_TYPES, ...purchasedNodeTypes } });
+  },
+
+  addNode: (type, position, parameters = {}) => {
+    const { layers, currentLayer } = get();
+
+    const getId = () => `node_${layers[currentLayer].nodes.length}`;
+
+    const currId = `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${getId()}`;
+
+    const { nodeTypes } = get();
+    const defaultValues: NodeData["defaultValues"] = {};
+    for (const [key, input] of Object.entries(nodeTypes[type].inputs)) {
+      defaultValues[key] = input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
+    }
+
+    const newNode: ShaderNode = {
+      id: currId,
+      type: "RenderShaderNode",
+      position,
+      data: {
+        type,
+        defaultValues,
+        parameters,
+      },
+    };
+
+    set({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        nodes: [...layer.nodes, newNode],
+      })),
+    });
+  },
+
+  changeLayerName: (name, idx) => {
+    const { layers } = get();
+
+    const newLayers = layers.map((layer, i) =>
+      i === idx ? { ...layer, name } : layer,
+    );
+
+    set({ layers: newLayers });
   },
 }));

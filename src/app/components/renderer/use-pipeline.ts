@@ -60,6 +60,7 @@ export function usePipeline(
         desc || //                                          descriptor has changed, or
         !pipelineCache.current?.[i] || //                   pipeline is not cached, or
         !canvasDimsCache.current || //                      canvas size is not cached, or
+        compareLayerDims(layer, cachedLayers[i]) || //      layer size has changed, or
         compareSize(canvasDimsCache.current, canvas); //    canvas size has changed
 
       cachedLayers[i] = layers[i];

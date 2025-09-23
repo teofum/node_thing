@@ -26,7 +26,7 @@ export function MenuLibrary() {
     });
 
   return (
-    <div className="border-t border-white/15 flex flex-col gap-3 min-h-0 overflow-auto">
+    <div className="border-t border-white/15 flex flex-col gap-3 min-h-0 overflow-auto flex-1">
       <Accordion.Root type="multiple">
         {Object.entries(nodesByCategory).map(([category, types]) => (
           <Fragment key={category}>

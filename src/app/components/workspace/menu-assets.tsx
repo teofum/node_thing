@@ -1,24 +1,14 @@
 import { useAssetStore } from "@/store/asset-store";
-import { imageURLFromAsset } from "@/utils/image-url-from-asset";
+import { Button } from "@/ui/button";
+import { AssetThumbnail } from "./asset-manager/thumbnail";
+import { uploadImage } from "@/utils/upload-image";
+import { AssetManager } from "./asset-manager";
 
 export function MenuAssets() {
   const images = useAssetStore((s) => s.images);
   const addImage = useAssetStore((s) => s.addImage);
 
-  const uploadImage = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const { files } = ev.target;
-    if (!files?.length) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const bytes = new Uint8Array(reader.result as ArrayBuffer);
-      addImage(files[0].name, {
-        type: files[0].name.split(".").at(-1) ?? "unknown",
-        data: bytes,
-      });
-    };
-    reader.readAsArrayBuffer(files[0]);
-  };
+  const uploadImageAsset = () => uploadImage(addImage);
 
   const onDragStart = (event: React.DragEvent, name: string) => {
     event.dataTransfer.effectAllowed = "move";
@@ -27,33 +17,37 @@ export function MenuAssets() {
   };
 
   return (
-    <div className="border-t border-white/15 p-2 grid grid-cols-2 gap-2 min-h-0 overflow-auto">
-      {Object.entries(images).map(([key, image]) => (
-        <div
-          key={key}
-          className="relative flex flex-col rounded-lg border border-white/15 overflow-hidden group/asset cursor-grab"
-          draggable
-          onDragStart={(ev) => onDragStart(ev, key)}
-        >
-          <div className="absolute bottom-0 left-0 right-0 p-1 text-xs/3 bg-black/40 opacity-0 group-hover/asset:opacity-100 transition-opacity duration-150">
-            {key}
-          </div>
-          {/* We don't care about nextjs image optimization here, it's a local data url */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            alt=""
-            className="aspect-square object-cover"
-            src={imageURLFromAsset(image)}
-          />
+    <div className="flex flex-col h-full border-t border-white/15">
+      <div className="grow overflow-auto min-h-0 border-b border-white/15">
+        <div className="grid grid-cols-2 gap-2 p-2">
+          {Object.entries(images).map(([key, image]) => (
+            <AssetThumbnail
+              key={key}
+              name={key}
+              asset={image}
+              draggable
+              onDragStart={(ev) => onDragStart(ev, key)}
+            />
+          ))}
         </div>
-      ))}
+      </div>
+      <div className="flex flex-col gap-2 p-2">
+        <Button
+          variant="outline"
+          className="col-start-1 col-span-2"
+          onClick={uploadImageAsset}
+        >
+          Upload image
+        </Button>
 
-      <input
-        className="bg-teal-50 rounded-lg text-black p-2 mt-4 w-40 text-xs col-start-1 col-span-2"
-        type="file"
-        accept="image/png, image/jpeg, image/webp"
-        onChange={uploadImage}
-      />
+        <AssetManager
+          trigger={
+            <Button variant="outline" className="col-start-1 col-span-2">
+              Asset manager
+            </Button>
+          }
+        />
+      </div>
     </div>
   );
 }

@@ -23,7 +23,10 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 );
 Menubar.displayName = "Menubar";
 
-type MenuProps = Omit<MB.MenubarProps & MB.MenubarTriggerProps, "asChild"> & {
+type MenuProps = Omit<
+  MB.MenubarMenuProps & MB.MenubarTriggerProps,
+  "asChild"
+> & {
   label: string;
 };
 
@@ -61,7 +64,7 @@ Menu.displayName = "Menu";
 
 export const MenuGroup = MB.Group;
 
-const menuItemClassNames = [
+export const menuItemClassNames = [
   "min-w-40 select-none outline-none flex flex-row gap-2",
   "text-sm/4 rounded-lg cursor-pointer py-1.5 px-3 pl-1",
   "transition-colors duration-150 hover:bg-current/10",

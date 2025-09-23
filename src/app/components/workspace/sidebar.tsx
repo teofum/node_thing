@@ -50,11 +50,13 @@ export function Sidebar() {
         style={{ height }}
       >
         <div className="absolute inset-0 glass glass-border rounded-[inherit]" />
-        <div className="p-0.75 pr-2 flex flex-row gap-2 items-center min-h-12 relative z-10">
+        <div className="p-0.75 pr-2 flex flex-row gap-2 items-center min-h-12 relative z-10 mb-px">
           <Select
             variant="ghost"
             value={menu}
-            onValueChange={(value) => setMenu(value as typeof menu)}
+            onValueChange={(value: typeof menu) =>
+              setMenu(value as typeof menu)
+            }
           >
             <SelectItem value="library">
               <div className="flex items-center gap-2">
@@ -91,7 +93,9 @@ export function Sidebar() {
           </ToggleButton>
         </div>
 
-        <div className="relative z-10">{renderMenu()}</div>
+        <div className="relative z-10 min-h-0 flex flex-col grow">
+          {renderMenu()}
+        </div>
       </aside>
     </>
   );
