@@ -9,7 +9,8 @@
     "start": "next start",
     "start:electron": "electron electron/dist/main.js",
     "lint": "eslint",
-    "prepare": "husky"
+    "prepare": "husky",
+    "update-types": "pnpx supabase gen types typescript --project-id prxzhaldskupuefqkomv > src/lib/supabase/database.types.ts"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -37,6 +38,7 @@
     "react-aria-components": "^1.12.2",
     "react-dom": "19.1.0",
     "react-icons": "^5.5.0",
+    "wgsl_reflect": "^1.2.3",
     "zod": "^4.0.17",
     "zustand": "^5.0.8"
   },
@@ -57,6 +59,7 @@
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
     "raw-loader": "^4.0.2",
+    "supabase": "^2.40.7",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

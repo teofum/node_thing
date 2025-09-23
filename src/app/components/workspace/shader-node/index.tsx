@@ -1,8 +1,8 @@
 import { NodeProps } from "@xyflow/react";
 import cn from "classnames";
+import { LuStar } from "react-icons/lu";
 
-import { ShaderNode as ShaderNodeType } from "@/store/store";
-import { NODE_TYPES } from "@/utils/node-type";
+import { ShaderNode as ShaderNodeType, useStore } from "@/store/store";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { NodeInput } from "./node-input";
 import { NodeOutput } from "./node-output";
@@ -14,7 +14,8 @@ export function RenderShaderNode(
   props: NodeProps<ShaderNodeType> & { mock?: boolean },
 ) {
   const { data, selected } = props;
-  const nodeTypeInfo = NODE_TYPES[data.type];
+  const nodeTypes = useStore((state) => state.nodeTypes);
+  const nodeTypeInfo = nodeTypes[data.type];
 
   const outputOffset =
     Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
@@ -36,7 +37,13 @@ export function RenderShaderNode(
           },
         )}
       >
-        {nodeTypeInfo.name}
+        <div className="flex items-center gap-1">
+          {nodeTypeInfo.name}
+          {/* star to recognize purchased shaders */}
+          {nodeTypeInfo.isPurchased && (
+            <LuStar className="w-3 h-3 opacity-70" />
+          )}
+        </div>
       </div>
 
       <div className="p-2">

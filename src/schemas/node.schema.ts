@@ -1,4 +1,4 @@
-import { NODE_TYPE_NAMES } from "@/utils/node-type";
+// import { NODE_TYPE_NAMES } from "@/utils/node-type";
 import * as z from "zod/v4";
 
 const parameterTypeSchema = z.enum(["select", "image"]);
@@ -46,11 +46,14 @@ export const nodeTypeSchema = z.object({
   parameters: z.record(z.string(), parameterSchema),
 
   shader: z.string(),
+  isPurchased: z.boolean().optional(),
 });
 
 export type NodeType = z.infer<typeof nodeTypeSchema>;
 
-const nodeTypeIdSchema = z.enum(NODE_TYPE_NAMES);
+// no sabía como incluir los default y los purchased acá
+// no sé si usar z.string() está bien
+const nodeTypeIdSchema = z.string();
 
 export const nodeDataSchema = z.object({
   type: nodeTypeIdSchema,

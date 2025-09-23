@@ -19,6 +19,7 @@ export async function signInAction(formData: FormData) {
   const supabase = await createClient();
   const emailOrUsername = formData.get("emailOrUsername") as string;
   const password = formData.get("password") as string;
+  const next = formData.get("next") as string;
 
   let email = emailOrUsername;
 
@@ -29,9 +30,10 @@ export async function signInAction(formData: FormData) {
     );
 
     if (!profileData) {
-      redirect(
-        `/auth/login?error=${encodeURIComponent("Invalid username or password")}`,
-      );
+      const errorUrl = next
+        ? `/auth/login?next=${encodeURIComponent(next)}&error=${encodeURIComponent("Invalid username or password")}`
+        : `/auth/login?error=${encodeURIComponent("Invalid username or password")}`;
+      redirect(errorUrl);
     }
     email = profileData;
   }
@@ -42,11 +44,20 @@ export async function signInAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/auth/login?error=${encodeURIComponent(error.message)}`);
+    const errorUrl = next
+      ? `/auth/login?next=${encodeURIComponent(next)}&error=${encodeURIComponent(error.message)}`
+      : `/auth/login?error=${encodeURIComponent(error.message)}`;
+    redirect(errorUrl);
   }
 
   revalidatePath("/");
-  redirect("/");
+
+  // Only redirect to next if it's a valid path starting with /
+  if (next && next.startsWith("/")) {
+    redirect(next);
+  } else {
+    redirect("/");
+  }
 }
 
 export async function signUpAction(formData: FormData) {
@@ -128,7 +139,9 @@ export async function updatePasswordAction(formData: FormData) {
     error: userError,
   } = await supabase.auth.getUser();
   if (userError || !user) {
-    redirect("/auth/login?error=Please log in to update your password");
+    redirect(
+      `/auth/login?error=${encodeURIComponent("Please log in to update your password")}`,
+    );
   }
 
   const password = formData.get("password") as string;
@@ -153,12 +166,22 @@ export async function updatePasswordAction(formData: FormData) {
   redirect(`/?message=${encodeURIComponent("Password updated successfully")}`);
 }
 
-export async function signInWithOAuthAction(provider: Provider) {
+export async function signInWithOAuthAction(
+  formData: FormData,
+  provider: Provider,
+) {
   const supabase = await createClient();
+  const next = formData.get("next") as string;
+
+  const callbackUrl =
+    next && next.startsWith("/")
+      ? `${await getBaseUrl()}/auth/callback?next=${encodeURIComponent(next)}`
+      : `${await getBaseUrl()}/auth/callback`;
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${await getBaseUrl()}/auth/callback?next=/onboarding`,
+      redirectTo: callbackUrl,
     },
   });
 
@@ -171,23 +194,23 @@ export async function signInWithOAuthAction(provider: Provider) {
   }
 }
 
-export const signInWithGoogleAction = signInWithOAuthAction.bind(
-  null,
-  "google",
-);
-export const signInWithGithubAction = signInWithOAuthAction.bind(
-  null,
-  "github",
-);
-export const signInWithDiscordAction = signInWithOAuthAction.bind(
-  null,
-  "discord",
-);
+export async function signInWithGoogleAction(formData: FormData) {
+  return signInWithOAuthAction(formData, "google");
+}
+
+export async function signInWithGithubAction(formData: FormData) {
+  return signInWithOAuthAction(formData, "github");
+}
+
+export async function signInWithDiscordAction(formData: FormData) {
+  return signInWithOAuthAction(formData, "discord");
+}
 
 export async function onboardingAction(formData: FormData) {
   const supabase = await createClient();
   const username = formData.get("username") as string;
   const displayName = formData.get("displayName") as string;
+  const next = formData.get("next") as string;
 
   const {
     data: { user },
@@ -195,7 +218,7 @@ export async function onboardingAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    redirect("/auth/login?error=Please log in first");
+    redirect(`/auth/login?error=${encodeURIComponent("Please log in first")}`);
   }
 
   const { data: existingProfile } = await supabase
@@ -205,9 +228,10 @@ export async function onboardingAction(formData: FormData) {
     .single();
 
   if (existingProfile) {
-    redirect(
-      `/onboarding?error=${encodeURIComponent("Username already taken")}`,
-    );
+    const errorUrl = next
+      ? `/onboarding?next=${encodeURIComponent(next)}&error=${encodeURIComponent("Username already taken")}`
+      : `/onboarding?error=${encodeURIComponent("Username already taken")}`;
+    redirect(errorUrl);
   }
 
   const { error: profileError } = await supabase
@@ -215,13 +239,12 @@ export async function onboardingAction(formData: FormData) {
     .insert({ id: user.id, username });
 
   if (profileError) {
-    console.error("Profile creation error:", profileError);
-    redirect(
-      `/onboarding?error=${encodeURIComponent(profileError.message || "Failed to create profile")}`,
-    );
+    const errorUrl = next
+      ? `/onboarding?next=${encodeURIComponent(next)}&error=${encodeURIComponent(profileError.message || "Failed to create profile")}`
+      : `/onboarding?error=${encodeURIComponent(profileError.message || "Failed to create profile")}`;
+    redirect(errorUrl);
   }
 
-  // Set user-provided display name
   const { error: updateError } = await supabase.auth.updateUser({
     data: {
       full_name: displayName,
@@ -229,9 +252,17 @@ export async function onboardingAction(formData: FormData) {
   });
 
   if (updateError) {
-    console.error("Display name update error:", updateError);
+    const errorUrl = next
+      ? `/onboarding?next=${encodeURIComponent(next)}&error=${encodeURIComponent(updateError.message || "Failed to update display name")}`
+      : `/onboarding?error=${encodeURIComponent(updateError.message || "Failed to update display name")}`;
+    redirect(errorUrl);
   }
 
   revalidatePath("/");
-  redirect("/");
+
+  if (next && next.startsWith("/")) {
+    redirect(next);
+  } else {
+    redirect("/");
+  }
 }
