@@ -127,7 +127,7 @@ export const NODE_TYPES = {
         type: "color",
       },
       kernelSize: {
-        name: "Kernel size",
+        name: "Radius",
         type: "number",
         max: 25,
         step: 1,
@@ -150,11 +150,12 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      kernelSize: {
-        name: "Kernel size",
+      std_dev: {
+        name: "Std. dev",
         type: "number",
-        max: 25,
-        step: 1,
+        min: 0.1,
+        max: 10,
+        step: 0.1,
       },
     },
     outputs: {
@@ -165,7 +166,7 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  basicSharpness: {
+  sharpness: {
     name: "Sharpness",
     category: "Filter",
     shader: sharpnessShader,
@@ -353,9 +354,12 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      kernelSize: {
-        name: "Kernel size",
+      std_dev: {
+        name: "Std. dev",
         type: "number",
+        min: 0.1,
+        max: 10,
+        step: 0.1,
       },
       threshold: {
         name: "Threshold",
