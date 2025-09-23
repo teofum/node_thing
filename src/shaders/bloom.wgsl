@@ -2,7 +2,7 @@
 var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
-var<storage, read> in_KERNEL_SIZE: array<f32>;
+var<storage, read> in_kernel_size: array<f32>;
 
 @group(0) @binding(2)
 var<storage, read> in_threshold: array<f32>;
@@ -24,12 +24,12 @@ fn get_index(x: i32, y: i32, w: i32, h: i32) -> vec3f {
     return input[index];
 }
 
-//const kernelSize: i32 = 10;
-//const threshold: f32 = 0.8;
-
 fn get_lum(test: vec3f) -> f32 {
-    return 0.2126 * test.r + 0.7152 * test.g + 0.0722 * test.b;;
+    return 0.2126 * test.r + 0.7152 * test.g + 0.0722 * test.b;
 }
+
+const SIGMA = 8.0; // standard deviation of gaussian (creo)
+const PI = 3.1415926538;
 
 @compute @workgroup_size(16, 16) 
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
@@ -38,13 +38,14 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
     let index = id.x + id.y * u.width;
 
-        var fKERNEL_SIZE: f32;
-    if arrayLength(&in_KERNEL_SIZE) <= 4u {
-        fKERNEL_SIZE = in_KERNEL_SIZE[0];
+    var kernel_size: f32;
+    if arrayLength(&in_kernel_size) <= 4u {
+        kernel_size = in_kernel_size[0];
     } else {
-        fKERNEL_SIZE = in_KERNEL_SIZE[index];
+        kernel_size = in_kernel_size[index];
     }
-    let kernelSize: i32 = i32(floor(fKERNEL_SIZE*20))+1;
+
+    let kernelSize: i32 = i32(floor(kernel_size));
 
     var threshold: f32;
     if arrayLength(&in_threshold) <= 4u {
@@ -53,18 +54,14 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         threshold = in_threshold[index];
     }
 
-    const SIGMA = 8.0; // standard deviation of gaussian (creo)
-    const PI = 3.1415926538;
- 
-    var out: vec3f = input[index];
-
-    for(var dy: i32 = -kernelSize; dy <= kernelSize; dy += 1){
-        for(var dx: i32 = -kernelSize; dx <= kernelSize; dx += 1){
+    var out = input[index];
+    for (var dy: i32 = -kernelSize; dy <= kernelSize; dy += 1) {
+        for (var dx: i32 = -kernelSize; dx <= kernelSize; dx += 1) {
             let y = clamp(i32(id.y) + dy, 0, i32(u.height) - 1);
             let x = clamp(i32(id.x) + dx, 0, i32(u.width) - 1);
             let sampleIndex: u32 = u32(x) + u32(y) * u.width;
 
-            if(get_lum(input[sampleIndex])>=threshold){
+            if get_lum(input[sampleIndex]) >= threshold {
                 let dx_f = f32(dx);let dy_f = f32(dy);
                 let gaussian_v = 1.0 / (2.0 * PI * SIGMA * SIGMA) * exp(-(dx_f * dx_f + dy_f * dy_f) / (2.0 * SIGMA * SIGMA));
 
@@ -74,5 +71,6 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
             }
         }
     }
-    output[index] = out;    
+
+    output[index] = out;
 }

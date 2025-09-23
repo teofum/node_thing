@@ -33,6 +33,7 @@ fn main(@builtin(global_invocation_id) id: vec3u) {
     var in: vec3f;
     if arrayLength(&input) == 1u {
         in = input[0];
+        in = pow(in, vec3f(2.2));
     } else {
         in = input[index];
     }

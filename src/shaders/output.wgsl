@@ -32,7 +32,9 @@ fn main(
 
     let offset = vec2i(vec2u(u.x, u.y));
 
-    let color = input[index];
+    var color = input[index];
+    color = pow(color, vec3f(1.0 / 2.2));
+
     if u.has_alpha != 0u {
         textureStore(tex, vec2i(id.xy) + offset, vec4f(color * alpha[index], alpha[index]));
     } else {

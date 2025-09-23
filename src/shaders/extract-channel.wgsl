@@ -28,8 +28,16 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
-    red[index] = input[index].r;
-    green[index] = input[index].g;
-    blue[index] = input[index].b;
+    var in: vec3f;
+    if arrayLength(&input) == 1u {
+        in = input[0];
+        in = pow(in, vec3f(2.2));
+    } else {
+        in = input[index];
+    }
+
+    red[index] = in.r;
+    green[index] = in.g;
+    blue[index] = in.b;
 }
 

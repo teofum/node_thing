@@ -2,7 +2,7 @@
 var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
-var<storage, read> in_RANGE: array<f32>;
+var<storage, read> in_steps: array<f32>;
 
 @group(0) @binding(2)
 var<storage, read_write> output: array<vec3f>;
@@ -14,8 +14,6 @@ struct Uniforms {
 @group(1) @binding(0)
 var<uniform> u: Uniforms;
 
-//const RANGE : i32 = 4; //color amount
-
 @compute @workgroup_size(16, 16) 
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     if id.x >= u.width || id.y >= u.height {
@@ -23,21 +21,27 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
     let index = id.x + id.y * u.width;
 
-    var fRANGE: f32;
-    if arrayLength(&in_RANGE) <= 4u {
-        fRANGE = in_RANGE[0];
+    var steps: f32;
+    if arrayLength(&in_steps) <= 4u {
+        steps = in_steps[0];
     } else {
-        fRANGE = in_RANGE[index];
+        steps = in_steps[index];
     }
-    let RANGE: i32 = i32(floor(fRANGE*10))+2; 
+    steps = floor(steps);
 
-    let luminance = 0.2126 * input[index].r + 0.7152 * input[index].g + 0.0722 * input[index].b;
+    var in: vec3f;
+    if arrayLength(&input) == 1u {
+        in = input[0];
+        in = pow(in, vec3f(2.2));
+    } else {
+        in = input[index];
+    }
 
-    let steps: f32 = f32(RANGE);
+    let luminance = 0.2126 * in.r + 0.7152 * in.g + 0.0722 * in.b;
 
-    let r = floor(input[index].r * steps) / (steps - 1.0);
-    let g = floor(input[index].g * steps) / (steps - 1.0);
-    let b = floor(input[index].b * steps) / (steps - 1.0);
+    let r = floor(in.r * steps) / (steps - 1.0);
+    let g = floor(in.g * steps) / (steps - 1.0);
+    let b = floor(in.b * steps) / (steps - 1.0);
 
     output[index] = vec3<f32>(r, g, b);
     return;

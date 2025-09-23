@@ -22,8 +22,15 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
+    var in: vec3f;
+    if arrayLength(&input) == 1u {
+        in = input[0];
+        in = pow(in, vec3f(2.2));
+    } else {
+        in = input[index];
+    }
+
     let luma = vec3f(0.2126, 0.7152, 0.0722);
-    let in = input[index].xyz;
     let val = dot(in, luma);
 
     output[index] = vec3f(val);
