@@ -39,6 +39,6 @@ fn main(
 
     let color = textureSampleLevel(tex, s, tex_coord, 0.0);
 
-    output[index] = color.rgb;
+    output[index] = pow(color.rgb, vec3f(2.2));
     alpha_out[index] = color.a;
 }
