@@ -102,6 +102,7 @@ type ProjectActions = {
     position: { x: number; y: number },
     parameters?: NodeData["parameters"],
   ) => void;
+  removeNode: (id: string) => void;
 
   changeLayerName: (name: string, idx: number) => void;
 };
@@ -411,6 +412,13 @@ export const useStore = create<Project & ProjectActions>((set, get) => ({
         nodes: [...layer.nodes, newNode],
       })),
     });
+  },
+  removeNode: (id) => {
+    set(({ layers, currentLayer }) => ({
+      layers: modifyLayer(layers, currentLayer, (layer) => ({
+        nodes: layer.nodes.filter((node) => node.id !== id),
+      })),
+    }));
   },
 
   changeLayerName: (name, idx) => {
