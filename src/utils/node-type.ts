@@ -269,7 +269,7 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  brightness: {
+  exposure: {
     name: "Exposure",
     category: "Color",
     shader: exposureShader,
@@ -281,6 +281,9 @@ export const NODE_TYPES = {
       factor: {
         name: "EV",
         type: "number",
+        min: -5,
+        max: 5,
+        step: 0.1,
       },
     },
     outputs: {
