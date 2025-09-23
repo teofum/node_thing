@@ -1,7 +1,7 @@
 import { NodeType } from "@/schemas/node.schema";
 
-import testUVShader from "@/shaders/test-uv.wgsl";
-import grayscaleShader from "@/shaders/test-grayscale.wgsl";
+import uvShader from "@/shaders/uv.wgsl";
+import grayscaleShader from "@/shaders/grayscale.wgsl";
 import thresholdShader from "@/shaders/threshold.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
 import gaussianBlurShader from "@/shaders/gaussian-blur.wgsl";
@@ -55,6 +55,23 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  uv: {
+    name: "UV",
+    category: "Input",
+    shader: uvShader,
+    inputs: {},
+    outputs: {
+      u: {
+        name: "U",
+        type: "number",
+      },
+      v: {
+        name: "V",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
   __output: {
     name: "Output",
     category: "Special",
@@ -70,19 +87,6 @@ export const NODE_TYPES = {
       },
     },
     outputs: {},
-    parameters: {},
-  },
-  test_uv: {
-    name: "Test UV gradient",
-    category: "Generate",
-    shader: testUVShader,
-    inputs: {},
-    outputs: {
-      out_a: {
-        name: "UV grid",
-        type: "color",
-      },
-    },
     parameters: {},
   },
   // Utility category ///////////////////////////////
