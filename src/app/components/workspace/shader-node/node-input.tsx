@@ -50,10 +50,10 @@ export function NodeInput({
           <SliderInput
             value={data.defaultValues[key] as number}
             onChange={(v) => updateDefaultValue(id, key, v)}
-            min={0}
-            max={1}
-            step={0.01}
-            className="w-[100px]"
+            min={input.min ?? 0}
+            max={input.max ?? 1}
+            step={input.step ?? 0.01}
+            className="w-25"
           />
         ) : (
           <ColorInput

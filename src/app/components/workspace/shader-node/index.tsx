@@ -16,7 +16,6 @@ export function RenderShaderNode(
   const { data, selected } = props;
   const nodeTypeInfo = NODE_TYPES[data.type];
 
-  // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
   const outputOffset =
     Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
 
