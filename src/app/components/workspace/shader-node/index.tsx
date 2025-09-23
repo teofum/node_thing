@@ -1,12 +1,14 @@
 import { NodeProps } from "@xyflow/react";
 import cn from "classnames";
-import { LuStar } from "react-icons/lu";
+import { LuEllipsisVertical, LuStar, LuTrash2 } from "react-icons/lu";
 
 import { ShaderNode as ShaderNodeType, useStore } from "@/store/store";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { NodeInput } from "./node-input";
 import { NodeOutput } from "./node-output";
 import { NodeParameter } from "./node-parameter";
+import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
+import { Button } from "@/ui/button";
 
 // TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
 // puede que querramos guardar el código del shader en formato string dentro del objeto data:
@@ -15,10 +17,15 @@ export function RenderShaderNode(
 ) {
   const { data, selected } = props;
   const nodeTypes = useStore((state) => state.nodeTypes);
+  const remove = useStore((state) => state.removeNode);
   const nodeTypeInfo = nodeTypes[data.type];
 
   const outputOffset =
     Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
+
+  const removeNode = () => {
+    remove(props.id);
+  };
 
   return (
     <div
@@ -40,9 +47,31 @@ export function RenderShaderNode(
         <div className="flex items-center gap-1">
           {nodeTypeInfo.name}
           {/* star to recognize purchased shaders */}
-          {nodeTypeInfo.isPurchased && (
+          {nodeTypeInfo.isPurchased ? (
             <LuStar className="w-3 h-3 opacity-70" />
-          )}
+          ) : null}
+          {!props.mock && data.type !== "__output" ? (
+            <DropdownMenu
+              trigger={
+                <Button
+                  icon
+                  variant="ghost"
+                  size="sm"
+                  className="ml-auto -mr-2"
+                >
+                  <LuEllipsisVertical />
+                </Button>
+              }
+            >
+              <DropdownMenuItem
+                className="text-red-400"
+                icon={<LuTrash2 />}
+                onClick={removeNode}
+              >
+                Remove
+              </DropdownMenuItem>
+            </DropdownMenu>
+          ) : null}
         </div>
       </div>
 
