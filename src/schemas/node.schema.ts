@@ -5,14 +5,23 @@ const parameterTypeSchema = z.enum(["select", "image"]);
 
 export type ParameterType = z.infer<typeof parameterTypeSchema>;
 
-const handleTypeSchema = z.enum(["number", "color"]);
+const handleSchema = z
+  .object({
+    name: z.string(),
+  })
+  .and(
+    z.union([
+      z.object({ type: z.literal("color") }),
+      z.object({
+        type: z.literal("number"),
+        min: z.number().optional(),
+        max: z.number().optional(),
+        step: z.number().optional(),
+      }),
+    ]),
+  );
 
-export type HandleType = z.infer<typeof handleTypeSchema>;
-
-const handleSchema = z.object({
-  name: z.string(),
-  type: handleTypeSchema,
-});
+export type HandleType = z.infer<typeof handleSchema>["type"];
 
 const parameterSchema = z.object({
   name: z.string(),

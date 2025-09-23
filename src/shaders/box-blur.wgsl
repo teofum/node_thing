@@ -2,6 +2,9 @@
 var<storage, read> input: array<vec3f>;
 
 @group(0) @binding(1)
+var<storage, read> in_kernel_size: array<f32>;
+
+@group(0) @binding(2)
 var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
@@ -11,8 +14,6 @@ struct Uniforms {
 @group(1) @binding(0)
 var<uniform> u: Uniforms;
 
-const R : i32 = 9; //el radio del blur
-
 @compute @workgroup_size(16, 16) 
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     if id.x >= u.width || id.y >= u.height {
@@ -20,8 +21,16 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
     let index = id.x + id.y * u.width;
 
-    var sum: vec3f = vec3f(0.0);
+    var kernel_size: f32;
+    if arrayLength(&in_kernel_size) <= 4u {
+        kernel_size = in_kernel_size[0];
+    } else {
+        kernel_size = in_kernel_size[index];
+    }
 
+    let R: i32 = i32(floor(kernel_size));
+
+    var sum: vec3f = vec3f(0.0);
     for (var dy: i32 = -R; dy <= R; dy = dy + 1) {
         for (var dx: i32 = -R; dx <= R; dx = dx + 1) {
             let x = clamp(i32(id.x) + dx, 0, i32(u.width) - 1);
@@ -32,8 +41,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         }
     }
 
-    let kernelSize = f32((2 * R + 1) * (2 * R + 1));
-    let avg = sum / kernelSize;
+    let avg = sum / f32((2 * R + 1) * (2 * R + 1));
 
     output[index] = avg;
 }

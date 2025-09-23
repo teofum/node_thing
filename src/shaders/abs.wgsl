@@ -1,8 +1,8 @@
 @group(0) @binding(0)
-var<storage, read> input: array<vec3f>;
+var<storage, read> input: array<f32>;
 
 @group(0) @binding(1)
-var<storage, read_write> output: array<vec3f>;
+var<storage, read_write> output: array<f32>;
 
 struct Uniforms {
     width: u32,
@@ -22,10 +22,13 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
-    let luma = vec3f(0.2126, 0.7152, 0.0722);
-    let in = input[index].xyz;
-    let val = dot(in, luma);
+    var in: f32;
+    if arrayLength(&input) <= 4u {
+        in = input[0];
+    } else {
+        in = input[index];
+    }
 
-    output[index] = vec3f(val);
+    output[index] = abs(in);
 }
 

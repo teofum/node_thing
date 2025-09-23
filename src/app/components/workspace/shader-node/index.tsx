@@ -17,7 +17,6 @@ export function RenderShaderNode(
   const nodeTypes = useStore((state) => state.nodeTypes);
   const nodeTypeInfo = nodeTypes[data.type];
 
-  // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
   const outputOffset =
     Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
 
@@ -34,6 +33,7 @@ export function RenderShaderNode(
           {
             "bg-purple-400/15": data.type === "__output",
             "bg-orange-400/15": nodeTypeInfo.category === "Input",
+            "bg-blue-400/15": nodeTypeInfo.category === "Math",
           },
         )}
       >

@@ -12,21 +12,27 @@ struct Uniforms {
 @group(1) @binding(0)
 var<uniform> u: Uniforms;
 
-const threshhold: f32 = 0.5;
-
 @compute @workgroup_size(16, 16)
-fn main(@builtin(global_invocation_id) id: vec3u) {
+fn main(
+    @builtin(global_invocation_id) id: vec3u,
+) {
+    // Avoid accessing the buffer out of bounds
     if id.x >= u.width || id.y >= u.height {
         return;
     }
     let index = id.x + id.y * u.width;
 
-    let val: f32 = (dot(input[index].xyz, vec3<f32>(1.0, 1.0, 1.0)) / 3.0);
-
-    if val > threshhold {
-        output[index] = vec3f(1.0);
+    var in: vec3f;
+    if arrayLength(&input) == 1u {
+        in = input[0];
+        in = pow(in, vec3f(2.2));
     } else {
-        output[index] = vec3f(0.0);
+        in = input[index];
     }
+
+    let luma = vec3f(0.2126, 0.7152, 0.0722);
+    let val = dot(in, luma);
+
+    output[index] = vec3f(val);
 }
 
