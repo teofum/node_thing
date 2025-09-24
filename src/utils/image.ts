@@ -1,6 +1,6 @@
 import { ImageAsset, imageTypeSchema } from "@/schemas/asset.schema";
 
-export function uploadImage(
+export function loadImageAssetFromFile(
   callback: (name: string, asset: ImageAsset) => void,
 ) {
   const input = document.createElement("input");
@@ -11,17 +11,15 @@ export function uploadImage(
     const { files } = ev.target as HTMLInputElement;
     if (!files?.length) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const bytes = new Uint8Array(reader.result as ArrayBuffer);
+    files[0].arrayBuffer().then((ab) => {
+      const bytes = new Uint8Array(ab);
       callback(files[0].name, {
         type: imageTypeSchema.parse(
           files[0].name.split(".").at(-1) ?? "unknown",
         ),
         data: bytes,
       });
-    };
-    reader.readAsArrayBuffer(files[0]);
+    });
   });
 
   input.click();
