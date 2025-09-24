@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import cn from "classnames";
 
 import { useMainStore } from "@/store/main.store";
@@ -9,6 +9,7 @@ import { useGPU } from "./use-gpu";
 import { useWebGPUContext } from "./use-webgpu-context";
 import { usePipeline } from "./use-pipeline";
 import { useTextureCache } from "./use-texture-cache";
+import { useUtilityStore } from "@/store/utility.store";
 
 const SAMPLER_DESC: GPUSamplerDescriptor = {
   magFilter: "linear",
@@ -20,8 +21,13 @@ export function Canvas() {
    * State
    */
   const { canvas: canvasProperties, view } = useMainStore((s) => s.properties);
+  const canvas = useUtilityStore((s) => s.canvas);
+  const setCanvas = useUtilityStore((s) => s.setCanvas);
+  const nextRenderFinishedCallback = useUtilityStore(
+    (s) => s.nextRenderFinishedCallback,
+  );
+  const onNextRenderFinished = useUtilityStore((s) => s.onNextRenderFinished);
 
-  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const frameRequestHandle = useRef<number | null>(null);
 
   /*
@@ -63,7 +69,7 @@ export function Canvas() {
 
     if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
-    const renderFrame = () => {
+    const renderFrame = async () => {
       const target = ctx.getCurrentTexture();
 
       for (const layerPipeline of pipeline) {
@@ -71,11 +77,28 @@ export function Canvas() {
           render(device, layerPipeline, target, textures, sampler);
       }
 
-      // requestAnimationFrame(renderFrame);
+      if (nextRenderFinishedCallback) {
+        nextRenderFinishedCallback(canvas);
+        onNextRenderFinished(null);
+      }
     };
 
     frameRequestHandle.current = requestAnimationFrame(renderFrame);
-  }, [canvas, ctx, device, pipeline, textures, sampler]);
+
+    return () => {
+      if (frameRequestHandle.current)
+        cancelAnimationFrame(frameRequestHandle.current);
+    };
+  }, [
+    canvas,
+    ctx,
+    device,
+    pipeline,
+    textures,
+    sampler,
+    nextRenderFinishedCallback,
+    onNextRenderFinished,
+  ]);
 
   return (
     <canvas

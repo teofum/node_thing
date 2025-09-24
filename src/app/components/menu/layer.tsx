@@ -8,8 +8,7 @@ import {
   MenuRadioItem,
   MenuSeparator,
 } from "@/ui/menu-bar";
-import { handleExport } from "@/utils/handle-export";
-import { handleImport } from "@/utils/handle-import";
+import { saveJsonToFile, loadJsonFromFile } from "@/utils/json";
 import {
   LuExpand,
   LuPlus,
@@ -44,7 +43,7 @@ export function LayerMenu() {
       <MenuItem
         icon={<LuSquareArrowOutUpRight />}
         onClick={() =>
-          handleExport(exportLayer(currentLayer), layers[currentLayer].name)
+          saveJsonToFile(exportLayer(currentLayer), layers[currentLayer].name)
         }
       >
         Export
@@ -57,7 +56,7 @@ export function LayerMenu() {
       </MenuItem>
       <MenuItem
         icon={<LuSquareArrowOutDownLeft />}
-        onClick={() => handleImport(importLayer)}
+        onClick={() => loadJsonFromFile(importLayer)}
       >
         Import
       </MenuItem>
