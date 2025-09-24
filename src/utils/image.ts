@@ -1,5 +1,25 @@
 import { ImageAsset, imageTypeSchema } from "@/schemas/asset.schema";
 
+export async function saveImageToFile(
+  suggestedName: string,
+  asset: ImageAsset,
+) {
+  try {
+    const handle = await window.showSaveFilePicker({
+      suggestedName: `${suggestedName}.${asset.type}`,
+      types: [
+        { accept: { [`image/${asset.type}` as const]: [`.${asset.type}`] } },
+      ],
+    });
+
+    const writable = await handle.createWritable();
+    await writable.write(asset.data);
+    await writable.close();
+  } catch (e) {
+    console.warn(e);
+  }
+}
+
 export function loadImageAssetFromFile(
   callback: (name: string, asset: ImageAsset) => void,
 ) {

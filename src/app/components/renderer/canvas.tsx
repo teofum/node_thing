@@ -65,13 +65,33 @@ export function Canvas() {
 
     if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
-    const renderFrame = () => {
+    const renderFrame = async () => {
       const target = ctx.getCurrentTexture();
 
       for (const layerPipeline of pipeline) {
         if (layerPipeline)
           render(device, layerPipeline, target, textures, sampler);
       }
+
+      const readbackBuffer = device.createBuffer({
+        size: 4 * target.width * target.height,
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+      });
+
+      const enc = device.createCommandEncoder();
+
+      enc.copyTextureToBuffer(
+        { texture: target },
+        { buffer: readbackBuffer, bytesPerRow: 4 * target.width },
+        [target.width, target.height],
+      );
+
+      device.queue.submit([enc.finish()]);
+
+      await readbackBuffer.mapAsync(GPUMapMode.READ);
+      const bytes = new Uint8Array(readbackBuffer.getMappedRange());
+
+      console.log(bytes);
 
       // requestAnimationFrame(renderFrame);
     };
