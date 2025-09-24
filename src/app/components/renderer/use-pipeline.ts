@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 
-import { Layer, useNodeStore } from "@/store/store";
+import { Layer, useNodeStore } from "@/store/node.store";
 import { PreparedPipeline, preparePipeline } from "./renderer";
 import { buildRenderPipeline, RenderPipeline } from "./pipeline";
 import { compareLayerDims, compareLayers } from "./compare-layers";

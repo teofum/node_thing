@@ -1,6 +1,6 @@
 import { RefObject } from "react";
 
-import { useNodeStore } from "@/store/store";
+import { useNodeStore } from "@/store/node.store";
 import { useDrag } from "@/utils/use-drag";
 import { clamp } from "@/utils/clamp";
 

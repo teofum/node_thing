@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { useNodeStore } from "@/store/store";
-import { useAssetStore } from "@/store/asset-store";
+import { useNodeStore } from "@/store/node.store";
+import { useAssetStore } from "@/store/asset.store";
 import { zip } from "@/utils/zip";
 
 export function useTextureCache(device: GPUDevice | null) {

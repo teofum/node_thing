@@ -2,7 +2,7 @@ import { NodeProps } from "@xyflow/react";
 import cn from "classnames";
 import { LuEllipsisVertical, LuStar, LuTrash2 } from "react-icons/lu";
 
-import { ShaderNode as ShaderNodeType, useNodeStore } from "@/store/store";
+import { ShaderNode as ShaderNodeType, useNodeStore } from "@/store/node.store";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { NodeInput } from "./node-input";
 import { NodeOutput } from "./node-output";

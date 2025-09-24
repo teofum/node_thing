@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { NodeProps } from "@xyflow/react";
 
-import { ShaderNode as ShaderNodeType, useNodeStore } from "@/store/store";
-import { useAssetStore } from "@/store/asset-store";
+import { ShaderNode as ShaderNodeType, useNodeStore } from "@/store/node.store";
+import { useAssetStore } from "@/store/asset.store";
 import { NodeType } from "@/schemas/node.schema";
 import { imageURLFromAsset } from "@/utils/image-url-from-asset";
 import { Button } from "@/ui/button";

@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import cn from "classnames";
 
-import { useNodeStore } from "@/store/store";
+import { useNodeStore } from "@/store/node.store";
 import { render } from "./renderer";
 import { useGPU } from "./use-gpu";
 import { useWebGPUContext } from "./use-webgpu-context";

@@ -1,6 +1,6 @@
 import { ComponentProps } from "react";
 
-import { useAssetStore } from "@/store/asset-store";
+import { useAssetStore } from "@/store/asset.store";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 import { uploadImage } from "@/utils/upload-image";

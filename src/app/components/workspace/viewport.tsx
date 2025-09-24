@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { ReactFlow, useReactFlow, Background } from "@xyflow/react";
-import { ShaderNode, useNodeStore } from "@/store/store";
+import { ShaderNode, useNodeStore } from "@/store/node.store";
 import { RenderShaderNode } from "./shader-node";
 import { NodeData } from "@/schemas/node.schema";
 

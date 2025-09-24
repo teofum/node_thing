@@ -2,11 +2,11 @@
 
 import { ReactFlowProvider } from "@xyflow/react";
 import { useEffect, useState } from "react";
-import { useNodeStore } from "@/store/store";
+import { useNodeStore } from "@/store/node.store";
 
 import { Sidebar } from "./sidebar";
 import { Viewport } from "./viewport";
-import { useAssetStore } from "@/store/asset-store";
+import { useAssetStore } from "@/store/asset.store";
 
 export function Workspace() {
   const loadNodeTypes = useNodeStore((state) => state.loadNodeTypes);

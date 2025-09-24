@@ -2,7 +2,7 @@
 
 import { Menu, MenuItem } from "@/ui/menu-bar";
 import { LuSave, LuDownload } from "react-icons/lu";
-import { useNodeStore } from "@/store/store";
+import { useNodeStore } from "@/store/node.store";
 import { handleExport } from "@/utils/handle-export";
 import { handleImport } from "@/utils/handle-import";
 

@@ -15,7 +15,7 @@ import {
   LuSquareArrowOutUpRight,
 } from "react-icons/lu";
 
-import { useNodeStore } from "@/store/store";
+import { useNodeStore } from "@/store/node.store";
 import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
 import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";

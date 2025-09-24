@@ -1,6 +1,6 @@
 "use client";
 
-import { useNodeStore } from "@/store/store";
+import { useNodeStore } from "@/store/node.store";
 import { Canvas } from "./canvas";
 import { Button, ToggleButton } from "@/ui/button";
 import { LuCrop, LuMinus, LuPlus } from "react-icons/lu";

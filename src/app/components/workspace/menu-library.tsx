@@ -1,6 +1,6 @@
 import { RenderShaderNode } from "./shader-node";
 import { NodeType } from "@/schemas/node.schema";
-import { useNodeStore } from "@/store/store";
+import { useNodeStore } from "@/store/node.store";
 import * as Accordion from "@radix-ui/react-accordion";
 import {
   AccordionContent,

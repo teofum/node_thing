@@ -1,6 +1,6 @@
 "use client";
 
-import { useNodeStore } from "@/store/store";
+import { useNodeStore } from "@/store/node.store";
 import {
   Menu,
   MenuItem,

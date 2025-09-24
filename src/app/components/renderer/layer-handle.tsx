@@ -2,7 +2,7 @@
 
 import cn from "classnames";
 
-import { useNodeStore } from "@/store/store";
+import { useNodeStore } from "@/store/node.store";
 import { DIR, useResizeLayer, type Direction } from "./use-resize-layer";
 import { useLayoutEffect, useRef } from "react";
 import { useMoveLayer } from "./use-move-layer";
