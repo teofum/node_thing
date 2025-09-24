@@ -1,7 +1,7 @@
 import { NodeProps, Position } from "@xyflow/react";
 import cn from "classnames";
 
-import { ShaderNode as ShaderNodeType } from "@/store/store";
+import { ShaderNode as ShaderNodeType } from "@/store/main.store";
 import { NodeType } from "@/schemas/node.schema";
 import { HandleWithMock } from "./mock-handle";
 import { HANDLE_HEIGHT } from "./constants";

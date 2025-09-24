@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 
-import { Layer, useStore } from "@/store/store";
+import { Layer, useMainStore } from "@/store/main.store";
 import { PreparedPipeline, preparePipeline } from "./renderer";
 import { buildRenderPipeline, RenderPipeline } from "./pipeline";
 import { compareLayerDims, compareLayers } from "./compare-layers";
@@ -17,9 +17,9 @@ export function usePipeline(
   device: GPUDevice | null,
   ctx: GPUCanvasContext | null,
 ) {
-  const layers = useStore((s) => s.layers);
-  const canvas = useStore((s) => s.properties.canvas);
-  const nodeTypes = useStore((s) => s.nodeTypes);
+  const layers = useMainStore((s) => s.layers);
+  const canvas = useMainStore((s) => s.properties.canvas);
+  const nodeTypes = useMainStore((s) => s.nodeTypes);
 
   /*
    * Pipeline descriptor and layer cache

@@ -1,6 +1,6 @@
 import { RefObject } from "react";
 
-import { useStore } from "@/store/store";
+import { useMainStore } from "@/store/main.store";
 import { useDrag } from "@/utils/use-drag";
 import { clamp } from "@/utils/clamp";
 
@@ -21,8 +21,8 @@ export function useResizeLayer(
   ref: RefObject<HTMLDivElement | null>,
   direction: Direction,
 ) {
-  const setLayerBounds = useStore((s) => s.setLayerBounds);
-  const view = useStore((s) => s.properties.view);
+  const setLayerBounds = useMainStore((s) => s.setLayerBounds);
+  const view = useMainStore((s) => s.properties.view);
 
   const onDragStart = (ev: PointerEvent) => {
     const el = ref.current;

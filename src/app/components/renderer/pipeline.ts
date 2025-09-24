@@ -1,5 +1,5 @@
 import { HandleType, NodeData, NodeType } from "@/schemas/node.schema";
-import { Layer, ShaderNode } from "@/store/store";
+import { Layer, ShaderNode } from "@/store/main.store";
 
 type Buffer = {
   idx: number;

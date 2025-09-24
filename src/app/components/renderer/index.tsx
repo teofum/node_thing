@@ -1,21 +1,24 @@
 "use client";
 
-import { useStore } from "@/store/store";
-import { Canvas } from "./canvas";
-import { Button, ToggleButton } from "@/ui/button";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LuCrop, LuMinus, LuPlus } from "react-icons/lu";
-import { useLayoutEffect, useRef, useState } from "react";
+
+import { useMainStore } from "@/store/main.store";
+import { useAssetStore } from "@/store/asset.store";
+import { Button, ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
+import { Canvas } from "./canvas";
 import { LayerHandle } from "./layer-handle";
 
 const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
 const ZOOM_SPEED = 0.01;
 
 export function Renderer() {
-  const { canvas, view } = useStore((s) => s.properties);
-  const setZoom = useStore((s) => s.setZoom);
-  const setCanvasSize = useStore((s) => s.setCanvasSize);
+  const { canvas, view } = useMainStore((s) => s.properties);
+  const setZoom = useMainStore((s) => s.setZoom);
+  const setCanvasSize = useMainStore((s) => s.setCanvasSize);
   const [showLayerHandle, setShowLayerHandle] = useState(false);
+  const [storeHydrated, setStoreHydrated] = useState(false);
 
   const viewport = useRef<HTMLDivElement | null>(null);
 
@@ -63,7 +66,7 @@ export function Renderer() {
     return () => {
       viewportEl?.removeEventListener("wheel", zoomScrollHandler);
     };
-  }, [setZoom, view.zoom]);
+  }, [setZoom, view.zoom, storeHydrated]);
 
   /*
    * Canvas size
@@ -81,6 +84,22 @@ export function Renderer() {
       setCanvasSize(canvas.width, height);
     }
   };
+
+  /*
+   * Wait for asset store hydration
+   */
+  useEffect(() => {
+    useAssetStore.persist.onFinishHydration(() => setStoreHydrated(true));
+
+    setStoreHydrated(useAssetStore.persist.hasHydrated());
+  }, []);
+
+  if (!storeHydrated)
+    return (
+      <div className="rounded-2xl bg-neutral-950 border border-white/15 w-full h-full grid place-items-center">
+        <div className="font-semibold text-lg">Loading...</div>
+      </div>
+    );
 
   /*
    * Component UI

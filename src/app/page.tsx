@@ -26,6 +26,7 @@ export default async function Home() {
       redirect("/onboarding");
     }
   }
+
   return (
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useStore } from "@/store/store";
+import { useMainStore } from "@/store/main.store";
 import {
   Menu,
   MenuItem,
@@ -18,15 +18,15 @@ import {
 } from "react-icons/lu";
 
 export function LayerMenu() {
-  const canvas = useStore((s) => s.properties.canvas);
+  const canvas = useMainStore((s) => s.properties.canvas);
 
-  const layers = useStore((s) => s.layers);
-  const currentLayer = useStore((s) => s.currentLayer);
-  const addLayer = useStore((s) => s.addLayer);
-  const exportLayer = useStore((s) => s.exportLayer);
-  const importLayer = useStore((s) => s.importLayer);
-  const setActiveLayer = useStore((s) => s.setActiveLayer);
-  const setLayerBounds = useStore((s) => s.setLayerBounds);
+  const layers = useMainStore((s) => s.layers);
+  const currentLayer = useMainStore((s) => s.currentLayer);
+  const addLayer = useMainStore((s) => s.addLayer);
+  const exportLayer = useMainStore((s) => s.exportLayer);
+  const importLayer = useMainStore((s) => s.importLayer);
+  const setActiveLayer = useMainStore((s) => s.setActiveLayer);
+  const setLayerBounds = useMainStore((s) => s.setLayerBounds);
 
   const fitLayerToCanvas = () => {
     setLayerBounds(0, 0, canvas.width, canvas.height);

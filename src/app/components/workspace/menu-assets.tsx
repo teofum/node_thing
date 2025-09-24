@@ -1,4 +1,4 @@
-import { useAssetStore } from "@/store/asset-store";
+import { useAssetStore } from "@/store/asset.store";
 import { Button } from "@/ui/button";
 import { AssetThumbnail } from "./asset-manager/thumbnail";
 import { uploadImage } from "@/utils/upload-image";

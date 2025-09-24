@@ -1,6 +1,6 @@
 import { ComponentProps, useMemo } from "react";
 
-import { ImageAsset } from "@/store/asset-store";
+import { ImageAsset } from "@/schemas/asset.schema";
 import { imageURLFromAsset } from "@/utils/image-url-from-asset";
 
 type Props = ComponentProps<"div"> & {
