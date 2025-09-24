@@ -18,6 +18,7 @@ export function Renderer() {
   const setZoom = useMainStore((s) => s.setZoom);
   const setCanvasSize = useMainStore((s) => s.setCanvasSize);
   const [showLayerHandle, setShowLayerHandle] = useState(false);
+  const [storeHydrated, setStoreHydrated] = useState(false);
 
   const viewport = useRef<HTMLDivElement | null>(null);
 
@@ -65,7 +66,7 @@ export function Renderer() {
     return () => {
       viewportEl?.removeEventListener("wheel", zoomScrollHandler);
     };
-  }, [setZoom, view.zoom]);
+  }, [setZoom, view.zoom, storeHydrated]);
 
   /*
    * Canvas size
@@ -87,8 +88,6 @@ export function Renderer() {
   /*
    * Wait for asset store hydration
    */
-
-  const [storeHydrated, setStoreHydrated] = useState(false);
   useEffect(() => {
     useAssetStore.persist.onFinishHydration(() => setStoreHydrated(true));
 
