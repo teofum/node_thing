@@ -13,6 +13,7 @@ import {
   LuPlus,
   LuSquareArrowOutDownLeft,
   LuSquareArrowOutUpRight,
+  LuTrash2,
 } from "react-icons/lu";
 
 import { useMainStore } from "@/store/main.store";
@@ -31,6 +32,7 @@ export function MenuLayers() {
   const exportLayer = useMainStore((s) => s.exportLayer);
   const importLayer = useMainStore((s) => s.importLayer);
   const changeLayerName = useMainStore((s) => s.changeLayerName);
+  const removeLayer = useMainStore((s) => s.removeLayer);
 
   const addLayerButton = () => {
     addLayer();
@@ -153,6 +155,14 @@ export function MenuLayers() {
                               }
                             >
                               Export
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                              className="text-red-400"
+                              icon={<LuTrash2 />}
+                              onClick={() => removeLayer(idx)}
+                            >
+                              Remove
                             </DropdownMenuItem>
                           </DropdownMenu>
                         </div>

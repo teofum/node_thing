@@ -106,6 +106,8 @@ type ProjectActions = {
   removeNode: (id: string) => void;
 
   changeLayerName: (name: string, idx: number) => void;
+
+  removeLayer: (i: number) => void;
 };
 
 function modifyLayer(
@@ -438,6 +440,34 @@ export const useMainStore = create<Project & ProjectActions>()(
         );
 
         set({ layers: newLayers });
+      },
+
+      // TODO
+      // no estoy pudiendo arreglar esto, crashea cuando se elimina la última capa
+      // tal vez es porque se está usando el currentLayers mientras se está eliminando
+      removeLayer: (i) => {
+        set(({ layers, currentLayer }) => {
+          if (layers.length <= 1) {
+            return { layers, currentLayer };
+          }
+
+          const newLayers = [...layers];
+          newLayers.splice(i, 1);
+
+          let newCurrentLayer = currentLayer;
+
+          if (currentLayer === i) {
+            newCurrentLayer = Math.min(i, newLayers.length - 1);
+            console.log(newCurrentLayer);
+          } else if (i < currentLayer) {
+            newCurrentLayer = currentLayer - 1;
+          }
+
+          return {
+            layers: newLayers,
+            currentLayer: newCurrentLayer,
+          };
+        });
       },
     }),
     { name: "main-store" },
