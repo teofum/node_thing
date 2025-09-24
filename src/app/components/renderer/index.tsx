@@ -1,11 +1,13 @@
 "use client";
 
-import { useMainStore } from "@/store/main.store";
-import { Canvas } from "./canvas";
-import { Button, ToggleButton } from "@/ui/button";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LuCrop, LuMinus, LuPlus } from "react-icons/lu";
-import { useLayoutEffect, useRef, useState } from "react";
+
+import { useMainStore } from "@/store/main.store";
+import { useAssetStore } from "@/store/asset.store";
+import { Button, ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
+import { Canvas } from "./canvas";
 import { LayerHandle } from "./layer-handle";
 
 const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
@@ -81,6 +83,24 @@ export function Renderer() {
       setCanvasSize(canvas.width, height);
     }
   };
+
+  /*
+   * Wait for asset store hydration
+   */
+
+  const [storeHydrated, setStoreHydrated] = useState(false);
+  useEffect(() => {
+    useAssetStore.persist.onFinishHydration(() => setStoreHydrated(true));
+
+    setStoreHydrated(useAssetStore.persist.hasHydrated());
+  }, []);
+
+  if (!storeHydrated)
+    return (
+      <div className="rounded-2xl bg-neutral-950 border border-white/15 w-full h-full grid place-items-center">
+        <div className="font-semibold text-lg">Loading...</div>
+      </div>
+    );
 
   /*
    * Component UI
