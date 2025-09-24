@@ -15,7 +15,7 @@ import {
   LuSquareArrowOutUpRight,
 } from "react-icons/lu";
 
-import { useNodeStore } from "@/store/node.store";
+import { useMainStore } from "@/store/main.store";
 import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
 import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";
@@ -23,14 +23,14 @@ import { handleExport } from "@/utils/handle-export";
 import { handleImport } from "@/utils/handle-import";
 
 export function MenuLayers() {
-  const setActiveLayer = useNodeStore((s) => s.setActiveLayer);
-  const addLayer = useNodeStore((s) => s.addLayer);
-  const layers = useNodeStore((s) => s.layers);
-  const currentLayer = useNodeStore((s) => s.currentLayer);
-  const reorderLayers = useNodeStore((s) => s.reorderLayers);
-  const exportLayer = useNodeStore((s) => s.exportLayer);
-  const importLayer = useNodeStore((s) => s.importLayer);
-  const changeLayerName = useNodeStore((s) => s.changeLayerName);
+  const setActiveLayer = useMainStore((s) => s.setActiveLayer);
+  const addLayer = useMainStore((s) => s.addLayer);
+  const layers = useMainStore((s) => s.layers);
+  const currentLayer = useMainStore((s) => s.currentLayer);
+  const reorderLayers = useMainStore((s) => s.reorderLayers);
+  const exportLayer = useMainStore((s) => s.exportLayer);
+  const importLayer = useMainStore((s) => s.importLayer);
+  const changeLayerName = useMainStore((s) => s.changeLayerName);
 
   const addLayerButton = () => {
     addLayer();

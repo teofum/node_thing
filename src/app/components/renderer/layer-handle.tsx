@@ -2,7 +2,7 @@
 
 import cn from "classnames";
 
-import { useNodeStore } from "@/store/node.store";
+import { useMainStore } from "@/store/main.store";
 import { DIR, useResizeLayer, type Direction } from "./use-resize-layer";
 import { useLayoutEffect, useRef } from "react";
 import { useMoveLayer } from "./use-move-layer";
@@ -10,9 +10,9 @@ import { useMoveLayer } from "./use-move-layer";
 const directions = Object.keys(DIR) as Direction[];
 
 export function LayerHandle() {
-  const layers = useNodeStore((s) => s.layers);
-  const currentLayer = useNodeStore((s) => s.currentLayer);
-  const view = useNodeStore((s) => s.properties.view);
+  const layers = useMainStore((s) => s.layers);
+  const currentLayer = useMainStore((s) => s.currentLayer);
+  const view = useMainStore((s) => s.properties.view);
 
   const layer = layers[currentLayer];
 

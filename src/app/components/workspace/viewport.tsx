@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { ReactFlow, useReactFlow, Background } from "@xyflow/react";
-import { ShaderNode, useNodeStore } from "@/store/node.store";
+import { useMainStore } from "@/store/main.store";
 import { RenderShaderNode } from "./shader-node";
 import { NodeData } from "@/schemas/node.schema";
 
@@ -9,13 +9,13 @@ const nodeTypes = {
 };
 
 export function Viewport() {
-  const layers = useNodeStore((s) => s.layers);
-  const currentLayer = useNodeStore((s) => s.currentLayer);
-  const storeNodeTypes = useNodeStore((s) => s.nodeTypes);
-  const onNodesChange = useNodeStore((s) => s.onNodesChange);
-  const onEdgesChange = useNodeStore((s) => s.onEdgesChange);
-  const onConnect = useNodeStore((s) => s.onConnect);
-  const addNode = useNodeStore((s) => s.addNode);
+  const layers = useMainStore((s) => s.layers);
+  const currentLayer = useMainStore((s) => s.currentLayer);
+  const storeNodeTypes = useMainStore((s) => s.nodeTypes);
+  const onNodesChange = useMainStore((s) => s.onNodesChange);
+  const onEdgesChange = useMainStore((s) => s.onEdgesChange);
+  const onConnect = useMainStore((s) => s.onConnect);
+  const addNode = useMainStore((s) => s.addNode);
 
   const { screenToFlowPosition } = useReactFlow();
 

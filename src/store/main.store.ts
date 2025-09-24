@@ -145,7 +145,7 @@ function modifyNode(
   ];
 }
 
-export const useNodeStore = create<Project & ProjectActions>((set, get) => ({
+export const useMainStore = create<Project & ProjectActions>((set, get) => ({
   /*
    * State
    */

@@ -1,7 +1,7 @@
 import { NodeProps, Position } from "@xyflow/react";
 import cn from "classnames";
 
-import { ShaderNode as ShaderNodeType, useNodeStore } from "@/store/node.store";
+import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
 import { NodeType } from "@/schemas/node.schema";
 import { HandleWithMock } from "./mock-handle";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
@@ -22,8 +22,8 @@ export function NodeInput({
   i,
   mock = false,
 }: NodeInputProps) {
-  const updateDefaultValue = useNodeStore((s) => s.updateNodeDefaultValue);
-  const edges = useNodeStore((s) => s.layers[s.currentLayer].edges);
+  const updateDefaultValue = useMainStore((s) => s.updateNodeDefaultValue);
+  const edges = useMainStore((s) => s.layers[s.currentLayer].edges);
 
   const renderDefaultValueInput =
     !mock &&

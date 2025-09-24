@@ -1,6 +1,6 @@
 "use client";
 
-import { useNodeStore } from "@/store/node.store";
+import { useMainStore } from "@/store/main.store";
 import { Canvas } from "./canvas";
 import { Button, ToggleButton } from "@/ui/button";
 import { LuCrop, LuMinus, LuPlus } from "react-icons/lu";
@@ -12,9 +12,9 @@ const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
 const ZOOM_SPEED = 0.01;
 
 export function Renderer() {
-  const { canvas, view } = useNodeStore((s) => s.properties);
-  const setZoom = useNodeStore((s) => s.setZoom);
-  const setCanvasSize = useNodeStore((s) => s.setCanvasSize);
+  const { canvas, view } = useMainStore((s) => s.properties);
+  const setZoom = useMainStore((s) => s.setZoom);
+  const setCanvasSize = useMainStore((s) => s.setCanvasSize);
   const [showLayerHandle, setShowLayerHandle] = useState(false);
 
   const viewport = useRef<HTMLDivElement | null>(null);

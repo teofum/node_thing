@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import cn from "classnames";
 
-import { useNodeStore } from "@/store/node.store";
+import { useMainStore } from "@/store/main.store";
 import { render } from "./renderer";
 import { useGPU } from "./use-gpu";
 import { useWebGPUContext } from "./use-webgpu-context";
@@ -19,7 +19,7 @@ export function Canvas() {
   /*
    * State
    */
-  const { canvas: canvasProperties, view } = useNodeStore((s) => s.properties);
+  const { canvas: canvasProperties, view } = useMainStore((s) => s.properties);
 
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const frameRequestHandle = useRef<number | null>(null);

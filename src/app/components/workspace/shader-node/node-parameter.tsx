@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { NodeProps } from "@xyflow/react";
 
-import { ShaderNode as ShaderNodeType, useNodeStore } from "@/store/node.store";
+import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
 import { useAssetStore } from "@/store/asset.store";
 import { NodeType } from "@/schemas/node.schema";
 import { imageURLFromAsset } from "@/utils/image-url-from-asset";
@@ -15,7 +15,7 @@ type ParameterProps = NodeProps<ShaderNodeType> & {
 
 export function NodeParameter({ id, data, name, param }: ParameterProps) {
   const images = useAssetStore((s) => s.images);
-  const setParameter = useNodeStore((s) => s.updateNodeParameter);
+  const setParameter = useMainStore((s) => s.updateNodeParameter);
 
   const imageUrl = useMemo(() => {
     const imageName = data.parameters[name]?.value;
