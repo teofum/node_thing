@@ -1,4 +1,3 @@
-// import { NODE_TYPE_NAMES } from "@/utils/node-type";
 import * as z from "zod/v4";
 
 const parameterTypeSchema = z.enum(["select", "image"]);

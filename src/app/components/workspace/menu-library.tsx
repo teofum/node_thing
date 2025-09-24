@@ -1,6 +1,6 @@
 import { RenderShaderNode } from "./shader-node";
 import { NodeType } from "@/schemas/node.schema";
-import { useStore } from "@/store/store";
+import { useNodeStore } from "@/store/store";
 import * as Accordion from "@radix-ui/react-accordion";
 import {
   AccordionContent,
@@ -10,7 +10,7 @@ import {
 import { Fragment } from "react";
 
 export function MenuLibrary() {
-  const nodeTypes = useStore((state) => state.nodeTypes);
+  const nodeTypes = useNodeStore((state) => state.nodeTypes);
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.effectAllowed = "move";

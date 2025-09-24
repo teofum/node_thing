@@ -1,18 +1,27 @@
 "use client";
 
 import { ReactFlowProvider } from "@xyflow/react";
-import { useEffect } from "react";
-import { useStore } from "@/store/store";
+import { useEffect, useState } from "react";
+import { useNodeStore } from "@/store/store";
 
 import { Sidebar } from "./sidebar";
 import { Viewport } from "./viewport";
+import { useAssetStore } from "@/store/asset-store";
 
 export function Workspace() {
-  const loadNodeTypes = useStore((state) => state.loadNodeTypes);
+  const loadNodeTypes = useNodeStore((state) => state.loadNodeTypes);
 
   useEffect(() => {
     loadNodeTypes();
   }, [loadNodeTypes]);
+
+  const [storeHydrated, setStoreHydrated] = useState(false);
+  useEffect(() => {
+    useAssetStore.persist.rehydrate();
+    setStoreHydrated(true);
+  }, []);
+
+  if (!storeHydrated) return null;
 
   return (
     <ReactFlowProvider>

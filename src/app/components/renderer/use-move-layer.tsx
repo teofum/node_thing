@@ -1,12 +1,12 @@
 import { RefObject } from "react";
 
-import { useStore } from "@/store/store";
+import { useNodeStore } from "@/store/store";
 import { useDrag } from "@/utils/use-drag";
 import { clamp } from "@/utils/clamp";
 
 export function useMoveLayer(ref: RefObject<HTMLDivElement | null>) {
-  const setLayerBounds = useStore((s) => s.setLayerBounds);
-  const view = useStore((s) => s.properties.view);
+  const setLayerBounds = useNodeStore((s) => s.setLayerBounds);
+  const view = useNodeStore((s) => s.properties.view);
 
   const onDragStart = (ev: PointerEvent) => {
     const el = ref.current;

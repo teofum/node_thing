@@ -2,7 +2,7 @@ import { NodeProps } from "@xyflow/react";
 import cn from "classnames";
 import { LuEllipsisVertical, LuStar, LuTrash2 } from "react-icons/lu";
 
-import { ShaderNode as ShaderNodeType, useStore } from "@/store/store";
+import { ShaderNode as ShaderNodeType, useNodeStore } from "@/store/store";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { NodeInput } from "./node-input";
 import { NodeOutput } from "./node-output";
@@ -16,8 +16,8 @@ export function RenderShaderNode(
   props: NodeProps<ShaderNodeType> & { mock?: boolean },
 ) {
   const { data, selected } = props;
-  const nodeTypes = useStore((state) => state.nodeTypes);
-  const remove = useStore((state) => state.removeNode);
+  const nodeTypes = useNodeStore((state) => state.nodeTypes);
+  const remove = useNodeStore((state) => state.removeNode);
   const nodeTypeInfo = nodeTypes[data.type];
 
   const outputOffset =

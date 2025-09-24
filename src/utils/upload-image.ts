@@ -1,4 +1,4 @@
-import { ImageAsset } from "@/store/asset-store";
+import { ImageAsset, imageTypeSchema } from "@/schemas/asset.schema";
 
 export function uploadImage(
   callback: (name: string, asset: ImageAsset) => void,
@@ -15,7 +15,9 @@ export function uploadImage(
     reader.onload = () => {
       const bytes = new Uint8Array(reader.result as ArrayBuffer);
       callback(files[0].name, {
-        type: files[0].name.split(".").at(-1) ?? "unknown",
+        type: imageTypeSchema.parse(
+          files[0].name.split(".").at(-1) ?? "unknown",
+        ),
         data: bytes,
       });
     };
