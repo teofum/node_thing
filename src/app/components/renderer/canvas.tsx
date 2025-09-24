@@ -23,6 +23,10 @@ export function Canvas() {
   const { canvas: canvasProperties, view } = useMainStore((s) => s.properties);
   const canvas = useUtilityStore((s) => s.canvas);
   const setCanvas = useUtilityStore((s) => s.setCanvas);
+  const nextRenderFinishedCallback = useUtilityStore(
+    (s) => s.nextRenderFinishedCallback,
+  );
+  const onNextRenderFinished = useUtilityStore((s) => s.onNextRenderFinished);
 
   const frameRequestHandle = useRef<number | null>(null);
 
@@ -73,31 +77,46 @@ export function Canvas() {
           render(device, layerPipeline, target, textures, sampler);
       }
 
-      const readbackBuffer = device.createBuffer({
-        size: 4 * target.width * target.height,
-        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
-      });
+      // const readbackBuffer = device.createBuffer({
+      //   size: 4 * target.width * target.height,
+      //   usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+      // });
 
-      const enc = device.createCommandEncoder();
+      // const enc = device.createCommandEncoder();
 
-      enc.copyTextureToBuffer(
-        { texture: target },
-        { buffer: readbackBuffer, bytesPerRow: 4 * target.width },
-        [target.width, target.height],
-      );
+      // enc.copyTextureToBuffer(
+      //   { texture: target },
+      //   { buffer: readbackBuffer, bytesPerRow: 4 * target.width },
+      //   [target.width, target.height],
+      // );
 
-      device.queue.submit([enc.finish()]);
+      // device.queue.submit([enc.finish()]);
 
-      await readbackBuffer.mapAsync(GPUMapMode.READ);
-      const bytes = new Uint8Array(readbackBuffer.getMappedRange());
+      // await readbackBuffer.mapAsync(GPUMapMode.READ);
+      // const bytes = new Uint8Array(readbackBuffer.getMappedRange());
 
-      console.log(bytes);
+      // console.log(bytes);
+
+      await device.queue.onSubmittedWorkDone();
+      if (nextRenderFinishedCallback) {
+        nextRenderFinishedCallback(canvas);
+        onNextRenderFinished(null);
+      }
 
       // requestAnimationFrame(renderFrame);
     };
 
     frameRequestHandle.current = requestAnimationFrame(renderFrame);
-  }, [canvas, ctx, device, pipeline, textures, sampler]);
+  }, [
+    canvas,
+    ctx,
+    device,
+    pipeline,
+    textures,
+    sampler,
+    nextRenderFinishedCallback,
+    onNextRenderFinished,
+  ]);
 
   return (
     <canvas

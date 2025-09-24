@@ -12,6 +12,7 @@ export function FileMenu() {
   const importProject = useMainStore((s) => s.importProject);
   const exportProject = useMainStore((s) => s.exportProject);
   const canvas = useUtilityStore((s) => s.canvas);
+  const onNextRenderFinished = useUtilityStore((s) => s.onNextRenderFinished);
 
   const exportImage = () => {
     canvas?.toBlob(async (blob) => {
@@ -42,7 +43,10 @@ export function FileMenu() {
 
       <MenuSeparator />
 
-      <MenuItem icon={<LuDownload />} onClick={exportImage}>
+      <MenuItem
+        icon={<LuDownload />}
+        onClick={() => onNextRenderFinished(exportImage)}
+      >
         Export image
       </MenuItem>
     </Menu>

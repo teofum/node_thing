@@ -360,6 +360,12 @@ export function render(
     uniform,
   } = pipeline;
 
+  const renderTarget = device.createTexture({
+    format: "rgba8unorm",
+    size: [target.width, target.height],
+    usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC,
+  });
+
   /*
    * Bind target texture to final stage
    */
@@ -378,7 +384,7 @@ export function render(
       },
       {
         binding: 2,
-        resource: target.createView(),
+        resource: renderTarget.createView(),
       },
     ],
   });
@@ -500,6 +506,11 @@ export function render(
     Math.ceil(opts.height / THREADS_PER_WORKGROUP),
   );
   outputPass.end();
+
+  enc.copyTextureToTexture({ texture: renderTarget }, { texture: target }, [
+    target.width,
+    target.height,
+  ]);
 
   device.queue.submit([enc.finish()]);
 }
