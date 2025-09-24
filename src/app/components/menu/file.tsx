@@ -22,6 +22,7 @@ export function FileMenu() {
         blob.type.split("/").at(-1) ?? "unknown",
       );
 
+      console.log(data);
       saveImageToFile("export", { data, type });
     });
   };

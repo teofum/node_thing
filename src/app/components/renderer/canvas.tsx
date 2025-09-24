@@ -77,36 +77,18 @@ export function Canvas() {
           render(device, layerPipeline, target, textures, sampler);
       }
 
-      // const readbackBuffer = device.createBuffer({
-      //   size: 4 * target.width * target.height,
-      //   usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
-      // });
-
-      // const enc = device.createCommandEncoder();
-
-      // enc.copyTextureToBuffer(
-      //   { texture: target },
-      //   { buffer: readbackBuffer, bytesPerRow: 4 * target.width },
-      //   [target.width, target.height],
-      // );
-
-      // device.queue.submit([enc.finish()]);
-
-      // await readbackBuffer.mapAsync(GPUMapMode.READ);
-      // const bytes = new Uint8Array(readbackBuffer.getMappedRange());
-
-      // console.log(bytes);
-
-      await device.queue.onSubmittedWorkDone();
       if (nextRenderFinishedCallback) {
         nextRenderFinishedCallback(canvas);
         onNextRenderFinished(null);
       }
-
-      // requestAnimationFrame(renderFrame);
     };
 
     frameRequestHandle.current = requestAnimationFrame(renderFrame);
+
+    return () => {
+      if (frameRequestHandle.current)
+        cancelAnimationFrame(frameRequestHandle.current);
+    };
   }, [
     canvas,
     ctx,
