@@ -451,18 +451,9 @@ export const useMainStore = create<Project & ProjectActions>()(
           const newLayers = [...layers];
           newLayers.splice(i, 1);
 
-          let newCurrentLayer = currentLayer;
-
-          // !! currentLayer -1 si no está seleccionando nada
-          if (currentLayer === i) {
-            newCurrentLayer = -1;
-          } else if (i < currentLayer) {
-            newCurrentLayer = currentLayer - 1; // por alguna razón, Sidebar no renderiza bien el seleccionado actual
-          }
-
           return {
             layers: newLayers,
-            currentLayer: newCurrentLayer,
+            currentLayer: i <= currentLayer ? currentLayer - 1 : currentLayer,
           };
         });
       },

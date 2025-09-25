@@ -51,6 +51,12 @@ export function MenuLayers() {
     setEditingLayerId(null);
   };
 
+  const dropdownClick =
+    (handler: (ev: React.MouseEvent) => void) => (ev: React.MouseEvent) => {
+      ev.stopPropagation();
+      handler(ev);
+    };
+
   return (
     <div className="border-t border-white/15 flex flex-col min-h-0 h-full">
       <div className="border-b border-white/15 flex-1 min-h-0 overflow-auto">
@@ -143,18 +149,20 @@ export function MenuLayers() {
                           >
                             <DropdownMenuItem
                               icon={<LuPencilLine />}
-                              onClick={() => setEditingLayerId(idx)}
+                              onClick={dropdownClick(() =>
+                                setEditingLayerId(idx),
+                              )}
                             >
                               Rename
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               icon={<LuSquareArrowOutUpRight />}
-                              onClick={() =>
+                              onClick={dropdownClick(() =>
                                 saveJsonToFile(
                                   exportLayer(idx),
                                   layers[idx].name,
-                                )
-                              }
+                                ),
+                              )}
                             >
                               Export
                             </DropdownMenuItem>
@@ -162,7 +170,7 @@ export function MenuLayers() {
                             <DropdownMenuItem
                               className="text-red-400"
                               icon={<LuTrash2 />}
-                              onClick={() => removeLayer(idx)}
+                              onClick={dropdownClick(() => removeLayer(idx))}
                             >
                               Remove
                             </DropdownMenuItem>
