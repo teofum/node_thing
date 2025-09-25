@@ -48,14 +48,8 @@ export function Viewport() {
     [screenToFlowPosition, addNode, storeNodeTypes],
   );
 
-  // agrego esto por removeLayer(), se usaba un currentLayer anterior y no se actualizaba
-  const layer = layers[currentLayer]; // currentLayer = -1 si no apunta a ninguno
-  if (!layer) {
-    return null;
-  }
-
   // obtengo la capa actual para imprimir
-  const { nodes, edges } = layer;
+  const { nodes, edges } = layers[currentLayer];
 
   /*
    * Detect macOS and adjust controls to be more consistent with platform
