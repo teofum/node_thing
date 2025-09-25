@@ -173,6 +173,7 @@ export function MenuLayers() {
                               className="text-red-400"
                               icon={<LuTrash2 />}
                               onClick={() => removeLayer(idx)}
+                              disabled={layers.length === 1}
                             >
                               Remove
                             </DropdownMenuItem>

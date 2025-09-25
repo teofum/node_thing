@@ -68,6 +68,7 @@ export const menuItemClassNames = [
   "min-w-40 select-none outline-none flex flex-row gap-2",
   "text-sm/4 rounded-lg cursor-pointer py-1.5 px-3 pl-1",
   "transition-colors duration-150 hover:bg-current/10",
+  "aria-[disabled]:text-white/40 aria-[disabled]:hover:bg-transparent aria-[disabled]:cursor-default",
 ];
 
 type MenuItemProps = MB.MenubarItemProps & { icon?: React.ReactNode };
