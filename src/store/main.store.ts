@@ -442,9 +442,6 @@ export const useMainStore = create<Project & ProjectActions>()(
         set({ layers: newLayers });
       },
 
-      // TODO
-      // no estoy pudiendo arreglar esto, crashea cuando se elimina la última capa
-      // tal vez es porque se está usando el currentLayers mientras se está eliminando
       removeLayer: (i) => {
         set(({ layers, currentLayer }) => {
           if (layers.length <= 1) {
@@ -456,11 +453,11 @@ export const useMainStore = create<Project & ProjectActions>()(
 
           let newCurrentLayer = currentLayer;
 
+          // !! currentLayer -1 si no está seleccionando nada
           if (currentLayer === i) {
-            newCurrentLayer = Math.min(i, newLayers.length - 1);
-            console.log(newCurrentLayer);
+            newCurrentLayer = -1;
           } else if (i < currentLayer) {
-            newCurrentLayer = currentLayer - 1;
+            newCurrentLayer = currentLayer - 1; // por alguna razón, Sidebar no renderiza bien el seleccionado actual
           }
 
           return {
