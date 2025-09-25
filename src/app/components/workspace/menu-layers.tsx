@@ -7,6 +7,7 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import {
+  LuCopy,
   LuEllipsisVertical,
   LuGripVertical,
   LuPencilLine,
@@ -49,6 +50,25 @@ export function MenuLayers() {
     if (newName === null || newName === "") return;
     changeLayerName(newName, idx);
     setEditingLayerId(null);
+  };
+
+  const handleDuplicateLayer = (i: number) => {
+    const sourceLayer = layers[i];
+
+    addLayer();
+
+    const updatedLayers = useMainStore.getState().layers;
+    const targetLayerIdx = updatedLayers.length - 1;
+
+    const targetLayer = updatedLayers[targetLayerIdx];
+    targetLayer.nodes = [...sourceLayer.nodes];
+    targetLayer.edges = [...sourceLayer.edges];
+
+    changeLayerName(sourceLayer.name + " copy", targetLayerIdx);
+
+    reorderLayers(targetLayerIdx, i + 1);
+
+    setActiveLayer(i + 1);
   };
 
   return (
@@ -156,6 +176,12 @@ export function MenuLayers() {
                               onClick={() => setEditingLayerId(idx)}
                             >
                               Rename
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              icon={<LuCopy />}
+                              onClick={() => handleDuplicateLayer(idx)}
+                            >
+                              Duplicate
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               icon={<LuSquareArrowOutUpRight />}
