@@ -3,7 +3,7 @@ import { ComponentProps } from "react";
 import { useAssetStore } from "@/store/asset.store";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
-import { uploadImage } from "@/utils/upload-image";
+import { loadImageAssetFromFile } from "@/utils/image";
 import { AssetThumbnail } from "./thumbnail";
 
 type AssetManagerProps = {
@@ -15,7 +15,7 @@ export function AssetManager({ trigger, onSelect }: AssetManagerProps) {
   const images = useAssetStore((s) => s.images);
   const addImage = useAssetStore((s) => s.addImage);
 
-  const uploadImageAsset = () => uploadImage(addImage);
+  const uploadImageAsset = () => loadImageAssetFromFile(addImage);
 
   return (
     <Dialog

@@ -20,8 +20,7 @@ import { useMainStore } from "@/store/main.store";
 import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
 import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";
-import { handleExport } from "@/utils/handle-export";
-import { handleImport } from "@/utils/handle-import";
+import { loadJsonFromFile, saveJsonToFile } from "@/utils/json";
 
 export function MenuLayers() {
   const setActiveLayer = useMainStore((s) => s.setActiveLayer);
@@ -151,7 +150,10 @@ export function MenuLayers() {
                             <DropdownMenuItem
                               icon={<LuSquareArrowOutUpRight />}
                               onClick={() =>
-                                handleExport(exportLayer(idx), layers[idx].name)
+                                saveJsonToFile(
+                                  exportLayer(idx),
+                                  layers[idx].name,
+                                )
                               }
                             >
                               Export
@@ -182,7 +184,7 @@ export function MenuLayers() {
           <LuPlus />
           New Layer
         </Button>
-        <Button variant="outline" onClick={() => handleImport(importLayer)}>
+        <Button variant="outline" onClick={() => loadJsonFromFile(importLayer)}>
           <LuSquareArrowOutDownLeft />
           Import Layer
         </Button>
