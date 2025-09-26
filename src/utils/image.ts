@@ -20,6 +20,20 @@ export async function saveImageToFile(
   }
 }
 
+const IMAGE_TYPE_FOR_EXTENSION: Record<string, ImageAsset["type"]> = {
+  png: "png",
+  jpg: "jpeg",
+  jpeg: "jpeg",
+  webp: "webp",
+};
+
+function getImageType(filename: string) {
+  const extension = filename.split(".").at(-1) ?? "unknown";
+  return Object.hasOwn(IMAGE_TYPE_FOR_EXTENSION, extension)
+    ? IMAGE_TYPE_FOR_EXTENSION[extension]
+    : "unknown";
+}
+
 export function loadImageAssetFromFile(
   callback: (name: string, asset: ImageAsset) => void,
 ) {
@@ -34,9 +48,7 @@ export function loadImageAssetFromFile(
     files[0].arrayBuffer().then((ab) => {
       const bytes = new Uint8Array(ab);
       callback(files[0].name, {
-        type: imageTypeSchema.parse(
-          files[0].name.split(".").at(-1) ?? "unknown",
-        ),
+        type: imageTypeSchema.parse(getImageType(files[0].name)),
         data: bytes,
       });
     });
