@@ -17,7 +17,6 @@ import { persist } from "zustand/middleware";
 
 export type ShaderNode = Node<NodeData>;
 
-let layerId = 0;
 export type Layer = {
   nodes: ShaderNode[];
   edges: Edge[];
@@ -44,6 +43,7 @@ export type Project = {
   currentLayer: number;
   properties: ProjectProperties;
   nodeTypes: Record<string, NodeType>;
+  layerId: number;
 };
 
 const initialNodes: ShaderNode[] = [
@@ -106,6 +106,9 @@ type ProjectActions = {
   removeNode: (id: string) => void;
 
   changeLayerName: (name: string, idx: number) => void;
+
+  removeLayer: (i: number) => void;
+  duplicateLayer: (i: number) => void;
 };
 
 function modifyLayer(
@@ -158,13 +161,14 @@ export const useMainStore = create<Project & ProjectActions>()(
           edges: [...initialEdges],
           position: { x: 0, y: 0 },
           size: initialSize,
-          id: `layer_${layerId++}`,
+          id: `layer_0`,
           name: "Background",
         },
       ],
       currentLayer: 0,
       properties: { canvas: initialSize, view: { zoom: 1 } },
       nodeTypes: NODE_TYPES,
+      layerId: 0,
 
       /*
        * Actions
@@ -282,19 +286,24 @@ export const useMainStore = create<Project & ProjectActions>()(
         })),
 
       addLayer: () =>
-        set(({ layers }) => ({
-          layers: [
-            ...layers,
-            {
-              nodes: [...initialNodes],
-              edges: [...initialEdges],
-              position: { x: 0, y: 0 },
-              size: initialSize,
-              id: `layer_${layerId++}`,
-              name: `Layer ${layers.length}`,
-            },
-          ],
-        })),
+        set((state) => {
+          const newLayerId = state.layerId + 1;
+
+          return {
+            layers: [
+              ...state.layers,
+              {
+                nodes: [...initialNodes],
+                edges: [...initialEdges],
+                position: { x: 0, y: 0 },
+                size: initialSize,
+                id: `layer_${newLayerId}`,
+                name: `Layer ${state.layers.length}`,
+              },
+            ],
+            layerId: newLayerId,
+          };
+        }),
 
       setLayerBounds: (x, y, width, height) =>
         set(({ layers, currentLayer }) => ({
@@ -333,37 +342,35 @@ export const useMainStore = create<Project & ProjectActions>()(
         return JSON.stringify(layer, null, 2);
       },
 
-      importLayer: (json) => {
-        set(({ layers }) => {
+      importLayer: (json) =>
+        set((state) => {
           const parsedLayer: Layer = JSON.parse(json);
 
-          parsedLayer.id = "layer_" + layerId++;
+          parsedLayer.id = `layer_${state.layerId + 1}`;
 
           return {
-            layers: [...layers, parsedLayer],
+            layers: [...state.layers, parsedLayer],
+            layerId: state.layerId + 1,
           };
-        });
-      },
+        }),
 
       exportProject: () => {
         const project = get();
         return JSON.stringify(project, null, 2);
       },
 
-      importProject: (json) => {
-        set(({ nodeTypes }) => {
+      importProject: (json) =>
+        set((state) => {
           const parsedProject: Project = JSON.parse(json);
-
-          layerId = parsedProject.layers.length;
 
           return {
             layers: parsedProject.layers,
             currentLayer: parsedProject.currentLayer,
             properties: parsedProject.properties,
-            nodeTypes,
+            nodeTypes: state.nodeTypes,
+            layerId: parsedProject.layerId,
           };
-        });
-      },
+        }),
 
       loadNodeTypes: async () => {
         const purchased = await getPurchasedShaders();
@@ -417,6 +424,7 @@ export const useMainStore = create<Project & ProjectActions>()(
           })),
         });
       },
+
       removeNode: (id) => {
         set(({ layers, currentLayer }) => ({
           layers: modifyLayer(layers, currentLayer, (layer) => ({
@@ -434,6 +442,50 @@ export const useMainStore = create<Project & ProjectActions>()(
 
         set({ layers: newLayers });
       },
+
+      removeLayer: (i) => {
+        set(({ layers, currentLayer }) => {
+          if (layers.length <= 1) {
+            return { layers, currentLayer };
+          }
+
+          const newLayers = [...layers];
+          newLayers.splice(i, 1);
+
+          return {
+            layers: newLayers,
+            currentLayer: i <= currentLayer ? currentLayer - 1 : currentLayer,
+          };
+        });
+      },
+
+      duplicateLayer: (i: number) =>
+        set((state) => {
+          const sourceLayer = state.layers[i];
+          if (!sourceLayer) {
+            return state;
+          }
+
+          const copyLayerIdx = state.layerId + 1;
+          const newCurrentLayer = i + 1;
+
+          const copyLayer: Layer = {
+            ...sourceLayer,
+            name: sourceLayer.name + " copy",
+            id: `layer_${copyLayerIdx}`,
+          };
+
+          const newLayers = [...state.layers, copyLayer];
+
+          const [moved] = newLayers.splice(copyLayerIdx, 1);
+          newLayers.splice(newCurrentLayer, 0, moved);
+
+          return {
+            layers: newLayers,
+            layerId: copyLayerIdx,
+            currentLayer: newCurrentLayer,
+          };
+        }),
     }),
     { name: "main-store" },
   ),

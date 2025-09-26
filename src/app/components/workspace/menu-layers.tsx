@@ -7,12 +7,14 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import {
+  LuCopy,
   LuEllipsisVertical,
   LuGripVertical,
   LuPencilLine,
   LuPlus,
   LuSquareArrowOutDownLeft,
   LuSquareArrowOutUpRight,
+  LuTrash2,
 } from "react-icons/lu";
 
 import { useMainStore } from "@/store/main.store";
@@ -30,6 +32,8 @@ export function MenuLayers() {
   const exportLayer = useMainStore((s) => s.exportLayer);
   const importLayer = useMainStore((s) => s.importLayer);
   const changeLayerName = useMainStore((s) => s.changeLayerName);
+  const removeLayer = useMainStore((s) => s.removeLayer);
+  const duplicateLayer = useMainStore((s) => s.duplicateLayer);
 
   const addLayerButton = () => {
     addLayer();
@@ -66,7 +70,6 @@ export function MenuLayers() {
                       >
                         <div
                           key={idx}
-                          onClick={() => setActiveLayer(idx)}
                           className={cn(
                             "relative p-3 pl-1 gap-3 flex flex-row items-center border-b border-white/15 hover:bg-white/5",
                             "transition-colors w-full border-white/15 hover:bg-white/5",
@@ -77,14 +80,25 @@ export function MenuLayers() {
                             },
                           )}
                         >
+                          {/* Hidden button so we don't have nested clickables */}
+                          <button
+                            className="absolute inset-0 cursor-pointer"
+                            onClick={() => setActiveLayer(idx)}
+                          />
+
                           <div
                             {...provided.dragHandleProps}
-                            className="z-20 flex flex-col"
+                            className="relative z-20 flex flex-col"
                           >
                             <LuGripVertical className="text-white/40" />
                           </div>
 
-                          <div className="grow flex flex-col gap-1 text-left">
+                          <div
+                            className={cn(
+                              "grow flex flex-col gap-1 text-left",
+                              { "relative z-20": editingLayerId === idx },
+                            )}
+                          >
                             {editingLayerId === idx ? (
                               <div className="text-sm/4 font-semibold">
                                 <form
@@ -133,7 +147,7 @@ export function MenuLayers() {
                               <Button
                                 icon
                                 variant="ghost"
-                                className="relative z-10"
+                                className="relative z-20"
                               >
                                 <LuEllipsisVertical />
                               </Button>
@@ -146,6 +160,12 @@ export function MenuLayers() {
                               Rename
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                              icon={<LuCopy />}
+                              onClick={() => duplicateLayer(idx)}
+                            >
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               icon={<LuSquareArrowOutUpRight />}
                               onClick={() =>
                                 saveJsonToFile(
@@ -155,6 +175,15 @@ export function MenuLayers() {
                               }
                             >
                               Export
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem
+                              className="text-red-400"
+                              icon={<LuTrash2 />}
+                              onClick={() => removeLayer(idx)}
+                              disabled={layers.length === 1}
+                            >
+                              Remove
                             </DropdownMenuItem>
                           </DropdownMenu>
                         </div>
