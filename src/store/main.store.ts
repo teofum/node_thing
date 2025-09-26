@@ -108,6 +108,7 @@ type ProjectActions = {
   changeLayerName: (name: string, idx: number) => void;
 
   removeLayer: (i: number) => void;
+  duplicateLayer: (i: number) => void;
 };
 
 function modifyLayer(
@@ -457,6 +458,34 @@ export const useMainStore = create<Project & ProjectActions>()(
           };
         });
       },
+
+      duplicateLayer: (i: number) =>
+        set((state) => {
+          const sourceLayer = state.layers[i];
+          if (!sourceLayer) {
+            return state;
+          }
+
+          const copyLayerIdx = state.layerId + 1;
+          const newCurrentLayer = i + 1;
+
+          const copyLayer: Layer = {
+            ...sourceLayer,
+            name: sourceLayer.name + " copy",
+            id: `layer_${copyLayerIdx}`,
+          };
+
+          const newLayers = [...state.layers, copyLayer];
+
+          const [moved] = newLayers.splice(copyLayerIdx, 1);
+          newLayers.splice(newCurrentLayer, 0, moved);
+
+          return {
+            layers: newLayers,
+            layerId: copyLayerIdx,
+            currentLayer: newCurrentLayer,
+          };
+        }),
     }),
     { name: "main-store" },
   ),

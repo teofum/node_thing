@@ -33,6 +33,7 @@ export function MenuLayers() {
   const importLayer = useMainStore((s) => s.importLayer);
   const changeLayerName = useMainStore((s) => s.changeLayerName);
   const removeLayer = useMainStore((s) => s.removeLayer);
+  const duplicateLayer = useMainStore((s) => s.duplicateLayer);
 
   const addLayerButton = () => {
     addLayer();
@@ -50,25 +51,6 @@ export function MenuLayers() {
     if (newName === null || newName === "") return;
     changeLayerName(newName, idx);
     setEditingLayerId(null);
-  };
-
-  const handleDuplicateLayer = (i: number) => {
-    const sourceLayer = layers[i];
-
-    addLayer();
-
-    const updatedLayers = useMainStore.getState().layers;
-    const targetLayerIdx = updatedLayers.length - 1;
-
-    const targetLayer = updatedLayers[targetLayerIdx];
-    targetLayer.nodes = [...sourceLayer.nodes];
-    targetLayer.edges = [...sourceLayer.edges];
-
-    changeLayerName(sourceLayer.name + " copy", targetLayerIdx);
-
-    reorderLayers(targetLayerIdx, i + 1);
-
-    setActiveLayer(i + 1);
   };
 
   return (
@@ -179,7 +161,7 @@ export function MenuLayers() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               icon={<LuCopy />}
-                              onClick={() => handleDuplicateLayer(idx)}
+                              onClick={() => duplicateLayer(idx)}
                             >
                               Duplicate
                             </DropdownMenuItem>
