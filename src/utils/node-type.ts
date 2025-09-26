@@ -18,6 +18,8 @@ import addShader from "@/shaders/add.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
 import absShader from "@/shaders/abs.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
+import checkersNoiseShader from "@/shaders/checker-noise.wgsl";
+import bayerNoiseShader from "@/shaders/bayer-noise-8x8.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -99,6 +101,32 @@ export const NODE_TYPES = {
     name: "White Noise",
     category: "Generate",
     shader: whiteNoiseShader,
+    inputs: {},
+    outputs: {
+      output: {
+        name: "Noise",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  checkers_noise: {
+    name: "Checkers Noise",
+    category: "Generate",
+    shader: checkersNoiseShader,
+    inputs: {},
+    outputs: {
+      output: {
+        name: "Noise",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  bayers_noise_8x8: {
+    name: "Bayers Noise 8x8",
+    category: "Generate",
+    shader: bayerNoiseShader,
     inputs: {},
     outputs: {
       output: {
