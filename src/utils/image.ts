@@ -1,24 +1,17 @@
 import { ImageAsset, imageTypeSchema } from "@/schemas/asset.schema";
-import { openFile } from "./file";
+import { openFile, saveFile } from "./file";
 
 export async function saveImageToFile(
   suggestedName: string,
   asset: ImageAsset,
 ) {
-  try {
-    const handle = await window.showSaveFilePicker({
-      suggestedName: `${suggestedName}.${asset.type}`,
-      types: [
-        { accept: { [`image/${asset.type}` as const]: [`.${asset.type}`] } },
-      ],
-    });
-
-    const writable = await handle.createWritable();
-    await writable.write(asset.data);
-    await writable.close();
-  } catch (e) {
-    console.warn(e);
-  }
+  return await saveFile({
+    suggestedName: `${suggestedName}.${asset.type}`,
+    types: [
+      { accept: { [`image/${asset.type}` as const]: [`.${asset.type}`] } },
+    ],
+    data: asset.data,
+  });
 }
 
 const IMAGE_TYPE_FOR_EXTENSION: Record<string, ImageAsset["type"]> = {

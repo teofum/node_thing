@@ -1,18 +1,11 @@
-import { openFile } from "./file";
+import { openFile, saveFile } from "./file";
 
 export async function saveJsonToFile(json: string, suggestedName: string) {
-  try {
-    const handle = await window.showSaveFilePicker({
-      suggestedName: suggestedName + ".json",
-      types: [{ accept: { "application/json": [".json"] } }],
-    });
-
-    const writable = await handle.createWritable();
-    await writable.write(json);
-    await writable.close();
-  } catch (e) {
-    console.warn(e);
-  }
+  return await saveFile({
+    suggestedName: `${suggestedName}.json`,
+    types: [{ accept: { "application/json": [".json"] } }],
+    data: json,
+  });
 }
 
 export async function loadJsonFromFile(onload: (json: string) => void) {
