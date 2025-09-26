@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 
-import { Layer, useStore } from "@/store/store";
+import { Layer, useMainStore } from "@/store/main.store";
 import { PreparedPipeline, preparePipeline } from "./renderer";
 import { buildRenderPipeline, RenderPipeline } from "./pipeline";
 import { compareLayerDims, compareLayers } from "./compare-layers";
@@ -17,8 +17,9 @@ export function usePipeline(
   device: GPUDevice | null,
   ctx: GPUCanvasContext | null,
 ) {
-  const layers = useStore((s) => s.layers);
-  const canvas = useStore((s) => s.properties.canvas);
+  const layers = useMainStore((s) => s.layers);
+  const canvas = useMainStore((s) => s.properties.canvas);
+  const nodeTypes = useMainStore((s) => s.nodeTypes);
 
   /*
    * Pipeline descriptor and layer cache
@@ -77,7 +78,7 @@ export function usePipeline(
       if (needsRebuild[i].desc) {
         console.log(`Rebuilding render graph [layer ${i}]...`);
 
-        descCache.current[i] = buildRenderPipeline(layer);
+        descCache.current[i] = buildRenderPipeline(layer, nodeTypes);
         if (!descCache.current[i] || descCache.current[i].outputBuffer < 0)
           descCache.current[i] = null;
       }
@@ -96,6 +97,7 @@ export function usePipeline(
               ...layers[i].size,
               ...layers[i].position,
             },
+            nodeTypes,
           );
         } else {
           pipelineCache.current[i] = null;
@@ -111,7 +113,7 @@ export function usePipeline(
     }
 
     return pipelineCache.current;
-  }, [ctx, device, layers, canvas]);
+  }, [ctx, device, layers, canvas, nodeTypes]);
 
   return pipeline;
 }

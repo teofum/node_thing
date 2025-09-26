@@ -25,11 +25,22 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
-    var diff = abs(input_a[index] - input_b[index]);
-    
-    let or = clamp(diff.x, 0.0, 1.0);
-    let og = clamp(diff.y, 0.0, 1.0);
-    let ob = clamp(diff.z, 0.0, 1.0);
-    output[index] = vec3f(or ,og ,ob );
+    var in_a: vec3f;
+    if arrayLength(&input_a) == 1u {
+        in_a = input_a[0];
+        in_a = pow(in_a, vec3f(2.2));
+    } else {
+        in_a = input_a[index];
+    }
+
+    var in_b: vec3f;
+    if arrayLength(&input_b) == 1u {
+        in_b = input_b[0];
+        in_b = pow(in_b, vec3f(2.2));
+    } else {
+        in_b = input_b[index];
+    }
+
+    output[index] = abs(in_a - in_b);
 }
 

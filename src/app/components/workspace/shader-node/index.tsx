@@ -1,12 +1,14 @@
 import { NodeProps } from "@xyflow/react";
 import cn from "classnames";
+import { LuEllipsisVertical, LuStar, LuTrash2 } from "react-icons/lu";
 
-import { ShaderNode as ShaderNodeType } from "@/store/store";
-import { NODE_TYPES } from "@/utils/node-type";
+import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { NodeInput } from "./node-input";
 import { NodeOutput } from "./node-output";
 import { NodeParameter } from "./node-parameter";
+import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
+import { Button } from "@/ui/button";
 
 // TODO, ShaderNode por ahora solamente recibe node: Node (el de node.shema.ts)
 // puede que querramos guardar el código del shader en formato string dentro del objeto data:
@@ -14,11 +16,16 @@ export function RenderShaderNode(
   props: NodeProps<ShaderNodeType> & { mock?: boolean },
 ) {
   const { data, selected } = props;
-  const nodeTypeInfo = NODE_TYPES[data.type];
+  const nodeTypes = useMainStore((state) => state.nodeTypes);
+  const remove = useMainStore((state) => state.removeNode);
+  const nodeTypeInfo = nodeTypes[data.type];
 
-  // TODO acá habría que renderizar y mostrar menú para cada atributo y demás
   const outputOffset =
     Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
+
+  const removeNode = () => {
+    remove(props.id);
+  };
 
   return (
     <div
@@ -33,10 +40,39 @@ export function RenderShaderNode(
           {
             "bg-purple-400/15": data.type === "__output",
             "bg-orange-400/15": nodeTypeInfo.category === "Input",
+            "bg-blue-400/15": nodeTypeInfo.category === "Math",
           },
         )}
       >
-        {nodeTypeInfo.name}
+        <div className="flex items-center gap-1">
+          {nodeTypeInfo.name}
+          {/* star to recognize purchased shaders */}
+          {nodeTypeInfo.isPurchased ? (
+            <LuStar className="w-3 h-3 opacity-70" />
+          ) : null}
+          {!props.mock && data.type !== "__output" ? (
+            <DropdownMenu
+              trigger={
+                <Button
+                  icon
+                  variant="ghost"
+                  size="sm"
+                  className="ml-auto -mr-2"
+                >
+                  <LuEllipsisVertical />
+                </Button>
+              }
+            >
+              <DropdownMenuItem
+                className="text-red-400"
+                icon={<LuTrash2 />}
+                onClick={removeNode}
+              >
+                Remove
+              </DropdownMenuItem>
+            </DropdownMenu>
+          ) : null}
+        </div>
       </div>
 
       <div className="p-2">

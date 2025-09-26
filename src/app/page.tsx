@@ -4,6 +4,7 @@ import { Workspace } from "./components/workspace";
 import { AuthButton } from "./auth/components/auth-button";
 import { createClient } from "@/lib/supabase/server";
 import { Renderer } from "./components/renderer";
+import { LinkButton } from "@/ui/button";
 import { Menubar } from "@/ui/menu-bar";
 import { FileMenu } from "./components/menu/file";
 import { LayerMenu } from "./components/menu/layer";
@@ -25,6 +26,7 @@ export default async function Home() {
       redirect("/onboarding");
     }
   }
+
   return (
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}
@@ -35,6 +37,10 @@ export default async function Home() {
           <FileMenu />
           <LayerMenu />
         </Menubar>
+
+        <LinkButton href="/marketplace" variant="outline">
+          Marketplace
+        </LinkButton>
 
         <AuthButton />
       </div>

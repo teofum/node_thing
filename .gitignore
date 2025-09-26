@@ -43,5 +43,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#format config
+# supabase
+supabase/.temp/
+
+# format config
 .clang-format

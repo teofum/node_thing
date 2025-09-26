@@ -1,7 +1,6 @@
-import { NODE_TYPES } from "@/utils/node-type";
-
 import { RenderShaderNode } from "./shader-node";
 import { NodeType } from "@/schemas/node.schema";
+import { useMainStore } from "@/store/main.store";
 import * as Accordion from "@radix-ui/react-accordion";
 import {
   AccordionContent,
@@ -11,14 +10,15 @@ import {
 import { Fragment } from "react";
 
 export function MenuLibrary() {
+  const nodeTypes = useMainStore((state) => state.nodeTypes);
+
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("type", nodeType);
   };
 
-  // Group nodes by category
   const nodesByCategory: Record<string, Record<string, NodeType>> = {};
-  Object.entries(NODE_TYPES)
+  Object.entries(nodeTypes)
     .filter(([key]) => !key.startsWith("__output"))
     .forEach(([key, type]) => {
       if (!nodesByCategory[type.category]) nodesByCategory[type.category] = {};
@@ -47,7 +47,7 @@ export function MenuLibrary() {
                         mock
                         id={key}
                         data={{
-                          type: key as keyof typeof NODE_TYPES,
+                          type: key,
                           defaultValues: {},
                           parameters: {},
                         }}

@@ -1,21 +1,21 @@
 import { useCallback } from "react";
 import { ReactFlow, useReactFlow, Background } from "@xyflow/react";
-import { ShaderNode, useStore } from "@/store/store";
+import { useMainStore } from "@/store/main.store";
 import { RenderShaderNode } from "./shader-node";
 import { NodeData } from "@/schemas/node.schema";
-import { NODE_TYPES } from "@/utils/node-type";
 
 const nodeTypes = {
   RenderShaderNode,
 };
 
 export function Viewport() {
-  const layers = useStore((s) => s.layers);
-  const currentLayer = useStore((s) => s.currentLayer);
-  const onNodesChange = useStore((s) => s.onNodesChange);
-  const onEdgesChange = useStore((s) => s.onEdgesChange);
-  const onConnect = useStore((s) => s.onConnect);
-  const addNode = useStore((s) => s.addNode);
+  const layers = useMainStore((s) => s.layers);
+  const currentLayer = useMainStore((s) => s.currentLayer);
+  const storeNodeTypes = useMainStore((s) => s.nodeTypes);
+  const onNodesChange = useMainStore((s) => s.onNodesChange);
+  const onEdgesChange = useMainStore((s) => s.onEdgesChange);
+  const onConnect = useMainStore((s) => s.onConnect);
+  const addNode = useMainStore((s) => s.addNode);
 
   const { screenToFlowPosition } = useReactFlow();
 
@@ -40,7 +40,7 @@ export function Viewport() {
       const type = event.dataTransfer.getData("type") as NodeData["type"];
 
       const parameters: NodeData["parameters"] = {};
-      for (const key in NODE_TYPES[type].parameters) {
+      for (const key in storeNodeTypes[type].parameters) {
         const value = event.dataTransfer.getData(`params.${key}`) || null;
 
         parameters[key] = { value };
@@ -48,7 +48,7 @@ export function Viewport() {
 
       addNode(type, position, parameters);
     },
-    [screenToFlowPosition, addNode],
+    [screenToFlowPosition, addNode, storeNodeTypes],
   );
 
   /*

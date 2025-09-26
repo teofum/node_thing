@@ -1,7 +1,7 @@
 import { NodeProps, Position } from "@xyflow/react";
 import cn from "classnames";
 
-import { ShaderNode as ShaderNodeType, useStore } from "@/store/store";
+import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
 import { NodeType } from "@/schemas/node.schema";
 import { HandleWithMock } from "./mock-handle";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
@@ -22,8 +22,8 @@ export function NodeInput({
   i,
   mock = false,
 }: NodeInputProps) {
-  const updateDefaultValue = useStore((s) => s.updateNodeDefaultValue);
-  const edges = useStore((s) => s.layers[s.currentLayer].edges);
+  const updateDefaultValue = useMainStore((s) => s.updateNodeDefaultValue);
+  const edges = useMainStore((s) => s.layers[s.currentLayer].edges);
 
   const renderDefaultValueInput =
     !mock &&
@@ -50,10 +50,10 @@ export function NodeInput({
           <SliderInput
             value={data.defaultValues[key] as number}
             onChange={(v) => updateDefaultValue(id, key, v)}
-            min={0}
-            max={1}
-            step={0.01}
-            className="w-[100px]"
+            min={input.min ?? 0}
+            max={input.max ?? 1}
+            step={input.step ?? 0.01}
+            className="w-25"
           />
         ) : (
           <ColorInput

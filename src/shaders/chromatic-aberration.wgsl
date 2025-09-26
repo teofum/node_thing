@@ -55,36 +55,36 @@ fn main(@builtin(global_invocation_id) id: vec3u) {
 
     var magniR: f32;
     if arrayLength(&in_magniR) <= 4u {
-        magniR = 10 * in_magniR[0];
+        magniR = in_magniR[0];
     } else {
-        magniR = 10 * in_magniR[index];
+        magniR = in_magniR[index];
     }
     var magniG: f32;
     if arrayLength(&in_magniG) <= 4u {
-        magniG = 10 * in_magniG[0];
+        magniG = in_magniG[0];
     } else {
-        magniG = 10 * in_magniG[index];
+        magniG = in_magniG[index];
     }
     var magniB: f32;
     if arrayLength(&in_magniB) <= 4u {
-        magniB = 10 * in_magniB[0];
+        magniB = in_magniB[0];
     } else {
-        magniB = 10 * in_magniB[index];
+        magniB = in_magniB[index];
     }
 
 
-    var xR: u32 = u32(clamp( floor(f32(id.x) + sin(angleR)*magniR), 0, f32(u.width - 1) ));
-    var yR: u32 = u32(clamp( floor(f32(id.y) + cos(angleR)*magniR), 0, f32(u.height - 1) ));
-    let indexR: u32 =  xR + (yR * u.width);
+    var xR: u32 = u32(clamp(floor(f32(id.x) + sin(angleR) * magniR), 0.0, f32(u.width - 1u)));
+    var yR: u32 = u32(clamp(floor(f32(id.y) + cos(angleR) * magniR), 0.0, f32(u.height - 1u)));
+    let indexR: u32 = xR + (yR * u.width);
 
-    var xG: u32 = u32(clamp( floor(f32(id.x) + sin(angleG)*magniG), 0, f32(u.width - 1) ));
-    var yG: u32 = u32(clamp( floor(f32(id.y) + cos(angleG)*magniG), 0, f32(u.height - 1) ));
-    let indexG: u32 =  xG + (yG * u.width);
+    var xG: u32 = u32(clamp(floor(f32(id.x) + sin(angleG) * magniG), 0.0, f32(u.width - 1u)));
+    var yG: u32 = u32(clamp(floor(f32(id.y) + cos(angleG) * magniG), 0.0, f32(u.height - 1u)));
+    let indexG: u32 = xG + (yG * u.width);
 
-    var xB: u32 = u32(clamp( floor(f32(id.x) + sin(angleB)*magniB), 0, f32(u.width - 1) ));
-    var yB: u32 = u32(clamp( floor(f32(id.y) + cos(angleB)*magniB), 0, f32(u.height - 1) ));
-    let indexB: u32 =  xB + (yB * u.width);
+    var xB: u32 = u32(clamp(floor(f32(id.x) + sin(angleB) * magniB), 0.0, f32(u.width - 1u)));
+    var yB: u32 = u32(clamp(floor(f32(id.y) + cos(angleB) * magniB), 0.0, f32(u.height - 1u)));
+    let indexB: u32 = xB + (yB * u.width);
 
-    output[index] = vec3<f32>(input[indexR].r,input[indexG].g,input[indexB].b);
+    output[index] = vec3<f32>(input[indexR].r, input[indexG].g, input[indexB].b);
 }
 

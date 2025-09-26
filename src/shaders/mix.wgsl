@@ -31,6 +31,7 @@ fn main(
     var in_a: vec3f;
     if arrayLength(&input_a) == 1u {
         in_a = input_a[0];
+        in_a = pow(in_a, vec3f(2.2));
     } else {
         in_a = input_a[index];
     }
@@ -38,6 +39,7 @@ fn main(
     var in_b: vec3f;
     if arrayLength(&input_b) == 1u {
         in_b = input_b[0];
+        in_b = pow(in_b, vec3f(2.2));
     } else {
         in_b = input_b[index];
     }

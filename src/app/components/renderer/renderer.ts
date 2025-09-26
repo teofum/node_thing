@@ -1,5 +1,4 @@
-import { NODE_TYPES } from "@/utils/node-type";
-import { HandleType } from "@/schemas/node.schema";
+import { HandleType, NodeType } from "@/schemas/node.schema";
 import { RenderPass, RenderPipeline } from "./pipeline";
 import { createUniform } from "./uniforms";
 
@@ -139,12 +138,16 @@ function createBindGroups(
  * Stored in a map, this allows for shader reuse (for example,
  * if a node is used twice).
  */
-function compileShaders(device: GPUDevice, desc: RenderPipeline) {
+function compileShaders(
+  device: GPUDevice,
+  desc: RenderPipeline,
+  nodeTypes: Record<string, NodeType>,
+) {
   const shaders: Record<string, GPUShaderModule> = {};
 
   for (const pass of desc.passes) {
     shaders[pass.nodeType] = device.createShaderModule({
-      code: NODE_TYPES[pass.nodeType].shader,
+      code: nodeTypes[pass.nodeType].shader,
     });
   }
 
@@ -160,8 +163,9 @@ function createComputePSOs(
   desc: RenderPipeline,
   bindGroupLayouts: GPUBindGroupLayout[],
   uniformBindGroupLayout: GPUBindGroupLayout,
+  nodeTypes: Record<string, NodeType>,
 ) {
-  const shaders = compileShaders(device, desc);
+  const shaders = compileShaders(device, desc, nodeTypes);
 
   return desc.passes.map((pass, i) =>
     device.createComputePipeline({
@@ -292,6 +296,7 @@ export function preparePipeline(
   device: GPUDevice,
   desc: RenderPipeline,
   opts: RenderOptions,
+  nodeTypes: Record<string, NodeType>,
 ) {
   const bindGroupLayouts = createBindGroupLayouts(device, desc);
 
@@ -310,6 +315,7 @@ export function preparePipeline(
     desc,
     bindGroupLayouts,
     uniform.bindGroupLayout,
+    nodeTypes,
   );
 
   const inputStage = createInputStage(device, uniform.bindGroupLayout);
@@ -354,6 +360,12 @@ export function render(
     uniform,
   } = pipeline;
 
+  const renderTarget = device.createTexture({
+    format: "rgba8unorm",
+    size: [target.width, target.height],
+    usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC,
+  });
+
   /*
    * Bind target texture to final stage
    */
@@ -372,7 +384,7 @@ export function render(
       },
       {
         binding: 2,
-        resource: target.createView(),
+        resource: renderTarget.createView(),
       },
     ],
   });
@@ -494,6 +506,11 @@ export function render(
     Math.ceil(opts.height / THREADS_PER_WORKGROUP),
   );
   outputPass.end();
+
+  enc.copyTextureToTexture({ texture: renderTarget }, { texture: target }, [
+    target.width,
+    target.height,
+  ]);
 
   device.queue.submit([enc.finish()]);
 }

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { useStore } from "@/store/store";
-import { useAssetStore } from "@/store/asset-store";
+import { useMainStore } from "@/store/main.store";
+import { useAssetStore } from "@/store/asset.store";
 import { zip } from "@/utils/zip";
 
 export function useTextureCache(device: GPUDevice | null) {
-  const layers = useStore((s) => s.layers);
+  const layers = useMainStore((s) => s.layers);
   const images = useAssetStore((s) => s.images);
 
   const [textures, setTextures] = useState<[string, GPUTexture][]>([]);

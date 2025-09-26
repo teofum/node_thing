@@ -1,14 +1,14 @@
-import { useAssetStore } from "@/store/asset-store";
+import { useAssetStore } from "@/store/asset.store";
 import { Button } from "@/ui/button";
 import { AssetThumbnail } from "./asset-manager/thumbnail";
-import { uploadImage } from "@/utils/upload-image";
+import { loadImageAssetFromFile } from "@/utils/image";
 import { AssetManager } from "./asset-manager";
 
 export function MenuAssets() {
   const images = useAssetStore((s) => s.images);
   const addImage = useAssetStore((s) => s.addImage);
 
-  const uploadImageAsset = () => uploadImage(addImage);
+  const uploadImageAsset = () => loadImageAssetFromFile(addImage);
 
   const onDragStart = (event: React.DragEvent, name: string) => {
     event.dataTransfer.effectAllowed = "move";
