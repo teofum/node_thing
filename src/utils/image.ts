@@ -1,4 +1,5 @@
 import { ImageAsset, imageTypeSchema } from "@/schemas/asset.schema";
+import { openFile } from "./file";
 
 export async function saveImageToFile(
   suggestedName: string,
@@ -34,25 +35,15 @@ function getImageType(filename: string) {
     : "unknown";
 }
 
-export function loadImageAssetFromFile(
+export async function loadImageAssetFromFile(
   callback: (name: string, asset: ImageAsset) => void,
 ) {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/png, image/jpeg, image/webp";
-
-  input.addEventListener("change", (ev) => {
-    const { files } = ev.target as HTMLInputElement;
-    if (!files?.length) return;
-
-    files[0].arrayBuffer().then((ab) => {
-      const bytes = new Uint8Array(ab);
-      callback(files[0].name, {
-        type: imageTypeSchema.parse(getImageType(files[0].name)),
-        data: bytes,
-      });
+  const file = await openFile(["image/png", "image/jpeg", "image/webp"]);
+  if (file) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    callback(file.name, {
+      type: imageTypeSchema.parse(getImageType(file.name)),
+      data: bytes,
     });
-  });
-
-  input.click();
+  }
 }
