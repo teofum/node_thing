@@ -5,6 +5,9 @@ var<storage, read> input_a: array<vec3f>;
 var<storage, read> input_b: array<vec3f>;
 
 @group(0) @binding(2)
+var<storage, read> factor: array<f32>;
+
+@group(0) @binding(3)
 var<storage, read_write> output: array<vec3f>;
 
 struct Uniforms {
@@ -41,5 +44,12 @@ fn main(
         in_b = input_b[index];
     }
 
-    output[index] = abs(in_a - in_b);
+    var tau: f32;
+    if arrayLength(&factor) <= 4u {
+        tau = factor[0];
+    } else {
+        tau = factor[index];
+    }
+
+    output[index] = abs((1.0 + tau) * in_a - tau * in_b);
 }

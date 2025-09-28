@@ -3,11 +3,13 @@ import { NodeType } from "@/schemas/node.schema";
 import uvShader from "@/shaders/uv.wgsl";
 import grayscaleShader from "@/shaders/grayscale.wgsl";
 import thresholdShader from "@/shaders/threshold.wgsl";
+import extThresholdShader from "@/shaders/threshold_ext.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
 import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
 import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
 import diffShader from "@/shaders/diff.wgsl";
+import extDiffShader from "@/shaders/diff_ext.wgsl";
 import exposureShader from "@/shaders/exposure.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 import mergeChannelsShader from "@/shaders/combine-channels.wgsl";
@@ -18,6 +20,7 @@ import bloomShader from "@/shaders/bloom.wgsl";
 import addShader from "@/shaders/add.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
 import absShader from "@/shaders/abs.wgsl";
+import constantShader from "@/shaders/constant.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 
 export const NODE_TYPES = {
@@ -110,6 +113,24 @@ export const NODE_TYPES = {
     parameters: {},
   },
   // Math category ///////////////////////////////
+  constant: {
+    name: "Constant",
+    category: "Math",
+    shader: constantShader,
+    inputs: {
+      in_a: {
+        name: "Value",
+        type: "number",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "k",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
   add: {
     name: "Add",
     category: "Math",
@@ -298,6 +319,32 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  diffExt: {
+    name: "Extended Difference",
+    category: "Blend",
+    shader: extDiffShader,
+    inputs: {
+      in_a: {
+        name: "A",
+        type: "color",
+      },
+      in_b: {
+        name: "B",
+        type: "color",
+      },
+      factor: {
+        name: "Tau",
+        type: "number",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
   // Color category ///////////////////////////////
   grayscale: {
     name: "Grayscale",
@@ -326,8 +373,34 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      Threshold: {
+      threshold: {
         name: "Threshold",
+        type: "number",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  threshold_ext: {
+    name: "Extended Threshold",
+    category: "Color",
+    shader: extThresholdShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+      threshold: {
+        name: "Threshold",
+        type: "number",
+      },
+      phi: {
+        name: "Falloff",
         type: "number",
       },
     },
