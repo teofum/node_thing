@@ -4,7 +4,8 @@ import uvShader from "@/shaders/uv.wgsl";
 import grayscaleShader from "@/shaders/grayscale.wgsl";
 import thresholdShader from "@/shaders/threshold.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
-import gaussianBlurShader from "@/shaders/gaussian-blur.wgsl";
+import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
+import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
 import diffShader from "@/shaders/diff.wgsl";
 import exposureShader from "@/shaders/exposure.wgsl";
@@ -199,7 +200,7 @@ export const NODE_TYPES = {
   gaussBlur: {
     name: "Gaussian blur",
     category: "Filter",
-    shader: gaussianBlurShader,
+    shader: gaussianBlurXShader,
     inputs: {
       in_a: {
         name: "Input",
@@ -209,7 +210,7 @@ export const NODE_TYPES = {
         name: "Std. dev",
         type: "number",
         min: 0.1,
-        max: 10,
+        max: 50,
         step: 0.1,
       },
     },
@@ -220,6 +221,15 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
+    additionalPasses: [
+      {
+        shader: gaussianBlurYShader,
+        buffers: [
+          { name: "image", type: "color" },
+          { name: "std_dev", type: "number" },
+        ],
+      },
+    ],
   },
   sharpness: {
     name: "Sharpness",

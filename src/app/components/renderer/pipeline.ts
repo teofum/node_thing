@@ -1,5 +1,11 @@
-import { HandleType, NodeData, NodeType } from "@/schemas/node.schema";
+import {
+  HandleType,
+  NodeData,
+  NodePassBufferDescriptor,
+  NodeType,
+} from "@/schemas/node.schema";
 import { Layer, ShaderNode } from "@/store/main.store";
+import { enumerate } from "@/utils/enumerate";
 import { Edge } from "@xyflow/react";
 
 type Buffer = {
@@ -20,11 +26,13 @@ type Input = {
 
 export type RenderPass = {
   nodeType: NodeData["type"];
+  shader: string;
   inputBindings: Record<string, number | null>;
   outputBindings: Record<string, number>;
   defaultInputValues: Record<string, number | number[]>;
 };
 
+const MAX_ITERATIONS = 1000;
 export class RenderPipeline {
   passes: RenderPass[] = [];
   inputs: Input[] = [];
@@ -65,7 +73,7 @@ export class RenderPipeline {
 
     let i = 0;
     while (this.queue.length > 0) {
-      if (i++ > 1000) throw new Error("max iteration count exceeded");
+      if (i++ > MAX_ITERATIONS) throw new Error("max iteration count exceeded");
 
       // We just asserted the array has items, unshift will never return undefined
       const node = this.queue.shift() as ShaderNode;
@@ -183,6 +191,21 @@ export class RenderPipeline {
     return freeBuffer;
   }
 
+  private getInputBindings(
+    node: ShaderNode,
+    dependencies: { input: string; buf: Buffer }[],
+  ) {
+    const nodeType = this.nodeTypes[node.data.type];
+    const inputBindings: Record<string, number | null> = {};
+
+    for (const input of Object.keys(nodeType.inputs)) {
+      inputBindings[input] =
+        dependencies.find((dep) => dep.input === input)?.buf.idx ?? null;
+    }
+
+    return inputBindings;
+  }
+
   private getOutputBindings(node: ShaderNode) {
     const nodeType = this.nodeTypes[node.data.type];
     const buffersUsed: Buffer["idx"][] = [];
@@ -217,34 +240,69 @@ export class RenderPipeline {
     return outputBindings;
   }
 
+  private getPassOutputBindings(buffers: NodePassBufferDescriptor[]) {
+    const buffersUsed: Buffer["idx"][] = [];
+    const outputBindings: RenderPass["outputBindings"] = {};
+
+    for (const buffer of buffers) {
+      const buf = this.findOrCreateBuffer(buffer.type, buffersUsed);
+      buffersUsed.push(buf.idx);
+
+      outputBindings[buffer.name] = buf.idx;
+    }
+
+    return outputBindings;
+  }
+
   private buildRenderPasses(
     node: ShaderNode,
     dependencies: { input: string; buf: Buffer }[],
   ) {
     const nodeType = this.nodeTypes[node.data.type];
+    const inputBindings = this.getInputBindings(node, dependencies);
+    const outputBindings = this.getOutputBindings(node);
 
-    const pass: RenderPass = {
+    const additionalPasses = nodeType.additionalPasses ?? [];
+
+    const basePass: RenderPass = {
       nodeType: node.data.type,
-      inputBindings: {},
-      outputBindings: {},
+      shader: "main",
+      inputBindings,
+      outputBindings: additionalPasses.length
+        ? this.getPassOutputBindings(additionalPasses[0].buffers)
+        : outputBindings,
       defaultInputValues: node.data.defaultValues,
     };
 
-    // Add input bindings
-    for (const input of Object.keys(nodeType.inputs)) {
-      pass.inputBindings[input] =
-        dependencies.find((dep) => dep.input === input)?.buf.idx ?? null;
+    const passes = [basePass];
+    for (let i = 0; i < additionalPasses.length; i++) {
+      const lastPassOutputBindings = passes.at(-1)!.outputBindings;
+      const thisPassOutputBindings =
+        i < additionalPasses.length - 1
+          ? this.getPassOutputBindings(additionalPasses[i + 1].buffers)
+          : outputBindings;
+
+      passes.push({
+        nodeType: node.data.type,
+        shader: `pass_${i}`,
+        inputBindings: lastPassOutputBindings,
+        outputBindings: thisPassOutputBindings,
+        defaultInputValues: {},
+      });
     }
 
-    // Add output bindings
-    pass.outputBindings = this.getOutputBindings(node);
+    unlinkDependencies(dependencies, node);
 
-    // Unlink this node from all buffers it depends on
-    for (const dep of dependencies) {
-      dep.buf.users = dep.buf.users.filter((user) => user.nodeId !== node.id);
-    }
+    return passes;
+  }
+}
 
-    return [pass];
+function unlinkDependencies(
+  dependencies: { input: string; buf: Buffer }[],
+  node: ShaderNode,
+) {
+  for (const dep of dependencies) {
+    dep.buf.users = dep.buf.users.filter((user) => user.nodeId !== node.id);
   }
 }
 

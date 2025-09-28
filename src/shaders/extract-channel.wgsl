@@ -40,4 +40,3 @@ fn main(
     green[index] = in.g;
     blue[index] = in.b;
 }
-

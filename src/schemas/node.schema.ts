@@ -36,6 +36,13 @@ const parameterSchema = z.object({
     .optional(),
 });
 
+const passBufferSchema = z.object({
+  name: z.string(),
+  type: z.enum(["color", "number"]),
+});
+
+export type NodePassBufferDescriptor = z.infer<typeof passBufferSchema>;
+
 export const nodeTypeSchema = z.object({
   name: z.string(),
   category: z.string(),
@@ -47,12 +54,8 @@ export const nodeTypeSchema = z.object({
   shader: z.string(),
   additionalPasses: z
     .object({
-      function: z.string(),
-      buffers: z
-        .object({
-          type: z.enum(["color", "number"]),
-        })
-        .array(),
+      shader: z.string(),
+      buffers: passBufferSchema.array(),
     })
     .array()
     .optional(),
