@@ -16,6 +16,9 @@ export async function AuthButton() {
 
   return (
     <div className="flex items-center gap-4">
+      <LinkButton href="/profile" variant="outline">
+        Profile
+      </LinkButton>
       <span className="text-sm">Hey, {displayName}!</span>
       <form action={signOutAction} className="inline">
         <Button type="submit" variant="outline">
