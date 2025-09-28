@@ -45,6 +45,18 @@ export const nodeTypeSchema = z.object({
   parameters: z.record(z.string(), parameterSchema),
 
   shader: z.string(),
+  additionalPasses: z
+    .object({
+      function: z.string(),
+      buffers: z
+        .object({
+          type: z.enum(["color", "number"]),
+        })
+        .array(),
+    })
+    .array()
+    .optional(),
+
   isPurchased: z.boolean().optional(),
 });
 
