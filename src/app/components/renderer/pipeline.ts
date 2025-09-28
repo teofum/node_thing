@@ -84,8 +84,8 @@ export class RenderPipeline {
         const input = createInput(node, this.getOutputBindings(node));
         this.inputs.push(input);
       } else {
-        const pass: RenderPass = this.buildRenderPass(node, dependencies);
-        this.passes.push(pass);
+        const passes = this.buildRenderPasses(node, dependencies);
+        this.passes.push(...passes);
       }
     }
 
@@ -217,7 +217,7 @@ export class RenderPipeline {
     return outputBindings;
   }
 
-  private buildRenderPass(
+  private buildRenderPasses(
     node: ShaderNode,
     dependencies: { input: string; buf: Buffer }[],
   ) {
@@ -244,7 +244,7 @@ export class RenderPipeline {
       dep.buf.users = dep.buf.users.filter((user) => user.nodeId !== node.id);
     }
 
-    return pass;
+    return [pass];
   }
 }
 
