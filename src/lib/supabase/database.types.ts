@@ -127,14 +127,20 @@ export type Database = {
       profiles: {
         Row: {
           id: string;
+          is_premium: boolean | null;
+          subscription_id: string | null;
           username: string;
         };
         Insert: {
           id: string;
+          is_premium?: boolean | null;
+          subscription_id?: string | null;
           username: string;
         };
         Update: {
           id?: string;
+          is_premium?: boolean | null;
+          subscription_id?: string | null;
           username?: string;
         };
         Relationships: [];
