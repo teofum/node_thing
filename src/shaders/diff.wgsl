@@ -43,4 +43,3 @@ fn main(
 
     output[index] = abs(in_a - in_b);
 }
-

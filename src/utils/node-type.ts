@@ -3,10 +3,17 @@ import { NodeType } from "@/schemas/node.schema";
 import uvShader from "@/shaders/uv.wgsl";
 import grayscaleShader from "@/shaders/grayscale.wgsl";
 import thresholdShader from "@/shaders/threshold.wgsl";
+import extThresholdShader from "@/shaders/threshold_ext.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
-import gaussianBlurShader from "@/shaders/gaussian-blur.wgsl";
+import sobelShader from "@/shaders/sobel.wgsl";
+import edgeTangentFlowShader from "@/shaders/edge-tangent-flow.wgsl";
+import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
+import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
+import gaussianBlurEdgeShader from "@/shaders/gaussian-blur-edge.wgsl";
+import gaussianBlurEdgeAlongShader from "@/shaders/gaussian-blur-edge-along.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
 import diffShader from "@/shaders/diff.wgsl";
+import extDiffShader from "@/shaders/diff_ext.wgsl";
 import exposureShader from "@/shaders/exposure.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
 import mergeChannelsShader from "@/shaders/combine-channels.wgsl";
@@ -17,6 +24,8 @@ import bloomShader from "@/shaders/bloom.wgsl";
 import addShader from "@/shaders/add.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
 import absShader from "@/shaders/abs.wgsl";
+import fractShader from "@/shaders/fract.wgsl";
+import constantShader from "@/shaders/constant.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 
 export const NODE_TYPES = {
@@ -109,6 +118,24 @@ export const NODE_TYPES = {
     parameters: {},
   },
   // Math category ///////////////////////////////
+  constant: {
+    name: "Constant",
+    category: "Math",
+    shader: constantShader,
+    inputs: {
+      in_a: {
+        name: "Value",
+        type: "number",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "k",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
   add: {
     name: "Add",
     category: "Math",
@@ -171,6 +198,28 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  fract: {
+    name: "Split decimal",
+    category: "Math",
+    shader: fractShader,
+    inputs: {
+      input: {
+        name: "x",
+        type: "number",
+      },
+    },
+    outputs: {
+      out_floor: {
+        name: "⌊x⌋",
+        type: "number",
+      },
+      out_fract: {
+        name: "x - ⌊x⌋",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
   // Filters category ///////////////////////////////
   boxBlur: {
     name: "Box Blur",
@@ -199,7 +248,7 @@ export const NODE_TYPES = {
   gaussBlur: {
     name: "Gaussian blur",
     category: "Filter",
-    shader: gaussianBlurShader,
+    shader: gaussianBlurXShader,
     inputs: {
       in_a: {
         name: "Input",
@@ -209,8 +258,75 @@ export const NODE_TYPES = {
         name: "Std. dev",
         type: "number",
         min: 0.1,
-        max: 10,
+        max: 50,
         step: 0.1,
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+    additionalPasses: [
+      {
+        shader: gaussianBlurYShader,
+        buffers: [
+          { name: "image", type: "color" },
+          { name: "std_dev", type: "number" },
+        ],
+      },
+    ],
+  },
+  gaussBlurEdge: {
+    name: "Gaussian blur across edges",
+    category: "Filter",
+    shader: gaussianBlurEdgeShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+      std_dev: {
+        name: "Std. dev",
+        type: "number",
+        min: 0.1,
+        max: 50,
+        step: 0.1,
+      },
+      in_tangent: {
+        name: "Tangent",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  gaussBlurEdgeAlong: {
+    name: "Gaussian blur along edges",
+    category: "Filter",
+    shader: gaussianBlurEdgeAlongShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+      std_dev: {
+        name: "Std. dev",
+        type: "number",
+        min: 0.1,
+        max: 50,
+        step: 0.1,
+      },
+      in_tangent: {
+        name: "Tangent",
+        type: "color",
       },
     },
     outputs: {
@@ -225,6 +341,24 @@ export const NODE_TYPES = {
     name: "Sharpness",
     category: "Filter",
     shader: sharpnessShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  sobel: {
+    name: "Sobel",
+    category: "Filter",
+    shader: sobelShader,
     inputs: {
       in_a: {
         name: "Input",
@@ -288,6 +422,35 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  diffExt: {
+    name: "Extended Difference",
+    category: "Blend",
+    shader: extDiffShader,
+    inputs: {
+      in_a: {
+        name: "A",
+        type: "color",
+      },
+      in_b: {
+        name: "B",
+        type: "color",
+      },
+      factor: {
+        name: "Tau",
+        type: "number",
+        min: 1,
+        max: 10,
+        step: 0.1,
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
   // Color category ///////////////////////////////
   grayscale: {
     name: "Grayscale",
@@ -316,8 +479,34 @@ export const NODE_TYPES = {
         name: "Input",
         type: "color",
       },
-      Threshold: {
+      threshold: {
         name: "Threshold",
+        type: "number",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  threshold_ext: {
+    name: "Extended Threshold",
+    category: "Color",
+    shader: extThresholdShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+      threshold: {
+        name: "Threshold",
+        type: "number",
+      },
+      phi: {
+        name: "Falloff",
         type: "number",
       },
     },
@@ -481,6 +670,24 @@ export const NODE_TYPES = {
     outputs: {
       output: {
         name: "Color",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  edge_tangent_flow: {
+    name: "Edge Tangent Flow",
+    category: "Utility",
+    shader: edgeTangentFlowShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
         type: "color",
       },
     },

@@ -44,13 +44,12 @@ fn main(
         in_b = input_b[index];
     }
 
-    var fac: f32;
+    var tau: f32;
     if arrayLength(&factor) <= 4u {
-        fac = factor[0];
+        tau = factor[0];
     } else {
-        fac = factor[index];
+        tau = factor[index];
     }
-    fac = clamp(fac, 0.0, 1.0);
 
-    output[index] = in_a * (1.0 - fac) + in_b * fac;
+    output[index] = abs((1.0 + tau) * in_a - tau * in_b);
 }

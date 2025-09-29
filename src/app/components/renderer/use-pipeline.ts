@@ -2,7 +2,7 @@ import { useMemo, useRef } from "react";
 
 import { Layer, useMainStore } from "@/store/main.store";
 import { PreparedPipeline, preparePipeline } from "./renderer";
-import { buildRenderPipeline, RenderPipeline } from "./pipeline";
+import { RenderPipeline } from "./pipeline";
 import { compareLayerDims, compareLayers } from "./compare-layers";
 import { enumerate } from "@/utils/enumerate";
 
@@ -78,7 +78,7 @@ export function usePipeline(
       if (needsRebuild[i].desc) {
         console.log(`Rebuilding render graph [layer ${i}]...`);
 
-        descCache.current[i] = buildRenderPipeline(layer, nodeTypes);
+        descCache.current[i] = RenderPipeline.create(layer, nodeTypes);
         if (!descCache.current[i] || descCache.current[i].outputBuffer < 0)
           descCache.current[i] = null;
       }

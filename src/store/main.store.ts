@@ -9,11 +9,12 @@ import {
   OnConnect,
 } from "@xyflow/react";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { nanoid } from "nanoid";
 
 import { NodeData, NodeType } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 import { getPurchasedShaders } from "@/app/marketplace/actions";
-import { persist } from "zustand/middleware";
 
 export type ShaderNode = Node<NodeData>;
 
@@ -43,7 +44,6 @@ export type Project = {
   currentLayer: number;
   properties: ProjectProperties;
   nodeTypes: Record<string, NodeType>;
-  layerId: number;
 };
 
 const initialNodes: ShaderNode[] = [
@@ -287,8 +287,6 @@ export const useMainStore = create<Project & ProjectActions>()(
 
       addLayer: () =>
         set((state) => {
-          const newLayerId = state.layerId + 1;
-
           return {
             layers: [
               ...state.layers,
@@ -297,11 +295,10 @@ export const useMainStore = create<Project & ProjectActions>()(
                 edges: [...initialEdges],
                 position: { x: 0, y: 0 },
                 size: initialSize,
-                id: `layer_${newLayerId}`,
+                id: `layer_${nanoid()}`,
                 name: `Layer ${state.layers.length}`,
               },
             ],
-            layerId: newLayerId,
           };
         }),
 
@@ -343,14 +340,12 @@ export const useMainStore = create<Project & ProjectActions>()(
       },
 
       importLayer: (json) =>
-        set((state) => {
+        set(({ layers }) => {
           const parsedLayer: Layer = JSON.parse(json);
-
-          parsedLayer.id = `layer_${state.layerId + 1}`;
+          parsedLayer.id = `layer_${nanoid()}`;
 
           return {
-            layers: [...state.layers, parsedLayer],
-            layerId: state.layerId + 1,
+            layers: [...layers, parsedLayer],
           };
         }),
 
@@ -368,7 +363,6 @@ export const useMainStore = create<Project & ProjectActions>()(
             currentLayer: parsedProject.currentLayer,
             properties: parsedProject.properties,
             nodeTypes: state.nodeTypes,
-            layerId: parsedProject.layerId,
           };
         }),
 
@@ -396,9 +390,7 @@ export const useMainStore = create<Project & ProjectActions>()(
       addNode: (type, position, parameters = {}) => {
         const { layers, currentLayer } = get();
 
-        const getId = () => `node_${layers[currentLayer].nodes.length}`;
-
-        const currId = `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${getId()}`;
+        const currId = `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${nanoid()}`;
 
         const { nodeTypes } = get();
         const defaultValues: NodeData["defaultValues"] = {};
@@ -466,23 +458,21 @@ export const useMainStore = create<Project & ProjectActions>()(
             return state;
           }
 
-          const copyLayerIdx = state.layerId + 1;
           const newCurrentLayer = i + 1;
 
           const copyLayer: Layer = {
             ...sourceLayer,
             name: sourceLayer.name + " copy",
-            id: `layer_${copyLayerIdx}`,
+            id: `layer_${nanoid()}`,
           };
 
           const newLayers = [...state.layers, copyLayer];
 
-          const [moved] = newLayers.splice(copyLayerIdx, 1);
+          const [moved] = newLayers.splice(newLayers.length - 1, 1);
           newLayers.splice(newCurrentLayer, 0, moved);
 
           return {
             layers: newLayers,
-            layerId: copyLayerIdx,
             currentLayer: newCurrentLayer,
           };
         }),

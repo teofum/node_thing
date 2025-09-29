@@ -1,14 +1,8 @@
 @group(0) @binding(0)
-var<storage, read> input: array<vec3f>;
+var<storage, read> input: array<f32>;
 
 @group(0) @binding(1)
-var<storage, read_write> red: array<f32>;
-
-@group(0) @binding(2)
-var<storage, read_write> green: array<f32>;
-
-@group(0) @binding(3)
-var<storage, read_write> blue: array<f32>;
+var<storage, read_write> output: array<f32>;
 
 struct Uniforms {
     width: u32,
@@ -28,15 +22,12 @@ fn main(
     }
     let index = id.x + id.y * u.width;
 
-    var in: vec3f;
-    if arrayLength(&input) == 1u {
+    var in: f32;
+    if arrayLength(&input) <= 4u {
         in = input[0];
-        in = pow(in, vec3f(2.2));
     } else {
         in = input[index];
     }
 
-    red[index] = in.r;
-    green[index] = in.g;
-    blue[index] = in.b;
+    output[index] = in;
 }
