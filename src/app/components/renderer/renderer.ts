@@ -1,6 +1,7 @@
 import { HandleType, NodeType } from "@/schemas/node.schema";
 import { RenderPass, RenderPipeline } from "./pipeline";
 import { createUniform } from "./uniforms";
+import { generateShaderCode } from "./shader-codegen";
 
 import outputShader from "@/shaders/output.wgsl";
 import inputShader from "@/shaders/input.wgsl";
@@ -147,12 +148,7 @@ function compileShaders(
 
   for (const pass of desc.passes) {
     shaders[`${pass.nodeType}_${pass.shader}`] = device.createShaderModule({
-      code:
-        pass.shader === "main"
-          ? nodeTypes[pass.nodeType].shader
-          : nodeTypes[pass.nodeType].additionalPasses![
-              Number(pass.shader.substring(5))
-            ].shader,
+      code: generateShaderCode(pass, nodeTypes),
     });
   }
 
