@@ -75,11 +75,11 @@ export const NODE_TYPES = {
     shader: uvShader,
     inputs: {},
     outputs: {
-      u: {
+      out_u: {
         name: "U",
         type: "number",
       },
-      v: {
+      out_v: {
         name: "V",
         type: "number",
       },
@@ -91,7 +91,7 @@ export const NODE_TYPES = {
     category: "Special",
     shader: "",
     inputs: {
-      output_color: {
+      color: {
         name: "Layer output",
         type: "color",
       },
@@ -123,13 +123,13 @@ export const NODE_TYPES = {
     category: "Math",
     shader: constantShader,
     inputs: {
-      in_a: {
+      value: {
         name: "Value",
         type: "number",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "k",
         type: "number",
       },
@@ -141,17 +141,17 @@ export const NODE_TYPES = {
     category: "Math",
     shader: addShader,
     inputs: {
-      in_a: {
+      x: {
         name: "x",
         type: "number",
       },
-      in_b: {
+      y: {
         name: "y",
         type: "number",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "x + y",
         type: "number",
       },
@@ -163,17 +163,17 @@ export const NODE_TYPES = {
     category: "Math",
     shader: multiplyShader,
     inputs: {
-      in_a: {
+      x: {
         name: "x",
         type: "number",
       },
-      in_b: {
+      y: {
         name: "y",
         type: "number",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "x × y",
         type: "number",
       },
@@ -185,13 +185,13 @@ export const NODE_TYPES = {
     category: "Math",
     shader: absShader,
     inputs: {
-      in_a: {
+      x: {
         name: "x",
         type: "number",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "|x|",
         type: "number",
       },
@@ -203,17 +203,17 @@ export const NODE_TYPES = {
     category: "Math",
     shader: fractShader,
     inputs: {
-      input: {
+      x: {
         name: "x",
         type: "number",
       },
     },
     outputs: {
-      out_floor: {
+      integer_part: {
         name: "⌊x⌋",
         type: "number",
       },
-      out_fract: {
+      decimal_part: {
         name: "x - ⌊x⌋",
         type: "number",
       },
@@ -226,11 +226,11 @@ export const NODE_TYPES = {
     category: "Filter",
     shader: boxBlurShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
-      kernelSize: {
+      kernel_size: {
         name: "Radius",
         type: "number",
         max: 25,
@@ -238,7 +238,7 @@ export const NODE_TYPES = {
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -250,7 +250,7 @@ export const NODE_TYPES = {
     category: "Filter",
     shader: gaussianBlurXShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
@@ -263,7 +263,7 @@ export const NODE_TYPES = {
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -273,8 +273,8 @@ export const NODE_TYPES = {
       {
         shader: gaussianBlurYShader,
         buffers: [
-          { name: "image", type: "color" },
-          { name: "std_dev", type: "number" },
+          { name: "inout_image", type: "color" },
+          { name: "inout_std_dev", type: "number" },
         ],
       },
     ],
@@ -284,7 +284,7 @@ export const NODE_TYPES = {
     category: "Filter",
     shader: gaussianBlurEdgeShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
@@ -295,13 +295,13 @@ export const NODE_TYPES = {
         max: 50,
         step: 0.1,
       },
-      in_tangent: {
+      tangent: {
         name: "Tangent",
         type: "color",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -313,7 +313,7 @@ export const NODE_TYPES = {
     category: "Filter",
     shader: gaussianBlurEdgeAlongShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
@@ -324,13 +324,13 @@ export const NODE_TYPES = {
         max: 50,
         step: 0.1,
       },
-      in_tangent: {
+      tangent: {
         name: "Tangent",
         type: "color",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -342,13 +342,13 @@ export const NODE_TYPES = {
     category: "Filter",
     shader: sharpnessShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -360,14 +360,14 @@ export const NODE_TYPES = {
     category: "Filter",
     shader: sobelShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
     },
     outputs: {
-      out_a: {
-        name: "Output",
+      output: {
+        name: "Gradient",
         type: "color",
       },
     },
@@ -379,11 +379,11 @@ export const NODE_TYPES = {
     category: "Blend",
     shader: mixShader,
     inputs: {
-      in_a: {
+      input_a: {
         name: "A",
         type: "color",
       },
-      in_b: {
+      input_b: {
         name: "B",
         type: "color",
       },
@@ -393,7 +393,7 @@ export const NODE_TYPES = {
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -405,17 +405,17 @@ export const NODE_TYPES = {
     category: "Blend",
     shader: diffShader,
     inputs: {
-      in_a: {
+      input_a: {
         name: "A",
         type: "color",
       },
-      in_b: {
+      input_b: {
         name: "B",
         type: "color",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -427,15 +427,15 @@ export const NODE_TYPES = {
     category: "Blend",
     shader: extDiffShader,
     inputs: {
-      in_a: {
+      input_a: {
         name: "A",
         type: "color",
       },
-      in_b: {
+      input_b: {
         name: "B",
         type: "color",
       },
-      factor: {
+      tau: {
         name: "Tau",
         type: "number",
         min: 1,
@@ -444,7 +444,7 @@ export const NODE_TYPES = {
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -457,13 +457,13 @@ export const NODE_TYPES = {
     category: "Color",
     shader: grayscaleShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -475,7 +475,7 @@ export const NODE_TYPES = {
     category: "Color",
     shader: thresholdShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
@@ -485,7 +485,7 @@ export const NODE_TYPES = {
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -497,7 +497,7 @@ export const NODE_TYPES = {
     category: "Color",
     shader: extThresholdShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
@@ -511,7 +511,7 @@ export const NODE_TYPES = {
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -523,11 +523,11 @@ export const NODE_TYPES = {
     category: "Color",
     shader: exposureShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
-      factor: {
+      ev: {
         name: "EV",
         type: "number",
         min: -5,
@@ -536,7 +536,7 @@ export const NODE_TYPES = {
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -549,19 +549,19 @@ export const NODE_TYPES = {
     category: "Effects",
     shader: chromaticAberrationShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
-      angleR: { name: "Angle R", type: "number" },
-      angleG: { name: "Angle G", type: "number" },
-      angleB: { name: "Angle B", type: "number" },
-      magniR: { name: "Magnitude R", type: "number" },
-      magniG: { name: "Magnitude G", type: "number" },
-      magniB: { name: "Magnitude B", type: "number" },
+      angle_r: { name: "Angle R", type: "number" },
+      angle_g: { name: "Angle G", type: "number" },
+      angle_b: { name: "Angle B", type: "number" },
+      magni_r: { name: "Magnitude R", type: "number" },
+      magni_g: { name: "Magnitude G", type: "number" },
+      magni_b: { name: "Magnitude B", type: "number" },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -573,7 +573,7 @@ export const NODE_TYPES = {
     category: "Effects",
     shader: posterizeShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
@@ -586,7 +586,7 @@ export const NODE_TYPES = {
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -598,7 +598,7 @@ export const NODE_TYPES = {
     category: "Effects",
     shader: bloomShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Input",
         type: "color",
       },
@@ -615,7 +615,7 @@ export const NODE_TYPES = {
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
@@ -628,7 +628,7 @@ export const NODE_TYPES = {
     category: "Utility",
     shader: splitChannelsShader,
     inputs: {
-      in_a: {
+      input: {
         name: "Color",
         type: "color",
       },
@@ -680,13 +680,13 @@ export const NODE_TYPES = {
     category: "Utility",
     shader: edgeTangentFlowShader,
     inputs: {
-      in_a: {
-        name: "Input",
+      gradient: {
+        name: "Gradient",
         type: "color",
       },
     },
     outputs: {
-      out_a: {
+      output: {
         name: "Output",
         type: "color",
       },
