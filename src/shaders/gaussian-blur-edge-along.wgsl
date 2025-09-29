@@ -73,11 +73,12 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     }
 
     let kernel_size = i32(floor(std_dev * 2.0));
+    let step_size = clamp(std_dev * 0.2, 0.02, 1.0);
 
     var out = vec3f(0.0);
     var intensity = 0.0;
-    var dx = tangent.x;
-    var dy = -tangent.y;
+    var dx = tangent.x * step_size;
+    var dy = -tangent.y * step_size;
     var i = 1u;
     while (length(vec2f(dx, dy)) < f32(kernel_size) && i < 50u) {
         let x = clamp(f32(id.x) + dx, 0.0, f32(u.width) - 1.0);
@@ -90,13 +91,13 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         intensity += gaussian_v;
 
         let t = sample_tangent(vec2f(x, y));
-        dx += t.x;
-        dy -= t.y;
+        dx += t.x * step_size;
+        dy -= t.y * step_size;
         i++;
     }
 
-    dx = -tangent.x;
-    dy = tangent.y;
+    dx = -tangent.x * step_size;
+    dy = tangent.y * step_size;
     i = 1u;
     while (length(vec2f(dx, dy)) < f32(kernel_size) && i < 50u) {
         let x = clamp(f32(id.x) + dx, 0.0, f32(u.width) - 1.0);
@@ -109,8 +110,8 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         intensity += gaussian_v;
 
         let t = sample_tangent(vec2f(x, y));
-        dx -= t.x;
-        dy += t.y;
+        dx -= t.x * step_size;
+        dy += t.y * step_size;
         i++;
     }
 
