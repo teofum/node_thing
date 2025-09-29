@@ -63,9 +63,6 @@ const initialSize = { width: 1920, height: 1080 };
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
 
-  setNodes: (nodes: ShaderNode[]) => void; // TODO, agregado addNode, puede que no se esté usando más setNodes
-  setEdges: (edges: Edge[]) => void;
-
   loadNodeTypes: () => Promise<void>;
 
   onNodesChange: OnNodesChange;
@@ -174,16 +171,6 @@ export const useMainStore = create<Project & ProjectActions>()(
        * Actions
        */
       setActiveLayer: (idx) => set({ currentLayer: idx }),
-
-      setNodes: (nodes) =>
-        set(({ layers, currentLayer }) => ({
-          layers: modifyLayer(layers, currentLayer, () => ({ nodes })),
-        })),
-
-      setEdges: (edges) =>
-        set(({ layers, currentLayer }) => ({
-          layers: modifyLayer(layers, currentLayer, () => ({ edges })),
-        })),
 
       onNodesChange: (changes) =>
         set(({ layers, currentLayer }) => ({
