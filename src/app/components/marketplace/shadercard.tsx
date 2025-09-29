@@ -1,4 +1,10 @@
-import { LuCircleCheckBig, LuHeart, LuPlus } from "react-icons/lu";
+import {
+  LuCircleCheckBig,
+  LuHeart,
+  LuPlus,
+  LuStar,
+  LuStarHalf,
+} from "react-icons/lu";
 import { addToCart } from "../../marketplace/cart/actions";
 import { Button } from "@/ui/button";
 
@@ -10,6 +16,7 @@ type ShaderCardProps = {
   inCart: boolean;
   username?: string;
   category: string;
+  average_rating?: number | null;
 };
 
 export default function ShaderCard({
@@ -20,7 +27,13 @@ export default function ShaderCard({
   inCart,
   username,
   category,
+  average_rating,
 }: ShaderCardProps) {
+  const rating = Math.max(0, Math.min(average_rating ?? 0, 5));
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+  const emptyStars = 5 - fullStars - halfStar;
+
   return (
     <div className="glass glass-border p-6 rounded-2xl relative">
       <h3 className="text-xl font-semibold text-white mb-1">{title}</h3>
@@ -43,7 +56,21 @@ export default function ShaderCard({
       />
       <h3 className="text-2xl font-bold text-teal-400">${price}</h3>
 
-      <div className="flex items-center justify-between mt-2">
+      <div className="flex items-center gap-1 mt-2">
+        {Array(fullStars)
+          .fill(0)
+          .map((_, idx) => (
+            <LuStar key={`full-${idx}`} className="text-yellow-400 w-5 h-5" />
+          ))}
+        {halfStar === 1 && <LuStarHalf className="text-yellow-400 w-5 h-5" />}
+        {Array(emptyStars)
+          .fill(0)
+          .map((_, idx) => (
+            <LuStar key={`empty-${idx}`} className="text-gray-500 w-5 h-5" />
+          ))}
+      </div>
+
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <LuHeart className="w-6 h-6" />
           <span className="text-white text-base">{likes}</span>
