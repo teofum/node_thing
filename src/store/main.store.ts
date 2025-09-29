@@ -384,11 +384,13 @@ export const useMainStore = create<Project & ProjectActions>()(
             }),
         );
 
-        set({ nodeTypes: { ...NODE_TYPES, ...purchasedNodeTypes } });
+        set(({ nodeTypes }) => ({
+          nodeTypes: { ...nodeTypes, ...purchasedNodeTypes },
+        }));
       },
 
       createNodeType: (desc) => {
-        const name = `custom_node_${nanoid()}`;
+        const name = `custom_${nanoid()}`;
         console.log(name);
 
         const inputs: NodeType["inputs"] = {};
