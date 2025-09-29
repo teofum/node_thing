@@ -1,15 +1,13 @@
-"use client";
-
 import { Button, LinkButton } from "@/ui/button";
 import { LuArrowLeft } from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
-import { useState } from "react";
+import RatingShaderCard from "../components/profile/rating-shadercard";
+import { getUserShaders } from "./actions";
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
   // TODO hacer manejo de redirigir a login si no inició sesión
-  // TODO meter actions.ts si es necesario
 
-  const [tab, setTab] = useState<"user" | "shaders">("user");
+  const userShaders = await getUserShaders();
 
   return (
     <>
@@ -26,7 +24,7 @@ export default function ProfilePage() {
 
         <div className="p-6">
           <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-10">
               <div>
                 <h1 className="text-3xl font-bold text-white">
                   TODO username...
@@ -41,22 +39,36 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* task */}
+            {/* TODO pulir UI */}
+            {/* podría hasta ser una sidebar que sirva como menú y que de desplace a la sección que toques */}
             <div className="flex gap-4 mb-6">
-              <Button variant="default" onClick={() => setTab("user")}>
-                User data
-              </Button>
-              <Button variant="default" onClick={() => setTab("shaders")}>
-                My Shaders
-              </Button>
+              {/* TODO */}
+              <Button variant="default">User data</Button>
+              {/* TODO */}
+              <Button variant="default">My Shaders</Button>
+            </div>
+            {/* task */}
+
+            <div className="bg-black/50 rounded-2xl p-4 min-h-[600px] mb-3">
+              <h2 className="text-xl font-semibold mb-4">User...</h2>
+              TODO...
             </div>
 
-            <div className="bg-neutral-800 rounded-2xl shadow p-6 min-h-[300px] text-white">
-              {tab === "user" && <div>TODO</div>}
-              {tab === "shaders" && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-4">My Shaders</h2>
-                </div>
-              )}
+            <div className="bg-black/50 rounded-2xl p-4 min-h-[600px] mb-3">
+              <h2 className="text-xl font-semibold mb-4">My Shaders</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {userShaders.map((shader) => (
+                  <RatingShaderCard
+                    key={shader.id}
+                    id={shader.id}
+                    title={shader.title}
+                    category={shader.category.name}
+                    average_rating={shader.average_rating}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
