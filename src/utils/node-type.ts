@@ -24,6 +24,7 @@ import bloomShader from "@/shaders/bloom.wgsl";
 import addShader from "@/shaders/add.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
 import absShader from "@/shaders/abs.wgsl";
+import fractShader from "@/shaders/fract.wgsl";
 import constantShader from "@/shaders/constant.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 
@@ -192,6 +193,28 @@ export const NODE_TYPES = {
     outputs: {
       out_a: {
         name: "|x|",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  fract: {
+    name: "Split decimal",
+    category: "Math",
+    shader: fractShader,
+    inputs: {
+      input: {
+        name: "x",
+        type: "number",
+      },
+    },
+    outputs: {
+      out_floor: {
+        name: "⌊x⌋",
+        type: "number",
+      },
+      out_fract: {
+        name: "x - ⌊x⌋",
         type: "number",
       },
     },
