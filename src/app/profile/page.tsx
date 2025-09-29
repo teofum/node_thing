@@ -4,6 +4,7 @@ import { LinkButton } from "@/ui/button";
 import { Button } from "@/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { LuArrowLeft } from "react-icons/lu";
 
 export const revalidate = 3600;
 
@@ -37,12 +38,8 @@ export default async function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-neutral-900 relative">
-      <LinkButton
-        variant="ghost"
-        href="/"
-        size="md"
-        className="absolute top-4 left-4"
-      >
+      <LinkButton variant="ghost" href="/" className="absolute top-4 left-4">
+        <LuArrowLeft />
         Back
       </LinkButton>
 
