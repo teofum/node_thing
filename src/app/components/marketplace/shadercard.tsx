@@ -17,6 +17,7 @@ type ShaderCardProps = {
   username?: string;
   category: string;
   average_rating?: number | null;
+  rating_count?: number | null;
 };
 
 export default function ShaderCard({
@@ -28,6 +29,7 @@ export default function ShaderCard({
   username,
   category,
   average_rating,
+  rating_count,
 }: ShaderCardProps) {
   const rating = Math.max(0, Math.min(average_rating ?? 0, 5));
   const fullStars = Math.floor(rating);
@@ -68,6 +70,9 @@ export default function ShaderCard({
           .map((_, idx) => (
             <LuStar key={`empty-${idx}`} className="text-gray-500 w-5 h-5" />
           ))}
+        <p className="flex items-center justify-bottom text-center ml-1">
+          {rating_count}
+        </p>
       </div>
 
       <div className="flex items-center justify-between">
