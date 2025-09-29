@@ -5,8 +5,12 @@ import grayscaleShader from "@/shaders/grayscale.wgsl";
 import thresholdShader from "@/shaders/threshold.wgsl";
 import extThresholdShader from "@/shaders/threshold_ext.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
+import sobelShader from "@/shaders/sobel.wgsl";
+import edgeTangentFlowShader from "@/shaders/edge-tangent-flow.wgsl";
 import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
 import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
+import gaussianBlurEdgeShader from "@/shaders/gaussian-blur-edge.wgsl";
+import gaussianBlurEdgeAlongShader from "@/shaders/gaussian-blur-edge-along.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
 import diffShader from "@/shaders/diff.wgsl";
 import extDiffShader from "@/shaders/diff_ext.wgsl";
@@ -252,10 +256,86 @@ export const NODE_TYPES = {
       },
     ],
   },
+  gaussBlurEdge: {
+    name: "Gaussian blur across edges",
+    category: "Filter",
+    shader: gaussianBlurEdgeShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+      std_dev: {
+        name: "Std. dev",
+        type: "number",
+        min: 0.1,
+        max: 50,
+        step: 0.1,
+      },
+      in_tangent: {
+        name: "Tangent",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  gaussBlurEdgeAlong: {
+    name: "Gaussian blur along edges",
+    category: "Filter",
+    shader: gaussianBlurEdgeAlongShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+      std_dev: {
+        name: "Std. dev",
+        type: "number",
+        min: 0.1,
+        max: 50,
+        step: 0.1,
+      },
+      in_tangent: {
+        name: "Tangent",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
   sharpness: {
     name: "Sharpness",
     category: "Filter",
     shader: sharpnessShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  sobel: {
+    name: "Sobel",
+    category: "Filter",
+    shader: sobelShader,
     inputs: {
       in_a: {
         name: "Input",
@@ -564,6 +644,24 @@ export const NODE_TYPES = {
     outputs: {
       output: {
         name: "Color",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  edge_tangent_flow: {
+    name: "Edge Tangent Flow",
+    category: "Utility",
+    shader: edgeTangentFlowShader,
+    inputs: {
+      in_a: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      out_a: {
+        name: "Output",
         type: "color",
       },
     },

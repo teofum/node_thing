@@ -50,7 +50,7 @@ fn main(
     } else {
         fac = factor[index];
     }
+    fac = clamp(fac, 0.0, 1.0);
 
     output[index] = in_a * (1.0 - fac) + in_b * fac;
 }
-
