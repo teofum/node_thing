@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
         .update({
           subscription_id: subscriptionId,
           is_premium: true,
+          cancelled: false,
         })
         .eq("id", userId);
     }

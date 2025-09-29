@@ -37,9 +37,6 @@ export async function createSubscriptionCheckout({
     cancel_url: cancelUrl,
     client_reference_id: user.id,
     customer_email: user.email,
-    metadata: {
-      user_id: user.id,
-    },
   });
 
   redirect(session.url!);
@@ -48,9 +45,6 @@ export async function createSubscriptionCheckout({
 export async function handleSubscriptionChange(
   subscription: Stripe.Subscription,
 ) {
-  const userId = subscription.metadata.user_id;
-  if (!userId) return;
-
   const supabase = await createClient();
   const status = subscription.status;
 
@@ -60,16 +54,18 @@ export async function handleSubscriptionChange(
       .update({
         subscription_id: subscription.id,
         is_premium: true,
+        cancelled: subscription.cancel_at_period_end || false,
       })
-      .eq("id", userId);
+      .eq("subscription_id", subscription.id);
   } else {
     await supabase
       .from("profiles")
       .update({
         subscription_id: null,
         is_premium: false,
+        cancelled: false,
       })
-      .eq("id", userId);
+      .eq("subscription_id", subscription.id);
   }
 }
 

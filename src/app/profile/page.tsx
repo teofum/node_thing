@@ -1,4 +1,4 @@
-import { subscribePremiumAction } from "./actions";
+import { subscribePremiumAction, cancelSubscriptionAction } from "./actions";
 import { getStripePrices, getStripeProducts } from "@/lib/payments/stripe";
 import { LinkButton } from "@/ui/button";
 import { Button } from "@/ui/button";
@@ -19,7 +19,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_premium, subscription_id")
+    .select("is_premium, subscription_id, cancelled")
     .eq("id", user.id)
     .single();
 
@@ -58,14 +58,46 @@ export default async function ProfilePage() {
             </h2>
 
             {profile?.is_premium ? (
-              <p className="text-neutral-400">
-                Status: <span className="text-white">Already subscribed</span>
-              </p>
-            ) : (
               <div>
                 <p className="text-neutral-400 mb-6">
-                  Unlock premium features.
+                  {profile.cancelled
+                    ? "Subscription valid until period end"
+                    : "Subscription renews automatically"}
                 </p>
+                <div className="space-y-3">
+                  {profile.cancelled ? (
+                    <form action={subscribePremiumAction}>
+                      <input
+                        type="hidden"
+                        name="price_id"
+                        value={premiumPrice?.id}
+                      />
+                      <Button
+                        type="submit"
+                        variant="default"
+                        size="lg"
+                        className="w-full"
+                      >
+                        Renew Subscription
+                      </Button>
+                    </form>
+                  ) : (
+                    <form action={cancelSubscriptionAction}>
+                      {/* TODO: Add confirmation dialog "Are you sure you want to cancel?" */}
+                      <Button
+                        type="submit"
+                        variant="outline"
+                        size="lg"
+                        className="w-full text-red-400 border-red-400 hover:bg-red-400/10"
+                      >
+                        Cancel Subscription
+                      </Button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div>
                 {premiumPrice ? (
                   <form action={subscribePremiumAction}>
                     <input
