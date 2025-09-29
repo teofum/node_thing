@@ -17,8 +17,10 @@ export function Workspace() {
 
   const [storeHydrated, setStoreHydrated] = useState(false);
   useEffect(() => {
+    useAssetStore.persist.onFinishHydration(() => {
+      setStoreHydrated(true);
+    });
     useAssetStore.persist.rehydrate();
-    useAssetStore.persist.onFinishHydration(() => setStoreHydrated(true));
 
     setStoreHydrated(useAssetStore.persist.hasHydrated());
   }, []);
