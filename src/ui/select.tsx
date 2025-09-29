@@ -7,12 +7,20 @@ type Props = Omit<SelectPrimitive.SelectProps, "children"> &
   Pick<SelectPrimitive.SelectTriggerProps, "className"> &
   Pick<SelectPrimitive.SelectValueProps, "placeholder"> &
   Pick<SelectPrimitive.SelectViewportProps, "children"> & {
+    size?: "sm" | "md";
     variant?: "default" | "outline" | "ghost";
   };
 
 export const Select = forwardRef<HTMLButtonElement, Props>(
   (
-    { className, children, placeholder, variant = "default", ...props },
+    {
+      className,
+      children,
+      placeholder,
+      variant = "default",
+      size = "md",
+      ...props
+    },
     forwardedRef,
   ) => {
     return (
@@ -20,7 +28,7 @@ export const Select = forwardRef<HTMLButtonElement, Props>(
         <SelectPrimitive.Trigger
           ref={forwardedRef}
           className={cn(
-            "flex items-center justify-between p-3 text-sm/4 w-full cursor-pointer",
+            "flex items-center justify-between w-full cursor-pointer",
             "rounded-lg placeholder:text-white/40",
             "outline-0 transition duration-150",
             {
@@ -30,6 +38,8 @@ export const Select = forwardRef<HTMLButtonElement, Props>(
               "border-transparent": variant === "ghost",
               "border-b border-t border-black/30 border-b-white/10 bg-border bg-gradient-to-b from-white/2 to-white/5 focus-visible:outline outline-teal-400 focus-visible:shadow-[0_0_0_3px] shadow-teal-400/30":
                 variant === "default",
+              "p-1.5 text-xs/3": size === "sm",
+              "p-3 text-sm/4": size === "md",
             },
             className,
           )}
@@ -61,15 +71,25 @@ export const Select = forwardRef<HTMLButtonElement, Props>(
 );
 Select.displayName = "Select";
 
-type ItemProps = SelectPrimitive.SelectItemProps;
+type ItemProps = SelectPrimitive.SelectItemProps & {
+  size?: "sm" | "md";
+};
 
 export const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
-  function SelectItemComponent({ className, children, value, ...props }, ref) {
+  function SelectItemComponent(
+    { className, children, value, size = "md", ...props },
+    ref,
+  ) {
     return (
       <SelectPrimitive.Item
         ref={ref}
         className={cn(
-          "select-none rounded-lg data-[state=checked]:bg-white/5 hover:bg-white/10 text-sm/4 px-3 py-3 outline-none outline-teal-400/30 outline-2 focus-visible:outline-solid",
+          "select-none rounded-lg data-[state=checked]:bg-white/5 hover:bg-white/10",
+          "outline-none outline-teal-400/30 outline-2 focus-visible:outline-solid",
+          {
+            "p-1.5 text-xs/3": size === "sm",
+            "p-3 text-sm/4": size === "md",
+          },
           className,
         )}
         value={value}

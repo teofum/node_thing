@@ -46,6 +46,13 @@ export type Project = {
   nodeTypes: Record<string, NodeType>;
 };
 
+export type HandleDescriptor = {
+  id: string;
+  name: string;
+  display: string;
+  type: "color" | "number";
+};
+
 const initialNodes: ShaderNode[] = [
   {
     id: "__output",
@@ -64,6 +71,12 @@ type ProjectActions = {
   setActiveLayer: (idx: number) => void;
 
   loadNodeTypes: () => Promise<void>;
+  createNodeType: (desc: {
+    name: string;
+    inputs: HandleDescriptor[];
+    outputs: HandleDescriptor[];
+    code: string;
+  }) => void;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -372,6 +385,34 @@ export const useMainStore = create<Project & ProjectActions>()(
         );
 
         set({ nodeTypes: { ...NODE_TYPES, ...purchasedNodeTypes } });
+      },
+
+      createNodeType: (desc) => {
+        const name = `custom_node_${nanoid()}`;
+        console.log(name);
+
+        const inputs: NodeType["inputs"] = {};
+        for (const { name, display, type } of desc.inputs) {
+          inputs[name] = { name: display, type };
+        }
+
+        const outputs: NodeType["outputs"] = {};
+        for (const { name, display, type } of desc.outputs) {
+          outputs[name] = { name: display, type };
+        }
+
+        const newNodeType: NodeType = {
+          name: desc.name,
+          category: "Custom",
+          shader: desc.code,
+          inputs,
+          outputs,
+          parameters: {},
+        };
+
+        set(({ nodeTypes }) => ({
+          nodeTypes: { ...nodeTypes, [name]: newNodeType },
+        }));
       },
 
       addNode: (type, position, parameters = {}) => {
