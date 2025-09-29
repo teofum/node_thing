@@ -415,6 +415,9 @@ export const NODE_TYPES = {
       factor: {
         name: "Tau",
         type: "number",
+        min: 1,
+        max: 10,
+        step: 0.1,
       },
     },
     outputs: {
