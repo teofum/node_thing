@@ -8,6 +8,7 @@ import { LinkButton } from "@/ui/button";
 import { Menubar } from "@/ui/menu-bar";
 import { FileMenu } from "./components/menu/file";
 import { LayerMenu } from "./components/menu/layer";
+import { ProjectsMenu } from "./components/menu/projects";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -36,6 +37,7 @@ export default async function Home() {
         <Menubar className="mr-auto">
           <FileMenu />
           <LayerMenu />
+          <ProjectsMenu />
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">
