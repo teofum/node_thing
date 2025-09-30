@@ -1,5 +1,12 @@
 import { Button, LinkButton } from "@/ui/button";
-import { LuArrowLeft, LuCalendar, LuMail } from "react-icons/lu";
+import {
+  LuArrowLeft,
+  LuCalendar,
+  LuMail,
+  LuMedal,
+  LuGem,
+  LuUser,
+} from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
 import RatingShaderCard from "../components/profile/rating-shadercard";
 import { getUserShaders, getUser, getUserData } from "./actions";
@@ -77,6 +84,11 @@ export default async function ProfilePage() {
 
   const accountInfo: AccountInfoLine[] = [
     {
+      id: "username",
+      icon: LuUser,
+      text: `Username: ${userData.username}`,
+    },
+    {
       id: "creation",
       icon: LuCalendar,
       text: `Date created: ${parseDate(user.created_at)}`,
@@ -85,6 +97,11 @@ export default async function ProfilePage() {
       id: "email",
       icon: LuMail,
       text: `Email: ${user.email}`,
+    },
+    {
+      id: "premium",
+      icon: LuMedal, // o LuGem u otro
+      text: `Premium: ${userData.is_premium}`,
     },
   ];
 

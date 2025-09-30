@@ -28,7 +28,7 @@ export async function getUserData() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("username, is_premium")
     .eq("id", user.id);
 
   if (error) {
