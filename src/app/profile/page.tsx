@@ -79,7 +79,7 @@ export default async function ProfilePage() {
 
   const userShaders = await getUserShaders();
 
-  const userData = (await getUserData())[0];
+  const userData = await getUserData();
   const user = await getUser();
 
   const accountInfo: AccountInfoLine[] = [

@@ -126,18 +126,21 @@ export type Database = {
       };
       profiles: {
         Row: {
+          cancelled: boolean | null;
           id: string;
           is_premium: boolean | null;
           subscription_id: string | null;
           username: string;
         };
         Insert: {
+          cancelled?: boolean | null;
           id: string;
           is_premium?: boolean | null;
           subscription_id?: string | null;
           username: string;
         };
         Update: {
+          cancelled?: boolean | null;
           id?: string;
           is_premium?: boolean | null;
           subscription_id?: string | null;

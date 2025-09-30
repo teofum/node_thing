@@ -23,9 +23,9 @@ export default function RatingShaderCard({
   const stars = [1, 2, 3, 4, 5];
 
   const handleClick = async (value: number) => {
-    setRating(value);
-
     await submitShaderRating(id, value);
+
+    setRating(value);
   };
 
   return (
