@@ -3,28 +3,88 @@ import { LuArrowLeft, LuCalendar, LuMail } from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
 import RatingShaderCard from "../components/profile/rating-shadercard";
 import { getUserShaders, getUser, getUserData } from "./actions";
+import { IconType } from "react-icons/lib";
+import { forwardRef } from "react";
 
 function parseDate(date: string) {
   const idx = date.indexOf("T");
   return date.substring(0, idx);
 }
 
+type AccountInfoLine = { id: string; icon: IconType; text: string };
+type AccountInfoProps = {
+  lines: AccountInfoLine[];
+} & React.HTMLAttributes<HTMLDivElement>;
+
+const AccountInfoTab = forwardRef<HTMLDivElement, AccountInfoProps>(
+  ({ lines, className, ...props }, forwardedRef) => {
+    return (
+      <div className={className} {...props} ref={forwardedRef}>
+        <h2 className="text-xl font-semibold mb-4">Account info</h2>
+        {lines.map(({ id, icon: Icon, text }) => (
+          <div key={id} className="flex h gap-2 items-center">
+            <Icon /> {text}
+          </div>
+        ))}
+      </div>
+    );
+  },
+);
+AccountInfoTab.displayName = "AccountInfoTab";
+
+type UserShaderDisplay = {
+  id: string;
+  title: string;
+  average_rating: number | null;
+  category: {
+    name: string;
+  };
+};
+type ShadersTabProps = {
+  shaderList: UserShaderDisplay[];
+} & React.HTMLAttributes<HTMLDivElement>;
+
+const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
+  ({ shaderList, className, ...props }, forwardedRef) => {
+    return (
+      <div className={className} {...props} ref={forwardedRef}>
+        <h2 className="text-xl font-semibold mb-4">My Shaders</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {shaderList.map((shader) => (
+            <RatingShaderCard
+              key={shader.id}
+              id={shader.id}
+              title={shader.title}
+              category={shader.category.name}
+              average_rating={shader.average_rating}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  },
+);
+UserShadersTab.displayName = "UserShadersTab";
+
 export default async function ProfilePage() {
   // TODO hacer manejo de redirigir a login si no inició sesión
 
-  const userDataReq = await getUserData();
-  const userData = userDataReq[0];
-  const user = await getUser();
-
   const userShaders = await getUserShaders();
 
-  const accountInfo = [
+  const userData = (await getUserData())[0];
+  const user = await getUser();
+
+  const accountInfo: AccountInfoLine[] = [
     {
       id: "creation",
       icon: LuCalendar,
       text: `Date created: ${parseDate(user.created_at)}`,
     },
-    { id: "email", icon: LuMail, text: `Email: ${user.email}` },
+    {
+      id: "email",
+      icon: LuMail,
+      text: `Email: ${user.email}`,
+    },
   ];
 
   return (
@@ -68,30 +128,15 @@ export default async function ProfilePage() {
             </div>
             {/* task */}
 
-            <div className="bg-black/50 rounded-2xl p-4 min-h-[600px] mb-3">
-              <h2 className="text-xl font-semibold mb-4">Account info</h2>
-              {accountInfo.map(({ id, icon: Icon, text }) => (
-                <div key={id} className="flex h gap-2 items-center">
-                  <Icon /> {text}
-                </div>
-              ))}
-            </div>
+            <AccountInfoTab
+              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+              lines={accountInfo}
+            />
 
-            <div className="bg-black/50 rounded-2xl p-4 min-h-[600px] mb-3">
-              <h2 className="text-xl font-semibold mb-4">My Shaders</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {userShaders.map((shader) => (
-                  <RatingShaderCard
-                    key={shader.id}
-                    id={shader.id}
-                    title={shader.title}
-                    category={shader.category.name}
-                    average_rating={shader.average_rating}
-                  />
-                ))}
-              </div>
-            </div>
+            <UserShadersTab
+              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+              shaderList={userShaders}
+            />
           </div>
         </div>
       </div>
