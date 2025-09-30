@@ -1,6 +1,7 @@
 import { HandleType, NodeType } from "@/schemas/node.schema";
 import { RenderPass, RenderPipeline } from "./pipeline";
 import { createUniform } from "./uniforms";
+import { generateShaderCode } from "./shader-codegen";
 
 import outputShader from "@/shaders/output.wgsl";
 import inputShader from "@/shaders/input.wgsl";
@@ -146,8 +147,8 @@ function compileShaders(
   const shaders: Record<string, GPUShaderModule> = {};
 
   for (const pass of desc.passes) {
-    shaders[pass.nodeType] = device.createShaderModule({
-      code: nodeTypes[pass.nodeType].shader,
+    shaders[`${pass.nodeType}_${pass.shader}`] = device.createShaderModule({
+      code: generateShaderCode(pass, nodeTypes),
     });
   }
 
@@ -170,7 +171,7 @@ function createComputePSOs(
   return desc.passes.map((pass, i) =>
     device.createComputePipeline({
       compute: {
-        module: shaders[pass.nodeType],
+        module: shaders[`${pass.nodeType}_${pass.shader}`],
         entryPoint: "main",
       },
       layout: device.createPipelineLayout({

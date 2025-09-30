@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 
 import {
   type ImageAsset,
   type AssetsState,
-  serializedAssetsStateSchema,
+  assetsStateSchema,
 } from "@/schemas/asset.schema";
 import { opfsStorage } from "./storage/opfs-storage";
 
@@ -38,18 +38,13 @@ export const useAssetStore = create<AssetsState & AssetActions>()(
     }),
     {
       name: "asset-storage",
-      storage: createJSONStorage(() => opfsStorage),
+      storage: opfsStorage,
       skipHydration: true,
+      onRehydrateStorage: () => (_, err) => {
+        if (err) console.error(err);
+      },
       merge: (persisted, current) => {
-        const parsed = serializedAssetsStateSchema.parse(persisted);
-
-        const persistedImages: AssetsState["images"] = {};
-        for (const [key, serializedAsset] of Object.entries(parsed.images)) {
-          const data = Uint8Array.from(Object.values(serializedAsset.data));
-          const type = serializedAsset.type;
-
-          persistedImages[key] = { type, data };
-        }
+        const persistedImages = assetsStateSchema.parse(persisted).images;
 
         return {
           ...current,

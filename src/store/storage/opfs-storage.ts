@@ -1,8 +1,7 @@
-import { type StateStorage } from "zustand/middleware";
+import { PersistStorage } from "zustand/middleware";
 
 import {
   assetInfoStorageSchema,
-  serializedAssetsStorageSchema,
   type AssetsState,
 } from "@/schemas/asset.schema";
 
@@ -10,7 +9,7 @@ export const opfsStorage = {
   getItem: async (name) => {
     const storedImages = window.localStorage.getItem(name);
     if (!storedImages) {
-      return JSON.stringify({ state: { images: {} }, version: 0 });
+      return { state: { images: {} }, version: 0 };
     }
 
     const { images } = assetInfoStorageSchema.parse(JSON.parse(storedImages));
@@ -36,17 +35,14 @@ export const opfsStorage = {
       state.images[name] = { type, data };
     }
 
-    return JSON.stringify({ state, version: 0 });
+    return { state, version: 0 };
   },
   setItem: async (name, value) => {
-    const { state } = serializedAssetsStorageSchema.parse(JSON.parse(value));
+    const { state } = value;
 
     const opfsRoot = await navigator.storage.getDirectory();
     const images = await Promise.all(
-      Object.entries(state.images).map(async ([name, serializedAsset]) => {
-        const data = Uint8Array.from(Object.values(serializedAsset.data));
-        const type = serializedAsset.type;
-
+      Object.entries(state.images).map(async ([name, { type, data }]) => {
         try {
           const file = await opfsRoot.getFileHandle(name, { create: true });
           const writer = await file.createWritable();
@@ -83,4 +79,4 @@ export const opfsStorage = {
 
     window.localStorage.removeItem(name);
   },
-} satisfies StateStorage;
+} satisfies PersistStorage<AssetsState, void>;

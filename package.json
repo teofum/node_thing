@@ -34,6 +34,7 @@
     "@types/wicg-file-system-access": "^2023.10.6",
     "@xyflow/react": "^12.8.4",
     "classnames": "^2.5.1",
+    "nanoid": "^5.1.6",
     "next": "15.5.0",
     "react": "19.1.0",
     "react-aria-components": "^1.12.2",
