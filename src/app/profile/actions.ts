@@ -2,7 +2,41 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import type { Tables } from "@/lib/supabase/database.types";
+
+export async function getUser() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  return user;
+}
+
+export async function getUserData() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to load user shaders: ${error.message}`);
+  }
+
+  return data ?? [];
+}
 
 export async function getUserShaders() {
   const supabase = await createClient();
