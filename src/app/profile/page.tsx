@@ -3,6 +3,7 @@ import { LuArrowLeft, LuCalendar, LuMail } from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
 import RatingShaderCard from "../components/profile/rating-shadercard";
 import { getUserShaders, getUser, getUserData } from "./actions";
+import * as Tabs from "@radix-ui/react-tabs";
 import { IconType } from "react-icons/lib";
 import { forwardRef } from "react";
 
@@ -20,7 +21,7 @@ const AccountInfoTab = forwardRef<HTMLDivElement, AccountInfoProps>(
   ({ lines, className, ...props }, forwardedRef) => {
     return (
       <div className={className} {...props} ref={forwardedRef}>
-        <h2 className="text-xl font-semibold mb-4">Account info</h2>
+        <h2 className="text-xl font-semibold mb-4">Account Information</h2>
         {lines.map(({ id, icon: Icon, text }) => (
           <div key={id} className="flex h gap-2 items-center">
             <Icon /> {text}
@@ -48,7 +49,7 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
   ({ shaderList, className, ...props }, forwardedRef) => {
     return (
       <div className={className} {...props} ref={forwardedRef}>
-        <h2 className="text-xl font-semibold mb-4">My Shaders</h2>
+        <h2 className="text-xl font-semibold mb-4">Marketplace Shaders</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {shaderList.map((shader) => (
             <RatingShaderCard
@@ -87,6 +88,9 @@ export default async function ProfilePage() {
     },
   ];
 
+  const triggerStyle =
+    "flex h-[45px] hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-5 font-semibold text-[15px] leading-none outline-none first:rounded-tl-2xl last:rounded-tr-2xl data-[state=active]:shadow-[0_2px_0_0] data-[state=active]:shadow-teal-400 transition data-[state=active]:focus:relative";
+
   return (
     <>
       <div className="min-h-screen bg-neutral-900 relative">
@@ -117,26 +121,52 @@ export default async function ProfilePage() {
               </div>
             </div>
 
-            {/* task */}
-            {/* TODO pulir UI */}
-            {/* podría hasta ser una sidebar que sirva como menú y que de desplace a la sección que toques */}
-            <div className="flex gap-4 mb-6">
-              {/* TODO */}
-              <Button variant="default">Account info</Button>
-              {/* TODO */}
-              <Button variant="default">My Shaders</Button>
-            </div>
-            {/* task */}
-
-            <AccountInfoTab
-              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
-              lines={accountInfo}
-            />
-
-            <UserShadersTab
-              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
-              shaderList={userShaders}
-            />
+            <Tabs.Root
+              className="flex flex-col shadow-[0_0_20px] shadow-black glass rounded-2xl"
+              defaultValue="tab1"
+            >
+              <Tabs.List className="flex shrink-0">
+                <Tabs.Trigger className={triggerStyle} value="tab1">
+                  Info
+                </Tabs.Trigger>
+                <Tabs.Trigger className={triggerStyle} value="tab2">
+                  Shaders
+                </Tabs.Trigger>
+                <Tabs.Trigger className={triggerStyle} value="tab3">
+                  Options
+                </Tabs.Trigger>
+              </Tabs.List>
+              <Tabs.Content
+                className="grow rounded-b-md p-5 outline-none"
+                value="tab1"
+              >
+                <AccountInfoTab
+                  className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+                  lines={accountInfo}
+                />
+              </Tabs.Content>
+              <Tabs.Content
+                className="grow rounded-b-md p-5 outline-none"
+                value="tab2"
+              >
+                <UserShadersTab
+                  className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+                  shaderList={userShaders}
+                />
+              </Tabs.Content>
+              <Tabs.Content
+                className="grow rounded-b-md p-5 outline-none"
+                value="tab3"
+              >
+                <div className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3">
+                  <h2 className="text-xl font-semibold mb-4">
+                    Account Options
+                  </h2>
+                  <p>TODO</p>
+                  <p>Change password, etc</p>
+                </div>
+              </Tabs.Content>
+            </Tabs.Root>
           </div>
         </div>
       </div>
