@@ -1,16 +1,14 @@
 import { NodeProps } from "@xyflow/react";
-import { LuEllipsisVertical, LuStar, LuTrash2 } from "react-icons/lu";
 import cn from "classnames";
+import { LuStar } from "react-icons/lu";
 
 import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
-import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
-import { Button } from "@/ui/button";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
+import { CustomShaderMenu } from "./custom-shader-menu";
 import { NodeInput } from "./node-input";
+import { NodeMenu } from "./node-menu";
 import { NodeOutput } from "./node-output";
 import { NodeParameter } from "./node-parameter";
-import { CustomShaderMenu } from "./custom-shader-menu";
-import { NodeMenu } from "./node-menu";
 
 export function RenderShaderNode(
   props: NodeProps<ShaderNodeType> & { mock?: boolean },
