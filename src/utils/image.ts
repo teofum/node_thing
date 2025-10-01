@@ -1,46 +1,42 @@
 import { ImageAsset, imageTypeSchema } from "@/schemas/asset.schema";
+import { openFile, saveFile } from "./file";
 
 export async function saveImageToFile(
   suggestedName: string,
   asset: ImageAsset,
 ) {
-  try {
-    const handle = await window.showSaveFilePicker({
-      suggestedName: `${suggestedName}.${asset.type}`,
-      types: [
-        { accept: { [`image/${asset.type}` as const]: [`.${asset.type}`] } },
-      ],
-    });
-
-    const writable = await handle.createWritable();
-    await writable.write(asset.data);
-    await writable.close();
-  } catch (e) {
-    console.warn(e);
-  }
+  return await saveFile({
+    suggestedName: `${suggestedName}.${asset.type}`,
+    types: [
+      { accept: { [`image/${asset.type}` as const]: [`.${asset.type}`] } },
+    ],
+    data: asset.data,
+  });
 }
 
-export function loadImageAssetFromFile(
+const IMAGE_TYPE_FOR_EXTENSION: Record<string, ImageAsset["type"]> = {
+  png: "png",
+  jpg: "jpeg",
+  jpeg: "jpeg",
+  webp: "webp",
+};
+
+function getImageType(filename: string) {
+  const extension = filename.split(".").at(-1) ?? "unknown";
+  return Object.hasOwn(IMAGE_TYPE_FOR_EXTENSION, extension)
+    ? IMAGE_TYPE_FOR_EXTENSION[extension]
+    : "unknown";
+}
+
+export async function loadImageAssetFromFile(
   callback: (name: string, asset: ImageAsset) => void,
 ) {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/png, image/jpeg, image/webp";
-
-  input.addEventListener("change", (ev) => {
-    const { files } = ev.target as HTMLInputElement;
-    if (!files?.length) return;
-
-    files[0].arrayBuffer().then((ab) => {
-      const bytes = new Uint8Array(ab);
-      callback(files[0].name, {
-        type: imageTypeSchema.parse(
-          files[0].name.split(".").at(-1) ?? "unknown",
-        ),
-        data: bytes,
-      });
+  const file = await openFile(["image/png", "image/jpeg", "image/webp"]);
+  if (file) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    callback(file.name, {
+      type: imageTypeSchema.parse(getImageType(file.name)),
+      data: bytes,
     });
-  });
-
-  input.click();
+  }
 }
