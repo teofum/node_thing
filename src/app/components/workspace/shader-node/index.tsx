@@ -1,21 +1,21 @@
+import { useState } from "react";
 import { NodeProps } from "@xyflow/react";
-import cn from "classnames";
 import {
   LuEllipsisVertical,
   LuPencilLine,
   LuStar,
   LuTrash2,
 } from "react-icons/lu";
+import cn from "classnames";
 
 import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
+import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
+import { Button } from "@/ui/button";
+import { PromptDialog } from "@/ui/prompt-dialog";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { NodeInput } from "./node-input";
 import { NodeOutput } from "./node-output";
 import { NodeParameter } from "./node-parameter";
-import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
-import { Button } from "@/ui/button";
-import { PromptDialog } from "@/ui/prompt-dialog";
-import { useState } from "react";
 import { ShaderEditor } from "../shader-editor";
 
 export function RenderShaderNode(
@@ -24,7 +24,13 @@ export function RenderShaderNode(
   const { data, selected } = props;
   const nodeTypes = useMainStore((state) => state.nodeTypes);
   const remove = useMainStore((state) => state.removeNode);
+  const deleteNodeType = useMainStore((state) => state.deleteNodeType);
+
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
+
   const nodeTypeInfo = nodeTypes[data.type];
+  if (!nodeTypeInfo) return null;
 
   const outputOffset =
     Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
@@ -32,9 +38,6 @@ export function RenderShaderNode(
   const removeNode = () => {
     remove(props.id);
   };
-
-  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(false);
 
   return (
     <div
@@ -117,6 +120,7 @@ export function RenderShaderNode(
                 onOpenChange={setDeleteConfirmationOpen}
                 danger
                 confirmText="Delete"
+                onConfirm={() => deleteNodeType(data.type)}
               >
                 <div>Delete custom shader &quot;{nodeTypeInfo.name}&quot;?</div>
                 <strong className="text-sm/4 font-semibold text-red-400">

@@ -84,6 +84,7 @@ type ProjectActions = {
     outputs: HandleDescriptor[];
     code: string;
   }) => void;
+  deleteNodeType: (id: string) => void;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -448,6 +449,24 @@ export const useMainStore = create<Project & ProjectActions>()(
         set(({ nodeTypes }) => ({
           nodeTypes: { ...nodeTypes, [name]: updatedNodeType },
         }));
+      },
+
+      deleteNodeType: (name) => {
+        set(({ nodeTypes, layers }) => {
+          const { [name]: _, ...rest } = nodeTypes;
+          return {
+            nodeTypes: rest,
+            layers: layers.map((layer) => ({
+              ...layer,
+              nodes: layer.nodes.filter((n) => n.data.type !== name),
+              edges: layer.edges.filter((e) => {
+                const source = layer.nodes.find((n) => n.id === e.source);
+                const target = layer.nodes.find((n) => n.id === e.target);
+                return source?.data.type !== name && target?.data.type !== name;
+              }),
+            })),
+          };
+        });
       },
 
       addNode: (type, position, parameters = {}) => {
