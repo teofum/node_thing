@@ -14,9 +14,13 @@ import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Select, SelectItem } from "@/ui/select";
 import { HandleDescriptor, useMainStore } from "@/store/main.store";
+import { NodeType } from "@/schemas/node.schema";
 
 type ShaderEditorProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
+  open?: ComponentProps<typeof Dialog>["open"];
+  onOpenChange?: ComponentProps<typeof Dialog>["onOpenChange"];
+  editNode?: string;
 };
 
 type HandleListProps = {
@@ -92,14 +96,42 @@ function HandleList({ handles, setHandles }: HandleListProps) {
   });
 }
 
-export function ShaderEditor({ trigger }: ShaderEditorProps) {
-  const [inputs, setInputs] = useState<HandleDescriptor[]>([]);
-  const [outputs, setOutputs] = useState<HandleDescriptor[]>([]);
+function getInputs(nodeType?: NodeType) {
+  if (!nodeType) return [];
+  return Object.entries(nodeType.inputs).map(([key, input]) => ({
+    id: nanoid(), // Internal
+    name: key,
+    display: input.name,
+    type: input.type,
+  }));
+}
 
+function getOutputs(nodeType?: NodeType) {
+  if (!nodeType) return [];
+  return Object.entries(nodeType.outputs).map(([key, output]) => ({
+    id: nanoid(), // Internal
+    name: key,
+    display: output.name,
+    type: output.type,
+  }));
+}
+
+export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
   const codeRef = useRef<HTMLTextAreaElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
+  const nodeTypes = useMainStore((s) => s.nodeTypes);
   const createNodeType = useMainStore((s) => s.createNodeType);
+  const updateNodeType = useMainStore((s) => s.updateNodeType);
+
+  const editNodeType = editNode ? nodeTypes[editNode] : undefined;
+
+  const [inputs, setInputs] = useState<HandleDescriptor[]>(
+    getInputs(editNodeType),
+  );
+  const [outputs, setOutputs] = useState<HandleDescriptor[]>(
+    getOutputs(editNodeType),
+  );
 
   const addInput = () => {
     const id = nanoid();
@@ -127,23 +159,29 @@ export function ShaderEditor({ trigger }: ShaderEditorProps) {
     ]);
   };
 
-  const create = () => {
+  const save = () => {
     if (!nameRef.current || !codeRef.current) return;
 
-    createNodeType({
-      name: nameRef.current.value,
-      inputs,
-      outputs,
-      code: codeRef.current.value,
-    });
+    if (editNode) {
+      updateNodeType({
+        id: editNode,
+        name: nameRef.current.value,
+        inputs,
+        outputs,
+        code: codeRef.current.value,
+      });
+    } else {
+      createNodeType({
+        name: nameRef.current.value,
+        inputs,
+        outputs,
+        code: codeRef.current.value,
+      });
+    }
   };
 
   return (
-    <Dialog
-      trigger={trigger}
-      title="Shader Editor"
-      description="Write shaders lol"
-    >
+    <Dialog title="Shader Editor" description="Write shaders lol" {...props}>
       <div className="flex-1 border-b border-white/15 min-h-0 px-3 gap-3 grid grid-cols-[16rem_1fr]">
         <div className="flex flex-col h-full min-h-0 overflow-auto py-3">
           <div className="font-semibold text-sm/4 mb-2">Inputs</div>
@@ -165,10 +203,11 @@ export function ShaderEditor({ trigger }: ShaderEditorProps) {
             ref={nameRef}
             variant="outline"
             className="w-full"
-            defaultValue="New Shader"
+            defaultValue={editNodeType?.name ?? "New Shader"}
           />
           <textarea
             ref={codeRef}
+            defaultValue={editNodeType?.shader}
             className="font-mono text-sm/4 resize-none max-w-full w-xl max-h-full h-full min-h-80 outline-none p-2 rounded-lg bg-black/70 border border-white/15"
           />
         </div>
@@ -176,7 +215,7 @@ export function ShaderEditor({ trigger }: ShaderEditorProps) {
 
       <div className="p-3 flex flex-row gap-2 justify-end items-end">
         <DialogClose asChild>
-          <Button variant="outline" onClick={create}>
+          <Button variant="outline" onClick={save}>
             Save shader
           </Button>
         </DialogClose>
