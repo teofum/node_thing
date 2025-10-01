@@ -9,6 +9,7 @@ import { Menubar } from "@/ui/menu-bar";
 import { FileMenu } from "./components/menu/file";
 import { LayerMenu } from "./components/menu/layer";
 import { ProjectsMenu } from "./components/menu/projects";
+import { Tables } from "@/lib/supabase/database.types";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -28,6 +29,31 @@ export default async function Home() {
     }
   }
 
+  let projects: Tables<"projects">[] = [];
+  let userData = null;
+
+  if (user) {
+    const { data: data, error } = await supabase
+      .from("profiles")
+      .select("username, is_premium")
+      .eq("id", user.id)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to load user data: ${error.message}`);
+    }
+
+    userData = data;
+
+    if (data?.is_premium) {
+      const { data: projectData } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("user_id", user.id);
+      projects = projectData ?? [];
+    }
+  }
+
   return (
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}
@@ -37,7 +63,7 @@ export default async function Home() {
         <Menubar className="mr-auto">
           <FileMenu />
           <LayerMenu />
-          <ProjectsMenu />
+          <ProjectsMenu userData={userData} projects={projects} />
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">

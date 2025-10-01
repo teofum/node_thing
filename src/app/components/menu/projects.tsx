@@ -1,15 +1,26 @@
-"use server";
+"use client";
 
 import { Menu, MenuItem, MenuSeparator } from "@/ui/menu-bar";
 import { LuCloudDownload, LuCloudUpload, LuMedal } from "react-icons/lu";
-import { getUserData } from "./actions";
+import { saveProjectOnline } from "./actions";
 import Link from "next/link";
+import { Project, useMainStore } from "@/store/main.store";
+import { Tables } from "@/lib/supabase/database.types";
 
-export async function ProjectsMenu() {
-  const user = await getUserData();
+export interface ProjectsMenuProps {
+  userData: {
+    username: string;
+    is_premium: boolean | null;
+  } | null;
+  projects: Tables<"projects">[];
+}
+
+export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
+  const importProject = useMainStore((s) => s.importProject);
+  const exportProject = useMainStore((s) => s.exportProject);
 
   // caso sin login o sin premium
-  if (!user || !user.is_premium) {
+  if (!userData || !userData.is_premium) {
     return (
       <Menu label="Projects" value="file">
         <MenuItem icon={<LuMedal />}>
@@ -25,23 +36,37 @@ export async function ProjectsMenu() {
   // caso tiene premium
   return (
     <>
-      {/* TODO agregar concional acá */}
       <Menu label="Projects" value="file">
         <MenuItem
           icon={<LuCloudUpload />}
-          //onClick={}
+          onClick={() => saveProjectOnline(exportProject())}
         >
           Save Online
         </MenuItem>
 
         <MenuSeparator />
 
-        <MenuItem
-          icon={<LuCloudDownload />}
-          //onClick={}
-        >
-          (for each Project)
-        </MenuItem>
+        {projects.length ? (
+          projects.map((currProject) => (
+            <MenuItem
+              key={currProject.id}
+              icon={<LuCloudDownload />}
+              onClick={() =>
+                importProject(
+                  currProject.data
+                    ? (currProject.data as unknown as Project)
+                    : "",
+                )
+              }
+            >
+              {/* TODO agregar nombre de proyecto en el store */}
+              {currProject.created_at}
+              test name
+            </MenuItem>
+          ))
+        ) : (
+          <MenuItem>No saved projects...</MenuItem>
+        )}
       </Menu>
     </>
   );

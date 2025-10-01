@@ -96,7 +96,7 @@ type ProjectActions = {
   importLayer: (json: string) => void;
 
   exportProject: () => string;
-  importProject: (json: string) => void;
+  importProject: (json: string | Project) => void;
 
   addNode: (
     type: NodeData["type"],
@@ -354,9 +354,10 @@ export const useMainStore = create<Project & ProjectActions>()(
         return JSON.stringify(project, null, 2);
       },
 
-      importProject: (json) =>
+      importProject: (jsonOrObj: string | Project) =>
         set((state) => {
-          const parsedProject: Project = JSON.parse(json);
+          const parsedProject: Project =
+            typeof jsonOrObj === "string" ? JSON.parse(jsonOrObj) : jsonOrObj;
 
           return {
             layers: parsedProject.layers,
