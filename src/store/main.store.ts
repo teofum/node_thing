@@ -44,6 +44,7 @@ export type Project = {
   currentLayer: number;
   properties: ProjectProperties;
   nodeTypes: Record<string, NodeType>;
+  projectName: string;
 };
 
 const initialNodes: ShaderNode[] = [
@@ -109,6 +110,8 @@ type ProjectActions = {
 
   removeLayer: (i: number) => void;
   duplicateLayer: (i: number) => void;
+
+  setProjectName: (name: string) => void;
 };
 
 function modifyLayer(
@@ -169,6 +172,7 @@ export const useMainStore = create<Project & ProjectActions>()(
       properties: { canvas: initialSize, view: { zoom: 1 } },
       nodeTypes: NODE_TYPES,
       layerId: 0,
+      projectName: "Untitled Project",
 
       /*
        * Actions
@@ -364,6 +368,7 @@ export const useMainStore = create<Project & ProjectActions>()(
             currentLayer: parsedProject.currentLayer,
             properties: parsedProject.properties,
             nodeTypes: state.nodeTypes,
+            projectName: parsedProject.projectName,
           };
         }),
 
@@ -476,6 +481,11 @@ export const useMainStore = create<Project & ProjectActions>()(
             layers: newLayers,
             currentLayer: newCurrentLayer,
           };
+        }),
+
+      setProjectName: (name: string) =>
+        set({
+          projectName: name,
         }),
     }),
     { name: "main-store" },
