@@ -92,9 +92,7 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
                 )
               }
             >
-              {/* TODO agregar nombre de proyecto en el store */}
-              {currProject.updated_at}
-              TODO name
+              {currProject.name}
             </MenuItem>
           ))
         ) : (

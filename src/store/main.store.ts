@@ -120,8 +120,6 @@ type ProjectActions = {
 
   removeLayer: (i: number) => void;
   duplicateLayer: (i: number) => void;
-
-  setProjectName: (name: string) => void;
 };
 
 function modifyLayer(
@@ -511,11 +509,6 @@ export const useMainStore = create<Project & ProjectActions>()(
             layers: newLayers,
             currentLayer: newCurrentLayer,
           };
-        }),
-
-      setProjectName: (name: string) =>
-        set({
-          projectName: name,
         }),
     }),
     { name: "main-store" },

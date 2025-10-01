@@ -18,6 +18,8 @@ export async function saveProjectOnline(projectJSON: string) {
     .insert({
       user_id: user.id,
       data: projectJSON,
+      name: "Untitled",
+      updated_at: new Date().toISOString(),
     })
     .select()
     .single();
@@ -33,7 +35,10 @@ export async function updateProjectName(projectId: string, newName: string) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("projects")
-    .update({ name: newName })
+    .update({
+      name: newName,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", projectId);
 
   if (error) throw new Error(`Rename failed: ${error.message}`);
