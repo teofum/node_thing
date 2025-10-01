@@ -28,3 +28,23 @@ export async function saveProjectOnline(projectJSON: string) {
 
   return data;
 }
+
+export async function updateProjectName(projectId: string, newName: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("projects")
+    .update({ name: newName })
+    .eq("id", projectId);
+
+  if (error) throw new Error(`Rename failed: ${error.message}`);
+}
+
+export async function deleteProject(projectId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("id", projectId);
+
+  if (error) throw new Error(`Delete failed: ${error.message}`);
+}

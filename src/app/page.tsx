@@ -49,7 +49,8 @@ export default async function Home() {
       const { data: projectData } = await supabase
         .from("projects")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
       projects = projectData ?? [];
     }
   }

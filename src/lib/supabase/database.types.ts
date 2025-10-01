@@ -153,6 +153,7 @@ export type Database = {
           created_at: string | null;
           data: Json;
           id: string;
+          name: string | null;
           updated_at: string | null;
           user_id: string;
         };
@@ -160,6 +161,7 @@ export type Database = {
           created_at?: string | null;
           data: Json;
           id?: string;
+          name?: string | null;
           updated_at?: string | null;
           user_id: string;
         };
@@ -167,6 +169,7 @@ export type Database = {
           created_at?: string | null;
           data?: Json;
           id?: string;
+          name?: string | null;
           updated_at?: string | null;
           user_id?: string;
         };
