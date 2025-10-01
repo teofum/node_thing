@@ -1,13 +1,3 @@
-@group(0) @binding(0)
-var<storage, read_write> output: array<f32>;
-
-struct Uniforms {
-    width: u32,
-    height: u32,
-};
-
-@group(1) @binding(0)
-var<uniform> u: Uniforms;
 
 const BAYER_SIZE: u32 = 8;
 const BAYER_MATRIX: array<f32, 64> = array<f32, 64>(
@@ -21,14 +11,7 @@ const BAYER_MATRIX: array<f32, 64> = array<f32, 64>(
     0.984375, 0.484375, 0.859375, 0.359375, 0.953125, 0.453125, 0.84375,  0.328125 
 );
 
-@compute @workgroup_size(16, 16)
 fn main( @builtin(global_invocation_id) id: vec3u,) {
-    // Avoid accessing the buffer out of bounds
-    if id.x >= u.width || id.y >= u.height {
-        return;
-    }
-    let index = id.x + id.y * u.width;
-
     output[index] = BAYER_MATRIX[(id.x % BAYER_SIZE) + ((id.y % BAYER_SIZE) * BAYER_SIZE)];
 }
 
