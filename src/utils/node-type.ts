@@ -29,6 +29,7 @@ import constantShader from "@/shaders/constant.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 import checkersNoiseShader from "@/shaders/checker-noise.wgsl";
 import bayerNoiseShader from "@/shaders/bayer-noise-8x8.wgsl";
+import fakeDownScalingShader from "@/shaders/fake-down-scaling.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -640,6 +641,30 @@ export const NODE_TYPES = {
       threshold: {
         name: "Threshold",
         type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  fake_downscale: {
+    name: "Fake downscale",
+    category: "Effects",
+    shader: fakeDownScalingShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      kernel_size: {
+        name: "Radius",
+        type: "number",
+        max: 25,
+        step: 1,
       },
     },
     outputs: {
