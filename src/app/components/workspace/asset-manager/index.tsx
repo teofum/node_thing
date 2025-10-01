@@ -37,6 +37,7 @@ export function AssetManager({ trigger, onSelect }: AssetManagerProps) {
           ))}
         </div>
       </div>
+
       <div className="p-3 flex flex-row gap-2 justify-end items-end">
         <Button
           variant="outline"

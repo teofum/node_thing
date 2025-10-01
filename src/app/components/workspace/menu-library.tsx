@@ -8,6 +8,8 @@ import {
   AccordionTrigger,
 } from "@/ui/accordion";
 import { Fragment } from "react";
+import { Button } from "@/ui/button";
+import { ShaderEditor } from "./shader-editor";
 
 export function MenuLibrary() {
   const nodeTypes = useMainStore((state) => state.nodeTypes);
@@ -26,7 +28,7 @@ export function MenuLibrary() {
     });
 
   return (
-    <div className="border-t border-white/15 flex flex-col gap-3 min-h-0 overflow-auto flex-1">
+    <div className="border-t border-white/15 flex flex-col min-h-0 overflow-auto flex-1">
       <Accordion.Root type="multiple">
         {Object.entries(nodesByCategory).map(([category, types]) => (
           <Fragment key={category}>
@@ -70,6 +72,10 @@ export function MenuLibrary() {
           </Fragment>
         ))}
       </Accordion.Root>
+
+      <div className="p-3 flex flex-col">
+        <ShaderEditor trigger={<Button variant="outline">New Shader</Button>} />
+      </div>
     </div>
   );
 }
