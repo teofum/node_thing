@@ -30,6 +30,9 @@ import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 import checkersNoiseShader from "@/shaders/checker-noise.wgsl";
 import bayerNoiseShader from "@/shaders/bayer-noise-8x8.wgsl";
 import fakeDownScalingShader from "@/shaders/fake-down-scaling.wgsl";
+import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
+import tonemapACESShader from "@/shaders/tone-map-aces.wgsl";
+import tonemapUncharted2Shader from "@/shaders/tone-map-uncharted2.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -562,6 +565,68 @@ export const NODE_TYPES = {
         min: -5,
         max: 5,
         step: 0.1,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  tonemapReinhard: {
+    name: "Tonemap Reinhard",
+    category: "Color",
+    shader: tonemapReinhardShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      white: {
+        name: "White",
+        type: "number",
+        min: 0.0,
+        max: 10.0,
+        step: 0.1,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  tonemapACES: {
+    name: "Tonemap ACES",
+    category: "Color",
+    shader: tonemapACESShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  tonemapUncharted2: {
+    //maybe unprofesional, totally stolen
+    name: "Tonemap from Uncharted 2",
+    category: "Color",
+    shader: tonemapUncharted2Shader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
       },
     },
     outputs: {
