@@ -15,10 +15,12 @@ export function Dialog({
   trigger,
   title,
   description,
+  open,
+  onOpenChange,
   ...props
 }: DialogProps) {
   return (
-    <D.Root {...props}>
+    <D.Root {...{ open, onOpenChange }}>
       <D.Trigger asChild>{trigger}</D.Trigger>
       <D.Portal>
         <D.Overlay className="fixed inset-0 bg-neutral-700/10 animate-[dialogOverlay_500ms_ease-out_forwards]" />

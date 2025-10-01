@@ -77,6 +77,13 @@ type ProjectActions = {
     outputs: HandleDescriptor[];
     code: string;
   }) => void;
+  updateNodeType: (desc: {
+    id: string;
+    name: string;
+    inputs: HandleDescriptor[];
+    outputs: HandleDescriptor[];
+    code: string;
+  }) => void;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -391,7 +398,6 @@ export const useMainStore = create<Project & ProjectActions>()(
 
       createNodeType: (desc) => {
         const name = `custom_${nanoid()}`;
-        console.log(name);
 
         const inputs: NodeType["inputs"] = {};
         for (const { name, display, type } of desc.inputs) {
@@ -414,6 +420,33 @@ export const useMainStore = create<Project & ProjectActions>()(
 
         set(({ nodeTypes }) => ({
           nodeTypes: { ...nodeTypes, [name]: newNodeType },
+        }));
+      },
+
+      updateNodeType: (desc) => {
+        const name = desc.id;
+
+        const inputs: NodeType["inputs"] = {};
+        for (const { name, display, type } of desc.inputs) {
+          inputs[name] = { name: display, type };
+        }
+
+        const outputs: NodeType["outputs"] = {};
+        for (const { name, display, type } of desc.outputs) {
+          outputs[name] = { name: display, type };
+        }
+
+        const updatedNodeType: NodeType = {
+          name: desc.name,
+          category: "Custom",
+          shader: desc.code,
+          inputs,
+          outputs,
+          parameters: {},
+        };
+
+        set(({ nodeTypes }) => ({
+          nodeTypes: { ...nodeTypes, [name]: updatedNodeType },
         }));
       },
 
