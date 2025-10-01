@@ -47,6 +47,13 @@ export type Project = {
   projectName: string;
 };
 
+export type HandleDescriptor = {
+  id: string;
+  name: string;
+  display: string;
+  type: "color" | "number";
+};
+
 const initialNodes: ShaderNode[] = [
   {
     id: "__output",
@@ -64,10 +71,13 @@ const initialSize = { width: 1920, height: 1080 };
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
 
-  setNodes: (nodes: ShaderNode[]) => void; // TODO, agregado addNode, puede que no se esté usando más setNodes
-  setEdges: (edges: Edge[]) => void;
-
   loadNodeTypes: () => Promise<void>;
+  createNodeType: (desc: {
+    name: string;
+    inputs: HandleDescriptor[];
+    outputs: HandleDescriptor[];
+    code: string;
+  }) => void;
 
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -178,16 +188,6 @@ export const useMainStore = create<Project & ProjectActions>()(
        * Actions
        */
       setActiveLayer: (idx) => set({ currentLayer: idx }),
-
-      setNodes: (nodes) =>
-        set(({ layers, currentLayer }) => ({
-          layers: modifyLayer(layers, currentLayer, () => ({ nodes })),
-        })),
-
-      setEdges: (edges) =>
-        set(({ layers, currentLayer }) => ({
-          layers: modifyLayer(layers, currentLayer, () => ({ edges })),
-        })),
 
       onNodesChange: (changes) =>
         set(({ layers, currentLayer }) => ({
@@ -390,7 +390,37 @@ export const useMainStore = create<Project & ProjectActions>()(
             }),
         );
 
-        set({ nodeTypes: { ...NODE_TYPES, ...purchasedNodeTypes } });
+        set(({ nodeTypes }) => ({
+          nodeTypes: { ...nodeTypes, ...purchasedNodeTypes },
+        }));
+      },
+
+      createNodeType: (desc) => {
+        const name = `custom_${nanoid()}`;
+        console.log(name);
+
+        const inputs: NodeType["inputs"] = {};
+        for (const { name, display, type } of desc.inputs) {
+          inputs[name] = { name: display, type };
+        }
+
+        const outputs: NodeType["outputs"] = {};
+        for (const { name, display, type } of desc.outputs) {
+          outputs[name] = { name: display, type };
+        }
+
+        const newNodeType: NodeType = {
+          name: desc.name,
+          category: "Custom",
+          shader: desc.code,
+          inputs,
+          outputs,
+          parameters: {},
+        };
+
+        set(({ nodeTypes }) => ({
+          nodeTypes: { ...nodeTypes, [name]: newNodeType },
+        }));
       },
 
       addNode: (type, position, parameters = {}) => {
