@@ -1,20 +1,21 @@
 import {
-  Node,
-  Edge,
-  applyNodeChanges,
-  applyEdgeChanges,
   addEdge,
-  OnNodesChange,
-  OnEdgesChange,
+  applyEdgeChanges,
+  applyNodeChanges,
+  Connection,
+  Edge,
+  Node,
   OnConnect,
+  OnEdgesChange,
+  OnNodesChange,
 } from "@xyflow/react";
+import { nanoid } from "nanoid";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { nanoid } from "nanoid";
 
+import { getPurchasedShaders } from "@/app/marketplace/actions";
 import { NodeData, NodeType } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
-import { getPurchasedShaders } from "@/app/marketplace/actions";
 
 export type ShaderNode = Node<NodeData>;
 
@@ -53,6 +54,13 @@ export type HandleDescriptor = {
   type: "color" | "number";
 };
 
+type NodeTypeDescriptor = {
+  name: string;
+  inputs: HandleDescriptor[];
+  outputs: HandleDescriptor[];
+  code: string;
+};
+
 const initialNodes: ShaderNode[] = [
   {
     id: "__output",
@@ -62,28 +70,15 @@ const initialNodes: ShaderNode[] = [
     deletable: false,
   },
 ];
-
 const initialEdges: Edge[] = [];
-
 const initialSize = { width: 1920, height: 1080 };
 
 type ProjectActions = {
   setActiveLayer: (idx: number) => void;
 
   loadNodeTypes: () => Promise<void>;
-  createNodeType: (desc: {
-    name: string;
-    inputs: HandleDescriptor[];
-    outputs: HandleDescriptor[];
-    code: string;
-  }) => void;
-  updateNodeType: (desc: {
-    id: string;
-    name: string;
-    inputs: HandleDescriptor[];
-    outputs: HandleDescriptor[];
-    code: string;
-  }) => void;
+  createNodeType: (desc: NodeTypeDescriptor) => void;
+  updateNodeType: (id: string, desc: NodeTypeDescriptor) => void;
   deleteNodeType: (id: string) => void;
 
   onNodesChange: OnNodesChange;
@@ -129,64 +124,16 @@ type ProjectActions = {
   duplicateLayer: (i: number) => void;
 };
 
-function modifyLayer(
-  layers: Layer[],
-  layerIdx: number,
-  f: (layer: Layer) => Partial<Layer>,
-): Layer[] {
-  const layerToModify = layers[layerIdx];
-  if (!layerToModify) return layers; // out of bounds
-
-  const layersUnder = layers.slice(0, layerIdx);
-  const layersOver = layers.slice(layerIdx + 1);
-  return [
-    ...layersUnder,
-    {
-      ...layerToModify,
-      ...f(layerToModify),
-    },
-    ...layersOver,
-  ];
-}
-
-function modifyNode(
-  nodes: ShaderNode[],
-  id: string,
-  f: (node: ShaderNode) => Partial<ShaderNode>,
-): ShaderNode[] {
-  const node = nodes.find((n) => n.id === id);
-  if (!node) return nodes;
-
-  return [
-    ...nodes.filter((n) => n.id !== id),
-    {
-      ...node,
-      ...f(node),
-      id: node.id,
-    },
-  ];
-}
-
 export const useMainStore = create<Project & ProjectActions>()(
   persist(
     (set, get) => ({
       /*
        * State
        */
-      layers: [
-        {
-          nodes: [...initialNodes],
-          edges: [...initialEdges],
-          position: { x: 0, y: 0 },
-          size: initialSize,
-          id: `layer_0`,
-          name: "Background",
-        },
-      ],
+      layers: [createLayer("Background")],
       currentLayer: 0,
       properties: { canvas: initialSize, view: { zoom: 1 } },
       nodeTypes: NODE_TYPES,
-      layerId: 0,
 
       /*
        * Actions
@@ -194,82 +141,56 @@ export const useMainStore = create<Project & ProjectActions>()(
       setActiveLayer: (idx) => set({ currentLayer: idx }),
 
       onNodesChange: (changes) =>
-        set(({ layers, currentLayer }) => ({
-          layers: modifyLayer(layers, currentLayer, (layer) => ({
-            nodes: applyNodeChanges(changes, layer.nodes) as ShaderNode[], // TODO: actually check this
+        set(
+          modifyLayer((layer) => ({
+            nodes: applyNodeChanges(changes, layer.nodes) as ShaderNode[],
           })),
-        })),
+        ),
 
       onEdgesChange: (changes) =>
-        set(({ layers, currentLayer }) => ({
-          layers: modifyLayer(layers, currentLayer, (layer) => ({
+        set(
+          modifyLayer((layer) => ({
             edges: applyEdgeChanges(changes, layer.edges),
           })),
-        })),
+        ),
 
       onConnect: (connection) =>
-        set(({ layers, currentLayer }) => {
-          const layer = layers[currentLayer];
+        set(
+          modifyLayer((layer) => {
+            const { nodeTypes } = get();
+            if (!isConnectionValid(layer, connection, nodeTypes)) return {};
 
-          const nodeTypes = get().nodeTypes || NODE_TYPES;
-          const targetType = layer.nodes.find(
-            (node) => node.id === connection.target,
-          )!.data.type;
-          const sourceType = layer.nodes.find(
-            (node) => node.id === connection.source,
-          )!.data.type;
+            const edgesWithoutConflictingConnections = layer.edges.filter(
+              (e) =>
+                e.target !== connection.target ||
+                e.targetHandle !== connection.targetHandle,
+            );
 
-          const targetHandleType = (
-            nodeTypes[targetType].inputs as NodeType["inputs"]
-          )[connection.targetHandle ?? ""].type;
-          const sourceHandleType = (
-            nodeTypes[sourceType].outputs as NodeType["outputs"]
-          )[connection.sourceHandle ?? ""].type;
-
-          if (targetHandleType !== sourceHandleType) return {};
-
-          const filteredEdges = layer.edges.filter(
-            (e) =>
-              e.target !== connection.target ||
-              e.targetHandle !== connection.targetHandle,
-          );
-
-          const newEdges = addEdge(connection, filteredEdges);
-
-          return {
-            layers: modifyLayer(layers, currentLayer, () => ({
-              edges: newEdges,
-            })),
-          };
-        }),
+            return {
+              edges: addEdge(connection, edgesWithoutConflictingConnections),
+            };
+          }),
+        ),
 
       updateNodeDefaultValue: (id, input, value) =>
-        set(({ layers, currentLayer }) => {
-          return {
-            layers: modifyLayer(layers, currentLayer, ({ nodes }) => ({
-              nodes: modifyNode(nodes, id, (node) => ({
-                data: {
-                  ...node.data,
-                  defaultValues: { ...node.data.defaultValues, [input]: value },
-                },
-              })),
-            })),
-          };
-        }),
+        set(
+          modifyNode(id, (node) => ({
+            data: {
+              ...node.data,
+              defaultValues: { ...node.data.defaultValues, [input]: value },
+            },
+          })),
+        ),
 
       updateNodeParameter: (id, param, value) =>
-        set(({ layers, currentLayer }) => {
-          return {
-            layers: modifyLayer(layers, currentLayer, ({ nodes }) => ({
-              nodes: modifyNode(nodes, id, (node) => ({
-                data: {
-                  ...node.data,
-                  parameters: { ...node.data.parameters, [param]: { value } },
-                },
-              })),
-            })),
-          };
-        }),
+        set(
+          modifyNode(id, (node) => ({
+            data: {
+              ...node.data,
+              parameters: { ...node.data.parameters, [param]: { value } },
+            },
+          })),
+        ),
 
       /*
        * Actions: view
@@ -294,30 +215,21 @@ export const useMainStore = create<Project & ProjectActions>()(
         })),
 
       addLayer: () =>
-        set((state) => {
+        set(({ layers }) => {
           return {
-            layers: [
-              ...state.layers,
-              {
-                nodes: [...initialNodes],
-                edges: [...initialEdges],
-                position: { x: 0, y: 0 },
-                size: initialSize,
-                id: `layer_${nanoid()}`,
-                name: `Layer ${state.layers.length}`,
-              },
-            ],
+            layers: [...layers, createLayer(`Layer ${layers.length}`)],
+            currentLayer: layers.length,
           };
         }),
 
       setLayerBounds: (x, y, width, height) =>
-        set(({ layers, currentLayer }) => ({
-          layers: modifyLayer(layers, currentLayer, (layer) => ({
+        set(
+          modifyLayer((layer) => ({
             ...layer,
             position: { x, y },
             size: { width, height },
           })),
-        })),
+        ),
 
       reorderLayers: (from, to) =>
         set(({ layers, currentLayer }) => {
@@ -350,7 +262,7 @@ export const useMainStore = create<Project & ProjectActions>()(
       importLayer: (json) =>
         set(({ layers }) => {
           const parsedLayer: Layer = JSON.parse(json);
-          parsedLayer.id = `layer_${nanoid()}`;
+          parsedLayer.id = newLayerId();
 
           return {
             layers: [...layers, parsedLayer],
@@ -398,61 +310,16 @@ export const useMainStore = create<Project & ProjectActions>()(
       },
 
       createNodeType: (desc) => {
-        const name = `custom_${nanoid()}`;
-
-        const inputs: NodeType["inputs"] = {};
-        for (const { name, display, type } of desc.inputs) {
-          inputs[name] = { name: display, type };
-        }
-
-        const outputs: NodeType["outputs"] = {};
-        for (const { name, display, type } of desc.outputs) {
-          outputs[name] = { name: display, type };
-        }
-
-        const newNodeType: NodeType = {
-          name: desc.name,
-          category: "Custom",
-          shader: desc.code,
-          inputs,
-          outputs,
-          parameters: {},
-        };
-
-        set(({ nodeTypes }) => ({
-          nodeTypes: { ...nodeTypes, [name]: newNodeType },
-        }));
+        set(updateNodeType(`custom_${nanoid()}`, desc));
       },
 
-      updateNodeType: (desc) => {
-        const name = desc.id;
-
-        const inputs: NodeType["inputs"] = {};
-        for (const { name, display, type } of desc.inputs) {
-          inputs[name] = { name: display, type };
-        }
-
-        const outputs: NodeType["outputs"] = {};
-        for (const { name, display, type } of desc.outputs) {
-          outputs[name] = { name: display, type };
-        }
-
-        const updatedNodeType: NodeType = {
-          name: desc.name,
-          category: "Custom",
-          shader: desc.code,
-          inputs,
-          outputs,
-          parameters: {},
-        };
-
-        set(({ nodeTypes }) => ({
-          nodeTypes: { ...nodeTypes, [name]: updatedNodeType },
-        }));
+      updateNodeType: (id, desc) => {
+        set(updateNodeType(id, desc));
       },
 
       deleteNodeType: (name) => {
         set(({ nodeTypes, layers }) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [name]: _, ...rest } = nodeTypes;
           return {
             nodeTypes: rest,
@@ -469,96 +336,200 @@ export const useMainStore = create<Project & ProjectActions>()(
         });
       },
 
-      addNode: (type, position, parameters = {}) => {
-        const { layers, currentLayer } = get();
+      addNode: (type, position, parameters = {}) =>
+        set(
+          modifyLayer((layer) => {
+            const { nodeTypes } = get();
+            return {
+              nodes: [
+                ...layer.nodes,
+                createNode(type, position, nodeTypes, parameters),
+              ],
+            };
+          }),
+        ),
 
-        const currId = `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${nanoid()}`;
-
-        const { nodeTypes } = get();
-        const defaultValues: NodeData["defaultValues"] = {};
-        for (const [key, input] of Object.entries(nodeTypes[type].inputs)) {
-          defaultValues[key] =
-            input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
-        }
-
-        const newNode: ShaderNode = {
-          id: currId,
-          type: "RenderShaderNode",
-          position,
-          data: {
-            type,
-            defaultValues,
-            parameters,
-          },
-        };
-
-        set({
-          layers: modifyLayer(layers, currentLayer, (layer) => ({
-            nodes: [...layer.nodes, newNode],
-          })),
-        });
-      },
-
-      removeNode: (id) => {
-        set(({ layers, currentLayer }) => ({
-          layers: modifyLayer(layers, currentLayer, (layer) => ({
+      removeNode: (id) =>
+        set(
+          modifyLayer((layer) => ({
             nodes: layer.nodes.filter((node) => node.id !== id),
           })),
-        }));
-      },
+        ),
 
-      changeLayerName: (name, idx) => {
-        const { layers } = get();
-
-        const newLayers = layers.map((layer, i) =>
-          i === idx ? { ...layer, name } : layer,
-        );
-
-        set({ layers: newLayers });
-      },
+      changeLayerName: (name, idx) => set(modifyLayer(() => ({ name }), idx)),
 
       removeLayer: (i) => {
         set(({ layers, currentLayer }) => {
-          if (layers.length <= 1) {
-            return { layers, currentLayer };
-          }
-
-          const newLayers = [...layers];
-          newLayers.splice(i, 1);
+          if (layers.length <= 1) return {};
 
           return {
-            layers: newLayers,
+            layers: [...layers.slice(0, i), ...layers.slice(i + 1)],
             currentLayer: i <= currentLayer ? currentLayer - 1 : currentLayer,
           };
         });
       },
 
       duplicateLayer: (i: number) =>
-        set((state) => {
-          const sourceLayer = state.layers[i];
-          if (!sourceLayer) {
-            return state;
-          }
+        set(({ layers }) => {
+          const sourceLayer = layers[i];
+          const newLayerIdx = i + 1;
 
-          const newCurrentLayer = i + 1;
-
-          const copyLayer: Layer = {
+          const newLayer: Layer = {
             ...sourceLayer,
             name: sourceLayer.name + " copy",
-            id: `layer_${nanoid()}`,
+            id: newLayerId(),
           };
 
-          const newLayers = [...state.layers, copyLayer];
-
-          const [moved] = newLayers.splice(newLayers.length - 1, 1);
-          newLayers.splice(newCurrentLayer, 0, moved);
-
           return {
-            layers: newLayers,
-            currentLayer: newCurrentLayer,
+            layers: [
+              ...layers.slice(0, newLayerIdx),
+              newLayer,
+              ...layers.slice(newLayerIdx),
+            ],
+            currentLayer: newLayerIdx,
           };
         }),
     }),
     { name: "main-store" },
   ),
 );
+
+function isConnectionValid(
+  layer: Layer,
+  connection: Connection,
+  nodeTypes: Record<string, NodeType>,
+) {
+  const targetType = layer.nodes.find((node) => node.id === connection.target)!
+    .data.type;
+  const sourceType = layer.nodes.find((node) => node.id === connection.source)!
+    .data.type;
+
+  const targetHandleType =
+    nodeTypes[targetType].inputs[connection.targetHandle ?? ""].type;
+  const sourceHandleType =
+    nodeTypes[sourceType].outputs[connection.sourceHandle ?? ""].type;
+
+  return targetHandleType === sourceHandleType;
+}
+
+function createNode(
+  type: string,
+  position: { x: number; y: number },
+  nodeTypes: Record<string, NodeType>,
+  parameters: Record<string, { value: string | null }>,
+): ShaderNode {
+  return {
+    id: newNodeId(type),
+    type: "RenderShaderNode",
+    position,
+    data: {
+      type,
+      defaultValues: getDefaultValues(nodeTypes, type),
+      parameters,
+    },
+  };
+}
+
+function getDefaultValues(nodeTypes: Record<string, NodeType>, type: string) {
+  const defaultValues: NodeData["defaultValues"] = {};
+  for (const [key, input] of Object.entries(nodeTypes[type].inputs)) {
+    defaultValues[key] = input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
+  }
+  return defaultValues;
+}
+
+function newNodeId(type: string) {
+  return `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${nanoid()}`;
+}
+
+function modifyNode(
+  id: string,
+  updater: (node: ShaderNode) => Partial<ShaderNode>,
+): (state: Project) => Partial<Project> {
+  return modifyLayer(({ nodes }) => {
+    const node = nodes.find((n) => n.id === id);
+    if (!node) return {};
+
+    return {
+      nodes: [
+        ...nodes.filter((n) => n.id !== id),
+        {
+          ...node,
+          ...updater(node),
+          id: node.id,
+        },
+      ],
+    };
+  });
+}
+
+function modifyLayer(
+  updater: (layer: Layer) => Partial<Layer>,
+  idx?: number,
+): (state: Project) => Partial<Project> {
+  return ({ layers, currentLayer }) => {
+    const layerIdx = idx ?? currentLayer;
+    const layerToModify = layers[layerIdx];
+    if (!layerToModify) return {};
+
+    const layersUnder = layers.slice(0, layerIdx);
+    const layersOver = layers.slice(layerIdx + 1);
+
+    return {
+      layers: [
+        ...layersUnder,
+        {
+          ...layerToModify,
+          ...updater(layerToModify),
+        },
+        ...layersOver,
+      ],
+    };
+  };
+}
+
+function updateNodeType(
+  name: string,
+  desc: NodeTypeDescriptor,
+): (state: Project) => Partial<Project> {
+  return ({ nodeTypes }: Project) => {
+    const inputs = createHandles(desc.inputs);
+    const outputs = createHandles(desc.outputs);
+
+    const newNodeType: NodeType = {
+      name: desc.name,
+      category: "Custom",
+      shader: desc.code,
+      inputs,
+      outputs,
+      parameters: {},
+    };
+
+    return {
+      nodeTypes: { ...nodeTypes, [name]: newNodeType },
+    };
+  };
+}
+
+function createHandles(desc: HandleDescriptor[]) {
+  const handles: NodeType["inputs" | "outputs"] = {};
+  for (const { name, display, type } of desc) {
+    handles[name] = { name: display, type };
+  }
+  return handles;
+}
+
+function createLayer(name: string): Layer {
+  return {
+    nodes: [...initialNodes],
+    edges: [...initialEdges],
+    position: { x: 0, y: 0 },
+    size: initialSize,
+    id: newLayerId(),
+    name,
+  };
+}
+
+function newLayerId(): string {
+  return `layer_${nanoid()}`;
+}
