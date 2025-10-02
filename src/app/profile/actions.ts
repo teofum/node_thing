@@ -97,4 +97,26 @@ export async function submitShaderRating(shaderId: string, rating: number) {
   // average_rating y rating_count se actualizan solos con triggers (ver Supabase)
 }
 
+export async function getUserRatings() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  const { data, error } = await supabase
+    .from("ratings")
+    .select("id, shader_id, rating, comment, updated_at")
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to load user ratings: ${error.message}`);
+  }
+
+  return data ?? [];
+}
+
 // TODO agregar eliminar ratings

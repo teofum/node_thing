@@ -5,12 +5,15 @@ import { ComponentProps, useState } from "react";
 import { submitShaderRating } from "@/app/profile/actions";
 import { Dialog } from "@/ui/dialog";
 import RatingEditor from "./rating-editor";
+import { UserRatingsDisplay } from "./page";
+import { Tables } from "@/lib/supabase/database.types";
 
 type RatingCardProps = {
   id: string;
   title: string;
   category: string;
   average_rating?: number | null;
+  ratingsList: UserRatingsDisplay[];
   trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 
@@ -19,6 +22,7 @@ export default function RatingCard({
   title,
   category,
   average_rating,
+  ratingsList,
   trigger,
 }: RatingCardProps) {
   const [hovered, setHovered] = useState<number | null>(null);

@@ -8,12 +8,18 @@ import {
   LuUser,
 } from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
-import { getUserShaders, getUser, getUserData } from "./actions";
+import {
+  getUserShaders,
+  getUser,
+  getUserData,
+  getUserRatings,
+} from "./actions";
 import * as Tabs from "@radix-ui/react-tabs";
 import { IconType } from "react-icons/lib";
 import { forwardRef } from "react";
 import RatingEditor from "./rating-editor";
 import RatingCard from "./ratingcard";
+import { Tables } from "@/lib/supabase/database.types";
 
 function parseDate(date: string) {
   const idx = date.indexOf("T");
@@ -49,29 +55,40 @@ type UserShaderDisplay = {
     name: string;
   };
 };
+
+export type UserRatingsDisplay = {
+  id: string;
+  shader_id: string | null;
+  rating: number | null;
+  comment: string | null;
+  updated_at: string | null;
+};
+
 type ShadersTabProps = {
   shaderList: UserShaderDisplay[];
+  ratingsList: UserRatingsDisplay[];
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
-  ({ shaderList, className, ...props }, forwardedRef) => {
+  ({ shaderList, ratingsList, className, ...props }, forwardedRef) => {
     return (
       <div className={className} {...props} ref={forwardedRef}>
         <h2 className="text-xl font-semibold mb-4">Marketplace Shaders</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {shaderList.map((shader) => (
-            <>
-              <RatingCard
-                key={shader.id}
-                id={shader.id}
-                title={shader.title}
-                category={shader.category.name}
-                average_rating={shader.average_rating}
-                trigger={<Button variant="outline">test</Button>}
-              />
-            </>
+            <RatingCard
+              key={shader.id}
+              id={shader.id}
+              title={shader.title}
+              category={shader.category.name}
+              average_rating={shader.average_rating}
+              ratingsList={ratingsList}
+              trigger={<Button variant="outline">test</Button>}
+            />
           ))}
         </div>
+        <h2 className="text-xl font-semibold mb-4 mt-4">Published Shaders</h2>
+        TODO
       </div>
     );
   },
@@ -82,6 +99,7 @@ export default async function ProfilePage() {
   // TODO hacer manejo de redirigir a login si no inició sesión
 
   const userShaders = await getUserShaders();
+  const userRatings = await getUserRatings();
 
   const userData = await getUserData();
   const user = await getUser();
@@ -173,6 +191,7 @@ export default async function ProfilePage() {
                 <UserShadersTab
                   className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
                   shaderList={userShaders}
+                  ratingsList={userRatings}
                 />
               </Tabs.Content>
               <Tabs.Content
