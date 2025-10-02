@@ -384,7 +384,7 @@ export const useMainStore = create<Project & ProjectActions>()(
             layers: [
               ...layers.slice(0, newLayerIdx),
               newLayer,
-              ...layers.slice(newLayerIdx + 1),
+              ...layers.slice(newLayerIdx),
             ],
             currentLayer: newLayerIdx,
           };
