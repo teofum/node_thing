@@ -368,27 +368,14 @@ export const useMainStore = create<Project & ProjectActions>()(
           })),
         ),
 
-      changeLayerName: (name, idx) => {
-        const { layers } = get();
-
-        const newLayers = layers.map((layer, i) =>
-          i === idx ? { ...layer, name } : layer,
-        );
-
-        set({ layers: newLayers });
-      },
+      changeLayerName: (name, idx) => set(modifyLayer(() => ({ name }), idx)),
 
       removeLayer: (i) => {
         set(({ layers, currentLayer }) => {
-          if (layers.length <= 1) {
-            return { layers, currentLayer };
-          }
-
-          const newLayers = [...layers];
-          newLayers.splice(i, 1);
+          if (layers.length <= 1) return {};
 
           return {
-            layers: newLayers,
+            layers: [...layers.slice(0, i), ...layers.slice(i + 1)],
             currentLayer: i <= currentLayer ? currentLayer - 1 : currentLayer,
           };
         });
@@ -472,13 +459,15 @@ function modifyNode(
 
 function modifyLayer(
   updater: (layer: Layer) => Partial<Layer>,
+  idx?: number,
 ): (state: Project) => Partial<Project> {
   return ({ layers, currentLayer }) => {
-    const layerToModify = layers[currentLayer];
-    if (!layerToModify) return { layers };
+    const layerIdx = idx ?? currentLayer;
+    const layerToModify = layers[layerIdx];
+    if (!layerToModify) return {};
 
-    const layersUnder = layers.slice(0, currentLayer);
-    const layersOver = layers.slice(currentLayer + 1);
+    const layersUnder = layers.slice(0, layerIdx);
+    const layersOver = layers.slice(layerIdx + 1);
 
     return {
       layers: [
