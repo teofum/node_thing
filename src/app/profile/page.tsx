@@ -73,7 +73,7 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
   ({ shaderList, ratingsList, className, ...props }, forwardedRef) => {
     return (
       <div className={className} {...props} ref={forwardedRef}>
-        <h2 className="text-xl font-semibold mb-4">Marketplace Shaders</h2>
+        <h2 className="text-xl font-semibold mb-4">Purchased Shaders</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {shaderList.map((shader) => (
             <RatingCard
@@ -87,7 +87,7 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             />
           ))}
         </div>
-        <h2 className="text-xl font-semibold mb-4 mt-4">Published Shaders</h2>
+        <h2 className="text-xl font-semibold mb-4 mt-8">Published Shaders</h2>
         TODO
       </div>
     );
@@ -96,8 +96,6 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
 UserShadersTab.displayName = "UserShadersTab";
 
 export default async function ProfilePage() {
-  // TODO hacer manejo de redirigir a login si no inició sesión
-
   const userShaders = await getUserShaders();
   const userRatings = await getUserRatings();
 
