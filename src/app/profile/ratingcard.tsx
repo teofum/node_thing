@@ -1,22 +1,26 @@
 "use client";
 
 import { LuStar } from "react-icons/lu";
-import { useState } from "react";
+import { ComponentProps, useState } from "react";
 import { submitShaderRating } from "@/app/profile/actions";
+import { Dialog } from "@/ui/dialog";
+import RatingEditor from "./rating-editor";
 
-type RatingShaderCardProps = {
+type RatingCardProps = {
   id: string;
   title: string;
   category: string;
   average_rating?: number | null;
+  trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 
-export default function RatingShaderCard({
+export default function RatingCard({
   id,
   title,
   category,
   average_rating,
-}: RatingShaderCardProps) {
+  trigger,
+}: RatingCardProps) {
   const [hovered, setHovered] = useState<number | null>(null);
   const [rating, setRating] = useState(average_rating ?? 0);
 
@@ -52,6 +56,16 @@ export default function RatingShaderCard({
           );
         })}
       </div>
+
+      {/* TODO ver si tengo que mandar todos estos props */}
+      <RatingEditor
+        key={id}
+        id={id}
+        title={title}
+        category={category}
+        average_rating={average_rating}
+        trigger={trigger}
+      />
     </div>
   );
 }

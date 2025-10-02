@@ -8,11 +8,12 @@ import {
   LuUser,
 } from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
-import RatingShaderCard from "./rating-shadercard";
 import { getUserShaders, getUser, getUserData } from "./actions";
 import * as Tabs from "@radix-ui/react-tabs";
 import { IconType } from "react-icons/lib";
 import { forwardRef } from "react";
+import RatingEditor from "./rating-editor";
+import RatingCard from "./ratingcard";
 
 function parseDate(date: string) {
   const idx = date.indexOf("T");
@@ -59,18 +60,18 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
         <h2 className="text-xl font-semibold mb-4">Marketplace Shaders</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {shaderList.map((shader) => (
-            <RatingShaderCard
-              key={shader.id}
-              id={shader.id}
-              title={shader.title}
-              category={shader.category.name}
-              average_rating={shader.average_rating}
-            />
+            <>
+              <RatingCard
+                key={shader.id}
+                id={shader.id}
+                title={shader.title}
+                category={shader.category.name}
+                average_rating={shader.average_rating}
+                trigger={<Button variant="outline">test</Button>}
+              />
+            </>
           ))}
         </div>
-        {/* <div className="p-3 flex flex-col">
-          <ShaderEditor trigger={<Button variant="outline">New Shader</Button>} />
-        </div> */}
       </div>
     );
   },
