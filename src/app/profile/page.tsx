@@ -8,7 +8,7 @@ import {
   LuUser,
 } from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
-import RatingShaderCard from "../components/profile/rating-shadercard";
+import RatingShaderCard from "./rating-shadercard";
 import { getUserShaders, getUser, getUserData } from "./actions";
 import * as Tabs from "@radix-ui/react-tabs";
 import { IconType } from "react-icons/lib";
@@ -68,6 +68,9 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             />
           ))}
         </div>
+        {/* <div className="p-3 flex flex-col">
+          <ShaderEditor trigger={<Button variant="outline">New Shader</Button>} />
+        </div> */}
       </div>
     );
   },
