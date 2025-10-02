@@ -2,6 +2,7 @@ import { Button, LinkButton } from "@/ui/button";
 import { LuArrowLeft, LuSearch, LuShoppingCart } from "react-icons/lu";
 import { getShaders, getCategories } from "./actions";
 import { getCartItems } from "./cart/actions";
+import { RangeSliderInput } from "@/ui/rangeSlider";
 import ShaderCard from "@/app/components/marketplace/shadercard";
 
 type Props = {
@@ -9,6 +10,8 @@ type Props = {
     error?: string;
     category?: string | string[];
     search?: string;
+    minPrice?: string;
+    maxPrice?: string;
   }>;
 };
 
@@ -45,6 +48,13 @@ export default async function MarketplacePage({ searchParams }: Props) {
           shader.description.toLowerCase().includes(searchLower)),
     );
   }
+
+  const minPrice = params.minPrice ? Number(params.minPrice) : 0;
+  const maxPrice = params.maxPrice ? Number(params.maxPrice) : Infinity;
+
+  filteredShaders = filteredShaders.filter(
+    (shader) => shader.price >= minPrice && shader.price <= maxPrice,
+  );
 
   return (
     <div className="min-h-screen bg-neutral-900 relative">
@@ -110,11 +120,23 @@ export default async function MarketplacePage({ searchParams }: Props) {
               type="submit"
               variant="ghost"
               size="md"
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
+              className="absolute right-4 top-1.5  text-neutral-400 hover:text-white transition-colors"
               icon
             >
               <LuSearch size={20} />
             </Button>
+
+            <div className="mt-4">
+              <RangeSliderInput
+                min={0}
+                max={100}
+                step={0.5}
+                defaultMin={Number(params.minPrice) || 0}
+                defaultMax={Number(params.maxPrice) || 100}
+                nameMin="minPrice"
+                nameMax="maxPrice"
+              />
+            </div>
           </form>
 
           <div className="mb-6 flex justify-center gap-2 flex-wrap">
