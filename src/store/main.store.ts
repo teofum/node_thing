@@ -1,20 +1,21 @@
 import {
-  Node,
-  Edge,
-  applyNodeChanges,
-  applyEdgeChanges,
   addEdge,
-  OnNodesChange,
-  OnEdgesChange,
+  applyEdgeChanges,
+  applyNodeChanges,
+  Connection,
+  Edge,
+  Node,
   OnConnect,
+  OnEdgesChange,
+  OnNodesChange,
 } from "@xyflow/react";
+import { nanoid } from "nanoid";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { nanoid } from "nanoid";
 
+import { getPurchasedShaders } from "@/app/marketplace/actions";
 import { NodeData, NodeType } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
-import { getPurchasedShaders } from "@/app/marketplace/actions";
 
 export type ShaderNode = Node<NodeData>;
 
@@ -156,21 +157,8 @@ export const useMainStore = create<Project & ProjectActions>()(
       onConnect: (connection) =>
         set(
           modifyLayer((layer) => {
-            const targetType = layer.nodes.find(
-              (node) => node.id === connection.target,
-            )!.data.type;
-            const sourceType = layer.nodes.find(
-              (node) => node.id === connection.source,
-            )!.data.type;
-
-            const targetHandleType =
-              get().nodeTypes[targetType].inputs[connection.targetHandle ?? ""]
-                .type;
-            const sourceHandleType =
-              get().nodeTypes[sourceType].outputs[connection.sourceHandle ?? ""]
-                .type;
-
-            if (targetHandleType !== sourceHandleType) return {};
+            const { nodeTypes } = get();
+            if (!isConnectionValid(layer, connection, nodeTypes)) return {};
 
             const edgesWithoutConflictingConnections = layer.edges.filter(
               (e) =>
@@ -405,6 +393,24 @@ export const useMainStore = create<Project & ProjectActions>()(
     { name: "main-store" },
   ),
 );
+
+function isConnectionValid(
+  layer: Layer,
+  connection: Connection,
+  nodeTypes: Record<string, NodeType>,
+) {
+  const targetType = layer.nodes.find((node) => node.id === connection.target)!
+    .data.type;
+  const sourceType = layer.nodes.find((node) => node.id === connection.source)!
+    .data.type;
+
+  const targetHandleType =
+    nodeTypes[targetType].inputs[connection.targetHandle ?? ""].type;
+  const sourceHandleType =
+    nodeTypes[sourceType].outputs[connection.sourceHandle ?? ""].type;
+
+  return targetHandleType === sourceHandleType;
+}
 
 function createNode(
   type: string,
