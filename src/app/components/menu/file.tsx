@@ -10,6 +10,7 @@ import { saveJsonToFile, loadJsonFromFile } from "@/utils/json";
 import { saveImageToFile } from "@/utils/image";
 import { imageTypeSchema } from "@/schemas/asset.schema";
 import { ExportOptions } from "./export-options";
+import { zipExportProject, zipImportProject } from "@/utils/zip";
 
 export function FileMenu() {
   const importProject = useMainStore((s) => s.importProject);
@@ -34,6 +35,8 @@ export function FileMenu() {
   return (
     <>
       <Menu label="File" value="file">
+        {/* TODO volar esto */}
+
         <MenuItem
           icon={<LuSave />}
           onClick={() => saveJsonToFile(exportProject(), "project")}
@@ -45,6 +48,15 @@ export function FileMenu() {
           onClick={() => loadJsonFromFile(importProject)}
         >
           Load
+        </MenuItem>
+
+        {/* TODO volar hasta acá */}
+
+        <MenuItem icon={<LuSave />} onClick={zipExportProject}>
+          Export project
+        </MenuItem>
+        <MenuItem icon={<LuFolderOpen />} onClick={zipImportProject}>
+          Import project
         </MenuItem>
 
         <MenuSeparator />
