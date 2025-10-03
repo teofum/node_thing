@@ -61,13 +61,11 @@ export function ManageProjects({ trigger, projects }: ManageProjectsProps) {
                 <Button
                   icon
                   variant="ghost"
-                  onClick={() =>
-                    importProject(
-                      currProject.data
-                        ? (currProject.data as unknown as Project)
-                        : "",
-                    )
-                  }
+                  // onClick={async () => {
+                  //   if (!currProject.user_project) return;
+                  //   await loadProjectOnline(currProject.user_project);
+                  //   }
+                  // }
                 >
                   <LuCloudDownload />
                 </Button>

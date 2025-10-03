@@ -1,6 +1,12 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { imageTypeSchema } from "@/schemas/asset.schema";
+import { useAssetStore } from "@/store/asset.store";
+import { useMainStore } from "@/store/main.store";
+import { getImageType } from "@/utils/image";
+import { zipImportProject } from "@/utils/zip";
+import JSZip from "jszip";
 import { redirect } from "next/navigation";
 
 export async function saveProjectOnline(projectJSON: string) {
@@ -13,22 +19,48 @@ export async function saveProjectOnline(projectJSON: string) {
     redirect("/auth/login?next=/profile");
   }
 
-  const { data, error } = await supabase
-    .from("projects")
-    .insert({
-      user_id: user.id,
-      data: projectJSON,
-      name: "Untitled",
-      updated_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
+  // creo nuevo JSZip
+  const zip = new JSZip();
 
-  if (error) {
-    throw new Error(`Failed to save project: ${error.message}`);
+  // cargo el JSON del proyecto
+  zip.file("project.json", projectJSON);
+
+  // cargo los assets (imágenes)
+  const imagesFolder = zip.folder("images");
+  const images = useAssetStore.getState().images;
+  if (imagesFolder !== null) {
+    for (const [name, asset] of Object.entries(images)) {
+      imagesFolder.file(name, asset.data);
+    }
   }
 
-  return data;
+  // genero el binario
+  const blob = await zip.generateAsync({ type: "blob" });
+
+  // subo proyecto al bucket en Supabase
+  const fileName = `${user.id}_${Date.now()}`;
+  const { error: uploadError } = await supabase.storage
+    .from("user_projects")
+    .upload(fileName, blob, {
+      contentType: "application/zip",
+      upsert: true,
+    });
+
+  if (uploadError) {
+    throw new Error(`Failed to upload ZIP: ${uploadError.message}`);
+  }
+
+  // guardo referncia al proyecto en el bucket en la tabla projects
+  const { error: tableError } = await supabase.from("projects").insert({
+    user_id: user.id,
+    name: fileName,
+    updated_at: new Date().toISOString(),
+    user_project: fileName,
+  });
+
+  if (tableError) {
+    throw new Error(`Failed to save project: ${tableError.message}`);
+  }
 }
 
 export async function updateProjectName(projectId: string, newName: string) {

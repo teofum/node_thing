@@ -151,27 +151,27 @@ export type Database = {
       projects: {
         Row: {
           created_at: string | null;
-          data: Json;
           id: string;
           name: string | null;
           updated_at: string | null;
           user_id: string;
+          user_project: string;
         };
         Insert: {
           created_at?: string | null;
-          data: Json;
           id?: string;
           name?: string | null;
           updated_at?: string | null;
           user_id: string;
+          user_project: string;
         };
         Update: {
           created_at?: string | null;
-          data?: Json;
           id?: string;
           name?: string | null;
           updated_at?: string | null;
           user_id?: string;
+          user_project?: string;
         };
         Relationships: [
           {

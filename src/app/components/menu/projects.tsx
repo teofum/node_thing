@@ -84,13 +84,11 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
             <MenuItem
               key={currProject.id}
               icon={<LuCloudDownload />}
-              onClick={() =>
-                importProject(
-                  currProject.data
-                    ? (currProject.data as unknown as Project)
-                    : "",
-                )
-              }
+              // onClick={async () => {
+              //   if (!currProject.user_project) return;
+              //   await loadProjectOnline(currProject.user_project);
+              //   }
+              // }
             >
               {currProject.name}
             </MenuItem>

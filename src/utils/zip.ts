@@ -40,13 +40,17 @@ export async function zipExportProject() {
   });
 }
 
-export async function zipImportProject() {
+export async function zipImportProjectFromFile() {
   // cargo archivo .zip
   const file = await openFile(["application/zip"]);
   if (!file) {
     return;
   }
 
+  zipImportProject(file);
+}
+
+export async function zipImportProject(file: File) {
   const zip = await JSZip.loadAsync(file);
 
   // limpio persist (reinicia assets cargados, volar esto si se quieren mantener)

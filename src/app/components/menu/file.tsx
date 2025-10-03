@@ -4,13 +4,11 @@ import { useState } from "react";
 import { LuSave, LuDownload, LuFolderOpen, LuFileImage } from "react-icons/lu";
 
 import { Menu, MenuItem, MenuSeparator } from "@/ui/menu-bar";
-import { useMainStore } from "@/store/main.store";
 import { useUtilityStore } from "@/store/utility.store";
-import { saveJsonToFile, loadJsonFromFile } from "@/utils/json";
 import { saveImageToFile } from "@/utils/image";
 import { imageTypeSchema } from "@/schemas/asset.schema";
 import { ExportOptions } from "./export-options";
-import { zipExportProject, zipImportProject } from "@/utils/zip";
+import { zipExportProject, zipImportProjectFromFile } from "@/utils/zip";
 
 export function FileMenu() {
   const canvas = useUtilityStore((s) => s.canvas);
@@ -36,7 +34,7 @@ export function FileMenu() {
         <MenuItem icon={<LuSave />} onClick={zipExportProject}>
           Export project
         </MenuItem>
-        <MenuItem icon={<LuFolderOpen />} onClick={zipImportProject}>
+        <MenuItem icon={<LuFolderOpen />} onClick={zipImportProjectFromFile}>
           Import project
         </MenuItem>
 
