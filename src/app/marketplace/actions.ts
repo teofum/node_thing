@@ -100,6 +100,8 @@ export async function getShaders() {
       title,
       description,
       price,
+      average_rating,
+      rating_count,
       category:categories (
         id,
         name
