@@ -61,15 +61,27 @@ export default function ShaderCard({
           {Array(fullStars)
             .fill(0)
             .map((_, idx) => (
-              <LuStar key={`full-${idx}`} className="text-yellow-400 w-5 h-5" />
+              <div key={`full-${idx}`} className="relative w-5 h-5">
+                <LuStar className="absolute text-white/60 w-5 h-5" />
+                <div className="overflow-hidden h-full">
+                  <LuStar className="text-yellow-400 w-5 h-5" />
+                </div>
+              </div>
             ))}
-          {halfStar === 1 && <LuStarHalf className="text-yellow-400 w-5 h-5" />}
+          {halfStar === 1 && (
+            <div className="relative w-5 h-5">
+              <LuStar className="absolute text-white/60 w-5 h-5" />
+              <div className="overflow-hidden w-1/2 h-full">
+                <LuStarHalf className="text-yellow-400 w-5 h-5" />
+              </div>
+            </div>
+          )}
           {Array(emptyStars)
             .fill(0)
             .map((_, idx) => (
-              <LuStar key={`empty-${idx}`} className="text-gray-500 w-5 h-5" />
+              <LuStar key={`empty-${idx}`} className="text-white/60 w-5 h-5" />
             ))}
-          <p className="flex items-center justify-bottom text-center text-xs text-white/60 ml-1">
+          <p className="flex items-center justify-bottom text-center text-xs text-gray-500  ml-1">
             ({rating_count} ratings)
           </p>
         </div>

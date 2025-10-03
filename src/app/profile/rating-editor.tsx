@@ -31,6 +31,8 @@ export default function RatingEditor({
     setRating(value);
   };
 
+  // TODO recuperar lo de hover de stars
+
   return (
     <Dialog
       trigger={trigger}
@@ -53,7 +55,7 @@ export default function RatingEditor({
     //         <LuStar
     //           key={star}
     //           className={`w-5 h-5 cursor-pointer ${
-    //             isActive ? "text-yellow-400" : "text-gray-500"
+    //             isActive ? "text-yellow-400" : "text-white/60"
     //           }`}
     //           onMouseEnter={() => setHovered(star)}
     //           onMouseLeave={() => setHovered(null)}

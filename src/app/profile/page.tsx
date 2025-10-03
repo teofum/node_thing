@@ -54,6 +54,7 @@ type UserShaderDisplay = {
   category: {
     name: string;
   };
+  rating_count?: number | null;
 };
 
 export type UserRatingsDisplay = {
@@ -82,7 +83,10 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
               title={shader.title}
               category={shader.category.name}
               average_rating={shader.average_rating}
-              ratingsList={ratingsList}
+              userRating={
+                ratingsList.find((r) => r.shader_id === shader.id) ?? null
+              }
+              ratingCount={shader?.rating_count ?? 0}
               trigger={<Button variant="outline">test</Button>}
             />
           ))}

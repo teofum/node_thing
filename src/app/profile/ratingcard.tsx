@@ -1,6 +1,6 @@
 "use client";
 
-import { LuStar } from "react-icons/lu";
+import { LuStar, LuStarHalf } from "react-icons/lu";
 import { ComponentProps, useState } from "react";
 import { submitShaderRating } from "@/app/profile/actions";
 import { Dialog } from "@/ui/dialog";
@@ -13,7 +13,8 @@ type RatingCardProps = {
   title: string;
   category: string;
   average_rating?: number | null;
-  ratingsList: UserRatingsDisplay[];
+  userRating: UserRatingsDisplay | null;
+  ratingCount: number | null;
   trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 
@@ -22,19 +23,14 @@ export default function RatingCard({
   title,
   category,
   average_rating,
-  ratingsList,
+  userRating,
+  ratingCount,
   trigger,
 }: RatingCardProps) {
-  const [hovered, setHovered] = useState<number | null>(null);
-  const [rating, setRating] = useState(average_rating ?? 0);
-
-  const stars = [1, 2, 3, 4, 5];
-
-  const handleClick = async (value: number) => {
-    await submitShaderRating(id, value);
-
-    setRating(value);
-  };
+  const rating = Math.max(0, Math.min(average_rating ?? 0, 5));
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+  const emptyStars = 5 - fullStars - halfStar;
 
   return (
     <div className="glass glass-border p-6 rounded-2xl">
@@ -44,21 +40,34 @@ export default function RatingCard({
           {category}
         </p>
       )}
-      <div className="flex gap-1 mt-2">
-        {stars.map((star) => {
-          const isActive = hovered !== null ? star <= hovered : star <= rating;
-          return (
-            <LuStar
-              key={star}
-              className={`w-5 h-5 cursor-pointer ${
-                isActive ? "text-yellow-400" : "text-gray-500"
-              }`}
-              onMouseEnter={() => setHovered(star)}
-              onMouseLeave={() => setHovered(null)}
-              onClick={() => handleClick(star)}
-            />
-          );
-        })}
+
+      <div className="flex items-center gap-1">
+        {Array(fullStars)
+          .fill(0)
+          .map((_, idx) => (
+            <div key={`full-${idx}`} className="relative w-5 h-5">
+              <LuStar className="absolute text-white/60 w-5 h-5" />
+              <div className="overflow-hidden h-full">
+                <LuStar className="text-yellow-400 w-5 h-5" />
+              </div>
+            </div>
+          ))}
+        {halfStar === 1 && (
+          <div className="relative w-5 h-5">
+            <LuStar className="absolute text-white/60 w-5 h-5" />
+            <div className="overflow-hidden w-1/2 h-full">
+              <LuStarHalf className="text-yellow-400 w-5 h-5" />
+            </div>
+          </div>
+        )}
+        {Array(emptyStars)
+          .fill(0)
+          .map((_, idx) => (
+            <LuStar key={`empty-${idx}`} className="text-white/60 w-5 h-5" />
+          ))}
+        <p className="flex items-center justify-bottom text-center text-xs text-white/60 ml-1">
+          ({ratingCount} ratings)
+        </p>
       </div>
 
       {/* TODO ver si tengo que mandar todos estos props */}

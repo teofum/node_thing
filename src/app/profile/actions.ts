@@ -56,7 +56,8 @@ export async function getUserShaders() {
       id,
       title,
       average_rating,
-      category:categories(name)
+      category:categories(name),
+      rating_count
       `,
     )
     .eq("user_id", user.id);
