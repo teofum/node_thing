@@ -32,12 +32,7 @@ export async function zipExportProject() {
   // genero el binario
   const blob = await zip.generateAsync({ type: "blob" });
 
-  // guardo archivo .zip
-  await saveFile({
-    suggestedName: "project.zip",
-    types: [{ accept: { "application/zip": [".zip"] } }],
-    data: blob,
-  });
+  return blob;
 }
 
 export async function zipImportProjectFromFile() {

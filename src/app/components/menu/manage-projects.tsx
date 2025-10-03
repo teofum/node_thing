@@ -8,13 +8,19 @@ import { Input } from "@/ui/input";
 import { deleteProject, updateProjectName } from "./actions";
 import { Tables } from "@/lib/supabase/database.types";
 import { Project, useMainStore } from "@/store/main.store";
+import { zipImportProject } from "@/utils/zip";
 
 type ManageProjectsProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
   projects: Tables<"projects">[];
+  files: { name: string; blob: Blob }[];
 };
 
-export function ManageProjects({ trigger, projects }: ManageProjectsProps) {
+export function ManageProjects({
+  trigger,
+  projects,
+  files,
+}: ManageProjectsProps) {
   const importProject = useMainStore((s) => s.importProject);
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -61,11 +67,17 @@ export function ManageProjects({ trigger, projects }: ManageProjectsProps) {
                 <Button
                   icon
                   variant="ghost"
-                  // onClick={async () => {
-                  //   if (!currProject.user_project) return;
-                  //   await loadProjectOnline(currProject.user_project);
-                  //   }
-                  // }
+                  onClick={async () => {
+                    const fileData = files.find(
+                      (f) => f.name === currProject.user_project,
+                    );
+                    if (!fileData) {
+                      return;
+                    }
+
+                    const file = new File([fileData.blob], fileData.name);
+                    await zipImportProject(file);
+                  }}
                 >
                   <LuCloudDownload />
                 </Button>

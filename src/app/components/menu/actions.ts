@@ -1,15 +1,10 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { imageTypeSchema } from "@/schemas/asset.schema";
-import { useAssetStore } from "@/store/asset.store";
-import { useMainStore } from "@/store/main.store";
-import { getImageType } from "@/utils/image";
 import { zipImportProject } from "@/utils/zip";
-import JSZip from "jszip";
 import { redirect } from "next/navigation";
 
-export async function saveProjectOnline(projectJSON: string) {
+export async function saveProjectOnline(blob: Blob) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -18,24 +13,6 @@ export async function saveProjectOnline(projectJSON: string) {
   if (!user) {
     redirect("/auth/login?next=/profile");
   }
-
-  // creo nuevo JSZip
-  const zip = new JSZip();
-
-  // cargo el JSON del proyecto
-  zip.file("project.json", projectJSON);
-
-  // cargo los assets (imágenes)
-  const imagesFolder = zip.folder("images");
-  const images = useAssetStore.getState().images;
-  if (imagesFolder !== null) {
-    for (const [name, asset] of Object.entries(images)) {
-      imagesFolder.file(name, asset.data);
-    }
-  }
-
-  // genero el binario
-  const blob = await zip.generateAsync({ type: "blob" });
 
   // subo proyecto al bucket en Supabase
   const fileName = `${user.id}_${Date.now()}`;
@@ -61,6 +38,33 @@ export async function saveProjectOnline(projectJSON: string) {
   if (tableError) {
     throw new Error(`Failed to save project: ${tableError.message}`);
   }
+}
+
+export async function loadProjectOnline(userProjectPath: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  // descargo zip del proyecto del bucket
+  const { data, error } = await supabase.storage
+    .from("user_projects")
+    .download(userProjectPath);
+
+  if (error || data === null) {
+    throw new Error(`Failed to download project: ${error?.message}`);
+  }
+
+  const arrayBuffer = await data.arrayBuffer();
+  const file = new File([arrayBuffer], "project.zip", {
+    type: "application/zip",
+  });
+
+  await zipImportProject(file);
 }
 
 export async function updateProjectName(projectId: string, newName: string) {

@@ -18,6 +18,7 @@ import { Project, useMainStore } from "@/store/main.store";
 import { Tables } from "@/lib/supabase/database.types";
 import { ManageProjects } from "./manage-projects";
 import cn from "classnames";
+import { zipExportProject, zipImportProject } from "@/utils/zip";
 
 export interface ProjectsMenuProps {
   userData: {
@@ -25,9 +26,10 @@ export interface ProjectsMenuProps {
     is_premium: boolean | null;
   } | null;
   projects: Tables<"projects">[];
+  files: { name: string; blob: Blob }[];
 }
 
-export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
+export function ProjectsMenu({ userData, projects, files }: ProjectsMenuProps) {
   const importProject = useMainStore((s) => s.importProject);
   const exportProject = useMainStore((s) => s.exportProject);
 
@@ -51,7 +53,7 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
       <Menu label="Projects" value="file">
         <MenuItem
           icon={<LuCloudUpload />}
-          onClick={() => saveProjectOnline(exportProject())}
+          onClick={async () => saveProjectOnline(await zipExportProject())}
         >
           Save Online
         </MenuItem>
@@ -64,6 +66,7 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
             </button>
           }
           projects={projects}
+          files={files}
         />
 
         <MenuSeparator />
@@ -84,11 +87,17 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
             <MenuItem
               key={currProject.id}
               icon={<LuCloudDownload />}
-              // onClick={async () => {
-              //   if (!currProject.user_project) return;
-              //   await loadProjectOnline(currProject.user_project);
-              //   }
-              // }
+              onClick={async () => {
+                const fileData = files.find(
+                  (f) => f.name === currProject.user_project,
+                );
+                if (!fileData) {
+                  return;
+                }
+
+                const file = new File([fileData.blob], fileData.name);
+                await zipImportProject(file);
+              }}
             >
               {currProject.name}
             </MenuItem>
