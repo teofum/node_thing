@@ -13,8 +13,6 @@ import { ExportOptions } from "./export-options";
 import { zipExportProject, zipImportProject } from "@/utils/zip";
 
 export function FileMenu() {
-  const importProject = useMainStore((s) => s.importProject);
-  const exportProject = useMainStore((s) => s.exportProject);
   const canvas = useUtilityStore((s) => s.canvas);
   const onNextRenderFinished = useUtilityStore((s) => s.onNextRenderFinished);
 
@@ -35,23 +33,6 @@ export function FileMenu() {
   return (
     <>
       <Menu label="File" value="file">
-        {/* TODO volar esto */}
-
-        <MenuItem
-          icon={<LuSave />}
-          onClick={() => saveJsonToFile(exportProject(), "project")}
-        >
-          Save
-        </MenuItem>
-        <MenuItem
-          icon={<LuFolderOpen />}
-          onClick={() => loadJsonFromFile(importProject)}
-        >
-          Load
-        </MenuItem>
-
-        {/* TODO volar hasta acá */}
-
         <MenuItem icon={<LuSave />} onClick={zipExportProject}>
           Export project
         </MenuItem>
