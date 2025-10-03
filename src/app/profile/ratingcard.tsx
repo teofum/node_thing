@@ -70,15 +70,34 @@ export default function RatingCard({
         </p>
       </div>
 
-      {/* TODO ver si tengo que mandar todos estos props */}
-      <RatingEditor
-        key={id}
-        id={id}
-        title={title}
-        category={category}
-        average_rating={average_rating}
-        trigger={trigger}
-      />
+      <div className="flex items-center justify-between mt-4">
+        <div className=" max-w-[65%]">
+          {userRating ? (
+            <>
+              <p className="text-yellow-400 font-semibold text-xs">
+                {userRating.rating}/5:
+              </p>
+              {userRating.comment && (
+                <p className="text-white/80 mt-1 italic truncate">
+                  “ {userRating.comment} ”&nbsp;
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-white/40 italic">No review yet</p>
+          )}
+        </div>
+
+        {/* TODO ver si tengo que mandar todos estos props */}
+        <RatingEditor
+          key={id}
+          id={id}
+          title={title}
+          category={category}
+          average_rating={average_rating}
+          trigger={trigger}
+        />
+      </div>
     </div>
   );
 }
