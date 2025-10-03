@@ -126,18 +126,62 @@ export type Database = {
       };
       profiles: {
         Row: {
+          cancelled: boolean | null;
           id: string;
+          is_premium: boolean | null;
+          subscription_id: string | null;
           username: string;
         };
         Insert: {
+          cancelled?: boolean | null;
           id: string;
+          is_premium?: boolean | null;
+          subscription_id?: string | null;
           username: string;
         };
         Update: {
+          cancelled?: boolean | null;
           id?: string;
+          is_premium?: boolean | null;
+          subscription_id?: string | null;
           username?: string;
         };
         Relationships: [];
+      };
+      projects: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          name: string | null;
+          updated_at: string | null;
+          user_id: string;
+          user_project: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          name?: string | null;
+          updated_at?: string | null;
+          user_id: string;
+          user_project: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          name?: string | null;
+          updated_at?: string | null;
+          user_id?: string;
+          user_project?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "projects_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       purchases: {
         Row: {
@@ -178,8 +222,54 @@ export type Database = {
           },
         ];
       };
+      ratings: {
+        Row: {
+          comment: string | null;
+          created_at: string | null;
+          id: string;
+          rating: number | null;
+          shader_id: string | null;
+          updated_at: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          comment?: string | null;
+          created_at?: string | null;
+          id?: string;
+          rating?: number | null;
+          shader_id?: string | null;
+          updated_at?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          comment?: string | null;
+          created_at?: string | null;
+          id?: string;
+          rating?: number | null;
+          shader_id?: string | null;
+          updated_at?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ratings_shader_id_fkey";
+            columns: ["shader_id"];
+            isOneToOne: false;
+            referencedRelation: "shaders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ratings_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       shaders: {
         Row: {
+          average_rating: number | null;
           category_id: number;
           code: string;
           created_at: string;
@@ -188,12 +278,14 @@ export type Database = {
           node_config: Json | null;
           price: number;
           published: boolean | null;
+          rating_count: number | null;
           step: number | null;
           title: string;
           updated_at: string;
           user_id: string;
         };
         Insert: {
+          average_rating?: number | null;
           category_id: number;
           code: string;
           created_at?: string;
@@ -202,12 +294,14 @@ export type Database = {
           node_config?: Json | null;
           price: number;
           published?: boolean | null;
+          rating_count?: number | null;
           step?: number | null;
           title: string;
           updated_at?: string;
           user_id: string;
         };
         Update: {
+          average_rating?: number | null;
           category_id?: number;
           code?: string;
           created_at?: string;
@@ -216,6 +310,7 @@ export type Database = {
           node_config?: Json | null;
           price?: number;
           published?: boolean | null;
+          rating_count?: number | null;
           step?: number | null;
           title?: string;
           updated_at?: string;

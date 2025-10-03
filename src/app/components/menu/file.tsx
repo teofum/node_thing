@@ -4,16 +4,14 @@ import { useState } from "react";
 import { LuSave, LuDownload, LuFolderOpen, LuFileImage } from "react-icons/lu";
 
 import { Menu, MenuItem, MenuSeparator } from "@/ui/menu-bar";
-import { useMainStore } from "@/store/main.store";
 import { useUtilityStore } from "@/store/utility.store";
-import { saveJsonToFile, loadJsonFromFile } from "@/utils/json";
 import { saveImageToFile } from "@/utils/image";
 import { imageTypeSchema } from "@/schemas/asset.schema";
 import { ExportOptions } from "./export-options";
+import { zipExportProject, zipImportProjectFromFile } from "@/utils/zip";
+import { saveFile } from "@/utils/file";
 
 export function FileMenu() {
-  const importProject = useMainStore((s) => s.importProject);
-  const exportProject = useMainStore((s) => s.exportProject);
   const canvas = useUtilityStore((s) => s.canvas);
   const onNextRenderFinished = useUtilityStore((s) => s.onNextRenderFinished);
 
@@ -36,15 +34,18 @@ export function FileMenu() {
       <Menu label="File" value="file">
         <MenuItem
           icon={<LuSave />}
-          onClick={() => saveJsonToFile(exportProject(), "project")}
+          onClick={async () =>
+            saveFile({
+              suggestedName: "project.zip",
+              types: [{ accept: { "application/zip": [".zip"] } }],
+              data: await zipExportProject(),
+            })
+          }
         >
-          Save
+          Export project
         </MenuItem>
-        <MenuItem
-          icon={<LuFolderOpen />}
-          onClick={() => loadJsonFromFile(importProject)}
-        >
-          Load
+        <MenuItem icon={<LuFolderOpen />} onClick={zipImportProjectFromFile}>
+          Import project
         </MenuItem>
 
         <MenuSeparator />

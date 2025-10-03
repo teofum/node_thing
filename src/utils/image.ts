@@ -21,7 +21,7 @@ const IMAGE_TYPE_FOR_EXTENSION: Record<string, ImageAsset["type"]> = {
   webp: "webp",
 };
 
-function getImageType(filename: string) {
+export function getImageType(filename: string) {
   const extension = filename.split(".").at(-1) ?? "unknown";
   return Object.hasOwn(IMAGE_TYPE_FOR_EXTENSION, extension)
     ? IMAGE_TYPE_FOR_EXTENSION[extension]
