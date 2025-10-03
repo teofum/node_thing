@@ -2,11 +2,11 @@
 
 import { LuStar, LuStarHalf } from "react-icons/lu";
 import { ComponentProps, useState } from "react";
-import { submitShaderRating } from "@/app/profile/actions";
 import { Dialog } from "@/ui/dialog";
 import RatingEditor from "./rating-editor";
 import { UserRatingsDisplay } from "./page";
 import { Tables } from "@/lib/supabase/database.types";
+import { Button } from "@/ui/button";
 
 type RatingCardProps = {
   id: string;
@@ -71,7 +71,7 @@ export default function RatingCard({
       </div>
 
       <div className="flex items-center justify-between mt-4">
-        <div className=" max-w-[65%]">
+        <div className=" max-w-[60%]">
           {userRating ? (
             <>
               <p className="text-yellow-400 font-semibold text-xs">
@@ -88,14 +88,18 @@ export default function RatingCard({
           )}
         </div>
 
-        {/* TODO ver si tengo que mandar todos estos props */}
         <RatingEditor
           key={id}
           id={id}
           title={title}
           category={category}
-          average_rating={average_rating}
-          trigger={trigger}
+          initialRating={userRating?.rating ?? 0}
+          initialComment={userRating?.comment ?? ""}
+          trigger={
+            <Button variant="outline" className="text-xs">
+              {userRating ? "Edit review" : "Add review"}
+            </Button>
+          }
         />
       </div>
     </div>

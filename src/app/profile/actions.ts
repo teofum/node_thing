@@ -69,7 +69,11 @@ export async function getUserShaders() {
   return data ?? [];
 }
 
-export async function submitShaderRating(shaderId: string, rating: number) {
+export async function submitShaderReview(
+  shaderId: string,
+  rating: number,
+  comment: string,
+) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -84,6 +88,7 @@ export async function submitShaderRating(shaderId: string, rating: number) {
       shader_id: shaderId,
       user_id: user.id,
       rating,
+      comment,
       updated_at: new Date().toISOString(),
     },
     {

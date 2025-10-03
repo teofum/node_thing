@@ -2,14 +2,16 @@
 
 import { LuStar } from "react-icons/lu";
 import { ComponentProps, useState } from "react";
-import { submitShaderRating } from "@/app/profile/actions";
-import { Dialog } from "@/ui/dialog";
+import { submitShaderReview } from "@/app/profile/actions";
+import { Dialog, DialogClose } from "@/ui/dialog";
+import { Button } from "@/ui/button";
 
 type RatingEditorProps = {
   id: string;
   title: string;
   category: string;
-  average_rating?: number | null;
+  initialRating?: number | null;
+  initialComment?: string | null;
   trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 
@@ -17,53 +19,52 @@ export default function RatingEditor({
   id,
   title,
   category,
-  average_rating,
+  initialRating = 0,
+  initialComment,
   trigger,
 }: RatingEditorProps) {
   const [hovered, setHovered] = useState<number | null>(null);
-  const [rating, setRating] = useState(average_rating ?? 0);
-
+  const [rating, setRating] = useState(initialRating ?? 0);
+  const [comment, setComment] = useState(initialComment ?? "");
   const stars = [1, 2, 3, 4, 5];
 
-  const handleClick = async (value: number) => {
-    await submitShaderRating(id, value);
-
-    setRating(value);
+  const handleSubmit = async () => {
+    await submitShaderReview(id, rating, comment);
   };
 
   // TODO recuperar lo de hover de stars
 
   return (
-    <Dialog
-      trigger={trigger}
-      title="Review Editor"
-      description="Write reviews lol"
-    >
-      test
+    <Dialog trigger={trigger} title={title} description={category}>
+      <div className="p-4 flex flex-col gap-4">
+        <div className="flex gap-1">
+          {stars.map((star) => {
+            const isActive =
+              hovered !== null ? star <= hovered : star <= rating;
+            return (
+              <LuStar
+                key={star}
+                className={`w-6 h-6 cursor-pointer ${isActive ? "text-yellow-400" : "text-gray-500"}`}
+                onMouseEnter={() => setHovered(star)}
+                onMouseLeave={() => setHovered(null)}
+                onClick={() => setRating(star)}
+              />
+            );
+          })}
+        </div>
+        <textarea
+          className="font-mono text-sm/4 resize-none max-w-full w-full max-h-full h-full min-h-80 outline-none p-2 rounded-lg bg-black/70 border border-white/15"
+          placeholder="Write your review..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          rows={4}
+        />
+        <DialogClose asChild>
+          <Button onClick={handleSubmit} className="mt-3 justify-items-end">
+            Submit Review
+          </Button>
+        </DialogClose>
+      </div>
     </Dialog>
-    // <div className="glass glass-border p-6 rounded-2xl">
-    //   <h3 className="text-xl font-semibold text-white mb-1">{title}</h3>
-    //   {category && (
-    //     <p className="inline-block text-sm text-teal-400 border border-current/15 mb-4 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
-    //       {category}
-    //     </p>
-    //   )}
-    //   <div className="flex gap-1 mt-2">
-    //     {stars.map((star) => {
-    //       const isActive = hovered !== null ? star <= hovered : star <= rating;
-    //       return (
-    //         <LuStar
-    //           key={star}
-    //           className={`w-5 h-5 cursor-pointer ${
-    //             isActive ? "text-yellow-400" : "text-white/60"
-    //           }`}
-    //           onMouseEnter={() => setHovered(star)}
-    //           onMouseLeave={() => setHovered(null)}
-    //           onClick={() => handleClick(star)}
-    //         />
-    //       );
-    //     })}
-    //   </div>
-    // </div>
   );
 }
