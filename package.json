@@ -5,18 +5,55 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "build:electron": "tsc --project ./electron",
     "start": "next start",
-    "start:electron": "electron electron/dist/main.js",
+    "postinstall": "electron-builder install-app-deps",
     "lint": "eslint",
     "prepare": "husky",
-    "update-types": "pnpx supabase gen types typescript --project-id prxzhaldskupuefqkomv > src/lib/supabase/database.types.ts"
+    "update-types": "pnpx supabase gen types typescript --project-id prxzhaldskupuefqkomv > src/lib/supabase/database.types.ts",
+    "electron:build": "tsup",
+    "electron:package": "electron-builder --dir"
   },
+  "main": "build/main.js",
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
       "eslint"
     ]
+  },
+  "build": {
+    "asar": true,
+    "executableName": "node-thing",
+    "appId": "com.nodething.node-thing",
+    "files": [
+      "build",
+      {
+        "from": ".next/standalone",
+        "to": "app",
+        "filter": [
+          "!**/.env",
+          "!**/package.json"
+        ]
+      },
+      {
+        "from": ".next/static",
+        "to": "app/.next/static"
+      },
+      {
+        "from": "public",
+        "to": "app/public"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "deb"
+      ],
+      "category": "Development"
+    }
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -33,6 +70,7 @@
     "@types/wicg-file-system-access": "^2023.10.6",
     "@xyflow/react": "^12.8.4",
     "classnames": "^2.5.1",
+    "get-port-please": "^3.2.0",
     "nanoid": "^5.1.6",
     "next": "15.5.0",
     "react": "19.1.0",
@@ -52,6 +90,7 @@
     "@types/react-dom": "^19",
     "@webgpu/types": "^0.1.64",
     "electron": "^37.3.1",
+    "electron-builder": "^26.0.12",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",
     "eslint-config-prettier": "^10.1.8",
@@ -62,6 +101,7 @@
     "raw-loader": "^4.0.2",
     "supabase": "^2.40.7",
     "tailwindcss": "^4",
+    "tsup": "^8.5.0",
     "typescript": "^5"
   }
 }
