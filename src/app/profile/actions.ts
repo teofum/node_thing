@@ -36,7 +36,7 @@ export async function getUserData() {
     throw new Error(`Failed to load user data: ${error.message}`);
   }
 
-  return data ?? [];
+  return data;
 }
 
 export async function getUserShaders() {

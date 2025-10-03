@@ -71,7 +71,7 @@ export default function ShaderCard({
             <LuStar key={`empty-${idx}`} className="text-gray-500 w-5 h-5" />
           ))}
         <p className="flex items-center justify-bottom text-center ml-1">
-          {rating_count}
+          ( {rating_count} )
         </p>
       </div>
 
