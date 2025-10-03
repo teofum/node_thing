@@ -1,5 +1,7 @@
 import { app, BrowserWindow } from "electron";
-import path from "path";
+import { join } from "path";
+import { startServer } from "next/dist/server/lib/start-server";
+import { getPort } from "get-port-please";
 
 let win: BrowserWindow | null = null;
 
@@ -7,34 +9,63 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1200,
     height: 800,
-    webPreferences: {},
+    webPreferences: {
+      preload: join(__dirname, "preload.js"),
+      nodeIntegration: true,
+    },
   });
+  win.on("ready-to-show", () => win?.show());
 
-  const devMode = process.env.NODE_ENV !== "production";
-  const url = devMode
-    ? "http://localhost:3000"
-    : `file://${path.join(__dirname, ".next/server/pages/index.html")}`; // this doesn't work
-
-  win.loadURL(url);
+  const loadURL = async () => {
+    try {
+      const port = await startNextJSServer();
+      console.log("Next.js server started on port:", port);
+      win?.loadURL(`http://localhost:${port}`);
+    } catch (error) {
+      console.error("Error starting Next.js server:", error);
+    }
+  };
+  loadURL();
 
   win.on("closed", () => {
     win = null;
   });
 }
 
-// Create main window on start
-app.on("ready", createWindow);
+async function startNextJSServer() {
+  try {
+    const nextJSPort = await getPort({ portRange: [30_011, 50_000] });
+    const webDir = join(app.getAppPath(), "app");
+
+    await startServer({
+      dir: webDir,
+      isDev: false,
+      hostname: "localhost",
+      port: nextJSPort,
+      customServer: true,
+      allowRetry: false,
+      keepAliveTimeout: 5000,
+      minimalMode: true,
+    });
+
+    return nextJSPort;
+  } catch (error) {
+    console.error("Error starting Next.js server:", error);
+    throw error;
+  }
+}
+
+app.whenReady().then(() => {
+  createWindow();
+
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
 
 // Windows/Linux: quit when all windows are closed
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
-  }
-});
-
-// macOS: create a window if there are none
-app.on("activate", () => {
-  if (win === null) {
-    createWindow();
   }
 });
