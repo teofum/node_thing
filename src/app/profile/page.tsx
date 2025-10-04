@@ -1,5 +1,8 @@
-import { subscribePremiumAction, cancelSubscriptionAction } from "./actions";
-import { getStripePrices, getStripeProducts } from "@/lib/payments/stripe";
+import {
+  subscribePremiumAction,
+  cancelSubscriptionAction,
+  resumeSubscriptionAction,
+} from "./actions";
 import { LinkButton } from "@/ui/button";
 import { Button } from "@/ui/button";
 import { createClient } from "@/lib/supabase/server";
@@ -24,17 +27,7 @@ export default async function ProfilePage() {
     .eq("id", user.id)
     .single();
 
-  const [prices, products] = await Promise.all([
-    getStripePrices(),
-    getStripeProducts(),
-  ]);
-
-  const premiumPlan = products.find(
-    (product) => product.name === "Premium Subscription",
-  );
-  const premiumPrice = prices.find(
-    (price) => price.productId === premiumPlan?.id,
-  );
+  const variantId = process.env.LEMONSQUEEZY_PREMIUM_VARIANT_ID;
 
   return (
     <div className="min-h-screen bg-neutral-900 relative">
@@ -63,19 +56,14 @@ export default async function ProfilePage() {
                 </p>
                 <div className="space-y-3">
                   {profile.cancelled ? (
-                    <form action={subscribePremiumAction}>
-                      <input
-                        type="hidden"
-                        name="price_id"
-                        value={premiumPrice?.id}
-                      />
+                    <form action={resumeSubscriptionAction}>
                       <Button
                         type="submit"
                         variant="default"
                         size="lg"
                         className="w-full"
                       >
-                        Renew Subscription
+                        Resume Subscription
                       </Button>
                     </form>
                   ) : (
@@ -95,22 +83,16 @@ export default async function ProfilePage() {
               </div>
             ) : (
               <div>
-                {premiumPrice ? (
+                {variantId ? (
                   <form action={subscribePremiumAction}>
-                    <input
-                      type="hidden"
-                      name="price_id"
-                      value={premiumPrice.id}
-                    />
+                    <input type="hidden" name="variant_id" value={variantId} />
                     <Button
                       type="submit"
                       variant="default"
                       size="lg"
                       className="w-full"
                     >
-                      Subscribe to Premium - $
-                      {(premiumPrice.unitAmount || 0) / 100}/
-                      {premiumPrice.interval}
+                      Subscribe to Premium
                     </Button>
                   </form>
                 ) : (
