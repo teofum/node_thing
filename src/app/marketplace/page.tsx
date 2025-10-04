@@ -2,7 +2,8 @@ import { Button, LinkButton } from "@/ui/button";
 import { LuArrowLeft, LuSearch, LuShoppingCart } from "react-icons/lu";
 import { getShaders, getCategories } from "./actions";
 import { getCartItems } from "./cart/actions";
-import { RangeSliderInput } from "@/ui/rangeSlider";
+import { RangeSliderInput } from "@/ui/range-slider";
+import { SortMenubar } from "@/app/components/marketplace/sort-bar";
 import ShaderCard from "@/app/components/marketplace/shadercard";
 
 type Props = {
@@ -129,10 +130,10 @@ export default async function MarketplacePage({ searchParams }: Props) {
             <div className="mt-4">
               <RangeSliderInput
                 min={0}
-                max={100}
-                step={0.5}
+                max={99999}
+                step={1000}
                 defaultMin={Number(params.minPrice) || 0}
-                defaultMax={Number(params.maxPrice) || 100}
+                defaultMax={Number(params.maxPrice) || 99999}
                 nameMin="minPrice"
                 nameMax="maxPrice"
               />
@@ -180,6 +181,8 @@ export default async function MarketplacePage({ searchParams }: Props) {
               );
             })}
           </div>
+
+          <SortMenubar />
 
           {params.error ? (
             <div className="bg-red-900/20 border border-red-700 text-red-400 px-4 py-3 rounded mb-6">

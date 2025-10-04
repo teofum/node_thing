@@ -61,7 +61,7 @@ export const RangeSliderInput = React.forwardRef<
       if (index === 1 && newValues[1] < newValues[0])
         newValues[1] = newValues[0];
       setValues(newValues);
-      setInputTexts([newValues[0].toFixed(2), newValues[1].toFixed(2)]);
+      setInputTexts([newValues[0].toFixed(0), newValues[1].toFixed(0)]);
     };
 
     return (
@@ -94,7 +94,7 @@ export const RangeSliderInput = React.forwardRef<
           value={values}
           onValueChange={(newValues: number[]) => {
             setValues([newValues[0], newValues[1]] as [number, number]);
-            setInputTexts([newValues[0].toFixed(2), newValues[1].toFixed(2)]);
+            setInputTexts([newValues[0].toFixed(0), newValues[1].toFixed(0)]);
           }}
         >
           <Slider.Track className="relative h-[3px] grow rounded-full bg-neutral-800">
