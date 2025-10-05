@@ -1,4 +1,4 @@
-import { LuCircleCheckBig, LuHeart, LuPlus } from "react-icons/lu";
+import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 import { addToCart } from "../../marketplace/cart/actions";
 import { Button } from "@/ui/button";
 
@@ -6,7 +6,7 @@ type ShaderCardProps = {
   id: string;
   title: string;
   price: number;
-  likes: number;
+  downloads: number;
   inCart: boolean;
   username?: string;
   category: string;
@@ -17,7 +17,7 @@ export default function ShaderCard({
   id,
   title,
   price,
-  likes = 0,
+  downloads,
   inCart,
   username,
   category,
@@ -54,8 +54,8 @@ export default function ShaderCard({
 
       <div className="flex items-center justify-between mt-2">
         <div className="flex items-center gap-2">
-          <LuHeart className="w-6 h-6" />
-          <span className="text-white text-base">{likes}</span>
+          <LuDownload className="w-6 h-6" />
+          <span className="text-white text-base">{downloads}</span>
         </div>
         {inCart ? (
           <div className="p-4 text-base/5 font-semibold text-white rounded-lg">

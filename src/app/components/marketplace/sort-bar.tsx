@@ -9,6 +9,7 @@ import {
   LuCalendar,
   LuArrowUp,
   LuArrowDown,
+  LuDownload,
 } from "react-icons/lu";
 
 type SortMenubarProps = {
@@ -57,6 +58,12 @@ export function SortMenubar({ onChange }: SortMenubarProps) {
             <div className="flex items-center gap-2">
               <LuCalendar className="text-base" />
               <div className="font-semibold">Date</div>
+            </div>
+          </SelectItem>
+          <SelectItem value="downloads">
+            <div className="flex items-center gap-2">
+              <LuDownload className="text-base" />
+              <div className="font-semibold">Downloads</div>
             </div>
           </SelectItem>
         </Select>

@@ -49,6 +49,7 @@ export default async function UploadPage({
         code: "",
         category_id: 0,
         price: 0,
+        downloads: 0,
         node_config: {
           inputs: [{ name: "input", type: "color" }],
           outputs: [{ name: "output", type: "color" }],

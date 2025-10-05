@@ -50,6 +50,17 @@ export async function completePayment(orderId: string) {
     throw new Error(`Payment processing failed: ${error.message}`);
   }
 
+  const order = await getOrderDetails(orderId);
+
+  for (const item of order.order_items) {
+    if (item.shader?.id) {
+      await supabase
+        .from("shaders")
+        .update({ downloads: (item.shader.downloads ?? 0) + 1 })
+        .eq("id", item.shader.id);
+    }
+  }
+
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/cart");
 }
@@ -77,7 +88,8 @@ export async function getOrderDetails(orderId: string) {
         shader:shaders (
           id,
           title,
-          description
+          description,
+          downloads
         )
       )
     `,
