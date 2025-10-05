@@ -12,7 +12,7 @@ import {
   LuFolders,
   LuMedal,
 } from "react-icons/lu";
-import { saveProjectOnline } from "./actions";
+import { loadProjectOnline, saveProjectOnline } from "./actions";
 import Link from "next/link";
 import { Tables } from "@/lib/supabase/database.types";
 import { ManageProjects } from "./manage-projects";
@@ -26,10 +26,9 @@ export interface ProjectsMenuProps {
     is_premium: boolean | null;
   } | null;
   projects: Tables<"projects">[];
-  files: { name: string; blob: Blob }[];
 }
 
-export function ProjectsMenu({ userData, projects, files }: ProjectsMenuProps) {
+export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
   const [projectsManagerOpen, setProjectsManagerOpen] = useState(false);
 
   // caso sin login o sin premium
@@ -83,14 +82,12 @@ export function ProjectsMenu({ userData, projects, files }: ProjectsMenuProps) {
               key={currProject.id}
               icon={<LuCloudDownload />}
               onClick={async () => {
-                const fileData = files.find(
-                  (f) => f.name === currProject.user_project,
-                );
-                if (!fileData) {
-                  return;
-                }
+                const blob = await loadProjectOnline(currProject.user_project);
 
-                const file = new File([fileData.blob], fileData.name);
+                const file = new File([blob], currProject.user_project, {
+                  type: blob.type,
+                });
+
                 await zipImportProject(file);
               }}
             >
@@ -106,7 +103,6 @@ export function ProjectsMenu({ userData, projects, files }: ProjectsMenuProps) {
         open={projectsManagerOpen}
         onOpenChange={setProjectsManagerOpen}
         projects={projects}
-        files={files}
       />
     </>
   );

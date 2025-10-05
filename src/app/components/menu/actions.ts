@@ -40,7 +40,11 @@ export async function saveProjectOnline(blob: Blob) {
   }
 }
 
-export async function loadProjectOnline(userProjectPath: string) {
+export async function loadProjectOnline(user_project: string | null) {
+  if (user_project === null) {
+    throw new Error("User project name is null");
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -51,20 +55,15 @@ export async function loadProjectOnline(userProjectPath: string) {
   }
 
   // descargo zip del proyecto del bucket
-  const { data, error } = await supabase.storage
+  const { data: fileBlob, error: downloadError } = await supabase.storage
     .from("user_projects")
-    .download(userProjectPath);
+    .download(user_project);
 
-  if (error || data === null) {
-    throw new Error(`Failed to download project: ${error?.message}`);
+  if (downloadError || fileBlob === null) {
+    throw new Error(`Failed to download project: ${downloadError?.message}`);
   }
 
-  const arrayBuffer = await data.arrayBuffer();
-  const file = new File([arrayBuffer], "project.zip", {
-    type: "application/zip",
-  });
-
-  await zipImportProject(file);
+  return fileBlob;
 }
 
 export async function updateProjectName(projectId: string, newName: string) {

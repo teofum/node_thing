@@ -31,7 +31,6 @@ export default async function Home() {
 
   let projects: Tables<"projects">[] = [];
   let userData = null;
-  const files: { name: string; blob: Blob }[] = [];
 
   if (user) {
     const { data: data, error } = await supabase
@@ -53,16 +52,6 @@ export default async function Home() {
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false });
       projects = projectData ?? [];
-
-      for (const proj of projects) {
-        const { data: fileBlob, error: downloadError } = await supabase.storage
-          .from("user_projects")
-          .download(proj.user_project);
-
-        if (!fileBlob || downloadError) continue;
-
-        files.push({ name: proj.user_project, blob: fileBlob });
-      }
     }
   }
 
@@ -75,7 +64,7 @@ export default async function Home() {
         <Menubar className="mr-auto">
           <FileMenu />
           <LayerMenu />
-          <ProjectsMenu userData={userData} projects={projects} files={files} />
+          <ProjectsMenu userData={userData} projects={projects} />
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">

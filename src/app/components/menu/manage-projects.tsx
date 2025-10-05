@@ -5,14 +5,13 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 
-import { deleteProject, updateProjectName } from "./actions";
+import { deleteProject, loadProjectOnline, updateProjectName } from "./actions";
 import { Tables } from "@/lib/supabase/database.types";
 import { zipImportProject } from "@/utils/zip";
 
 type ManageProjectsProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
   projects: Tables<"projects">[];
-  files: { name: string; blob: Blob }[];
   open?: ComponentProps<typeof Dialog>["open"];
   onOpenChange?: ComponentProps<typeof Dialog>["onOpenChange"];
 };
@@ -20,7 +19,6 @@ type ManageProjectsProps = {
 export function ManageProjects({
   trigger,
   projects,
-  files,
   ...props
 }: ManageProjectsProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -69,14 +67,14 @@ export function ManageProjects({
                   icon
                   variant="ghost"
                   onClick={async () => {
-                    const fileData = files.find(
-                      (f) => f.name === currProject.user_project,
+                    const blob = await loadProjectOnline(
+                      currProject.user_project,
                     );
-                    if (!fileData) {
-                      return;
-                    }
 
-                    const file = new File([fileData.blob], fileData.name);
+                    const file = new File([blob], currProject.user_project, {
+                      type: blob.type,
+                    });
+
                     await zipImportProject(file);
                   }}
                 >
