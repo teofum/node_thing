@@ -54,10 +54,14 @@ export async function completePayment(orderId: string) {
 
   for (const item of order.order_items) {
     if (item.shader?.id) {
-      await supabase
-        .from("shaders")
-        .update({ downloads: (item.shader.downloads ?? 0) + 1 })
-        .eq("id", item.shader.id);
+      const { error } = await supabase.rpc("increment_shader_downloads", {
+        shader_id: item.shader.id,
+      });
+      if (error)
+        console.error(
+          "Failed to increment shader number of downloads",
+          error.message,
+        );
     }
   }
 

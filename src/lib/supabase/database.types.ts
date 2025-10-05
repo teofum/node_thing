@@ -353,6 +353,10 @@ export type Database = {
         Args: { username_param: string };
         Returns: string;
       };
+      increment_shader_downloads: {
+        Args: { shader_id: string };
+        Returns: void;
+      };
     };
     Enums: {
       [_ in never]: never;
