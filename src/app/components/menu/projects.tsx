@@ -14,11 +14,11 @@ import {
 } from "react-icons/lu";
 import { saveProjectOnline } from "./actions";
 import Link from "next/link";
-import { Project, useMainStore } from "@/store/main.store";
 import { Tables } from "@/lib/supabase/database.types";
 import { ManageProjects } from "./manage-projects";
 import cn from "classnames";
 import { zipExportProject, zipImportProject } from "@/utils/zip";
+import { useState } from "react";
 
 export interface ProjectsMenuProps {
   userData: {
@@ -30,8 +30,7 @@ export interface ProjectsMenuProps {
 }
 
 export function ProjectsMenu({ userData, projects, files }: ProjectsMenuProps) {
-  const importProject = useMainStore((s) => s.importProject);
-  const exportProject = useMainStore((s) => s.exportProject);
+  const [projectsManagerOpen, setProjectsManagerOpen] = useState(false);
 
   // caso sin login o sin premium
   if (!userData || !userData.is_premium) {
@@ -58,16 +57,12 @@ export function ProjectsMenu({ userData, projects, files }: ProjectsMenuProps) {
           Save Online
         </MenuItem>
 
-        <ManageProjects
-          trigger={
-            <button className={cn(menuItemClassNames, "w-full h-full")}>
-              <LuFolders />
-              Manage Projects
-            </button>
-          }
-          projects={projects}
-          files={files}
-        />
+        <MenuItem
+          icon={<LuFolders />}
+          onClick={() => setProjectsManagerOpen(true)}
+        >
+          Manage Projects
+        </MenuItem>
 
         <MenuSeparator />
         <div
@@ -106,6 +101,13 @@ export function ProjectsMenu({ userData, projects, files }: ProjectsMenuProps) {
           <MenuItem>No saved projects...</MenuItem>
         )}
       </Menu>
+      <ManageProjects
+        trigger={null}
+        open={projectsManagerOpen}
+        onOpenChange={setProjectsManagerOpen}
+        projects={projects}
+        files={files}
+      />
     </>
   );
 }

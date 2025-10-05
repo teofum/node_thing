@@ -7,22 +7,22 @@ import { Input } from "@/ui/input";
 
 import { deleteProject, updateProjectName } from "./actions";
 import { Tables } from "@/lib/supabase/database.types";
-import { Project, useMainStore } from "@/store/main.store";
 import { zipImportProject } from "@/utils/zip";
 
 type ManageProjectsProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
   projects: Tables<"projects">[];
   files: { name: string; blob: Blob }[];
+  open?: ComponentProps<typeof Dialog>["open"];
+  onOpenChange?: ComponentProps<typeof Dialog>["onOpenChange"];
 };
 
 export function ManageProjects({
   trigger,
   projects,
   files,
+  ...props
 }: ManageProjectsProps) {
-  const importProject = useMainStore((s) => s.importProject);
-
   const [editingId, setEditingId] = useState<string | null>(null);
   const [nameDraft, setNameDraft] = useState<string>("");
 
@@ -41,6 +41,7 @@ export function ManageProjects({
       title="Project Manager"
       description="Manage projects lol"
       className="w-3/5"
+      {...props}
     >
       <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
         <div className="font-semibold text-xl mb-4">Projects</div>
