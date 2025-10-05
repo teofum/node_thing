@@ -69,6 +69,37 @@ export async function getUserShaders() {
   return data ?? [];
 }
 
+export async function getPurchasedShaders() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  const { data: purchases, error: err1 } = await supabase
+    .from("purchases")
+    .select("shader_id")
+    .eq("user_id", user.id);
+
+  if (err1) throw err1;
+
+  const shaderIds = purchases.map((p) => p.shader_id);
+
+  const { data: shaders, error: err2 } = await supabase
+    .from("shaders")
+    .select(
+      "id, title, average_rating, category:categories(name), rating_count",
+    )
+    .in("id", shaderIds);
+
+  if (err2) throw err2;
+
+  return shaders ?? [];
+}
+
 export async function submitShaderReview(
   shaderId: string,
   rating: number,

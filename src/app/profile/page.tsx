@@ -1,15 +1,8 @@
 import { Button, LinkButton } from "@/ui/button";
-import {
-  LuArrowLeft,
-  LuCalendar,
-  LuMail,
-  LuMedal,
-  LuGem,
-  LuUser,
-} from "react-icons/lu";
+import { LuArrowLeft, LuCalendar, LuMail, LuGem, LuUser } from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
 import {
-  getUserShaders,
+  getPurchasedShaders,
   getUser,
   getUserData,
   getUserRatings,
@@ -17,9 +10,8 @@ import {
 import * as Tabs from "@radix-ui/react-tabs";
 import { IconType } from "react-icons/lib";
 import { forwardRef } from "react";
-import RatingEditor from "./rating-editor";
 import RatingCard from "./ratingcard";
-import { Tables } from "@/lib/supabase/database.types";
+import Image from "next/image";
 
 function parseDate(date: string) {
   const idx = date.indexOf("T");
@@ -100,7 +92,7 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
 UserShadersTab.displayName = "UserShadersTab";
 
 export default async function ProfilePage() {
-  const userShaders = await getUserShaders();
+  const userShaders = await getPurchasedShaders();
   const userRatings = await getUserRatings();
 
   const userData = await getUserData();
@@ -121,11 +113,6 @@ export default async function ProfilePage() {
       id: "email",
       icon: LuMail,
       text: `Email: ${user.email}`,
-    },
-    {
-      id: "premium",
-      icon: LuMedal, // o LuGem u otro
-      text: `Premium: ${userData.is_premium}`,
     },
   ];
 
@@ -148,10 +135,19 @@ export default async function ProfilePage() {
         <div className="p-6">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-10">
-              <div>
+              <div className="flex items-center gap-4">
+                <Image
+                  src={user.user_metadata.avatar_url}
+                  alt=""
+                  width={100}
+                  height={100}
+                  unoptimized
+                  className="rounded-full"
+                />
                 <h1 className="text-3xl font-bold text-white">
                   {userData.username}
                 </h1>
+                {userData.is_premium && <LuGem className="text-2xl" />}
               </div>
               <div className="flex gap-4">
                 <form action={signOutAction} className="inline">
