@@ -11,6 +11,26 @@ export function zip<T, U>(a: T[], b: U[]): [T, U][] {
   return a.map((el, i) => [el, b[i]]);
 }
 
+export async function zipImportProjectFromFile() {
+  // cargo archivo .zip
+  const file = await openFile(["application/zip"]);
+  if (!file) {
+    return;
+  }
+
+  zipImportProject(file);
+}
+
+export async function zipExportProjectFromFile() {
+  const file = await zipExportProject();
+
+  saveFile({
+    suggestedName: "project.zip",
+    types: [{ accept: { "application/zip": [".zip"] } }],
+    data: file,
+  });
+}
+
 export async function zipExportProject() {
   const project = useMainStore.getState().exportProject();
   const images = useAssetStore.getState().images;
@@ -33,16 +53,6 @@ export async function zipExportProject() {
   const blob = await zip.generateAsync({ type: "blob" });
 
   return blob;
-}
-
-export async function zipImportProjectFromFile() {
-  // cargo archivo .zip
-  const file = await openFile(["application/zip"]);
-  if (!file) {
-    return;
-  }
-
-  zipImportProject(file);
 }
 
 export async function zipImportProject(file: File) {

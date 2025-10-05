@@ -8,7 +8,11 @@ import { useUtilityStore } from "@/store/utility.store";
 import { saveImageToFile } from "@/utils/image";
 import { imageTypeSchema } from "@/schemas/asset.schema";
 import { ExportOptions } from "./export-options";
-import { zipExportProject, zipImportProjectFromFile } from "@/utils/zip";
+import {
+  zipExportProject,
+  zipExportProjectFromFile,
+  zipImportProjectFromFile,
+} from "@/utils/zip";
 import { saveFile } from "@/utils/file";
 
 export function FileMenu() {
@@ -32,16 +36,7 @@ export function FileMenu() {
   return (
     <>
       <Menu label="File" value="file">
-        <MenuItem
-          icon={<LuSave />}
-          onClick={async () =>
-            saveFile({
-              suggestedName: "project.zip",
-              types: [{ accept: { "application/zip": [".zip"] } }],
-              data: await zipExportProject(),
-            })
-          }
-        >
+        <MenuItem icon={<LuSave />} onClick={zipExportProjectFromFile}>
           Export project
         </MenuItem>
         <MenuItem icon={<LuFolderOpen />} onClick={zipImportProjectFromFile}>
