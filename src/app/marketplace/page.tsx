@@ -3,8 +3,7 @@ import { LuArrowLeft, LuSearch, LuShoppingCart } from "react-icons/lu";
 import { getShaders, getCategories } from "./actions";
 import { getCartItems } from "./cart/actions";
 import { RangeSliderInput } from "@/ui/range-slider";
-import { SortMenubar } from "@/app/components/marketplace/sort-bar";
-import ShaderCard from "@/app/components/marketplace/shadercard";
+import { ShaderListClient } from "@/app/components/marketplace/shaders-sort";
 
 type Props = {
   searchParams: Promise<{
@@ -182,8 +181,6 @@ export default async function MarketplacePage({ searchParams }: Props) {
             })}
           </div>
 
-          <SortMenubar />
-
           {params.error ? (
             <div className="bg-red-900/20 border border-red-700 text-red-400 px-4 py-3 rounded mb-6">
               {decodeURIComponent(params.error)}
@@ -201,21 +198,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredShaders.map((shader) => (
-                <ShaderCard
-                  key={shader.id}
-                  id={shader.id}
-                  title={shader.title}
-                  price={shader.price}
-                  likes={0}
-                  inCart={cartIds.has(shader.id)}
-                  username={shader.profiles?.username}
-                  category={shader.category.name}
-                  createdAt={shader.created_at}
-                />
-              ))}
-            </div>
+            <ShaderListClient shaders={filteredShaders} cartIds={cartIds} />
           )}
         </div>
       </div>

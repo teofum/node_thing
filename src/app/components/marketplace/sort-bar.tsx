@@ -11,16 +11,36 @@ import {
   LuArrowDown,
 } from "react-icons/lu";
 
-export function SortMenubar() {
+type SortMenubarProps = {
+  onChange: (sortBy: string, ascending: boolean) => void;
+};
+
+export function SortMenubar({ onChange }: SortMenubarProps) {
+  const [sortBy, setSortBy] = useState<string>("price");
   const [isUp, setIsUp] = useState(true);
+
   const handleClick = () => {
-    setIsUp(!isUp);
+    const updateIsUp = !isUp;
+    setIsUp(updateIsUp);
+    onChange(sortBy, updateIsUp);
   };
+
+  const handleSelect = (value: string) => {
+    setSortBy(value);
+    onChange(value, isUp);
+  };
+
   return (
     <div className="flex items-center gap-3 mb-6">
       <span className="text-sm text-neutral-400">Sort results by:</span>
       <div className="w-32">
-        <Select placeholder="None" variant="outline" size="md">
+        <Select
+          placeholder="None"
+          variant="outline"
+          size="md"
+          value={sortBy}
+          onValueChange={handleSelect}
+        >
           <SelectItem value="price">
             <div className="flex items-center gap-2">
               <LuDollarSign className="text-base" />
