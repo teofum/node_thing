@@ -1,5 +1,12 @@
 import { Button, LinkButton } from "@/ui/button";
-import { LuArrowLeft, LuCalendar, LuMail, LuGem, LuUser } from "react-icons/lu";
+import {
+  LuArrowLeft,
+  LuCalendar,
+  LuMail,
+  LuGem,
+  LuUser,
+  LuSquarePen,
+} from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
 import {
   getPurchasedShaders,
@@ -12,22 +19,36 @@ import { IconType } from "react-icons/lib";
 import { forwardRef } from "react";
 import RatingCard from "./ratingcard";
 import Image from "next/image";
+import AccountEditor from "./account-editor";
 
 function parseDate(date: string) {
   const idx = date.indexOf("T");
   return date.substring(0, idx);
 }
 
+export type UserData = {
+  username: string;
+  is_premium: boolean | null;
+};
+
 type AccountInfoLine = { id: string; icon: IconType; text: string };
 type AccountInfoProps = {
   lines: AccountInfoLine[];
+  userData: UserData;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const AccountInfoTab = forwardRef<HTMLDivElement, AccountInfoProps>(
-  ({ lines, className, ...props }, forwardedRef) => {
+  ({ lines, userData, className, ...props }, forwardedRef) => {
     return (
       <div className={className} {...props} ref={forwardedRef}>
-        <h2 className="text-xl font-semibold mb-4">Account Information</h2>
+        <div className="flex gap-3 items-center text-xl font-semibold mb-4">
+          <h2>Account Information</h2>
+          <AccountEditor
+            trigger={<LuSquarePen />}
+            title="Edit Account Information"
+            userData={userData}
+          />
+        </div>
         {lines.map(({ id, icon: Icon, text }) => (
           <div key={id} className="flex h gap-2 items-center">
             <Icon /> {text}
@@ -120,94 +141,78 @@ export default async function ProfilePage() {
     "flex h-[45px] hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-5 font-semibold text-[15px] leading-none outline-none first:rounded-tl-2xl last:rounded-tr-2xl data-[state=active]:shadow-[0_2px_0_0] data-[state=active]:shadow-teal-400 transition data-[state=active]:focus:relative";
 
   return (
-    <>
-      <div className="min-h-screen bg-neutral-900 relative">
-        <LinkButton
-          variant="ghost"
-          href="/"
-          size="md"
-          className="absolute top-4 left-4"
-        >
-          <LuArrowLeft />
-          Back
-        </LinkButton>
+    <div className="min-h-screen bg-neutral-900 relative">
+      <LinkButton
+        variant="ghost"
+        href="/"
+        size="md"
+        className="absolute top-4 left-4"
+      >
+        <LuArrowLeft />
+        Back
+      </LinkButton>
 
-        <div className="p-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="flex justify-between items-center mb-10">
-              <div className="flex items-center gap-4">
-                <Image
-                  src={user.user_metadata.avatar_url}
-                  alt=""
-                  width={100}
-                  height={100}
-                  unoptimized
-                  className="rounded-full"
-                />
-                <h1 className="text-3xl font-bold text-white">
-                  {userData.username}
-                </h1>
-                {userData.is_premium && <LuGem className="text-2xl" />}
-              </div>
-              <div className="flex gap-4">
-                <form action={signOutAction} className="inline">
-                  <Button type="submit" variant="outline">
-                    Logout
-                  </Button>
-                </form>
-              </div>
+      <div className="p-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-between items-center mb-10">
+            <div className="flex items-center gap-4">
+              <Image
+                src={user.user_metadata.avatar_url}
+                alt=""
+                width={100}
+                height={100}
+                unoptimized
+                className="rounded-full"
+              />
+              <h1 className="text-3xl font-bold text-white">
+                {userData.username}
+              </h1>
+              {userData.is_premium && <LuGem className="text-2xl" />}
             </div>
-
-            <Tabs.Root
-              className="flex flex-col shadow-[0_0_20px] shadow-black glass rounded-2xl"
-              defaultValue="tab1"
-            >
-              <Tabs.List className="flex shrink-0">
-                <Tabs.Trigger className={triggerStyle} value="tab1">
-                  Info
-                </Tabs.Trigger>
-                <Tabs.Trigger className={triggerStyle} value="tab2">
-                  Shaders
-                </Tabs.Trigger>
-                <Tabs.Trigger className={triggerStyle} value="tab3">
-                  Options
-                </Tabs.Trigger>
-              </Tabs.List>
-              <Tabs.Content
-                className="grow rounded-b-md p-5 outline-none"
-                value="tab1"
-              >
-                <AccountInfoTab
-                  className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
-                  lines={accountInfo}
-                />
-              </Tabs.Content>
-              <Tabs.Content
-                className="grow rounded-b-md p-5 outline-none"
-                value="tab2"
-              >
-                <UserShadersTab
-                  className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
-                  shaderList={userShaders}
-                  ratingsList={userRatings}
-                />
-              </Tabs.Content>
-              <Tabs.Content
-                className="grow rounded-b-md p-5 outline-none"
-                value="tab3"
-              >
-                <div className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3">
-                  <h2 className="text-xl font-semibold mb-4">
-                    Account Options
-                  </h2>
-                  <p>TODO</p>
-                  <p>Change password, etc</p>
-                </div>
-              </Tabs.Content>
-            </Tabs.Root>
+            <div className="flex gap-4">
+              <form action={signOutAction} className="inline">
+                <Button type="submit" variant="outline">
+                  Logout
+                </Button>
+              </form>
+            </div>
           </div>
+
+          <Tabs.Root
+            className="flex flex-col shadow-[0_0_20px] shadow-black glass rounded-2xl"
+            defaultValue="tab1"
+          >
+            <Tabs.List className="flex shrink-0">
+              <Tabs.Trigger className={triggerStyle} value="tab1">
+                Info
+              </Tabs.Trigger>
+              <Tabs.Trigger className={triggerStyle} value="tab2">
+                Shaders
+              </Tabs.Trigger>
+            </Tabs.List>
+            <Tabs.Content
+              className="grow rounded-b-md p-5 outline-none"
+              value="tab1"
+            >
+              <AccountInfoTab
+                className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+                lines={accountInfo}
+                userData={userData}
+              />
+            </Tabs.Content>
+            <Tabs.Content
+              className="grow rounded-b-md p-5 outline-none"
+              value="tab2"
+            >
+              <UserShadersTab
+                className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+                shaderList={userShaders}
+                ratingsList={userRatings}
+              />
+            </Tabs.Content>
+          </Tabs.Root>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -157,3 +157,25 @@ export async function getUserRatings() {
 }
 
 // TODO agregar eliminar ratings
+
+export async function setUsername(newUsername: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ username: newUsername })
+    .eq("id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to update username: ${error.message}`);
+  }
+
+  return data;
+}
