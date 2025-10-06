@@ -3,8 +3,9 @@ import {
   NodeData,
   NodePassBufferDescriptor,
   NodeType,
+  ShaderNode,
 } from "@/schemas/node.schema";
-import { Layer, ShaderNode } from "@/store/main.store";
+import { Layer } from "@/store/main.store";
 import { Edge } from "@xyflow/react";
 
 type Buffer = {
@@ -45,7 +46,7 @@ export class RenderPipeline {
   private buffers: Buffer[] = [];
   private queue: ShaderNode[] = [];
 
-  public static create(
+  public static tryCreate(
     layer: Pick<Layer, "nodes" | "edges">,
     nodeTypes: Record<string, NodeType>,
   ) {
@@ -55,6 +56,13 @@ export class RenderPipeline {
       console.warn((e as Error).message);
       return null;
     }
+  }
+
+  public static create(
+    layer: Pick<Layer, "nodes" | "edges">,
+    nodeTypes: Record<string, NodeType>,
+  ) {
+    return new RenderPipeline(layer, nodeTypes);
   }
 
   private constructor(
@@ -97,6 +105,10 @@ export class RenderPipeline {
     }
 
     this.bufferTypes = this.buffers.map((buf) => buf.type);
+
+    if (this.outputBuffer < 0) {
+      throw new Error("Output is disconnected");
+    }
   }
 
   private indexOfDependency(dependency: { input: string; buf: Buffer }) {

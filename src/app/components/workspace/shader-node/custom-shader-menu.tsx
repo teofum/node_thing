@@ -1,17 +1,18 @@
-import { useState } from "react";
 import { NodeProps } from "@xyflow/react";
+import { useState } from "react";
 import { LuEllipsisVertical, LuPencilLine, LuTrash2 } from "react-icons/lu";
 
-import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
-import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
+import { ShaderNode } from "@/schemas/node.schema";
+import { useMainStore } from "@/store/main.store";
 import { Button } from "@/ui/button";
+import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
 import { PromptDialog } from "@/ui/prompt-dialog";
 import { ShaderEditor } from "../shader-editor";
 
 export function CustomShaderMenu({
   data,
   mock,
-}: NodeProps<ShaderNodeType> & { mock?: boolean }) {
+}: NodeProps<ShaderNode> & { mock?: boolean }) {
   const nodeTypes = useMainStore((state) => state.nodeTypes);
   const deleteNodeType = useMainStore((state) => state.deleteNodeType);
 

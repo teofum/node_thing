@@ -2,7 +2,8 @@ import { NodeProps } from "@xyflow/react";
 import cn from "classnames";
 import { LuStar } from "react-icons/lu";
 
-import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
+import { ShaderNode as ShaderNodeType } from "@/schemas/node.schema";
+import { useMainStore } from "@/store/main.store";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { CustomShaderMenu } from "./custom-shader-menu";
 import { NodeInput } from "./node-input";
