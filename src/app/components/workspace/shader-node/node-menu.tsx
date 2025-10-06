@@ -1,7 +1,8 @@
 import { NodeProps } from "@xyflow/react";
 import { LuEllipsisVertical, LuTrash2 } from "react-icons/lu";
 
-import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
+import { ShaderNode } from "@/schemas/node.schema";
+import { useMainStore } from "@/store/main.store";
 import { Button } from "@/ui/button";
 import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
 
@@ -9,7 +10,7 @@ export function NodeMenu({
   id,
   data,
   mock,
-}: NodeProps<ShaderNodeType> & { mock?: boolean }) {
+}: NodeProps<ShaderNode> & { mock?: boolean }) {
   const remove = useMainStore((state) => state.removeNode);
 
   if (mock || data.type === "__output") return null;

@@ -4,7 +4,6 @@ import {
   applyNodeChanges,
   Connection,
   Edge,
-  Node,
   OnConnect,
   OnEdgesChange,
   OnNodesChange,
@@ -14,10 +13,9 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { getPurchasedShaders } from "@/app/marketplace/actions";
-import { NodeData, NodeType } from "@/schemas/node.schema";
+import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
-
-export type ShaderNode = Node<NodeData>;
+import { createNode } from "@/utils/node";
 
 export type Layer = {
   nodes: ShaderNode[];
@@ -410,36 +408,6 @@ function isConnectionValid(
     nodeTypes[sourceType].outputs[connection.sourceHandle ?? ""].type;
 
   return targetHandleType === sourceHandleType;
-}
-
-function createNode(
-  type: string,
-  position: { x: number; y: number },
-  nodeTypes: Record<string, NodeType>,
-  parameters: Record<string, { value: string | null }>,
-): ShaderNode {
-  return {
-    id: newNodeId(type),
-    type: "RenderShaderNode",
-    position,
-    data: {
-      type,
-      defaultValues: getDefaultValues(nodeTypes, type),
-      parameters,
-    },
-  };
-}
-
-function getDefaultValues(nodeTypes: Record<string, NodeType>, type: string) {
-  const defaultValues: NodeData["defaultValues"] = {};
-  for (const [key, input] of Object.entries(nodeTypes[type].inputs)) {
-    defaultValues[key] = input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
-  }
-  return defaultValues;
-}
-
-function newNodeId(type: string) {
-  return `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${nanoid()}`;
 }
 
 function modifyNode(

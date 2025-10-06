@@ -2,3 +2,4 @@ echo "Running typecheck..."
 tsc --noEmit
 
 pnpx lint-staged
+pnpm test
