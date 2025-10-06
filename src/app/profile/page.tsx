@@ -6,6 +6,9 @@ import {
   LuGem,
   LuUser,
   LuSquarePen,
+  LuCloudUpload,
+  LuGlobe,
+  LuSparkles,
 } from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
 import {
@@ -31,9 +34,9 @@ export type UserData = {
   is_premium: boolean | null;
 };
 
-type AccountInfoLine = { id: string; icon: IconType; text: string };
+type IconTextLine = { id: string; icon: IconType; text: string };
 type AccountInfoProps = {
-  lines: AccountInfoLine[];
+  lines: IconTextLine[];
   userData: UserData;
 } & React.HTMLAttributes<HTMLDivElement>;
 
@@ -112,6 +115,70 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
 );
 UserShadersTab.displayName = "UserShadersTab";
 
+type PremiumTabProps = {
+  userData: UserData;
+} & React.HTMLAttributes<HTMLDivElement>;
+
+const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
+  ({ userData, className, ...props }, forwardedRef) => {
+    const featureList: IconTextLine[] = [
+      {
+        id: "cloud",
+        icon: LuCloudUpload,
+        text: "Save your projects on the cloud",
+      },
+      {
+        id: "publish",
+        icon: LuGlobe,
+        text: "Publish and sell shaders on the marketplace",
+      },
+      {
+        id: "ai",
+        icon: LuSparkles,
+        text: "Generate shaders with AI (WIP)",
+      },
+    ];
+
+    return (
+      <div className={className} {...props} ref={forwardedRef}>
+        <div className="flex flex-col gap-4 items-center">
+          <h2 className="text-xl font-semibold">Premium Subscription</h2>
+          {userData.is_premium ? (
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex items-center gap-2">
+                <p>You are a premium user</p>
+                <LuGem />
+                <p>Thank you for your support!</p>
+              </div>
+              <p>
+                You can cancel your subscription at any time with the button
+                below.
+              </p>
+              <Button size="lg">Cancel Subscription</Button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-4">
+              <p>Gain access to exclusive features with the premium version!</p>
+              <div>
+                {featureList.map(({ id, icon: Icon, text }) => (
+                  <div className="flex items-center gap-2" key={id}>
+                    <Icon /> {text}
+                  </div>
+                ))}
+              </div>
+              <Button size="lg">
+                Get Started
+                <LuGem />
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  },
+);
+PremiumTab.displayName = "PremiumTab";
+
 export default async function ProfilePage() {
   const userShaders = await getPurchasedShaders();
   const userRatings = await getUserRatings();
@@ -119,7 +186,7 @@ export default async function ProfilePage() {
   const userData = await getUserData();
   const user = await getUser();
 
-  const accountInfo: AccountInfoLine[] = [
+  const accountInfo: IconTextLine[] = [
     {
       id: "username",
       icon: LuUser,
@@ -189,6 +256,9 @@ export default async function ProfilePage() {
               <Tabs.Trigger className={triggerStyle} value="tab2">
                 Shaders
               </Tabs.Trigger>
+              <Tabs.Trigger className={triggerStyle} value="tab3">
+                Premium
+              </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content
               className="grow rounded-b-md p-5 outline-none"
@@ -208,6 +278,15 @@ export default async function ProfilePage() {
                 className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
                 shaderList={userShaders}
                 ratingsList={userRatings}
+              />
+            </Tabs.Content>
+            <Tabs.Content
+              className="grow rounded-b-md p-5 outline-none"
+              value="tab3"
+            >
+              <PremiumTab
+                className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+                userData={userData}
               />
             </Tabs.Content>
           </Tabs.Root>
