@@ -2,7 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { createMPCheckout } from "@/lib/payments/mercadopago";
+import { getBaseUrl } from "@/lib/utils";
 
 export async function createOrderFromCart() {
   const supabase = await createClient();
@@ -29,29 +30,6 @@ export async function createOrderFromCart() {
   }
 
   return orderId;
-}
-
-export async function completePayment(orderId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/auth/login?next=/marketplace/checkout/${orderId}`);
-  }
-
-  const { error } = await supabase.rpc("finish_payment", {
-    order_uuid: orderId,
-    user_uuid: user.id,
-  });
-
-  if (error) {
-    throw new Error(`Payment processing failed: ${error.message}`);
-  }
-
-  revalidatePath("/marketplace");
-  revalidatePath("/marketplace/cart");
 }
 
 export async function getOrderDetails(orderId: string) {
@@ -95,9 +73,28 @@ export async function getOrderDetails(orderId: string) {
   return order;
 }
 
-export async function completePaymentAndRedirect(orderId: string) {
-  await completePayment(orderId);
-  redirect(`/marketplace/checkout/${orderId}/success`);
+export async function createMercadoPagoCheckout(orderId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/auth/login?next=/marketplace/checkout/${orderId}`);
+  }
+
+  const order = await getOrderDetails(orderId);
+  const baseUrl = await getBaseUrl();
+
+  await createMPCheckout({
+    orderId,
+    userId: user.id,
+    amount: order.total_amount,
+    title: `Shader Purchase - Order ${orderId}`,
+    successUrl: `${baseUrl}/marketplace/checkout/${orderId}/success`,
+    failureUrl: `${baseUrl}/marketplace/checkout/${orderId}?error=payment_failed`,
+    pendingUrl: `${baseUrl}/marketplace/checkout/${orderId}/pending`,
+  });
 }
 
 export async function createOrderAndRedirect() {

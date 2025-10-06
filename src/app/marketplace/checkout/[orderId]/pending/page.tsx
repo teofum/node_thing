@@ -6,7 +6,9 @@ type Props = {
   params: Promise<{ orderId: string }>;
 };
 
-export default async function SuccessPage({ params }: Props) {
+export const dynamic = "force-dynamic";
+
+export default async function PendingPage({ params }: Props) {
   const { orderId } = await params;
 
   const supabase = await createClient();
@@ -29,8 +31,8 @@ export default async function SuccessPage({ params }: Props) {
     redirect("/marketplace");
   }
 
-  if (order.status === "pending") {
-    redirect(`/marketplace/checkout/${orderId}/pending`);
+  if (order.status === "completed") {
+    redirect(`/marketplace/checkout/${orderId}/success`);
   }
 
   return (
@@ -38,10 +40,12 @@ export default async function SuccessPage({ params }: Props) {
       <div className="flex items-center justify-center min-h-screen p-6">
         <div className="max-w-md mx-auto text-center">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-white mb-2">Done!</h1>
-            <p className="text-neutral-400">
-              Your purchase has been completed.
-            </p>
+            <div className="mb-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Processing Payment...
+            </h1>
           </div>
 
           <div className="space-y-3">
@@ -49,7 +53,7 @@ export default async function SuccessPage({ params }: Props) {
               Buy more shaders
             </LinkButton>
             <LinkButton href="/" variant="outline" className="w-full">
-              Back to editor
+              Back to Editor
             </LinkButton>
           </div>
         </div>

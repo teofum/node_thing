@@ -2,6 +2,7 @@ import {
   subscribePremiumAction,
   cancelSubscriptionAction,
   resumeSubscriptionAction,
+  updatePayoutSettingsAction,
 } from "./actions";
 import { LinkButton } from "@/ui/button";
 import { Button } from "@/ui/button";
@@ -23,7 +24,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_premium, subscription_id, cancelled")
+    .select("is_premium, subscription_id, cancelled, mp_email, pending_balance")
     .eq("id", user.id)
     .single();
 
@@ -100,6 +101,52 @@ export default async function ProfilePage() {
                 )}
               </div>
             )}
+          </div>
+
+          <div className="glass glass-border p-6 rounded-2xl mt-6">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Payout Settings
+            </h2>
+            <p className="text-neutral-400 text-sm mb-4">
+              Configure your Mercado Pago email to receive payments from shader
+              sales
+            </p>
+
+            <form action={updatePayoutSettingsAction}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  Mercado Pago Email
+                </label>
+                <input
+                  type="email"
+                  name="mp_email"
+                  defaultValue={profile?.mp_email || ""}
+                  placeholder="tu@email.com"
+                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white focus:outline-none focus:border-neutral-500"
+                />
+              </div>
+
+              <div className="bg-neutral-800 rounded-lg p-4 mb-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-300">Pending earnings:</span>
+                  <span className="text-xl font-bold text-teal-400">
+                    ${(profile?.pending_balance || 0).toFixed(2)} ARS
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 mt-2">
+                  Paid weekly via Mercado Pago
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                variant="default"
+                size="lg"
+                className="w-full"
+              >
+                Save Payout Settings
+              </Button>
+            </form>
           </div>
         </div>
       </div>

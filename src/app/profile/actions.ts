@@ -31,7 +31,7 @@ export async function cancelSubscriptionAction() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect("/auth/login?next=/profile");
   }
 
   const { data: profile } = await supabase
@@ -62,7 +62,7 @@ export async function resumeSubscriptionAction() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect("/auth/login?next=/profile");
   }
 
   const { data: profile } = await supabase
@@ -84,6 +84,25 @@ export async function resumeSubscriptionAction() {
   await supabase
     .from("profiles")
     .update({ cancelled: false })
+    .eq("id", user.id);
+
+  redirect("/profile");
+}
+
+export async function updatePayoutSettingsAction(formData: FormData) {
+  const mpEmail = formData.get("mp_email") as string;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  await supabase
+    .from("profiles")
+    .update({ mp_email: mpEmail })
     .eq("id", user.id);
 
   redirect("/profile");
