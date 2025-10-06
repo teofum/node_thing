@@ -33,6 +33,7 @@ import fakeDownScalingShader from "@/shaders/fake-down-scaling.wgsl";
 import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
 import tonemapACESShader from "@/shaders/tone-map-aces.wgsl";
 import tonemapUncharted2Shader from "@/shaders/tone-map-uncharted2.wgsl";
+import heatmapShader from "@/shaders/heatmap.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -730,6 +731,24 @@ export const NODE_TYPES = {
         type: "number",
         max: 25,
         step: 1,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  heatmap: {
+    name: "Heatmap",
+    category: "Effects",
+    shader: heatmapShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
       },
     },
     outputs: {
