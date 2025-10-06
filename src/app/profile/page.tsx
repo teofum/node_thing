@@ -12,6 +12,7 @@ import {
 } from "react-icons/lu";
 import { signOutAction } from "../auth/actions";
 import {
+  getPublishedShaders,
   getPurchasedShaders,
   getUser,
   getUserData,
@@ -47,7 +48,11 @@ const AccountInfoTab = forwardRef<HTMLDivElement, AccountInfoProps>(
         <div className="flex gap-3 items-center text-xl font-semibold mb-4">
           <h2>Account Information</h2>
           <AccountEditor
-            trigger={<LuSquarePen />}
+            trigger={
+              <div className="cursor-pointer hover:bg-white/15 transition duration-80 rounded scale-150">
+                <LuSquarePen className="scale-66" />
+              </div>
+            }
             title="Edit Account Information"
             userData={userData}
           />
@@ -83,32 +88,70 @@ export type UserRatingsDisplay = {
 
 type ShadersTabProps = {
   shaderList: UserShaderDisplay[];
+  publishList: UserShaderDisplay[];
   ratingsList: UserRatingsDisplay[];
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
-  ({ shaderList, ratingsList, className, ...props }, forwardedRef) => {
+  (
+    { shaderList, publishList, ratingsList, className, ...props },
+    forwardedRef,
+  ) => {
+    const purchasedCards =
+      shaderList.length > 0 ? (
+        shaderList.map((shader) => (
+          <RatingCard
+            key={shader.id}
+            id={shader.id}
+            title={shader.title}
+            category={shader.category.name}
+            average_rating={shader.average_rating}
+            userRating={
+              ratingsList.find((r) => r.shader_id === shader.id) ?? null
+            }
+            ratingCount={shader?.rating_count ?? 0}
+            trigger={<Button variant="outline">test</Button>}
+          />
+        ))
+      ) : (
+        <p className="text-white/40">
+          {"You haven't purchased any shaders yet"}
+        </p>
+      );
+
+    const publishedCards =
+      publishList.length > 0 ? (
+        publishList.map((shader) => (
+          <RatingCard
+            key={shader.id}
+            id={shader.id}
+            title={shader.title}
+            category={shader.category.name}
+            average_rating={shader.average_rating}
+            userRating={
+              ratingsList.find((r) => r.shader_id === shader.id) ?? null
+            }
+            ratingCount={shader?.rating_count ?? 0}
+            trigger={null}
+          />
+        ))
+      ) : (
+        <p className="text-white/40">
+          {"You haven't published any shaders yet"}
+        </p>
+      );
+
     return (
       <div className={className} {...props} ref={forwardedRef}>
         <h2 className="text-xl font-semibold mb-4">Purchased Shaders</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {shaderList.map((shader) => (
-            <RatingCard
-              key={shader.id}
-              id={shader.id}
-              title={shader.title}
-              category={shader.category.name}
-              average_rating={shader.average_rating}
-              userRating={
-                ratingsList.find((r) => r.shader_id === shader.id) ?? null
-              }
-              ratingCount={shader?.rating_count ?? 0}
-              trigger={<Button variant="outline">test</Button>}
-            />
-          ))}
+          {purchasedCards}
         </div>
+
         <h2 className="text-xl font-semibold mb-4 mt-8">Published Shaders</h2>
-        TODO
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {publishedCards}
+        </div>
       </div>
     );
   },
@@ -180,7 +223,8 @@ const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
 PremiumTab.displayName = "PremiumTab";
 
 export default async function ProfilePage() {
-  const userShaders = await getPurchasedShaders();
+  const purchasedShaders = await getPurchasedShaders();
+  const publishedShaders = await getPublishedShaders();
   const userRatings = await getUserRatings();
 
   const userData = await getUserData();
@@ -276,7 +320,8 @@ export default async function ProfilePage() {
             >
               <UserShadersTab
                 className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
-                shaderList={userShaders}
+                shaderList={purchasedShaders}
+                publishList={publishedShaders}
                 ratingsList={userRatings}
               />
             </Tabs.Content>

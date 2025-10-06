@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { PostgrestError } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 
 export async function getUser() {
@@ -39,7 +40,7 @@ export async function getUserData() {
   return data;
 }
 
-export async function getUserShaders() {
+export async function getPublishedShaders() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -60,10 +61,11 @@ export async function getUserShaders() {
       rating_count
       `,
     )
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .eq("published", true);
 
   if (error) {
-    throw new Error(`Failed to load user shaders: ${error.message}`);
+    throw new Error(`Failed to load published shaders: ${error.message}`);
   }
 
   return data ?? [];
@@ -79,12 +81,16 @@ export async function getPurchasedShaders() {
     redirect("/auth/login?next=/profile");
   }
 
+  const errorMessage = (err: PostgrestError) => {
+    return `Failed to load purchased shaders: ${err.message}`;
+  };
+
   const { data: purchases, error: err1 } = await supabase
     .from("purchases")
     .select("shader_id")
     .eq("user_id", user.id);
 
-  if (err1) throw err1;
+  if (err1) throw new Error(errorMessage(err1));
 
   const shaderIds = purchases.map((p) => p.shader_id);
 
@@ -95,7 +101,7 @@ export async function getPurchasedShaders() {
     )
     .in("id", shaderIds);
 
-  if (err2) throw err2;
+  if (err2) throw new Error(errorMessage(err2));
 
   return shaders ?? [];
 }
