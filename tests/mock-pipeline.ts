@@ -1,52 +1,45 @@
+import { ShaderNode } from "@/schemas/node.schema";
 import { createNode } from "@/utils/node";
 import { NODE_TYPES } from "@/utils/node-type";
+import { Edge } from "@xyflow/react";
 
-export function getNodesAndEdgesForTesting() {
+export function getNodesForTesting() {
   const output = createNode("__output", { x: 0, y: 0 }, NODE_TYPES, {});
   const mix = createNode("mix", { x: 0, y: 0 }, NODE_TYPES, {});
   const gray = createNode("grayscale", { x: 0, y: 0 }, NODE_TYPES, {});
+  const threshold = createNode("threshold", { x: 0, y: 0 }, NODE_TYPES, {});
   const input = createNode("__input_image", { x: 0, y: 0 }, NODE_TYPES, {});
-
-  const mixToOutput = {
-    id: "edge_1",
-    source: mix.id,
-    sourceHandle: "output",
-    target: output.id,
-    targetHandle: "color",
-  };
-
-  const grayToMixA = {
-    id: "edge_2",
-    source: gray.id,
-    sourceHandle: "output",
-    target: mix.id,
-    targetHandle: "input_a",
-  };
-
-  const inputToOutput = {
-    id: "edge_3",
-    source: input.id,
-    sourceHandle: "color",
-    target: output.id,
-    targetHandle: "color",
-  };
-
-  const mixToGray = {
-    id: "edge_4",
-    source: mix.id,
-    sourceHandle: "output",
-    target: gray.id,
-    targetHandle: "input",
-  };
 
   return {
     output,
     mix,
     gray,
+    threshold,
     input,
-    mixToOutput,
-    grayToMixA,
-    inputToOutput,
-    mixToGray,
+  };
+}
+
+export function edge<
+  S extends keyof typeof NODE_TYPES,
+  T extends keyof typeof NODE_TYPES,
+>(
+  source: ShaderNode & { data: { type: S } },
+  target: ShaderNode & { data: { type: T } },
+) {
+  return {
+    with: (
+      output: keyof (typeof NODE_TYPES)[(typeof source)["data"]["type"]]["outputs"] &
+        string,
+      input: keyof (typeof NODE_TYPES)[(typeof target)["data"]["type"]]["inputs"] &
+        string,
+    ) => {
+      return {
+        id: "__test__",
+        source: source.id,
+        target: target.id,
+        sourceHandle: output,
+        targetHandle: input,
+      } satisfies Edge;
+    },
   };
 }

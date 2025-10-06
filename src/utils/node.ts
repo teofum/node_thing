@@ -2,12 +2,17 @@ import { nanoid } from "nanoid";
 
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 
-export function createNode<T extends Record<string, NodeType>>(
-  type: keyof T & string,
+export function createNode<
+  N extends Record<string, NodeType>,
+  T extends keyof N & string,
+>(
+  type: T,
   position: { x: number; y: number },
-  nodeTypes: T,
+  nodeTypes: N,
   parameters: Record<string, { value: string | null }>,
-): ShaderNode {
+): Omit<ShaderNode, "data"> & {
+  data: Omit<ShaderNode["data"], "type"> & { type: T };
+} {
   return {
     id: newNodeId(type),
     type: "RenderShaderNode",

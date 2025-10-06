@@ -134,7 +134,6 @@ export class RenderPipeline {
 
     const connectedIds = new Set<string>();
     while (queue.length > 0) {
-      // We just asserted the array has items, unshift will never return undefined
       const node = queue.shift() as ShaderNode;
       const nodeType = this.nodeTypes[node.data.type];
 
@@ -149,7 +148,11 @@ export class RenderPipeline {
           )
           .forEach((edge) => {
             const outputNode = this.nodes.find((n) => n.id === edge.source);
-            if (outputNode && !queue.includes(outputNode)) {
+            if (
+              outputNode &&
+              !queue.includes(outputNode) &&
+              !connectedIds.has(outputNode.id)
+            ) {
               queue.push(outputNode);
             }
           });
