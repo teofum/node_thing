@@ -22,7 +22,7 @@ fn heatVisionGradient(luma: f32) -> vec3<f32> {
 
 fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let luma_vector = vec3<f32>(0.299, 0.587, 0.114);
-    let luma = dot(raw_input[index].rgb, luma_vector);
+    let luma = dot(input.rgb, luma_vector);
 
     output[index] = heatVisionGradient(luma);
 }

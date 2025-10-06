@@ -34,6 +34,7 @@ import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
 import tonemapACESShader from "@/shaders/tone-map-aces.wgsl";
 import tonemapUncharted2Shader from "@/shaders/tone-map-uncharted2.wgsl";
 import heatmapShader from "@/shaders/heatmap.wgsl";
+import multiStepMixShader from "@/shaders/multiStepMix.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -748,6 +749,44 @@ export const NODE_TYPES = {
     inputs: {
       input: {
         name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  multiStepMix: {
+    name: "Multi step Mix",
+    category: "Effects",
+    shader: multiStepMixShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      color1: {
+        name: "color1",
+        type: "color",
+      },
+      color2: {
+        name: "color2",
+        type: "color",
+      },
+      color3: {
+        name: "color3",
+        type: "color",
+      },
+      color4: {
+        name: "color4",
+        type: "color",
+      },
+      color5: {
+        name: "color5",
         type: "color",
       },
     },
