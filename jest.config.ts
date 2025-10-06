@@ -12,6 +12,9 @@ const config: Config = {
     "^@/(.*)$": "<rootDir>/$1",
   },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  transform: {
+    "\\.wgsl$": "@glen/jest-raw-loader",
+  },
 };
 
 export default createJestConfig(config);
