@@ -13,6 +13,11 @@ type AccountEditorProps = {
   userData: UserData;
 };
 
+function isValidUsername(name: string) {
+  return name.length > 0;
+  //TODO: Agregar cualquier restriccion que necesite la DB
+}
+
 export default function AccountEditor({
   trigger,
   title,
@@ -32,18 +37,19 @@ export default function AccountEditor({
           defaultValue={userData.username}
         />
         <div className="mt-auto flex justify-end gap-2">
-          <DialogClose asChild>
-            <Button
-              onClick={() => {
-                if (usernameRef.current) {
-                  setUsername(usernameRef.current.value);
-                  window.location.reload();
-                }
-              }}
-            >
-              Apply
-            </Button>
-          </DialogClose>
+          <Button
+            onClick={() => {
+              if (
+                usernameRef.current &&
+                isValidUsername(usernameRef.current.value)
+              ) {
+                setUsername(usernameRef.current.value);
+                window.location.reload();
+              }
+            }}
+          >
+            Apply
+          </Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
