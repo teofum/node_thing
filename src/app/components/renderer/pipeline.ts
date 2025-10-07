@@ -1,5 +1,12 @@
-import { HandleType, NodeData, NodeType } from "@/schemas/node.schema";
-import { Layer, ShaderNode } from "@/store/main.store";
+import {
+  HandleType,
+  NodeData,
+  NodePassBufferDescriptor,
+  NodeType,
+  ShaderNode,
+} from "@/schemas/node.schema";
+import { Layer } from "@/store/main.store";
+import { Edge } from "@xyflow/react";
 
 type Buffer = {
   idx: number;
@@ -19,191 +26,210 @@ type Input = {
 
 export type RenderPass = {
   nodeType: NodeData["type"];
+  shader: string;
   inputBindings: Record<string, number | null>;
   outputBindings: Record<string, number>;
   defaultInputValues: Record<string, number | number[]>;
 };
 
-export type RenderPipeline = {
-  passes: RenderPass[];
-  inputs: Input[];
-  outputBuffer: number;
-  outputAlphaBuffer: number;
-  bufferTypes: HandleType[];
-};
+const MAX_ITERATIONS = 1000;
+export class RenderPipeline {
+  passes: RenderPass[] = [];
+  inputs: Input[] = [];
+  bufferTypes: HandleType[] = [];
+  outputBuffer = -1;
+  outputAlphaBuffer = -1;
 
-export function buildRenderPipeline(
-  { nodes, edges }: Layer,
-  nodeTypes: Record<string, NodeType>,
-): RenderPipeline | null {
-  const queue: ShaderNode[] = [];
-  const buffers: Buffer[] = [];
-  const passes: RenderPass[] = [];
-  const inputs: Input[] = [];
-  let outputBuffer = -1;
-  let outputAlphaBuffer = -1;
+  private nodes: ShaderNode[] = [];
+  private edges: Edge[] = [];
+  private nodeTypes: Record<string, NodeType>;
+  private buffers: Buffer[] = [];
+  private queue: ShaderNode[] = [];
 
-  /*
-   * Find outputs for pre-process culling step
-   */
-  const outputs = nodes.filter((node) => node.data.type === "__output");
-
-  // If there are no outputs, do nothing!
-  if (outputs.length === 0) return null;
-
-  if (outputs.length > 1) console.warn("More than one output in render graph!");
-  const output = outputs[0]; // There shouldn't be multiple outputs per graph!
-
-  /*
-   * Graph culling: start from the output and work backwards, tagging all
-   * connected nodes. This ensures any disconnected nodes or dead ends are
-   * ignored when we traverse the graph later.
-   */
-  queue.push(output);
-
-  const connectedIds = new Set<string>();
-  while (queue.length > 0) {
-    // We just asserted the array has items, unshift will never return undefined
-    const node = queue.shift() as ShaderNode;
-    const nodeType = nodeTypes[node.data.type];
-
-    // // Detect loops
-    // if (connectedIds.has(node.id)) {
-    //   console.error("loop detected in shader graph");
-    //   return null;
-    // }
-
-    // Tag the node as connected to output
-    connectedIds.add(node.id);
-
-    // Enqueue any inputs that aren't already in queue
-    for (const input of Object.keys(nodeType.inputs)) {
-      edges
-        .filter(
-          (edge) => edge.target === node.id && edge.targetHandle === input,
-        )
-        .forEach((edge) => {
-          const outputNode = nodes.find((n) => n.id === edge.source);
-          if (outputNode && !queue.includes(outputNode)) {
-            queue.push(outputNode);
-          }
-        });
+  public static tryCreate(
+    layer: Pick<Layer, "nodes" | "edges">,
+    nodeTypes: Record<string, NodeType>,
+  ) {
+    try {
+      return new RenderPipeline(layer, nodeTypes);
+    } catch (e: unknown) {
+      console.warn((e as Error).message);
+      return null;
     }
   }
 
-  // Clear the queue
-  queue.splice(0);
+  public static create(
+    layer: Pick<Layer, "nodes" | "edges">,
+    nodeTypes: Record<string, NodeType>,
+  ) {
+    return new RenderPipeline(layer, nodeTypes);
+  }
 
-  // Cull the nodes array, removing all nodes not connected to the output
-  nodes = nodes.filter((node) => connectedIds.has(node.id));
+  private constructor(
+    { nodes, edges }: Pick<Layer, "nodes" | "edges">,
+    nodeTypes: Record<string, NodeType>,
+  ) {
+    this.nodes = nodes;
+    this.edges = edges;
+    this.nodeTypes = nodeTypes;
 
-  /*
-   * Find the root nodes we're starting from.
-   * A node is a root if it has no inputs, or if all of its inputs are static
-   * (main input, aux image input)
-   */
-  const roots = nodes.filter((node) => {
-    const inputs = edges.filter((edge) => edge.target === node.id);
-    return inputs.length === 0;
-  });
+    this.findConnectedNodes();
 
-  queue.push(...roots);
+    const roots = this.findRoots();
+    this.queue.push(...roots);
 
-  /*
-   * Helper function.
-   * Get a buffer of the right type suitable for writing, or create one if there are none.
-   */
-  const findOrCreateBuffer = (type: Buffer["type"], used: Buffer["idx"][]) => {
-    let freeBuffer = buffers.find(
-      (buf) =>
-        buf.type === type && buf.users.length === 0 && !used.includes(buf.idx),
-    );
-    if (!freeBuffer) {
-      freeBuffer = { idx: buffers.length, users: [], type };
-      buffers.push(freeBuffer);
+    let i = 0;
+    while (this.queue.length > 0) {
+      if (i++ > MAX_ITERATIONS) throw new Error("max iteration count exceeded");
+
+      // We just asserted the array has items, unshift will never return undefined
+      const node = this.queue.shift() as ShaderNode;
+
+      const { dependencies, hasUnresolved } = this.findDependencies(node);
+      if (hasUnresolved) {
+        this.queue.push(node);
+        continue;
+      }
+
+      if (isOutput(node)) {
+        this.outputBuffer = this.indexOfDependency(dependencies[0]);
+        this.outputAlphaBuffer = this.indexOfDependency(dependencies[1]);
+        break;
+      } else if (isInput(node)) {
+        const input = createInput(node, this.getOutputBindings(node));
+        this.inputs.push(input);
+      } else {
+        const passes = this.buildRenderPasses(node, dependencies);
+        this.passes.push(...passes);
+      }
     }
 
-    return freeBuffer;
-  };
+    this.bufferTypes = this.buffers.map((buf) => buf.type);
 
-  /*
-   * Explore the graph in order
-   */
-  let i = 0;
-  while (queue.length > 0) {
-    if (i++ > 1000) {
-      console.error("max iteration count exceeded");
-      return null;
+    if (this.outputBuffer < 0) {
+      throw new Error("Output is disconnected");
+    }
+  }
+
+  private indexOfDependency(dependency: { input: string; buf: Buffer }) {
+    return dependency ? this.buffers.indexOf(dependency.buf) : -1;
+  }
+
+  private findOutputNode() {
+    const outputs = this.nodes.filter(isOutput);
+
+    // If there are no outputs, do nothing!
+    if (outputs.length === 0) return null;
+
+    if (outputs.length > 1)
+      console.warn("More than one output in render graph!");
+    return outputs[0]; // There shouldn't be multiple outputs per graph!
+  }
+
+  private findConnectedNodes() {
+    const output = this.findOutputNode();
+    if (!output) throw new Error("No output node");
+
+    const queue: ShaderNode[] = [output];
+
+    const connectedIds = new Set<string>();
+    while (queue.length > 0) {
+      const node = queue.shift() as ShaderNode;
+      const nodeType = this.nodeTypes[node.data.type];
+
+      // Tag the node as connected to output
+      connectedIds.add(node.id);
+
+      // Enqueue any inputs that aren't already in queue
+      for (const input of Object.keys(nodeType.inputs)) {
+        this.edges
+          .filter(
+            (edge) => edge.target === node.id && edge.targetHandle === input,
+          )
+          .forEach((edge) => {
+            const outputNode = this.nodes.find((n) => n.id === edge.source);
+            if (
+              outputNode &&
+              !queue.includes(outputNode) &&
+              !connectedIds.has(outputNode.id)
+            ) {
+              queue.push(outputNode);
+            }
+          });
+      }
     }
 
-    // We just asserted the array has items, unshift will never return undefined
-    const node = queue.shift() as ShaderNode;
-    const nodeType = nodeTypes[node.data.type];
+    // Cull the nodes array, removing all nodes not connected to the output
+    this.nodes = this.nodes.filter((node) => connectedIds.has(node.id));
+  }
 
-    /*
-     * Get a list of dependencies
-     */
+  private findRoots() {
+    return this.nodes.filter((node) => {
+      const inputs = this.edges.filter((edge) => edge.target === node.id);
+      return inputs.length === 0;
+    });
+  }
+
+  private findDependencies(node: ShaderNode) {
+    const nodeType = this.nodeTypes[node.data.type];
+
     const deps = Object.keys(nodeType.inputs)
       .filter((input) =>
-        edges.some(
+        this.edges.some(
           (edge) => edge.target === node.id && edge.targetHandle === input,
         ),
       )
       .map((input) => ({
         input,
-        buf: buffers.find((buf) =>
+        buf: this.buffers.find((buf) =>
           buf.users.some((u) => u.input === input && u.nodeId === node.id),
         ),
       }));
 
-    /*
-     * If there are unresolved dependencies, push the node to the end of the
-     * queue and skip it for now
-     */
-    const hasUnresolvedDeps = deps.some((d) => d.buf === undefined);
-    if (hasUnresolvedDeps) {
-      queue.push(node);
-      continue;
-    }
+    const hasUnresolved = deps.some((d) => d.buf === undefined);
     const dependencies = deps as { input: string; buf: Buffer }[];
 
-    if (node.data.type === "__output") {
-      outputBuffer = dependencies[0]
-        ? buffers.indexOf(dependencies[0].buf)
-        : -1;
-      outputAlphaBuffer = dependencies[1]
-        ? buffers.indexOf(dependencies[1].buf)
-        : -1;
-      break;
+    return { dependencies, hasUnresolved };
+  }
+
+  private findOrCreateBuffer(type: Buffer["type"], used: Buffer["idx"][]) {
+    let freeBuffer = this.buffers.find(
+      (buf) =>
+        buf.type === type && buf.users.length === 0 && !used.includes(buf.idx),
+    );
+    if (!freeBuffer) {
+      freeBuffer = { idx: this.buffers.length, users: [], type };
+      this.buffers.push(freeBuffer);
     }
 
-    /*
-     * Build render pass for this node
-     */
-    const pass: RenderPass = {
-      nodeType: node.data.type,
-      inputBindings: {},
-      outputBindings: {},
-      defaultInputValues: node.data.defaultValues,
-    };
+    return freeBuffer;
+  }
 
-    // Add input bindings
+  private getInputBindings(
+    node: ShaderNode,
+    dependencies: { input: string; buf: Buffer }[],
+  ) {
+    const nodeType = this.nodeTypes[node.data.type];
+    const inputBindings: Record<string, number | null> = {};
+
     for (const input of Object.keys(nodeType.inputs)) {
-      pass.inputBindings[input] =
+      inputBindings[input] =
         dependencies.find((dep) => dep.input === input)?.buf.idx ?? null;
     }
 
-    /*
-     * Assign a buffer to each output, making sure not to reuse buffers.
-     * This may allocate more buffers than actually necessary for nodes with
-     * multiple unused outputs. Too bad! Limitation of WebGPU's bindful API.
-     */
+    return inputBindings;
+  }
+
+  private getOutputBindings(node: ShaderNode) {
+    const nodeType = this.nodeTypes[node.data.type];
     const buffersUsed: Buffer["idx"][] = [];
+    const outputBindings: RenderPass["outputBindings"] = {};
+
     for (const [outputKey, output] of Object.entries(nodeType.outputs)) {
-      const buf = findOrCreateBuffer(output.type, buffersUsed);
+      const buf = this.findOrCreateBuffer(output.type, buffersUsed);
       buffersUsed.push(buf.idx);
 
-      edges
+      this.edges
         .filter(
           (edge) => edge.source === node.id && edge.sourceHandle === outputKey,
         )
@@ -215,44 +241,98 @@ export function buildRenderPipeline(
           });
 
           // Queue the connected node if it's not queued already
-          const inputNode = nodes.find((n) => n.id === edge.target);
-          if (inputNode && !queue.includes(inputNode)) {
-            queue.push(inputNode);
+          const inputNode = this.nodes.find((n) => n.id === edge.target);
+          if (inputNode && !this.queue.includes(inputNode)) {
+            this.queue.push(inputNode);
           }
         });
 
       // Add render pass output bindings
-      pass.outputBindings[outputKey] = buf.idx;
+      outputBindings[outputKey] = buf.idx;
     }
 
-    /*
-     * Unlink this node from all buffers it depends on
-     */
-    for (const dep of dependencies) {
-      dep.buf.users = dep.buf.users.filter((user) => user.nodeId !== node.id);
-    }
-
-    /*
-     * Add the render pass to the list
-     * If it's an input, add it to the input list instead
-     */
-    if (node.data.type.startsWith("__input")) {
-      inputs.push({
-        nodeId: node.id,
-        type: node.data.type,
-        image: node.data.parameters.image?.value ?? null,
-        outputBindings: pass.outputBindings,
-      });
-    } else {
-      passes.push(pass);
-    }
+    return outputBindings;
   }
 
+  private getPassOutputBindings(buffers: NodePassBufferDescriptor[]) {
+    const buffersUsed: Buffer["idx"][] = [];
+    const outputBindings: RenderPass["outputBindings"] = {};
+
+    for (const buffer of buffers) {
+      const buf = this.findOrCreateBuffer(buffer.type, buffersUsed);
+      buffersUsed.push(buf.idx);
+
+      outputBindings[buffer.name] = buf.idx;
+    }
+
+    return outputBindings;
+  }
+
+  private buildRenderPasses(
+    node: ShaderNode,
+    dependencies: { input: string; buf: Buffer }[],
+  ) {
+    const nodeType = this.nodeTypes[node.data.type];
+    const inputBindings = this.getInputBindings(node, dependencies);
+    const outputBindings = this.getOutputBindings(node);
+
+    const additionalPasses = nodeType.additionalPasses ?? [];
+
+    const basePass: RenderPass = {
+      nodeType: node.data.type,
+      shader: "main",
+      inputBindings,
+      outputBindings: additionalPasses.length
+        ? this.getPassOutputBindings(additionalPasses[0].buffers)
+        : outputBindings,
+      defaultInputValues: node.data.defaultValues,
+    };
+
+    const passes = [basePass];
+    for (let i = 0; i < additionalPasses.length; i++) {
+      const lastPassOutputBindings = passes.at(-1)!.outputBindings;
+      const thisPassOutputBindings =
+        i < additionalPasses.length - 1
+          ? this.getPassOutputBindings(additionalPasses[i + 1].buffers)
+          : outputBindings;
+
+      passes.push({
+        nodeType: node.data.type,
+        shader: `pass_${i}`,
+        inputBindings: lastPassOutputBindings,
+        outputBindings: thisPassOutputBindings,
+        defaultInputValues: {},
+      });
+    }
+
+    unlinkDependencies(dependencies, node);
+
+    return passes;
+  }
+}
+
+function unlinkDependencies(
+  dependencies: { input: string; buf: Buffer }[],
+  node: ShaderNode,
+) {
+  for (const dep of dependencies) {
+    dep.buf.users = dep.buf.users.filter((user) => user.nodeId !== node.id);
+  }
+}
+
+function isInput(node: ShaderNode) {
+  return node.data.type.startsWith("__input");
+}
+
+function isOutput(node: ShaderNode) {
+  return node.data.type === "__output";
+}
+
+function createInput(node: ShaderNode, outputBindings: Record<string, number>) {
   return {
-    passes,
-    inputs,
-    outputBuffer,
-    outputAlphaBuffer,
-    bufferTypes: buffers.map((buf) => buf.type),
+    nodeId: node.id,
+    type: node.data.type,
+    image: node.data.parameters.image?.value ?? null,
+    outputBindings,
   };
 }

@@ -15,17 +15,19 @@ export function Dialog({
   trigger,
   title,
   description,
+  open,
+  onOpenChange,
   ...props
 }: DialogProps) {
   return (
-    <D.Root {...props}>
+    <D.Root {...{ open, onOpenChange }}>
       <D.Trigger asChild>{trigger}</D.Trigger>
       <D.Portal>
         <D.Overlay className="fixed inset-0 bg-neutral-700/10 animate-[dialogOverlay_500ms_ease-out_forwards]" />
         <D.Content
           className={cn(
             "fixed top-1/2 left-1/2 -translate-1/2 min-w-md min-h-80 max-w-[calc(100vw-10rem)] max-h-[calc(100vh-10rem)]",
-            "glass glass-border rounded-2xl flex flex-col outline-none",
+            "glass glass-border !bg-black/70 rounded-2xl flex flex-col outline-none",
             className,
           )}
           {...props}

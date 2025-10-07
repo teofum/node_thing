@@ -1,32 +1,17 @@
-export async function saveJsonToFile(json: string, suggestedName: string) {
-  try {
-    const handle = await window.showSaveFilePicker({
-      suggestedName: suggestedName + ".json",
-      types: [{ accept: { "application/json": [".json"] } }],
-    });
+import { openFile, saveFile } from "./file";
 
-    const writable = await handle.createWritable();
-    await writable.write(json);
-    await writable.close();
-  } catch (e) {
-    console.warn(e);
-  }
+export async function saveJsonToFile(json: string, suggestedName: string) {
+  return await saveFile({
+    suggestedName: `${suggestedName}.json`,
+    types: [{ accept: { "application/json": [".json"] } }],
+    data: json,
+  });
 }
 
-export function loadJsonFromFile(onload: (json: string) => void) {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".json";
-
-  input.onchange = async (e: Event) => {
-    const file = (e.target as HTMLInputElement).files?.[0];
-    if (file === undefined) {
-      return;
-    }
-
+export async function loadJsonFromFile(onload: (json: string) => void) {
+  const file = await openFile(["application/json"]);
+  if (file) {
     const json = await file.text();
-    onload(json); // TODO manejo de errores
-  };
-
-  input.click();
+    onload(json);
+  }
 }

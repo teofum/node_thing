@@ -55,7 +55,8 @@ export async function getOrderDetails(orderId: string) {
         shader:shaders (
           id,
           title,
-          description
+          description,
+          downloads
         )
       )
     `,

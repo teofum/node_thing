@@ -19,9 +19,6 @@ export function Viewport() {
 
   const { screenToFlowPosition } = useReactFlow();
 
-  // obtengo la capa actual para imprimir
-  const { nodes, edges } = layers[currentLayer];
-
   // TODO, acá debería hacer menejo por capas (ahora mismo solo muestra el grafo de la capa actual)
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -50,6 +47,9 @@ export function Viewport() {
     },
     [screenToFlowPosition, addNode, storeNodeTypes],
   );
+
+  // obtengo la capa actual para imprimir
+  const { nodes, edges } = layers[currentLayer];
 
   /*
    * Detect macOS and adjust controls to be more consistent with platform

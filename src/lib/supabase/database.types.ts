@@ -402,7 +402,7 @@ export type Database = {
       };
       increment_shader_downloads: {
         Args: { shader_id: string };
-        Returns: undefined;
+        Returns: void;
       };
     };
     Enums: {

@@ -1,15 +1,15 @@
 import { NodeProps, Position } from "@xyflow/react";
 import cn from "classnames";
 
-import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
-import { NodeType } from "@/schemas/node.schema";
-import { HandleWithMock } from "./mock-handle";
+import { NodeType, ShaderNode } from "@/schemas/node.schema";
+import { useMainStore } from "@/store/main.store";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
+import { HandleWithMock } from "./mock-handle";
 
-import { SliderInput } from "@/ui/slider";
 import { ColorInput } from "@/ui/color-picker";
+import { SliderInput } from "@/ui/slider";
 
-type NodeInputProps = NodeProps<ShaderNodeType> & {
+type NodeInputProps = NodeProps<ShaderNode> & {
   input: [string, NodeType["inputs"][string]];
   i: number;
   mock?: boolean;
