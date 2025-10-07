@@ -1,10 +1,13 @@
 import { LinkButton } from "@/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { completePayment } from "@/app/marketplace/cart/actions";
 
 type Props = {
   params: Promise<{ orderId: string }>;
 };
+
+export const dynamic = "force-dynamic";
 
 export default async function SuccessPage({ params }: Props) {
   const { orderId } = await params;
@@ -30,10 +33,7 @@ export default async function SuccessPage({ params }: Props) {
   }
 
   if (order.status === "pending") {
-    await supabase.rpc("finish_payment", {
-      order_uuid: orderId,
-      user_uuid: user.id,
-    });
+    await completePayment(orderId);
   }
 
   const isPending = order.status === "pending";
@@ -66,12 +66,16 @@ export default async function SuccessPage({ params }: Props) {
           </div>
 
           <div className="space-y-3">
-            <LinkButton href="/marketplace" className="w-full">
-              Buy more shaders
-            </LinkButton>
-            <LinkButton href="/" variant="outline" className="w-full">
-              Back to editor
-            </LinkButton>
+            <form action={completePayment.bind(null, orderId)}>
+              <LinkButton href="/marketplace" className="w-full">
+                Buy more shaders
+              </LinkButton>
+            </form>
+            <form action={completePayment.bind(null, orderId)}>
+              <LinkButton href="/" variant="outline" className="w-full">
+                Back to editor
+              </LinkButton>
+            </form>
           </div>
         </div>
       </div>
