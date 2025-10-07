@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { Tables } from "@/lib/supabase/database.types";
+import camelcaseKeys from "camelcase-keys";
 
 type Category = Tables<"categories">;
 
@@ -100,6 +101,8 @@ export async function getShaders() {
       title,
       description,
       price,
+      average_rating,
+      rating_count,
       downloads,
       created_at,
       category:categories (
@@ -124,7 +127,7 @@ export async function getShaders() {
     throw new Error(`Failed to load shaders: ${error.message}`);
   }
 
-  return data || [];
+  return camelcaseKeys(data) || [];
 }
 
 export async function getCategories(): Promise<Category[]> {

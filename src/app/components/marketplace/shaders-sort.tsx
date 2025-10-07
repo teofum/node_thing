@@ -8,9 +8,10 @@ interface Shader {
   id: string;
   title: string;
   price: number;
-  average_rating?: number;
+  averageRating?: number | null;
+  ratingCount?: number | null;
   downloads: number;
-  created_at: string;
+  createdAt: string;
   category: { name: string };
   profiles?: { username?: string };
 }
@@ -36,12 +37,12 @@ export function ShaderListClient({
           valB = b.price;
           break;
         case "reviews":
-          valA = a.average_rating ?? 0;
-          valB = b.average_rating ?? 0;
+          valA = a.averageRating ?? 0;
+          valB = b.averageRating ?? 0;
           break;
         case "date":
-          valA = new Date(a.created_at).getTime();
-          valB = new Date(b.created_at).getTime();
+          valA = new Date(a.createdAt).getTime();
+          valB = new Date(b.createdAt).getTime();
         default:
           valA = a.downloads;
           valB = b.downloads;
@@ -70,7 +71,9 @@ export function ShaderListClient({
             inCart={cartIds.has(shader.id)}
             username={shader.profiles?.username}
             category={shader.category.name}
-            createdAt={shader.created_at}
+            createdAt={shader.createdAt}
+            averageRating={shader.averageRating}
+            ratingCount={shader.ratingCount}
           />
         ))}
       </div>
