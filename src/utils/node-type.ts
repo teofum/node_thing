@@ -27,6 +27,14 @@ import absShader from "@/shaders/abs.wgsl";
 import fractShader from "@/shaders/fract.wgsl";
 import constantShader from "@/shaders/constant.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
+import checkersPatternShader from "@/shaders/checker-pattern.wgsl";
+import bayerPatternShader from "@/shaders/bayer-pattern-8x8.wgsl";
+import pixelateShader from "@/shaders/pixelate.wgsl";
+import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
+import tonemapACESShader from "@/shaders/tone-map-aces.wgsl";
+import tonemapHableShader from "@/shaders/tone-map-hable.wgsl";
+import heatmapShader from "@/shaders/heatmap.wgsl";
+import multiStepMixShader from "@/shaders/multiStepMix.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -112,6 +120,32 @@ export const NODE_TYPES = {
     outputs: {
       output: {
         name: "Noise",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  checkers_Pattern: {
+    name: "Checkers Pattern",
+    category: "Generate",
+    shader: checkersPatternShader,
+    inputs: {},
+    outputs: {
+      output: {
+        name: "Pattern",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  bayers_Pattern_8x8: {
+    name: "Bayers Pattern 8x8",
+    category: "Generate",
+    shader: bayerPatternShader,
+    inputs: {},
+    outputs: {
+      output: {
+        name: "Pattern",
         type: "number",
       },
     },
@@ -543,6 +577,67 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  tonemapReinhard: {
+    name: "Tonemap Reinhard",
+    category: "Color",
+    shader: tonemapReinhardShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      white: {
+        name: "White point",
+        type: "number",
+        min: 0.0,
+        max: 10.0,
+        step: 0.1,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  tonemapACES: {
+    name: "Tonemap ACES",
+    category: "Color",
+    shader: tonemapACESShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  tonemapHable: {
+    name: "Tonemap hable",
+    category: "Color",
+    shader: tonemapHableShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
   // Effects category ///////////////////////////////
   chromaticAberration: {
     name: "Chromatic Aberration",
@@ -612,6 +707,86 @@ export const NODE_TYPES = {
       threshold: {
         name: "Threshold",
         type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  pixelate: {
+    name: "pixelate",
+    category: "Effects",
+    shader: pixelateShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      kernel_size: {
+        name: "Radius",
+        type: "number",
+        max: 25,
+        step: 1,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  heatmap: {
+    name: "Heatmap",
+    category: "Effects",
+    shader: heatmapShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  multiStepMix: {
+    name: "Multi step Mix",
+    category: "Effects",
+    shader: multiStepMixShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      color1: {
+        name: "color1",
+        type: "color",
+      },
+      color2: {
+        name: "color2",
+        type: "color",
+      },
+      color3: {
+        name: "color3",
+        type: "color",
+      },
+      color4: {
+        name: "color4",
+        type: "color",
+      },
+      color5: {
+        name: "color5",
+        type: "color",
       },
     },
     outputs: {
