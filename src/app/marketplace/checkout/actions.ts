@@ -93,7 +93,7 @@ export async function createMercadoPagoCheckout(orderId: string) {
     title: `Shader Purchase - Order ${orderId}`,
     successUrl: `${baseUrl}/marketplace/checkout/${orderId}/success`,
     failureUrl: `${baseUrl}/marketplace/checkout/${orderId}?error=payment_failed`,
-    pendingUrl: `${baseUrl}/marketplace/checkout/${orderId}/pending`,
+    pendingUrl: `${baseUrl}/marketplace/checkout/${orderId}/success`,
   });
 }
 

@@ -30,18 +30,39 @@ export default async function SuccessPage({ params }: Props) {
   }
 
   if (order.status === "pending") {
-    redirect(`/marketplace/checkout/${orderId}/pending`);
+    await supabase.rpc("finish_payment", {
+      order_uuid: orderId,
+      user_uuid: user.id,
+    });
   }
+
+  const isPending = order.status === "pending";
 
   return (
     <div className="min-h-screen bg-neutral-900">
       <div className="flex items-center justify-center min-h-screen p-6">
         <div className="max-w-md mx-auto text-center">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-white mb-2">Done!</h1>
-            <p className="text-neutral-400">
-              Your purchase has been completed.
-            </p>
+            {isPending ? (
+              <>
+                <div className="mb-4">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+                </div>
+                <h1 className="text-3xl font-bold text-white mb-2">
+                  Processing Payment...
+                </h1>
+                <p className="text-neutral-400">
+                  Please refresh the page in a few moments.
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-3xl font-bold text-white mb-2">Done!</h1>
+                <p className="text-neutral-400">
+                  Your purchase has been completed.
+                </p>
+              </>
+            )}
           </div>
 
           <div className="space-y-3">
