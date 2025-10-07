@@ -81,7 +81,7 @@ export function usePipeline(
       if (needsRebuild[i].desc) {
         console.log(`Rebuilding render graph [layer ${i}]...`);
 
-        descCache.current[i] = RenderPipeline.create(layer, nodeTypes);
+        descCache.current[i] = RenderPipeline.tryCreate(layer, nodeTypes);
         if (!descCache.current[i] || descCache.current[i].outputBuffer < 0)
           descCache.current[i] = null;
       }

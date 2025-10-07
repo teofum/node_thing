@@ -1,14 +1,14 @@
-import { useMemo } from "react";
 import { NodeProps } from "@xyflow/react";
+import { useMemo } from "react";
 
-import { ShaderNode as ShaderNodeType, useMainStore } from "@/store/main.store";
+import { NodeType, ShaderNode } from "@/schemas/node.schema";
 import { useAssetStore } from "@/store/asset.store";
-import { NodeType } from "@/schemas/node.schema";
-import { imageURLFromAsset } from "@/utils/image-url-from-asset";
+import { useMainStore } from "@/store/main.store";
 import { Button } from "@/ui/button";
+import { imageURLFromAsset } from "@/utils/image-url-from-asset";
 import { AssetManager } from "../asset-manager";
 
-type ParameterProps = NodeProps<ShaderNodeType> & {
+type ParameterProps = NodeProps<ShaderNode> & {
   name: string;
   param: NodeType["parameters"][string];
 };

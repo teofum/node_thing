@@ -1,12 +1,11 @@
 import { NodeProps, Position } from "@xyflow/react";
 import cn from "classnames";
 
-import { ShaderNode as ShaderNodeType } from "@/store/main.store";
-import { NodeType } from "@/schemas/node.schema";
-import { HandleWithMock } from "./mock-handle";
+import { NodeType, ShaderNode } from "@/schemas/node.schema";
 import { HANDLE_HEIGHT } from "./constants";
+import { HandleWithMock } from "./mock-handle";
 
-type NodeOutputProps = NodeProps<ShaderNodeType> & {
+type NodeOutputProps = NodeProps<ShaderNode> & {
   output: [string, NodeType["outputs"][string]];
   i: number;
   offset: number;
