@@ -353,7 +353,7 @@ export default async function ProfilePage() {
         </div>
 
         <Tabs.Root
-          className="flex flex-col glass rounded-2xl"
+          className="flex flex-col border border-white/15 rounded-2xl"
           defaultValue="tab1"
         >
           <Tabs.List className="flex shrink-0">
@@ -372,7 +372,7 @@ export default async function ProfilePage() {
             value="tab1"
           >
             <AccountInfoTab
-              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+              className="rounded-2xl p-4 min-h-[300px] mb-3"
               lines={accountInfo}
               userData={userData}
             />
@@ -382,7 +382,7 @@ export default async function ProfilePage() {
             value="tab2"
           >
             <UserShadersTab
-              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+              className="rounded-2xl p-4 min-h-[300px] mb-3"
               shaderList={purchasedShaders}
               publishList={publishedShaders}
               ratingsList={userRatings}
@@ -393,7 +393,7 @@ export default async function ProfilePage() {
             value="tab3"
           >
             <PremiumTab
-              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+              className="rounded-2xl p-4 min-h-[300px] mb-3"
               userData={userData}
             />
           </Tabs.Content>
