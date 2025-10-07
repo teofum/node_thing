@@ -27,12 +27,12 @@ import absShader from "@/shaders/abs.wgsl";
 import fractShader from "@/shaders/fract.wgsl";
 import constantShader from "@/shaders/constant.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
-import checkersNoiseShader from "@/shaders/checker-noise.wgsl";
-import bayerNoiseShader from "@/shaders/bayer-noise-8x8.wgsl";
-import fakeDownScalingShader from "@/shaders/fake-down-scaling.wgsl";
+import checkersPatternShader from "@/shaders/checker-pattern.wgsl";
+import bayerPatternShader from "@/shaders/bayer-pattern-8x8.wgsl";
+import pixelateShader from "@/shaders/pixelate.wgsl";
 import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
 import tonemapACESShader from "@/shaders/tone-map-aces.wgsl";
-import tonemapUncharted2Shader from "@/shaders/tone-map-uncharted2.wgsl";
+import tonemapHableShader from "@/shaders/tone-map-hable.wgsl";
 import heatmapShader from "@/shaders/heatmap.wgsl";
 import multiStepMixShader from "@/shaders/multiStepMix.wgsl";
 
@@ -125,27 +125,27 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  checkers_noise: {
-    name: "Checkers Noise",
+  checkers_Pattern: {
+    name: "Checkers Pattern",
     category: "Generate",
-    shader: checkersNoiseShader,
+    shader: checkersPatternShader,
     inputs: {},
     outputs: {
       output: {
-        name: "Noise",
+        name: "Pattern",
         type: "number",
       },
     },
     parameters: {},
   },
-  bayers_noise_8x8: {
-    name: "Bayers Noise 8x8",
+  bayers_Pattern_8x8: {
+    name: "Bayers Pattern 8x8",
     category: "Generate",
-    shader: bayerNoiseShader,
+    shader: bayerPatternShader,
     inputs: {},
     outputs: {
       output: {
-        name: "Noise",
+        name: "Pattern",
         type: "number",
       },
     },
@@ -587,7 +587,7 @@ export const NODE_TYPES = {
         type: "color",
       },
       white: {
-        name: "White",
+        name: "White point",
         type: "number",
         min: 0.0,
         max: 10.0,
@@ -620,11 +620,10 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  tonemapUncharted2: {
-    //maybe unprofesional, totally stolen
-    name: "Tonemap from Uncharted 2",
+  tonemapHable: {
+    name: "Tonemap hable",
     category: "Color",
-    shader: tonemapUncharted2Shader,
+    shader: tonemapHableShader,
     inputs: {
       input: {
         name: "Input",
@@ -718,10 +717,10 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  fake_downscale: {
-    name: "Fake downscale",
+  pixelate: {
+    name: "pixelate",
     category: "Effects",
-    shader: fakeDownScalingShader,
+    shader: pixelateShader,
     inputs: {
       input: {
         name: "Input",

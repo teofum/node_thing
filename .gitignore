@@ -45,6 +45,3 @@ next-env.d.ts
 
 # supabase
 supabase/.temp/
-
-# format config
-.clang-format

@@ -1,4 +1,4 @@
-fn heatVisionGradient(
+fn gradient(
  luma: f32,
  color1: vec3f, color2: vec3f, color3: vec3f, color4: vec3f, color5: vec3f
  ) -> vec3<f32> 
@@ -24,5 +24,5 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let luma_vector = vec3<f32>(0.299, 0.587, 0.114);
     let luma = dot(input.rgb, luma_vector);
 
-    output[index] = heatVisionGradient(luma,color1, color2, color3, color4, color5);
+    output[index] = gradient(luma,color1, color2, color3, color4, color5);
 }
