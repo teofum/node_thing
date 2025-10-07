@@ -2,13 +2,16 @@ import { Button, LinkButton } from "@/ui/button";
 import { LuArrowLeft, LuSearch, LuShoppingCart } from "react-icons/lu";
 import { getShaders, getCategories } from "./actions";
 import { getCartItems } from "./cart/actions";
-import ShaderCard from "@/app/components/marketplace/shadercard";
+import { RangeSliderInput } from "@/ui/range-slider";
+import { ShaderListClient } from "@/app/components/marketplace/shaders-sort";
 
 type Props = {
   searchParams: Promise<{
     error?: string;
     category?: string | string[];
     search?: string;
+    minPrice?: string;
+    maxPrice?: string;
   }>;
 };
 
@@ -46,6 +49,13 @@ export default async function MarketplacePage({ searchParams }: Props) {
     );
   }
 
+  const minPrice = params.minPrice ? Number(params.minPrice) : 0;
+  const maxPrice = params.maxPrice ? Number(params.maxPrice) : Infinity;
+
+  filteredShaders = filteredShaders.filter(
+    (shader) => shader.price >= minPrice && shader.price <= maxPrice,
+  );
+
   return (
     <div className="min-h-screen bg-neutral-900 relative">
       <LinkButton
@@ -59,7 +69,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
       </LinkButton>
 
       <div className="p-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto mt-8">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-white">
@@ -110,11 +120,23 @@ export default async function MarketplacePage({ searchParams }: Props) {
               type="submit"
               variant="ghost"
               size="md"
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
+              className="absolute right-4 top-1.5  text-neutral-400 hover:text-white transition-colors"
               icon
             >
               <LuSearch size={20} />
             </Button>
+
+            <div className="mt-4">
+              <RangeSliderInput
+                min={0}
+                max={99000}
+                step={1000}
+                defaultMin={Number(params.minPrice) || 0}
+                defaultMax={Number(params.maxPrice) || 99000}
+                nameMin="minPrice"
+                nameMax="maxPrice"
+              />
+            </div>
           </form>
 
           <div className="mb-6 flex justify-center gap-2 flex-wrap">
@@ -176,20 +198,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredShaders.map((shader) => (
-                <ShaderCard
-                  key={shader.id}
-                  id={shader.id}
-                  title={shader.title}
-                  price={shader.price}
-                  likes={0}
-                  inCart={cartIds.has(shader.id)}
-                  username={shader.profiles?.username}
-                  category={shader.category.name}
-                />
-              ))}
-            </div>
+            <ShaderListClient shaders={filteredShaders} cartIds={cartIds} />
           )}
         </div>
       </div>

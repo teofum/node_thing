@@ -35,11 +35,6 @@ export function MenuLayers() {
   const removeLayer = useMainStore((s) => s.removeLayer);
   const duplicateLayer = useMainStore((s) => s.duplicateLayer);
 
-  const addLayerButton = () => {
-    addLayer();
-    setActiveLayer(layers.length);
-  };
-
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     reorderLayers(result.source.index, result.destination.index);
@@ -199,7 +194,7 @@ export function MenuLayers() {
       </div>
 
       <div className="p-3 gap-2 flex flex-col">
-        <Button variant="outline" onClick={addLayerButton}>
+        <Button variant="outline" onClick={addLayer}>
           <LuPlus />
           New Layer
         </Button>

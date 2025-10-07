@@ -1,4 +1,5 @@
 import * as z from "zod/v4";
+import { Node } from "@xyflow/react";
 
 const parameterTypeSchema = z.enum(["select", "image"]);
 
@@ -84,3 +85,4 @@ export const nodeDataSchema = z.object({
 });
 
 export type NodeData = z.infer<typeof nodeDataSchema>;
+export type ShaderNode = Node<NodeData>;

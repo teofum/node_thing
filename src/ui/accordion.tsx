@@ -11,7 +11,7 @@ export const AccordionItem = React.forwardRef<
 >(({ children, className, ...props }, forwardedRef) => (
   <Accordion.Item
     className={cn(
-      "overflow-hidden focus-within:relative focus-within:z-10 focus-within:shadow-[0_0_0_2px]",
+      "overflow-hidden focus-within:relative focus-within:z-10 outline-none",
       className,
     )}
     {...props}

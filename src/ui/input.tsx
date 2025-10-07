@@ -20,7 +20,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           "rounded-lg placeholder:text-white/40",
           "outline-0 transition duration-150",
           {
-            "p-1.5 text-xs/3": size === "sm",
+            "p-1.5 text-xs/3 h-6.5": size === "sm",
             "p-3 text-sm/4": size === "md",
             "border border-white/15 focus-visible:border-teal-400 focus-visible:outline-2 outline-teal-400/30":
               variant === "outline",
