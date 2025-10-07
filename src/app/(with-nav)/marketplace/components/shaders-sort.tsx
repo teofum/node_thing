@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { SortMenubar } from "./sort-bar";
-import ShaderCard from "@/app/(with-nav)/marketplace/components/shadercard";
+import ShaderCard from "./shadercard";
 
 interface Shader {
   id: string;

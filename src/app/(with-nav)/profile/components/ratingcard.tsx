@@ -24,7 +24,6 @@ export default function RatingCard({
   averageRating,
   userRating,
   ratingCount,
-  trigger,
 }: RatingCardProps) {
   return (
     <div className="glass glass-border p-6 rounded-2xl">

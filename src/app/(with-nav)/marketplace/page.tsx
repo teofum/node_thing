@@ -59,18 +59,8 @@ export default async function MarketplacePage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-neutral-900 relative">
-      <LinkButton
-        variant="ghost"
-        href="/"
-        size="md"
-        className="absolute top-4 left-4"
-      >
-        <LuArrowLeft />
-        Back
-      </LinkButton>
-
       <div className="p-6">
-        <div className="max-w-6xl mx-auto mt-8">
+        <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-white">
@@ -80,7 +70,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
                 Discover and share amazing shaders
               </p>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 items-center">
               <LinkButton
                 href="/marketplace/cart"
                 variant="outline"
