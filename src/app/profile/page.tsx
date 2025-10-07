@@ -249,7 +249,7 @@ export default async function ProfilePage() {
   ];
 
   const triggerStyle =
-    "flex h-[45px] hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-5 font-semibold text-[15px] leading-none outline-none first:rounded-tl-2xl last:rounded-tr-2xl data-[state=active]:shadow-[0_2px_0_0] data-[state=active]:shadow-teal-400 transition data-[state=active]:focus:relative";
+    "flex h-[45px] hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-5 font-semibold text-[15px] leading-none outline-none first:rounded-tl-2xl last:rounded-tr-2xl data-[state=active]:border-teal-500 data-[state=active]:border-b-2 transition data-[state=active]:focus:relative";
 
   return (
     <div className="min-h-screen bg-neutral-900 relative">
@@ -290,7 +290,7 @@ export default async function ProfilePage() {
           </div>
 
           <Tabs.Root
-            className="flex flex-col shadow-[0_0_20px] shadow-black glass rounded-2xl"
+            className="flex flex-col glass rounded-2xl"
             defaultValue="tab1"
           >
             <Tabs.List className="flex shrink-0">
