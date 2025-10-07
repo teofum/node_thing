@@ -150,22 +150,3 @@ export async function clearCart() {
 
   revalidatePath("/marketplace/cart");
 }
-
-export async function completePayment(orderId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return;
-  }
-
-  await supabase.rpc("finish_payment", {
-    order_uuid: orderId,
-    user_uuid: user.id,
-  });
-
-  revalidatePath("/marketplace");
-  revalidatePath("/");
-}
