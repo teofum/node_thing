@@ -3,8 +3,8 @@
 import { LuStar, LuStarHalf } from "react-icons/lu";
 import { ComponentProps, useState } from "react";
 import { Dialog } from "@/ui/dialog";
-import RatingEditor from "./rating-editor";
-import { UserRatingsDisplay } from "./page";
+import RatingEditor from "../../profile/rating-editor";
+import { UserRatingsDisplay } from "../../profile/page";
 import { Tables } from "@/lib/supabase/database.types";
 import { Button } from "@/ui/button";
 

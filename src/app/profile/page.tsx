@@ -23,7 +23,7 @@ import {
 import * as Tabs from "@radix-ui/react-tabs";
 import { IconType } from "react-icons/lib";
 import { forwardRef } from "react";
-import RatingCard from "./ratingcard";
+import RatingCard from "../components/profile/ratingcard";
 import Image from "next/image";
 import AccountEditor from "./account-editor";
 
