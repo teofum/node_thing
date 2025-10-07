@@ -43,6 +43,7 @@ export type Project = {
   currentLayer: number;
   properties: ProjectProperties;
   nodeTypes: Record<string, NodeType>;
+  projectName: string;
 };
 
 export type HandleDescriptor = {
@@ -107,7 +108,7 @@ type ProjectActions = {
   importLayer: (json: string) => void;
 
   exportProject: () => string;
-  importProject: (json: string) => void;
+  importProject: (json: string | Project) => void;
 
   addNode: (
     type: NodeData["type"],
@@ -132,6 +133,8 @@ export const useMainStore = create<Project & ProjectActions>()(
       currentLayer: 0,
       properties: { canvas: initialSize, view: { zoom: 1 } },
       nodeTypes: NODE_TYPES,
+      layerId: 0,
+      projectName: "Untitled Project",
 
       /*
        * Actions
@@ -272,15 +275,17 @@ export const useMainStore = create<Project & ProjectActions>()(
         return JSON.stringify(project, null, 2);
       },
 
-      importProject: (json) =>
+      importProject: (jsonOrObj: string | Project) =>
         set((state) => {
-          const parsedProject: Project = JSON.parse(json);
+          const parsedProject: Project =
+            typeof jsonOrObj === "string" ? JSON.parse(jsonOrObj) : jsonOrObj;
 
           return {
             layers: parsedProject.layers,
             currentLayer: parsedProject.currentLayer,
             properties: parsedProject.properties,
             nodeTypes: state.nodeTypes,
+            projectName: parsedProject.projectName,
           };
         }),
 
