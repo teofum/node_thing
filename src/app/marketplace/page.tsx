@@ -69,7 +69,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
       </LinkButton>
 
       <div className="p-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto mt-8">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-white">
@@ -129,10 +129,10 @@ export default async function MarketplacePage({ searchParams }: Props) {
             <div className="mt-4">
               <RangeSliderInput
                 min={0}
-                max={99999}
+                max={99000}
                 step={1000}
                 defaultMin={Number(params.minPrice) || 0}
-                defaultMax={Number(params.maxPrice) || 99999}
+                defaultMax={Number(params.maxPrice) || 99000}
                 nameMin="minPrice"
                 nameMax="maxPrice"
               />
