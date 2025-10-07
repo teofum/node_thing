@@ -1,9 +1,114 @@
 "use server";
 
+import { redirect } from "next/navigation";
+import {
+  createSubscriptionCheckout,
+  cancelLemonSqueezySubscription,
+  resumeLemonSqueezySubscription,
+} from "@/lib/payments/lemonsqueezy";
+import { getBaseUrl } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import { PostgrestError } from "@supabase/supabase-js";
-import { redirect } from "next/navigation";
 import camelcaseKeys from "camelcase-keys";
+
+export async function subscribePremiumAction(formData: FormData) {
+  const variantId = formData.get("variant_id") as string;
+
+  if (!variantId) {
+    redirect("/?error=invalid_subscription");
+  }
+
+  const baseUrl = await getBaseUrl();
+
+  await createSubscriptionCheckout({
+    variantId,
+    successUrl: `${baseUrl}/profile/success`,
+  });
+}
+
+export async function cancelSubscriptionAction() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("subscription_id")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.subscription_id) {
+    redirect("/profile?error=no_subscription");
+  }
+
+  try {
+    await cancelLemonSqueezySubscription(profile.subscription_id);
+  } catch {
+    redirect("/profile?error=cancellation_failed");
+  }
+
+  await supabase.from("profiles").update({ cancelled: true }).eq("id", user.id);
+
+  redirect("/profile");
+}
+
+export async function resumeSubscriptionAction() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("subscription_id")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile?.subscription_id) {
+    redirect("/profile?error=no_subscription");
+  }
+
+  try {
+    await resumeLemonSqueezySubscription(profile.subscription_id);
+  } catch {
+    redirect("/profile?error=resume_failed");
+  }
+
+  await supabase
+    .from("profiles")
+    .update({ cancelled: false })
+    .eq("id", user.id);
+
+  redirect("/profile");
+}
+
+export async function updatePayoutSettingsAction(formData: FormData) {
+  const mpEmail = formData.get("mp_email") as string;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  await supabase
+    .from("profiles")
+    .update({ mp_email: mpEmail })
+    .eq("id", user.id);
+
+  redirect("/profile");
+}
 
 export async function getUser() {
   const supabase = await createClient();
@@ -30,7 +135,9 @@ export async function getUserData() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("username, is_premium")
+    .select(
+      "username, is_premium, mp_email, pending_balance, cancelled, subscription_id",
+    )
     .eq("id", user.id)
     .single();
 
@@ -137,8 +244,6 @@ export async function submitShaderReview(
   if (upsertError) {
     throw new Error(`Failed to upsert rating: ${upsertError.message}`);
   }
-
-  // average_rating y rating_count se actualizan solos con triggers (ver Supabase)
 }
 
 export async function getUserRatings() {
@@ -162,8 +267,6 @@ export async function getUserRatings() {
 
   return camelcaseKeys(data) ?? [];
 }
-
-// TODO agregar eliminar ratings
 
 export async function setUsername(newUsername: string) {
   const supabase = await createClient();

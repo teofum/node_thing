@@ -5,15 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { Provider } from "@supabase/supabase-js";
-
-async function getBaseUrl() {
-  const headersList = await headers();
-  const host = headersList.get("host");
-  const forwardedProto = headersList.get("x-forwarded-proto");
-  const protocol =
-    forwardedProto || (host?.includes("localhost") ? "http" : "https");
-  return `${protocol}://${host}`;
-}
+import { getBaseUrl } from "@/lib/utils";
 
 export async function signInAction(formData: FormData) {
   const supabase = await createClient();

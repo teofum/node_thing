@@ -64,6 +64,7 @@ export type Database = {
           id: string;
           order_id: string;
           price: number;
+          seller_amount: number | null;
           shader_id: string;
         };
         Insert: {
@@ -71,6 +72,7 @@ export type Database = {
           id?: string;
           order_id: string;
           price: number;
+          seller_amount?: number | null;
           shader_id: string;
         };
         Update: {
@@ -78,6 +80,7 @@ export type Database = {
           id?: string;
           order_id?: string;
           price?: number;
+          seller_amount?: number | null;
           shader_id?: string;
         };
         Relationships: [
@@ -124,11 +127,51 @@ export type Database = {
         };
         Relationships: [];
       };
+      payouts: {
+        Row: {
+          amount: number;
+          created_at: string | null;
+          id: string;
+          mp_transaction_id: string | null;
+          paid_at: string | null;
+          seller_id: string;
+          status: string | null;
+        };
+        Insert: {
+          amount: number;
+          created_at?: string | null;
+          id?: string;
+          mp_transaction_id?: string | null;
+          paid_at?: string | null;
+          seller_id: string;
+          status?: string | null;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string | null;
+          id?: string;
+          mp_transaction_id?: string | null;
+          paid_at?: string | null;
+          seller_id?: string;
+          status?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payouts_seller_id_fkey";
+            columns: ["seller_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           cancelled: boolean | null;
           id: string;
           is_premium: boolean | null;
+          mp_email: string | null;
+          pending_balance: number | null;
           subscription_id: string | null;
           username: string;
         };
@@ -136,6 +179,8 @@ export type Database = {
           cancelled?: boolean | null;
           id: string;
           is_premium?: boolean | null;
+          mp_email?: string | null;
+          pending_balance?: number | null;
           subscription_id?: string | null;
           username: string;
         };
@@ -143,6 +188,8 @@ export type Database = {
           cancelled?: boolean | null;
           id?: string;
           is_premium?: boolean | null;
+          mp_email?: string | null;
+          pending_balance?: number | null;
           subscription_id?: string | null;
           username?: string;
         };

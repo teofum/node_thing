@@ -19,6 +19,10 @@ import {
   getUser,
   getUserData,
   getUserRatings,
+  subscribePremiumAction,
+  cancelSubscriptionAction,
+  resumeSubscriptionAction,
+  updatePayoutSettingsAction,
 } from "./actions";
 import * as Tabs from "@radix-ui/react-tabs";
 import { IconType } from "react-icons/lib";
@@ -35,6 +39,10 @@ function parseDate(date: string) {
 export type UserData = {
   username: string;
   isPremium: boolean | null;
+  mpEmail?: string | null;
+  pendingBalance?: number | null;
+  cancelled?: boolean | null;
+  subscriptionId?: string | null;
 };
 
 type IconTextLine = { id: string; icon: IconType; text: string };
@@ -184,25 +192,45 @@ const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
       },
     ];
 
+    const variantId = process.env.LEMONSQUEEZY_PREMIUM_VARIANT_ID;
+
     return (
       <div className={className} {...props} ref={forwardedRef}>
-        <div className="flex flex-col gap-4 items-center">
+        <div className="flex flex-col gap-4">
           <h2 className="text-xl font-semibold">Premium Subscription</h2>
           {userData.isPremium ? (
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <p>You are a premium user</p>
                 <LuGem />
                 <p>Thank you for your support!</p>
               </div>
-              <p>
-                You can cancel your subscription at any time with the button
-                below.
+              <p className="text-neutral-400">
+                {userData.cancelled
+                  ? "Subscription valid until period end"
+                  : "Subscription renews automatically"}
               </p>
-              <Button size="lg">Cancel Subscription</Button>
+              {userData.cancelled ? (
+                <form action={resumeSubscriptionAction}>
+                  <Button type="submit" size="lg" className="w-full">
+                    Resume Subscription
+                  </Button>
+                </form>
+              ) : (
+                <form action={cancelSubscriptionAction}>
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    size="lg"
+                    className="w-full text-red-400 border-red-400 hover:bg-red-400/10"
+                  >
+                    Cancel Subscription
+                  </Button>
+                </form>
+              )}
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col gap-4">
               <p>Gain access to exclusive features with the premium version!</p>
               <div>
                 {featureList.map(({ id, icon: Icon, text }) => (
@@ -211,12 +239,55 @@ const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
                   </div>
                 ))}
               </div>
-              <Button size="lg">
-                Get Started
-                <LuGem />
-              </Button>
+              {variantId ? (
+                <form action={subscribePremiumAction}>
+                  <input type="hidden" name="variant_id" value={variantId} />
+                  <Button type="submit" size="lg" className="w-full">
+                    Get Started
+                    <LuGem />
+                  </Button>
+                </form>
+              ) : (
+                <p className="text-red-400">Premium plan not available</p>
+              )}
             </div>
           )}
+
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold mb-4">Payout Settings</h3>
+            <p className="text-neutral-400 text-sm mb-4">
+              Configure your Mercado Pago email to receive payments from shader
+              sales
+            </p>
+            <form action={updatePayoutSettingsAction}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  Mercado Pago Email
+                </label>
+                <input
+                  type="email"
+                  name="mp_email"
+                  defaultValue={userData.mpEmail || ""}
+                  placeholder="tu@email.com"
+                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white focus:outline-none focus:border-neutral-500"
+                />
+              </div>
+              <div className="bg-neutral-800 rounded-lg p-4 mb-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-300">Pending earnings:</span>
+                  <span className="text-xl font-bold text-teal-400">
+                    ${(userData.pendingBalance || 0).toFixed(2)} ARS
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 mt-2">
+                  Paid weekly via Mercado Pago
+                </p>
+              </div>
+              <Button type="submit" size="lg" className="w-full">
+                Save Payout Settings
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
     );
