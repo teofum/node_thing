@@ -103,6 +103,7 @@ export default async function ProfilePage() {
             )}
           </div>
 
+          {/* TODO: Add better UI for this */}
           <div className="glass glass-border p-6 rounded-2xl mt-6">
             <h2 className="text-xl font-semibold text-white mb-4">
               Payout Settings
