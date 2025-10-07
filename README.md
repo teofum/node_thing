@@ -19,6 +19,12 @@ pnpm build:electron
 pnpm start:electron
 ```
 
+```windows
+pnpm build
+pnpm exec electron .\electron\dist\main.js
+```
+
+
 # Building (production)
 
 i have no fucking clue lmao

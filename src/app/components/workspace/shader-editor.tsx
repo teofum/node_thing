@@ -162,21 +162,17 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
   const save = () => {
     if (!nameRef.current || !codeRef.current) return;
 
+    const desc = {
+      name: nameRef.current.value,
+      inputs,
+      outputs,
+      code: codeRef.current.value,
+    };
+
     if (editNode) {
-      updateNodeType({
-        id: editNode,
-        name: nameRef.current.value,
-        inputs,
-        outputs,
-        code: codeRef.current.value,
-      });
+      updateNodeType(editNode, desc);
     } else {
-      createNodeType({
-        name: nameRef.current.value,
-        inputs,
-        outputs,
-        code: codeRef.current.value,
-      });
+      createNodeType(desc);
     }
   };
 
