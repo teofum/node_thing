@@ -1,35 +1,36 @@
 // TODO modularizar página
 
-import { Button, LinkButton } from "@/ui/button";
+import * as Tabs from "@radix-ui/react-tabs";
+import Image from "next/image";
+import { forwardRef } from "react";
+import { IconType } from "react-icons/lib";
 import {
   LuArrowLeft,
   LuCalendar,
-  LuMail,
-  LuGem,
-  LuUser,
-  LuSquarePen,
   LuCloudUpload,
+  LuGem,
   LuGlobe,
+  LuMail,
   LuSparkles,
+  LuSquarePen,
+  LuUser,
 } from "react-icons/lu";
-import { signOutAction } from "../auth/actions";
+
+import { signOutAction } from "@/app/auth/actions";
+import { Button, LinkButton } from "@/ui/button";
+import AccountEditor from "./account-editor";
 import {
+  cancelSubscriptionAction,
   getPublishedShaders,
   getPurchasedShaders,
   getUser,
   getUserData,
   getUserRatings,
-  subscribePremiumAction,
-  cancelSubscriptionAction,
   resumeSubscriptionAction,
+  subscribePremiumAction,
   updatePayoutSettingsAction,
 } from "./actions";
-import * as Tabs from "@radix-ui/react-tabs";
-import { IconType } from "react-icons/lib";
-import { forwardRef } from "react";
-import RatingCard from "../components/profile/ratingcard";
-import Image from "next/image";
-import AccountEditor from "./account-editor";
+import RatingCard from "./components/ratingcard";
 
 function parseDate(date: string) {
   const idx = date.indexOf("T");

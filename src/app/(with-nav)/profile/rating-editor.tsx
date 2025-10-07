@@ -2,7 +2,7 @@
 
 import { LuStar } from "react-icons/lu";
 import { ComponentProps, useState } from "react";
-import { submitShaderReview } from "@/app/profile/actions";
+import { submitShaderReview } from "@/app/(with-nav)/profile/actions";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 

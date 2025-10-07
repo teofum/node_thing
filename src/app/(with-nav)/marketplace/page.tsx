@@ -1,9 +1,10 @@
-import { Button, LinkButton } from "@/ui/button";
 import { LuArrowLeft, LuSearch, LuShoppingCart } from "react-icons/lu";
-import { getShaders, getCategories } from "./actions";
-import { getCartItems } from "./cart/actions";
+
+import { Button, LinkButton } from "@/ui/button";
 import { RangeSliderInput } from "@/ui/range-slider";
-import { ShaderListClient } from "@/app/components/marketplace/shaders-sort";
+import { getCategories, getShaders } from "./actions";
+import { getCartItems } from "./cart/actions";
+import { ShaderListClient } from "./components/shaders-sort";
 
 type Props = {
   searchParams: Promise<{
