@@ -1,12 +1,7 @@
-import {
-  LuCircleCheckBig,
-  LuHeart,
-  LuPlus,
-  LuStar,
-  LuStarHalf,
-} from "react-icons/lu";
+import { LuCircleCheckBig, LuPlus } from "react-icons/lu";
 import { addToCart } from "../../marketplace/cart/actions";
 import { Button } from "@/ui/button";
+import { Stars } from "./stars";
 
 type ShaderCardProps = {
   id: string;
@@ -29,11 +24,6 @@ export default function ShaderCard({
   averageRating,
   ratingCount,
 }: ShaderCardProps) {
-  const rating = Math.max(0, Math.min(averageRating ?? 0, 5));
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.5 ? 1 : 0;
-  const emptyStars = 5 - fullStars - halfStar;
-
   return (
     <div className="glass glass-border p-6 rounded-2xl relative">
       <h3 className="text-xl font-semibold text-white mb-1">{title}</h3>
@@ -57,34 +47,7 @@ export default function ShaderCard({
       <h3 className="text-2xl font-bold text-teal-400">${price}</h3>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          {Array(fullStars)
-            .fill(0)
-            .map((_, idx) => (
-              <div key={`full-${idx}`} className="relative w-5 h-5">
-                <LuStar className="absolute text-white/60 w-5 h-5" />
-                <div className="overflow-hidden h-full">
-                  <LuStar className="text-yellow-400 w-5 h-5" />
-                </div>
-              </div>
-            ))}
-          {halfStar === 1 && (
-            <div className="relative w-5 h-5">
-              <LuStar className="absolute text-white/60 w-5 h-5" />
-              <div className="overflow-hidden w-1/2 h-full">
-                <LuStarHalf className="text-yellow-400 w-5 h-5" />
-              </div>
-            </div>
-          )}
-          {Array(emptyStars)
-            .fill(0)
-            .map((_, idx) => (
-              <LuStar key={`empty-${idx}`} className="text-white/60 w-5 h-5" />
-            ))}
-          <p className="flex items-center justify-bottom text-center text-xs text-gray-500  ml-1">
-            ({ratingCount} ratings)
-          </p>
-        </div>
+        <Stars ratingValue={averageRating} ratingCount={ratingCount} />
         {inCart ? (
           <div className="flex items-center p-3 text-base/5 font-semibold text-white rounded-lg">
             <LuCircleCheckBig className="inline mr-2 text-emerald-600" />
