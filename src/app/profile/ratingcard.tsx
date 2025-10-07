@@ -12,7 +12,7 @@ type RatingCardProps = {
   id: string;
   title: string;
   category: string;
-  average_rating?: number | null;
+  averageRating?: number | null;
   userRating: UserRatingsDisplay | null;
   ratingCount: number | null;
   trigger: ComponentProps<typeof Dialog>["trigger"];
@@ -22,12 +22,12 @@ export default function RatingCard({
   id,
   title,
   category,
-  average_rating,
+  averageRating,
   userRating,
   ratingCount,
   trigger,
 }: RatingCardProps) {
-  const rating = Math.max(0, Math.min(average_rating ?? 0, 5));
+  const rating = Math.max(0, Math.min(averageRating ?? 0, 5));
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5 ? 1 : 0;
   const emptyStars = 5 - fullStars - halfStar;

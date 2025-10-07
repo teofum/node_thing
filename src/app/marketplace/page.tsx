@@ -186,8 +186,8 @@ export default async function MarketplacePage({ searchParams }: Props) {
                   inCart={cartIds.has(shader.id)}
                   username={shader.profiles?.username}
                   category={shader.category.name}
-                  average_rating={shader.average_rating}
-                  rating_count={shader.rating_count}
+                  averageRating={shader.averageRating}
+                  ratingCount={shader.ratingCount}
                 />
               ))}
             </div>

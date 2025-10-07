@@ -1,3 +1,5 @@
+// TODO modularizar página
+
 import { Button, LinkButton } from "@/ui/button";
 import {
   LuArrowLeft,
@@ -32,7 +34,7 @@ function parseDate(date: string) {
 
 export type UserData = {
   username: string;
-  is_premium: boolean | null;
+  isPremium: boolean | null;
 };
 
 type IconTextLine = { id: string; icon: IconType; text: string };
@@ -71,19 +73,19 @@ AccountInfoTab.displayName = "AccountInfoTab";
 type UserShaderDisplay = {
   id: string;
   title: string;
-  average_rating: number | null;
+  averageRating: number | null;
   category: {
     name: string;
   };
-  rating_count?: number | null;
+  ratingCount?: number | null;
 };
 
 export type UserRatingsDisplay = {
   id: string;
-  shader_id: string | null;
+  shaderId: string | null;
   rating: number | null;
   comment: string | null;
-  updated_at: string | null;
+  updatedAt: string | null;
 };
 
 type ShadersTabProps = {
@@ -105,11 +107,11 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            average_rating={shader.average_rating}
+            averageRating={shader.averageRating}
             userRating={
-              ratingsList.find((r) => r.shader_id === shader.id) ?? null
+              ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={shader?.rating_count ?? 0}
+            ratingCount={shader?.ratingCount ?? 0}
             trigger={<Button variant="outline">test</Button>}
           />
         ))
@@ -127,11 +129,11 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            average_rating={shader.average_rating}
+            averageRating={shader.averageRating}
             userRating={
-              ratingsList.find((r) => r.shader_id === shader.id) ?? null
+              ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={shader?.rating_count ?? 0}
+            ratingCount={shader?.ratingCount ?? 0}
             trigger={null}
           />
         ))
@@ -186,7 +188,7 @@ const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
       <div className={className} {...props} ref={forwardedRef}>
         <div className="flex flex-col gap-4 items-center">
           <h2 className="text-xl font-semibold">Premium Subscription</h2>
-          {userData.is_premium ? (
+          {userData.isPremium ? (
             <div className="flex flex-col items-center gap-4">
               <div className="flex items-center gap-2">
                 <p>You are a premium user</p>
@@ -278,7 +280,7 @@ export default async function ProfilePage() {
               <h1 className="text-3xl font-bold text-white">
                 {userData.username}
               </h1>
-              {userData.is_premium && <LuGem className="text-2xl" />}
+              {userData.isPremium && <LuGem className="text-2xl" />}
             </div>
             <div className="flex gap-4">
               <form action={signOutAction} className="inline">

@@ -72,6 +72,7 @@
     "@supabase/supabase-js": "^2.57.0",
     "@types/wicg-file-system-access": "^2023.10.6",
     "@xyflow/react": "^12.8.4",
+    "camelcase-keys": "^10.0.0",
     "classnames": "^2.5.1",
     "get-port-please": "^3.2.0",
     "nanoid": "^5.1.6",

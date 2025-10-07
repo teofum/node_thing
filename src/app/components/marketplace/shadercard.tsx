@@ -15,8 +15,8 @@ type ShaderCardProps = {
   inCart: boolean;
   username?: string;
   category: string;
-  average_rating?: number | null;
-  rating_count?: number | null;
+  averageRating?: number | null;
+  ratingCount?: number | null;
 };
 
 export default function ShaderCard({
@@ -26,10 +26,10 @@ export default function ShaderCard({
   inCart,
   username,
   category,
-  average_rating,
-  rating_count,
+  averageRating,
+  ratingCount,
 }: ShaderCardProps) {
-  const rating = Math.max(0, Math.min(average_rating ?? 0, 5));
+  const rating = Math.max(0, Math.min(averageRating ?? 0, 5));
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5 ? 1 : 0;
   const emptyStars = 5 - fullStars - halfStar;
@@ -82,7 +82,7 @@ export default function ShaderCard({
               <LuStar key={`empty-${idx}`} className="text-white/60 w-5 h-5" />
             ))}
           <p className="flex items-center justify-bottom text-center text-xs text-gray-500  ml-1">
-            ({rating_count} ratings)
+            ({ratingCount} ratings)
           </p>
         </div>
         {inCart ? (

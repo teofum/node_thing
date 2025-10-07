@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { PostgrestError } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
+import camelcaseKeys from "camelcase-keys";
 
 export async function getUser() {
   const supabase = await createClient();
@@ -37,7 +38,7 @@ export async function getUserData() {
     throw new Error(`Failed to load user data: ${error.message}`);
   }
 
-  return data;
+  return camelcaseKeys(data, { deep: true });
 }
 
 export async function getPublishedShaders() {
@@ -68,7 +69,7 @@ export async function getPublishedShaders() {
     throw new Error(`Failed to load published shaders: ${error.message}`);
   }
 
-  return data ?? [];
+  return camelcaseKeys(data) ?? [];
 }
 
 export async function getPurchasedShaders() {
@@ -103,7 +104,7 @@ export async function getPurchasedShaders() {
 
   if (err2) throw new Error(errorMessage(err2));
 
-  return shaders ?? [];
+  return camelcaseKeys(shaders) ?? [];
 }
 
 export async function submitShaderReview(
@@ -159,7 +160,7 @@ export async function getUserRatings() {
     throw new Error(`Failed to load user ratings: ${error.message}`);
   }
 
-  return data ?? [];
+  return camelcaseKeys(data) ?? [];
 }
 
 // TODO agregar eliminar ratings
