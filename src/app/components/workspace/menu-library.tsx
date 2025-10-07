@@ -13,7 +13,6 @@ import { ShaderEditor } from "./shader-editor";
 
 export function MenuLibrary() {
   const nodeTypes = useMainStore((state) => state.nodeTypes);
-  const createNodeType = useMainStore((state) => state.createNodeType);
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.effectAllowed = "move";

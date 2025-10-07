@@ -28,6 +28,7 @@ export function usePipeline(
   const pipelineCache = useRef<(PreparedPipeline | null)[] | null>(null);
   const layersCache = useRef<Layer[] | null>(null);
   const canvasDimsCache = useRef<typeof canvas | null>(null);
+  const nodeTypesCache = useRef<typeof nodeTypes | null>(null);
 
   /*
    * Rebuild render pipeline when node graph state changes
@@ -53,7 +54,8 @@ export function usePipeline(
       // Pipeline descriptor must me rebuilt from node graph if...
       const desc =
         !cachedLayers[i] || //                              layer is not cached, or
-        compareLayers(layer, cachedLayers[i]); //           layer has changed
+        compareLayers(layer, cachedLayers[i]) || //         layer has changed, or
+        nodeTypes != nodeTypesCache.current; //             node types have changed
 
       // GPU pipeline object must be rebuilt from descriptor if...
       const pipeline =
@@ -69,6 +71,7 @@ export function usePipeline(
     });
 
     canvasDimsCache.current = canvas;
+    nodeTypesCache.current = nodeTypes;
 
     /*
      * Rebuild whatever needs to be rebuilt
@@ -78,7 +81,7 @@ export function usePipeline(
       if (needsRebuild[i].desc) {
         console.log(`Rebuilding render graph [layer ${i}]...`);
 
-        descCache.current[i] = RenderPipeline.create(layer, nodeTypes);
+        descCache.current[i] = RenderPipeline.tryCreate(layer, nodeTypes);
         if (!descCache.current[i] || descCache.current[i].outputBuffer < 0)
           descCache.current[i] = null;
       }

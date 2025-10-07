@@ -244,7 +244,7 @@ function createInputStage(
   };
 }
 
-function createOuputStage(
+function createOutputStage(
   device: GPUDevice,
   uniformBindGroupLayout: GPUBindGroupLayout,
 ) {
@@ -320,7 +320,7 @@ export function preparePipeline(
   );
 
   const inputStage = createInputStage(device, uniform.bindGroupLayout);
-  const outputStage = createOuputStage(device, uniform.bindGroupLayout);
+  const outputStage = createOutputStage(device, uniform.bindGroupLayout);
 
   return {
     desc,
