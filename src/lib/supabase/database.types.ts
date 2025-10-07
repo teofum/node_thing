@@ -151,27 +151,27 @@ export type Database = {
       projects: {
         Row: {
           created_at: string | null;
-          data: Json;
           id: string;
           name: string | null;
           updated_at: string | null;
           user_id: string;
+          user_project: string;
         };
         Insert: {
           created_at?: string | null;
-          data: Json;
           id?: string;
           name?: string | null;
           updated_at?: string | null;
           user_id: string;
+          user_project: string;
         };
         Update: {
           created_at?: string | null;
-          data?: Json;
           id?: string;
           name?: string | null;
           updated_at?: string | null;
           user_id?: string;
+          user_project?: string;
         };
         Relationships: [
           {
@@ -274,6 +274,7 @@ export type Database = {
           code: string;
           created_at: string;
           description: string | null;
+          downloads: number;
           id: string;
           node_config: Json | null;
           price: number;
@@ -290,6 +291,7 @@ export type Database = {
           code: string;
           created_at?: string;
           description?: string | null;
+          downloads?: number;
           id?: string;
           node_config?: Json | null;
           price: number;
@@ -306,6 +308,7 @@ export type Database = {
           code?: string;
           created_at?: string;
           description?: string | null;
+          downloads?: number;
           id?: string;
           node_config?: Json | null;
           price?: number;
@@ -349,6 +352,10 @@ export type Database = {
       get_user_email_by_username: {
         Args: { username_param: string };
         Returns: string;
+      };
+      increment_shader_downloads: {
+        Args: { shader_id: string };
+        Returns: void;
       };
     };
     Enums: {
