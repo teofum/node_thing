@@ -35,6 +35,13 @@ export default async function PendingPage({ params }: Props) {
     redirect(`/marketplace/checkout/${orderId}/success`);
   }
 
+  if (order.status === "pending") {
+    await supabase.rpc("finish_payment", {
+      order_uuid: orderId,
+      user_uuid: user.id,
+    });
+  }
+
   return (
     <div className="min-h-screen bg-neutral-900">
       <div className="flex items-center justify-center min-h-screen p-6">
