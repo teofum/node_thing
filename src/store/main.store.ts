@@ -12,7 +12,7 @@ import { nanoid } from "nanoid";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { getPurchasedShaders } from "@/app/marketplace/actions";
+import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 import { createNode } from "@/utils/node";

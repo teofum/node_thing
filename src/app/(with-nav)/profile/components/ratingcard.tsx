@@ -1,12 +1,11 @@
 "use client";
 
-import { ComponentProps, useState } from "react";
+import { ComponentProps } from "react";
 import { Dialog } from "@/ui/dialog";
-import RatingEditor from "../../profile/rating-editor";
-import { UserRatingsDisplay } from "../../profile/page";
-import { Tables } from "@/lib/supabase/database.types";
+import RatingEditor from "../rating-editor";
+import { UserRatingsDisplay } from "../page";
 import { Button } from "@/ui/button";
-import { Stars } from "../marketplace/stars";
+import { Stars } from "@/app/(with-nav)/marketplace/components/stars";
 
 type RatingCardProps = {
   id: string;
@@ -25,7 +24,6 @@ export default function RatingCard({
   averageRating,
   userRating,
   ratingCount,
-  trigger,
 }: RatingCardProps) {
   return (
     <div className="glass glass-border p-6 rounded-2xl">

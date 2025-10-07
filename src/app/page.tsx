@@ -58,7 +58,7 @@ export default async function Home() {
   return (
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}
-      <div className="flex items-center px-2 pl-4 pt-3 gap-4">
+      <div className="flex items-center px-4 pt-3 gap-4">
         <h1 className="font-semibold tracking-wide">node_thing</h1>
 
         <Menubar className="mr-auto">
