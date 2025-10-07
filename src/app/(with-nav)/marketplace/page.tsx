@@ -58,7 +58,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
   );
 
   return (
-    <div className="min-h-screen bg-neutral-900 relative">
+    <div className="min-h-screen bg-neutral-900">
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
