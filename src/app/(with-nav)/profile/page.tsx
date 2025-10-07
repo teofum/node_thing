@@ -326,90 +326,78 @@ export default async function ProfilePage() {
     "flex h-[45px] hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-5 font-semibold text-[15px] leading-none outline-none first:rounded-tl-2xl last:rounded-tr-2xl data-[state=active]:border-teal-500 data-[state=active]:border-b-2 transition data-[state=active]:focus:relative";
 
   return (
-    <div className="min-h-screen bg-neutral-900">
-      <LinkButton
-        variant="ghost"
-        href="/"
-        size="md"
-        className="absolute top-4 left-4"
-      >
-        <LuArrowLeft />
-        Back
-      </LinkButton>
-
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-10">
-            <div className="flex items-center gap-4">
-              <Image
-                src={user.user_metadata.avatar_url}
-                alt=""
-                width={100}
-                height={100}
-                unoptimized
-                className="rounded-full"
-              />
-              <h1 className="text-3xl font-bold text-white">
-                {userData.username}
-              </h1>
-              {userData.isPremium && <LuGem className="text-2xl" />}
-            </div>
-            <div className="flex gap-4">
-              <form action={signOutAction} className="inline">
-                <Button type="submit" variant="outline">
-                  Logout
-                </Button>
-              </form>
-            </div>
+    <div className="p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-10">
+          <div className="flex items-center gap-4">
+            <Image
+              src={user.user_metadata.avatar_url}
+              alt=""
+              width={100}
+              height={100}
+              unoptimized
+              className="rounded-full"
+            />
+            <h1 className="text-3xl font-bold text-white">
+              {userData.username}
+            </h1>
+            {userData.isPremium && <LuGem className="text-2xl" />}
           </div>
-
-          <Tabs.Root
-            className="flex flex-col glass rounded-2xl"
-            defaultValue="tab1"
-          >
-            <Tabs.List className="flex shrink-0">
-              <Tabs.Trigger className={triggerStyle} value="tab1">
-                Info
-              </Tabs.Trigger>
-              <Tabs.Trigger className={triggerStyle} value="tab2">
-                Shaders
-              </Tabs.Trigger>
-              <Tabs.Trigger className={triggerStyle} value="tab3">
-                Premium
-              </Tabs.Trigger>
-            </Tabs.List>
-            <Tabs.Content
-              className="grow rounded-b-md p-5 outline-none"
-              value="tab1"
-            >
-              <AccountInfoTab
-                className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
-                lines={accountInfo}
-                userData={userData}
-              />
-            </Tabs.Content>
-            <Tabs.Content
-              className="grow rounded-b-md p-5 outline-none"
-              value="tab2"
-            >
-              <UserShadersTab
-                className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
-                shaderList={purchasedShaders}
-                publishList={publishedShaders}
-                ratingsList={userRatings}
-              />
-            </Tabs.Content>
-            <Tabs.Content
-              className="grow rounded-b-md p-5 outline-none"
-              value="tab3"
-            >
-              <PremiumTab
-                className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
-                userData={userData}
-              />
-            </Tabs.Content>
-          </Tabs.Root>
+          <div className="flex gap-4">
+            <form action={signOutAction} className="inline">
+              <Button type="submit" variant="outline">
+                Logout
+              </Button>
+            </form>
+          </div>
         </div>
+
+        <Tabs.Root
+          className="flex flex-col glass rounded-2xl"
+          defaultValue="tab1"
+        >
+          <Tabs.List className="flex shrink-0">
+            <Tabs.Trigger className={triggerStyle} value="tab1">
+              Info
+            </Tabs.Trigger>
+            <Tabs.Trigger className={triggerStyle} value="tab2">
+              Shaders
+            </Tabs.Trigger>
+            <Tabs.Trigger className={triggerStyle} value="tab3">
+              Premium
+            </Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content
+            className="grow rounded-b-md p-5 outline-none"
+            value="tab1"
+          >
+            <AccountInfoTab
+              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+              lines={accountInfo}
+              userData={userData}
+            />
+          </Tabs.Content>
+          <Tabs.Content
+            className="grow rounded-b-md p-5 outline-none"
+            value="tab2"
+          >
+            <UserShadersTab
+              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+              shaderList={purchasedShaders}
+              publishList={publishedShaders}
+              ratingsList={userRatings}
+            />
+          </Tabs.Content>
+          <Tabs.Content
+            className="grow rounded-b-md p-5 outline-none"
+            value="tab3"
+          >
+            <PremiumTab
+              className="bg-black/50 rounded-2xl p-4 min-h-[300px] mb-3"
+              userData={userData}
+            />
+          </Tabs.Content>
+        </Tabs.Root>
       </div>
     </div>
   );
