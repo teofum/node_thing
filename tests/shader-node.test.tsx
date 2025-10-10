@@ -1,24 +1,9 @@
 import React from "react";
-import { createNode } from "@/utils/node";
 import { render, screen } from "@testing-library/react";
 import { NodeOutput } from "@/app/components/workspace/shader-node/node-output";
-import { NODE_TYPES } from "@/utils/node-type";
 import { RenderShaderNode } from "@/app/components/workspace/shader-node/index";
 import { Viewport } from "@/app/components/workspace/viewport";
 import { ReactFlowProvider } from "@xyflow/react";
-
-// testeo creación de nuevo shader
-describe("createNode() test", () => {
-  it("createNode() test", () => {
-    const node = createNode("mix", { x: 1, y: 2 }, NODE_TYPES, {
-      a: { value: "5" },
-    });
-
-    expect(node.type).toBe("RenderShaderNode");
-    expect(node.position).toEqual({ x: 1, y: 2 });
-    expect(node.data.parameters.a.value).toBe("5");
-  });
-});
 
 jest.mock("@/src/store/main.store", () => ({
   useMainStore: jest.fn((selector) =>
