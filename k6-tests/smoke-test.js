@@ -11,7 +11,6 @@
  * 3. Profile (view user data)
  * 
  * This is a quick sanity check to ensure the system is operational.
- * Run before deployments or as part of CI/CD pipeline.
  */
 
 import http from 'k6/http';
