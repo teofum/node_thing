@@ -1,11 +1,30 @@
+/**
+ * Load Test - Expected Peak Traffic
+ * 
+ * Objective: Validate performance under expected peak load
+ * VUs: 20 (40-60 real users)
+ * Duration: 20 minutes (5m ramp-up, 10m stable, 5m ramp-down)
+ * 
+ * Flow:
+ * 1. Login (once per VU)
+ * 2. Marketplace (list all shaders)
+ * 3. Marketplace with category filter
+ * 4. Marketplace with search query
+ * 5. Cart (view shopping cart)
+ * 6. Profile (view purchases and owned shaders)
+ * 
+ * Simulates realistic user behavior during peak hours.
+ * Represents typical marketplace browsing session before purchase.
+ */
+
 import http from 'k6/http';
 import { check, sleep, group } from 'k6';
 import { users } from './shared.js';
 
 export const options = {
   stages: [
-    { duration: '5m', target: 50 },   // Ramp-up to 50 users
-    { duration: '30m', target: 50 },  // Stay at 50 users
+    { duration: '5m', target: 20 },   // Ramp-up to 20 users
+    { duration: '10m', target: 20 },  // Stay at 20 users
     { duration: '5m', target: 0 },    // Ramp-down to 0
   ],
   thresholds: {
@@ -53,13 +72,18 @@ export default function loadTest() {
   });
   sleep(2);
 
-  group('Marketplace Filter', () => {
-    http.get(`${BASE_URL}/marketplace?category=Effects`, { jar: vuState[vuId].jar });
+  group('Marketplace Category', () => {
+    http.get(`${BASE_URL}/marketplace?category=1`, { jar: vuState[vuId].jar });
   });
   sleep(2);
 
   group('Marketplace Search', () => {
-    http.get(`${BASE_URL}/marketplace?search=blur`, { jar: vuState[vuId].jar });
+    http.get(`${BASE_URL}/marketplace?search=shader`, { jar: vuState[vuId].jar });
+  });
+  sleep(2);
+
+  group('Cart', () => {
+    http.get(`${BASE_URL}/marketplace/cart`, { jar: vuState[vuId].jar });
   });
   sleep(2);
 

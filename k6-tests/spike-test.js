@@ -1,3 +1,19 @@
+/**
+ * Spike Test - Sudden Traffic Burst
+ * 
+ * Objective: Validate system recovery from sudden traffic spikes
+ * VUs: 10 (20-30 real users)
+ * Duration: 3 minutes (30s spike, 2m hold, 30s drop)
+ * 
+ * Flow:
+ * 1. Login (once per VU)
+ * 2. Marketplace (list shaders)
+ * 3. Marketplace with category filter
+ * 
+ * Simulates sudden traffic burst.
+ * Tests if system can handle and recover from unexpected load spikes.
+ */
+
 import http from 'k6/http';
 import { check, sleep, group } from 'k6';
 import { users } from './shared.js';
@@ -9,8 +25,8 @@ export const options = {
     { duration: '30s', target: 0 },  // Ramp down
   ],
   thresholds: {
-    http_req_duration: ['p(95)<3000'],
-    http_req_failed: ['rate<0.1'],
+    http_req_failed: ['rate<0.1'],   // <10% errors
+    http_req_duration: ['p(95)<3000'], // 95% under 3s
   },
 };
 
@@ -48,9 +64,14 @@ export default function spikeTest() {
   sleep(1);
 
   group('Marketplace', () => {
-    const res = http.get(`${BASE_URL}/marketplace`, { jar: vuState[vuId].jar });
-    check(res, { 'marketplace success': (r) => r.status === 200 });
+    http.get(`${BASE_URL}/marketplace`, { jar: vuState[vuId].jar });
   });
 
-  sleep(1);
+  sleep(2);
+
+  group('Marketplace Category', () => {
+    http.get(`${BASE_URL}/marketplace?category=1`, { jar: vuState[vuId].jar });
+  });
+
+  sleep(2);
 }

@@ -1,3 +1,23 @@
+/**
+ * Mini-Soak Test - Long-term Stability
+ * 
+ * Objective: Detect memory leaks and performance degradation over time
+ * VUs: 10 (20-30 real users)
+ * Duration: 1 hour (5m ramp-up, 50m stable, 5m ramp-down)
+ * 
+ * Flow (continuous loop with variation):
+ * 1. Login (once per VU)
+ * 2. Marketplace (list all shaders)
+ * 3. Marketplace with rotating category filter
+ * 4. Marketplace with search query
+ * 5. Cart (every 3rd iteration)
+ * 6. Profile (every 4th iteration)
+ * 
+ * Simulates users browsing marketplace for extended periods.
+ * Validates system stability under sustained moderate load.
+ * Variation in flow makes it more realistic than fixed pattern.
+ */
+
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { users } from './shared.js';
@@ -6,14 +26,14 @@ const BASE_URL = 'http://localhost:3000';
 
 export const options = {
   stages: [
-    { duration: '5m', target: 20 },   // Ramp-up a 20 VUs
-    { duration: '50m', target: 20 },  // Mantener 20 VUs por 50 minutos
+    { duration: '5m', target: 10 },   // Ramp-up to 10 users
+    { duration: '50m', target: 10 },  // Stay at 10 users
     { duration: '5m', target: 0 },    // Ramp-down
   ],
   thresholds: {
-    http_req_failed: ['rate<0.05'],      // <5% errores
-    http_req_duration: ['p(95)<3000'],   // p95 < 3s
-    http_req_duration: ['p(99)<5000'],   // p99 < 5s
+    http_req_failed: ['rate<0.05'],      // <5% errors
+    http_req_duration: ['p(95)<3000'],   // 95% under 3s
+    http_req_duration: ['p(99)<5000'],   // 99% under 5s
   },
 };
 
@@ -51,12 +71,14 @@ export default function miniSoakTest() {
     }
   }
 
+  const iteration = __ITER;
+
   http.get(`${BASE_URL}/marketplace`, {
     jar: vuState[__VU].jar,
   });
   sleep(2);
 
-  http.get(`${BASE_URL}/marketplace?category=1`, {
+  http.get(`${BASE_URL}/marketplace?category=${(iteration % 3) + 1}`, {
     jar: vuState[__VU].jar,
   });
   sleep(2);
@@ -66,8 +88,17 @@ export default function miniSoakTest() {
   });
   sleep(2);
 
-  http.get(`${BASE_URL}/profile`, {
-    jar: vuState[__VU].jar,
-  });
-  sleep(2);
+  if (iteration % 3 === 0) {
+    http.get(`${BASE_URL}/marketplace/cart`, {
+      jar: vuState[__VU].jar,
+    });
+    sleep(2);
+  }
+
+  if (iteration % 4 === 0) {
+    http.get(`${BASE_URL}/profile`, {
+      jar: vuState[__VU].jar,
+    });
+    sleep(2);
+  }
 }

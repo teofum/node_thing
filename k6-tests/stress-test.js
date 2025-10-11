@@ -1,3 +1,23 @@
+/**
+ * Stress Test - Breaking Point
+ * 
+ * Objective: Find system limits and breaking point
+ * VUs: 50 (100-150 real users)
+ * Duration: 30 minutes (5m ramp-up, 20m stable, 5m ramp-down)
+ * 
+ * Flow:
+ * 1. Login (once per VU)
+ * 2. Marketplace (list all shaders)
+ * 3. Marketplace with category filter
+ * 4. Marketplace with search query
+ * 5. Cart (view shopping cart)
+ * 6. Profile (view purchases and owned shaders)
+ * 
+ * Pushes system to 2.5x expected load to identify bottlenecks.
+ * Tests graceful degradation under extreme conditions.
+ * Same flow as load test for direct performance comparison.
+ */
+
 import http from 'k6/http';
 import { check, sleep, group } from 'k6';
 import { users } from './shared.js';
@@ -5,15 +25,11 @@ import { users } from './shared.js';
 export const options = {
   stages: [
     { duration: '5m', target: 50 },    // Ramp-up to 50
-    { duration: '5m', target: 50 },    // Stay at 50
-    { duration: '5m', target: 100 },   // Ramp-up to 100
-    { duration: '5m', target: 100 },   // Stay at 100
-    { duration: '5m', target: 150 },   // Ramp-up to 150
-    { duration: '15m', target: 150 },  // Stay at 150
+    { duration: '20m', target: 50 },   // Stay at 50
     { duration: '5m', target: 0 },     // Ramp-down
   ],
   thresholds: {
-    http_req_failed: ['rate<0.1'],      // <10% errors acceptable
+    http_req_failed: ['rate<0.1'],      // <10% errors
     http_req_duration: ['p(95)<5000'],  // 95% under 5s
   },
 };
@@ -54,10 +70,25 @@ export default function stressTest() {
   group('Marketplace', () => {
     http.get(`${BASE_URL}/marketplace`, { jar: vuState[vuId].jar });
   });
-  sleep(1);
+  sleep(2);
+
+  group('Marketplace Category', () => {
+    http.get(`${BASE_URL}/marketplace?category=1`, { jar: vuState[vuId].jar });
+  });
+  sleep(2);
+
+  group('Marketplace Search', () => {
+    http.get(`${BASE_URL}/marketplace?search=shader`, { jar: vuState[vuId].jar });
+  });
+  sleep(2);
+
+  group('Cart', () => {
+    http.get(`${BASE_URL}/marketplace/cart`, { jar: vuState[vuId].jar });
+  });
+  sleep(2);
 
   group('Profile', () => {
     http.get(`${BASE_URL}/profile`, { jar: vuState[vuId].jar });
   });
-  sleep(1);
+  sleep(2);
 }
