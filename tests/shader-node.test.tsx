@@ -1,23 +1,14 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import { NodeOutput } from "@/app/components/workspace/shader-node/node-output";
+
 import { RenderShaderNode } from "@/app/components/workspace/shader-node/index";
-import { Viewport } from "@/app/components/workspace/viewport";
-import { ReactFlowProvider } from "@xyflow/react";
+import { createNode } from "@/utils/node";
+
+import { mockNodeTypes } from "./node.mock";
 
 jest.mock("@/src/store/main.store", () => ({
   useMainStore: jest.fn((selector) =>
     selector({
-      nodeTypes: {
-        test: {
-          name: "Number",
-          category: "Math",
-          inputs: {},
-          outputs: {},
-          parameters: {},
-          isPurchased: false,
-        },
-      },
+      nodeTypes: mockNodeTypes,
       layers: {
         0: { nodes: [], edges: [] },
       },
@@ -30,81 +21,58 @@ jest.mock("@/src/store/main.store", () => ({
   ),
 }));
 
-// testeo renderizado de componentes individuales de shader-node
-describe("shader-node components test", () => {
-  it("NodeOutput output test", () => {
-    render(
-      <NodeOutput
-        id="node1"
-        type="MathNode"
-        data={{
-          type: "MathNode",
-          defaultValues: { a: 0 },
-          parameters: { a: { value: "5" } },
-        }}
-        output={["result", { name: "result", type: "number" as const }]}
-        i={0}
-        offset={0}
-        mock={true}
-        width={100}
-        height={50}
-        selected={false}
-        dragging={false}
-        zIndex={0}
-        selectable={false}
-        deletable={false}
-        draggable={false}
-        isConnectable={false}
-        positionAbsoluteX={0}
-        positionAbsoluteY={0}
-      />,
-    );
+describe("ShaderNode component", () => {
+  const nodePosition = { x: 1, y: 2 };
+  const nodeParameters = { test: { value: "test" } };
 
-    expect(screen.getByText("result")).toBeInTheDocument();
-  });
+  const node = createNode("mix", nodePosition, mockNodeTypes, nodeParameters);
+  const type = mockNodeTypes[node.data.type];
 
-  it("RenderShaderNode test", () => {
+  const renderTestNode = () => {
     render(
       <RenderShaderNode
-        id="node1"
+        mock
+        type="RenderShaderNode"
+        id={node.id}
+        data={node.data}
         selected={false}
-        mock={true}
-        type="shader"
-        data={{
-          type: "test",
-          defaultValues: { value: 2 },
-          parameters: {},
-        }}
         dragging={false}
         draggable={false}
         selectable={false}
         deletable={false}
-        zIndex={0}
         isConnectable={false}
         positionAbsoluteX={0}
         positionAbsoluteY={0}
+        zIndex={0}
       />,
     );
-
-    expect(screen.getByText("Number")).toBeInTheDocument();
-  });
-});
-
-// testeo React Flow
-describe("React Flow test", () => {
-  ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
   };
 
-  it("React Flow test", () => {
-    render(
-      <ReactFlowProvider>
-        <Viewport />
-      </ReactFlowProvider>,
-    );
+  it("renders its type name", () => {
+    renderTestNode();
 
-    expect(screen.getByText("React Flow")).toBeInTheDocument();
+    expect(screen.getByText(type.name)).toBeInTheDocument();
+  });
+
+  it("renders all inputs in order", () => {
+    renderTestNode();
+
+    const inputA = screen.getByText("A");
+    const inputB = screen.getByText("B");
+    const inputFactor = screen.getByText("Factor");
+
+    expect(inputA).toBeInTheDocument();
+    expect(inputB).toAppearAfter(inputA);
+    expect(inputFactor).toAppearAfter(inputB);
+  });
+
+  it("renders outputs after inputs", () => {
+    renderTestNode();
+
+    const inputFactor = screen.getByText("Factor");
+    const output = screen.getByText("Output");
+
+    expect(inputFactor).toBeInTheDocument();
+    expect(output).toAppearAfter(inputFactor);
   });
 });
