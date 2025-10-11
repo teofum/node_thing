@@ -15,14 +15,11 @@ export const options = {
 };
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
-
-// Global state per VU
 const vuState = {};
 
 export default function spikeTest() {
   const vuId = __VU;
   
-  // Login only once per VU
   if (!vuState[vuId]) {
     vuState[vuId] = {
       jar: http.cookieJar(),
@@ -30,7 +27,6 @@ export default function spikeTest() {
       loggedIn: false,
     };
     
-    // Stagger initial logins
     sleep(vuId * 0.1);
     
     group('Login', () => {

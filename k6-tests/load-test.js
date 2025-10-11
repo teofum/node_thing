@@ -16,14 +16,11 @@ export const options = {
 };
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
-
-// Global state per VU
 const vuState = {};
 
 export default function loadTest() {
   const vuId = __VU;
   
-  // Login only once per VU
   if (!vuState[vuId]) {
     vuState[vuId] = {
       jar: http.cookieJar(),
@@ -31,7 +28,6 @@ export default function loadTest() {
       loggedIn: false,
     };
     
-    // Stagger initial logins
     sleep(vuId * 0.1);
     
     group('Login', () => {
@@ -52,7 +48,6 @@ export default function loadTest() {
 
   sleep(1);
 
-  // Marketplace with filters
   group('Marketplace', () => {
     http.get(`${BASE_URL}/marketplace`, { jar: vuState[vuId].jar });
   });

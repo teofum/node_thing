@@ -12,12 +12,10 @@ export const options = {
 };
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
-
 const jar = http.cookieJar();
 const user = users[0];
 
 export default function smokeTest() {
-  // Login
   group('Login', () => {
     const loginRes = http.post(
       `${BASE_URL}/api/test-auth`,
@@ -32,7 +30,6 @@ export default function smokeTest() {
 
   sleep(1);
 
-  // Marketplace
   group('Marketplace', () => {
     const marketplaceRes = http.get(`${BASE_URL}/marketplace`, { jar: jar });
     check(marketplaceRes, { 'marketplace available': (r) => r.status === 200 });
@@ -40,7 +37,6 @@ export default function smokeTest() {
 
   sleep(1);
 
-  // Profile
   group('Profile', () => {
     const profileRes = http.get(`${BASE_URL}/profile`, { jar: jar });
     check(profileRes, { 'profile available': (r) => r.status === 200 });

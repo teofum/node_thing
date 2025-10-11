@@ -20,14 +20,12 @@ export const options = {
 const vuState = {};
 
 export default function miniSoakTest() {
-  // Login una sola vez por VU
   if (!vuState[__VU]) {
     vuState[__VU] = {
       jar: http.cookieJar(),
       loggedIn: false,
     };
 
-    // Stagger logins para evitar burst
     sleep(__VU * 0.1);
 
     const user = users[__VU % users.length];
@@ -53,27 +51,21 @@ export default function miniSoakTest() {
     }
   }
 
-  // Flujo de usuario típico
-  
-  // 1. Marketplace sin filtros
   http.get(`${BASE_URL}/marketplace`, {
     jar: vuState[__VU].jar,
   });
   sleep(2);
 
-  // 2. Marketplace con categoría
   http.get(`${BASE_URL}/marketplace?category=1`, {
     jar: vuState[__VU].jar,
   });
   sleep(2);
 
-  // 3. Marketplace con búsqueda
   http.get(`${BASE_URL}/marketplace?search=shader`, {
     jar: vuState[__VU].jar,
   });
   sleep(2);
 
-  // 4. Profile
   http.get(`${BASE_URL}/profile`, {
     jar: vuState[__VU].jar,
   });
