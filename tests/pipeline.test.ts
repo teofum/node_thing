@@ -1,6 +1,6 @@
 import { RenderPipeline } from "@/app/components/renderer/pipeline";
 import { NODE_TYPES } from "@/utils/node-type";
-import { edge, getNodesForTesting } from "./mock-pipeline";
+import { edge, getNodesForTesting } from "./pipeline.mock";
 
 describe("RenderPipeline", () => {
   const { output, mix, gray, threshold, input } = getNodesForTesting();
