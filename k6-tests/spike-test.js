@@ -2,8 +2,8 @@
  * Spike Test - Sudden Traffic Burst
  * 
  * Objective: Validate system recovery from sudden traffic spikes
- * VUs: 80 (160-240 real users)
- * Duration: 5 minutes (instant spike, 3m hold, 2m recovery)
+ * VUs: 50 (100-150 real users)
+ * Duration: 2 minutes (30s ramp-up, 1m30s recovery)
  * 
  * Flow:
  * 1. Login (once per VU)
@@ -20,12 +20,11 @@ import { users } from './shared.js';
 
 export const options = {
   stages: [
-    { duration: '30s', target: 80 }, // Instant spike to 80 users
-    { duration: '30s', target: 80 },  // Hold spike
-    { duration: '2m', target: 0 },   // Recovery period
+    { duration: '30s', target: 50 },  // Spike to 50 users
+    { duration: '1m30s', target: 0 }, // Recovery period
   ],
   thresholds: {
-    http_req_failed: ['rate<0.15'],  // <15% errors (spike tolerance)
+    http_req_failed: ['rate<0.05'],  // <5% errors
     http_req_duration: ['p(95)<5000'], // 95% under 5s
   },
 };
@@ -43,7 +42,7 @@ export default function spikeTest() {
       loggedIn: false,
     };
     
-    sleep(vuId * 2);
+    sleep(vuId * 0.5);
     
     group('Login', () => {
       const loginRes = http.post(
