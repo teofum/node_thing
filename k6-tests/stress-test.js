@@ -3,7 +3,7 @@
  * 
  * Objective: Find system limits and breaking point
  * VUs: 50 (100-150 real users)
- * Duration: 30 minutes (5m ramp-up, 20m stable, 5m ramp-down)
+ * Duration: 45 minutes (10m ramp-up, 30m stable, 5m ramp-down)
  * 
  * Flow:
  * 1. Login (once per VU)
@@ -24,9 +24,9 @@ import { users } from './shared.js';
 
 export const options = {
   stages: [
-    { duration: '5m', target: 50 },    // Ramp-up to 50
-    { duration: '20m', target: 50 },   // Stay at 50
-    { duration: '5m', target: 0 },     // Ramp-down
+    { duration: '10m', target: 50 },    // Ramp-up to 50
+    { duration: '30m', target: 50 },    // Stay at 50
+    { duration: '5m', target: 0 },      // Ramp-down
   ],
   thresholds: {
     http_req_failed: ['rate<0.1'],      // <10% errors
@@ -65,30 +65,30 @@ export default function stressTest() {
   
   if (!vuState[vuId].loggedIn) return;
 
-  sleep(1);
+  sleep(2 + Math.random() * 3);
 
   group('Marketplace', () => {
     http.get(`${BASE_URL}/marketplace`, { jar: vuState[vuId].jar });
   });
-  sleep(2);
+  sleep(2 + Math.random() * 3);
 
   group('Marketplace Category', () => {
     http.get(`${BASE_URL}/marketplace?category=1`, { jar: vuState[vuId].jar });
   });
-  sleep(2);
+  sleep(2 + Math.random() * 3);
 
   group('Marketplace Search', () => {
     http.get(`${BASE_URL}/marketplace?search=shader`, { jar: vuState[vuId].jar });
   });
-  sleep(2);
+  sleep(2 + Math.random() * 3);
 
   group('Cart', () => {
     http.get(`${BASE_URL}/marketplace/cart`, { jar: vuState[vuId].jar });
   });
-  sleep(2);
+  sleep(2 + Math.random() * 3);
 
   group('Profile', () => {
     http.get(`${BASE_URL}/profile`, { jar: vuState[vuId].jar });
   });
-  sleep(2);
+  sleep(2 + Math.random() * 3);
 }

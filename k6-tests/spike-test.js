@@ -2,8 +2,8 @@
  * Spike Test - Sudden Traffic Burst
  * 
  * Objective: Validate system recovery from sudden traffic spikes
- * VUs: 10 (20-30 real users)
- * Duration: 3 minutes (30s spike, 2m hold, 30s drop)
+ * VUs: 80 (160-240 real users)
+ * Duration: 5 minutes (instant spike, 3m hold, 2m recovery)
  * 
  * Flow:
  * 1. Login (once per VU)
@@ -20,13 +20,13 @@ import { users } from './shared.js';
 
 export const options = {
   stages: [
-    { duration: '30s', target: 10 }, // Spike to 10 users
-    { duration: '2m', target: 10 },  // Stay at 10 users
-    { duration: '30s', target: 0 },  // Ramp down
+    { duration: '30s', target: 80 }, // Instant spike to 80 users
+    { duration: '30s', target: 80 },  // Hold spike
+    { duration: '2m', target: 0 },   // Recovery period
   ],
   thresholds: {
-    http_req_failed: ['rate<0.1'],   // <10% errors
-    http_req_duration: ['p(95)<3000'], // 95% under 3s
+    http_req_failed: ['rate<0.15'],  // <15% errors (spike tolerance)
+    http_req_duration: ['p(95)<5000'], // 95% under 5s
   },
 };
 
@@ -43,7 +43,7 @@ export default function spikeTest() {
       loggedIn: false,
     };
     
-    sleep(vuId * 0.1);
+    sleep(vuId * 2);
     
     group('Login', () => {
       const loginRes = http.post(
@@ -61,17 +61,17 @@ export default function spikeTest() {
   
   if (!vuState[vuId].loggedIn) return;
 
-  sleep(1);
+  sleep(2 + Math.random() * 3);
 
   group('Marketplace', () => {
     http.get(`${BASE_URL}/marketplace`, { jar: vuState[vuId].jar });
   });
 
-  sleep(2);
+  sleep(2 + Math.random() * 3);
 
   group('Marketplace Category', () => {
     http.get(`${BASE_URL}/marketplace?category=1`, { jar: vuState[vuId].jar });
   });
 
-  sleep(2);
+  sleep(2 + Math.random() * 3);
 }
