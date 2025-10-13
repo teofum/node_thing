@@ -76,7 +76,6 @@
     "@xyflow/react": "^12.8.4",
     "camelcase-keys": "^10.0.0",
     "classnames": "^2.5.1",
-    "draggable-number-input": "^0.0.9",
     "get-port-please": "^3.2.0",
     "jszip": "^3.10.1",
     "mercadopago": "^2.9.0",

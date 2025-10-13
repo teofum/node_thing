@@ -7,7 +7,7 @@ import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { HandleWithMock } from "./mock-handle";
 
 import { ColorInput } from "@/ui/color-picker";
-import { SliderInput } from "@/ui/slider";
+import { NumberDrag } from "@/ui/number-drag";
 
 type NodeInputProps = NodeProps<ShaderNode> & {
   input: [string, NodeType["inputs"][string]];
@@ -47,13 +47,14 @@ export function NodeInput({
 
       {renderDefaultValueInput ? (
         input.type === "number" ? (
-          <SliderInput
+          <NumberDrag
             value={data.defaultValues[key] as number}
             onChange={(v) => updateDefaultValue(id, key, v)}
-            min={input.min ?? 0}
-            max={input.max ?? 1}
+            min={input.min}
+            max={input.max}
             step={input.step ?? 0.01}
-            className="w-25"
+            size="sm"
+            className="w-24 nodrag"
           />
         ) : (
           <ColorInput

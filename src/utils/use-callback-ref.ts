@@ -9,7 +9,8 @@ import { useEffect, useMemo, useRef } from "react";
  * as a dependency
  */
 export default function useCallbackRef<
-  T extends (...args: unknown[]) => unknown,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  T extends (...args: any[]) => any,
 >(callback: T | undefined): T {
   const callbackRef = useRef(callback);
 
