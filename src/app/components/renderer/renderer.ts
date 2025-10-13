@@ -348,6 +348,8 @@ export function render(
   target: GPUTexture,
   textures: [string, GPUTexture][],
   sampler: GPUSampler,
+  frameIndex: number,
+  time: number,
 ) {
   const {
     desc,
@@ -401,6 +403,8 @@ export function render(
     opts.globalWidth,
     opts.globalHeight,
     desc.outputAlphaBuffer === -1 ? 0 : 1,
+    frameIndex,
+    time,
   ]);
   device.queue.writeBuffer(
     uniform.buffer,

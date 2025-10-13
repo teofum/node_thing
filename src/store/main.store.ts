@@ -393,7 +393,18 @@ export const useMainStore = create<Project & ProjectActions>()(
           };
         }),
     }),
-    { name: "main-store" },
+    {
+      name: "main-store",
+      merge: (persisted, current) => ({
+        ...current,
+        ...(persisted as Project),
+        nodeTypes: {
+          ...current.nodeTypes,
+          ...(persisted as Project).nodeTypes,
+          ...NODE_TYPES,
+        },
+      }),
+    },
   ),
 );
 

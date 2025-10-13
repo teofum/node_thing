@@ -63,15 +63,25 @@ export function Canvas() {
    * Render a frame
    */
   const frameIndex = useRef(0);
+  const startTime = useRef(Date.now());
   useEffect(() => {
     if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
     const renderFrame = async () => {
       const target = ctx.getCurrentTexture();
+      const time = Date.now() - startTime.current;
 
       for (const layerPipeline of pipeline) {
         if (layerPipeline)
-          render(device, layerPipeline, target, textures, sampler);
+          render(
+            device,
+            layerPipeline,
+            target,
+            textures,
+            sampler,
+            frameIndex.current,
+            time,
+          );
       }
 
       if (nextRenderFinishedCallback) {
