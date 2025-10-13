@@ -1,5 +1,6 @@
 import { useMainStore } from "@/store/main.store";
 import { Button } from "@/ui/button";
+import { NumberDrag } from "@/ui/number-drag";
 import { SliderInput } from "@/ui/slider";
 import { ToggleGroup, ToggleItem } from "@/ui/toggle-group";
 import { LuPause, LuPlay, LuRewind, LuSquare } from "react-icons/lu";
@@ -59,12 +60,14 @@ export function MenuAnimation() {
         <div className="text-xs/3 font-semibold text-white/60 ml-1">
           Animation speed
         </div>
-        <SliderInput
+        <NumberDrag
           value={animation.animationSpeed}
           onChange={setAnimationSpeed}
           min={0.1}
-          max={5}
-          step={0.1}
+          max={3}
+          step={0.01}
+          display={(v) => `${(v * 100).toFixed(0)}%`}
+          progress
           className="w-full"
         />
 
