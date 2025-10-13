@@ -158,14 +158,6 @@ export function NumberDrag({
     [constrainedOnChange, getModifiers],
   );
 
-  const updateDelta = useCallback(
-    (e: KeyboardEvent) => {
-      if (!isMouseDown) return;
-      applyMovement(totalMovement.current, e);
-    },
-    [isMouseDown, applyMovement],
-  );
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       e.preventDefault(); // prevent default to avoid any selection / flickering
@@ -182,20 +174,6 @@ export function NumberDrag({
       }
     }
   };
-
-  const handleModifierKeyDuringDrag = useCallback(
-    (e: KeyboardEvent) => {
-      if (
-        e.key === "Shift" ||
-        e.key === "Control" ||
-        e.key === "Meta" ||
-        e.key === "Alt"
-      ) {
-        updateDelta(e);
-      }
-    },
-    [updateDelta],
-  );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent | TouchEvent) => {
@@ -215,8 +193,6 @@ export function NumberDrag({
           inputRef.current?.requestPointerLock?.();
         }
         setIsDragging(true);
-        document.addEventListener("keydown", handleModifierKeyDuringDrag);
-        document.addEventListener("keyup", handleModifierKeyDuringDrag);
         onDragStart?.();
       }
       totalMovement.current = newMovement;
@@ -230,7 +206,6 @@ export function NumberDrag({
       isDragging,
       onDragStart,
       applyMovement,
-      handleModifierKeyDuringDrag,
     ],
   );
 
@@ -239,14 +214,12 @@ export function NumberDrag({
     totalMovement.current = 0;
     if (isDragging) {
       setIsDragging(false);
-      document.removeEventListener("keydown", handleModifierKeyDuringDrag);
-      document.removeEventListener("keyup", handleModifierKeyDuringDrag);
       onDragEnd?.();
     }
     if (document.pointerLockElement) {
       document.exitPointerLock();
     }
-  }, [isDragging, handleModifierKeyDuringDrag, onDragEnd]);
+  }, [isDragging, onDragEnd]);
 
   useEffect(() => {
     if (isMouseDown) {

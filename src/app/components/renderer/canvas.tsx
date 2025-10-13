@@ -107,6 +107,8 @@ export function Canvas() {
     if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
     const renderFrame = async () => {
+      cancel();
+
       const now = performance.now();
       const deltaTime = now - lastFrameTime.current;
       const minFrametime = 1000 / framerateLimit.current;
@@ -146,6 +148,7 @@ export function Canvas() {
     };
 
     lastFrameTime.current = performance.now();
+    cancel();
     frame();
 
     return () => {
