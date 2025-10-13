@@ -28,6 +28,7 @@ export type Layer = {
   name: string;
 };
 
+export type AnimationState = "running" | "stopped";
 export type ProjectProperties = {
   canvas: {
     width: number;
@@ -35,6 +36,13 @@ export type ProjectProperties = {
   };
   view: {
     zoom: number;
+  };
+  animation: {
+    state: AnimationState;
+    animationSpeed: number;
+    initialTime: number;
+    time: number;
+    frameIndex: number;
   };
 };
 
@@ -121,6 +129,11 @@ type ProjectActions = {
 
   removeLayer: (i: number) => void;
   duplicateLayer: (i: number) => void;
+
+  toggleAnimationState: (state?: AnimationState) => void;
+  updateAnimationTimer: (deltaTime: number) => void;
+  resetAnimationTimer: () => void;
+  setAnimationSpeed: (value: number) => void;
 };
 
 export const useMainStore = create<Project & ProjectActions>()(
@@ -131,7 +144,17 @@ export const useMainStore = create<Project & ProjectActions>()(
        */
       layers: [createLayer("Background")],
       currentLayer: 0,
-      properties: { canvas: initialSize, view: { zoom: 1 } },
+      properties: {
+        canvas: initialSize,
+        view: { zoom: 1 },
+        animation: {
+          state: "stopped",
+          animationSpeed: 1,
+          initialTime: Date.now(),
+          time: 0,
+          frameIndex: 0,
+        },
+      },
       nodeTypes: NODE_TYPES,
       layerId: 0,
       projectName: "Untitled Project",
@@ -392,6 +415,60 @@ export const useMainStore = create<Project & ProjectActions>()(
             currentLayer: newLayerIdx,
           };
         }),
+
+      /*
+       * Animation
+       */
+      toggleAnimationState: (state) =>
+        set(({ properties }) => ({
+          properties: {
+            ...properties,
+            animation: {
+              ...properties.animation,
+              state:
+                state ??
+                (properties.animation.state === "running"
+                  ? "stopped"
+                  : "running"),
+            },
+          },
+        })),
+
+      resetAnimationTimer: () =>
+        set(({ properties }) => ({
+          properties: {
+            ...properties,
+            animation: {
+              ...properties.animation,
+              initialTime: Date.now(),
+              time: 0,
+              frameIndex: 0,
+            },
+          },
+        })),
+
+      setAnimationSpeed: (speed) =>
+        set(({ properties }) => ({
+          properties: {
+            ...properties,
+            animation: {
+              ...properties.animation,
+              animationSpeed: speed,
+            },
+          },
+        })),
+
+      updateAnimationTimer: (deltaTime) =>
+        set(({ properties }) => ({
+          properties: {
+            ...properties,
+            animation: {
+              ...properties.animation,
+              time: properties.animation.time + deltaTime,
+              frameIndex: properties.animation.frameIndex + 1,
+            },
+          },
+        })),
     }),
     {
       name: "main-store",
@@ -402,6 +479,17 @@ export const useMainStore = create<Project & ProjectActions>()(
           ...current.nodeTypes,
           ...(persisted as Project).nodeTypes,
           ...NODE_TYPES,
+        },
+        properties: {
+          ...current.properties,
+          ...(persisted as Project).properties,
+          animation: {
+            ...current.properties.animation,
+            ...(persisted as Project).properties.animation,
+            initialTime: Date.now(),
+            time: 0,
+            frameIndex: 0,
+          },
         },
       }),
     },

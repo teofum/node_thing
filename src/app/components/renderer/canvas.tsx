@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import cn from "classnames";
 
-import { useMainStore } from "@/store/main.store";
+import { AnimationState, useMainStore } from "@/store/main.store";
 import { render } from "./renderer";
 import { useGPU } from "./use-gpu";
 import { useWebGPUContext } from "./use-webgpu-context";
@@ -21,6 +21,9 @@ export function Canvas() {
    * State
    */
   const { canvas: canvasProperties, view } = useMainStore((s) => s.properties);
+  const animation = useMainStore((s) => s.properties.animation);
+  const updateAnimationTimer = useMainStore((s) => s.updateAnimationTimer);
+
   const canvas = useUtilityStore((s) => s.canvas);
   const setCanvas = useUtilityStore((s) => s.setCanvas);
   const nextRenderFinishedCallback = useUtilityStore(
@@ -62,14 +65,45 @@ export function Canvas() {
   /*
    * Render a frame
    */
-  const frameIndex = useRef(0);
-  const startTime = useRef(Date.now());
+  const animationState = useRef(animation.state);
   useEffect(() => {
+    animationState.current = animation.state;
+  }, [animation.state]);
+
+  const animationSpeed = useRef(animation.animationSpeed);
+  useEffect(() => {
+    animationSpeed.current = animation.animationSpeed;
+  }, [animation.animationSpeed]);
+
+  const frameIndex = useRef(0);
+  const elapsedTime = useRef(0);
+  useEffect(() => {
+    frameIndex.current = animation.frameIndex;
+    elapsedTime.current = animation.time;
+  }, [animation.frameIndex, animation.time]);
+
+  const lastFrameTime = useRef(Date.now());
+  useEffect(() => {
+    const cancel = () => {
+      if (frameRequestHandle.current) {
+        console.log("cancel", frameRequestHandle.current);
+        cancelAnimationFrame(frameRequestHandle.current);
+      }
+    };
+
+    const frame = () => {
+      frameRequestHandle.current = requestAnimationFrame(renderFrame);
+      console.log("frame", frameRequestHandle.current);
+    };
+
+    cancel();
+
     if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
     const renderFrame = async () => {
+      cancel();
+
       const target = ctx.getCurrentTexture();
-      const time = Date.now() - startTime.current;
 
       for (const layerPipeline of pipeline) {
         if (layerPipeline)
@@ -80,7 +114,7 @@ export function Canvas() {
             textures,
             sampler,
             frameIndex.current,
-            time,
+            elapsedTime.current,
           );
       }
 
@@ -91,17 +125,20 @@ export function Canvas() {
 
       await device.queue.onSubmittedWorkDone();
 
-      frameIndex.current++;
-      if (frameRequestHandle.current)
-        cancelAnimationFrame(frameRequestHandle.current);
-      frameRequestHandle.current = requestAnimationFrame(renderFrame);
+      const now = Date.now();
+      const deltaTime = now - lastFrameTime.current;
+      updateAnimationTimer(deltaTime * animationSpeed.current);
+      lastFrameTime.current = now;
+
+      if (animationState.current === "running") frame();
     };
 
-    frameRequestHandle.current = requestAnimationFrame(renderFrame);
+    lastFrameTime.current = Date.now();
+    cancel();
+    frame();
 
     return () => {
-      if (frameRequestHandle.current)
-        cancelAnimationFrame(frameRequestHandle.current);
+      cancel();
     };
   }, [
     canvas,
@@ -110,8 +147,10 @@ export function Canvas() {
     pipeline,
     textures,
     sampler,
+    animation.state,
     nextRenderFinishedCallback,
     onNextRenderFinished,
+    updateAnimationTimer,
   ]);
 
   return (

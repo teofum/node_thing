@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { LuGitFork, LuPin, LuLayers, LuImage } from "react-icons/lu";
+import { LuGitFork, LuPin, LuLayers, LuImage, LuPlay } from "react-icons/lu";
 import cn from "classnames";
 
 import useResizeObserver from "@/utils/use-resize-observer";
@@ -8,11 +8,14 @@ import { Select, SelectItem } from "@/ui/select";
 import { MenuLayers } from "./menu-layers";
 import { MenuLibrary } from "./menu-library";
 import { MenuAssets } from "./menu-assets";
+import { MenuAnimation } from "./menu-animation";
 
 export function Sidebar() {
   const [pin, setPin] = useState(false);
   const [height, setHeight] = useState(0);
-  const [menu, setMenu] = useState<"library" | "layers" | "assets">("library");
+  const [menu, setMenu] = useState<
+    "library" | "layers" | "assets" | "animation"
+  >("library");
   const dummySizingDiv = useRef<HTMLDivElement | null>(null);
 
   const renderMenu = () => {
@@ -23,6 +26,8 @@ export function Sidebar() {
         return <MenuLayers />;
       case "assets":
         return <MenuAssets />;
+      case "animation":
+        return <MenuAnimation />;
       default:
         return null;
     }
@@ -76,6 +81,13 @@ export function Sidebar() {
               <div className="flex items-center gap-2">
                 <LuImage className="text-base" />
                 <div className="font-semibold">Assets</div>
+              </div>
+            </SelectItem>
+
+            <SelectItem value="animation">
+              <div className="flex items-center gap-2">
+                <LuPlay className="text-base" />
+                <div className="font-semibold">Animation</div>
               </div>
             </SelectItem>
           </Select>
