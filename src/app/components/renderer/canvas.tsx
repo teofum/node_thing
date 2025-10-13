@@ -62,11 +62,8 @@ export function Canvas() {
   /*
    * Render a frame
    */
+  const frameIndex = useRef(0);
   useEffect(() => {
-    // Cancel pending renders
-    if (frameRequestHandle.current)
-      cancelAnimationFrame(frameRequestHandle.current);
-
     if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
     const renderFrame = async () => {
@@ -81,6 +78,13 @@ export function Canvas() {
         nextRenderFinishedCallback(canvas);
         onNextRenderFinished(null);
       }
+
+      await device.queue.onSubmittedWorkDone();
+
+      frameIndex.current++;
+      if (frameRequestHandle.current)
+        cancelAnimationFrame(frameRequestHandle.current);
+      frameRequestHandle.current = requestAnimationFrame(renderFrame);
     };
 
     frameRequestHandle.current = requestAnimationFrame(renderFrame);
