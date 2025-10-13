@@ -268,12 +268,11 @@ export function NumberDrag({
         onKeyDown={handleKeyDown}
         className={cn(
           "relative tabular-nums outline-none select-none text-center",
-          "active:text-teal-400 transition-colors duration-200",
+          "active:text-teal-400 transition-colors duration-200 min-w-0 max-w-full",
           {
             "text-xs/3 p-0.5 h-5": size === "sm",
             "text-sm/4 p-2": size === "md",
           },
-          className,
         )}
         style={{
           cursor: "ew-resize",

@@ -43,6 +43,9 @@ export type ProjectProperties = {
     framerateLimit: number;
     time: number;
     frameIndex: number;
+
+    duration: number;
+    repeat: boolean;
   };
 };
 
@@ -135,6 +138,8 @@ type ProjectActions = {
   resetAnimationTimer: () => void;
   setAnimationSpeed: (value: number) => void;
   setFramerateLimit: (value: number) => void;
+  setAnimationDuration: (value: number) => void;
+  setAnimationRepeat: (value: boolean) => void;
 };
 
 export const useMainStore = create<Project & ProjectActions>()(
@@ -154,6 +159,8 @@ export const useMainStore = create<Project & ProjectActions>()(
           framerateLimit: 30,
           time: 0,
           frameIndex: 0,
+          duration: 10,
+          repeat: false,
         },
       },
       nodeTypes: NODE_TYPES,
@@ -470,13 +477,48 @@ export const useMainStore = create<Project & ProjectActions>()(
         })),
 
       updateAnimationTimer: (deltaTime) =>
+        set(({ properties }) => {
+          let time = properties.animation.time + deltaTime;
+          let frameIndex = properties.animation.frameIndex + 1;
+
+          if (
+            properties.animation.repeat &&
+            time > properties.animation.duration * 1000
+          ) {
+            time = 0;
+            frameIndex = 0;
+          }
+
+          return {
+            properties: {
+              ...properties,
+              animation: {
+                ...properties.animation,
+                time,
+                frameIndex,
+              },
+            },
+          };
+        }),
+
+      setAnimationDuration: (val) =>
         set(({ properties }) => ({
           properties: {
             ...properties,
             animation: {
               ...properties.animation,
-              time: properties.animation.time + deltaTime,
-              frameIndex: properties.animation.frameIndex + 1,
+              duration: val,
+            },
+          },
+        })),
+
+      setAnimationRepeat: (val) =>
+        set(({ properties }) => ({
+          properties: {
+            ...properties,
+            animation: {
+              ...properties.animation,
+              repeat: val,
             },
           },
         })),
