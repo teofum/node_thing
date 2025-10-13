@@ -33,7 +33,7 @@ type MenuProps = Omit<
 export const Menu = forwardRef<HTMLButtonElement, MenuProps>(
   ({ className, children, label, ...props }, forwardedRef) => {
     return (
-      <MB.Menu {...props}>
+      <MB.Menu>
         <MB.Trigger
           ref={forwardedRef}
           className={cn(
