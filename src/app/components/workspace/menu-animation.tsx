@@ -2,7 +2,7 @@ import { useMainStore } from "@/store/main.store";
 import { Button } from "@/ui/button";
 import { SliderInput } from "@/ui/slider";
 import { ToggleGroup, ToggleItem } from "@/ui/toggle-group";
-import { LuPause, LuPlay, LuSquare } from "react-icons/lu";
+import { LuPause, LuPlay, LuRewind, LuSquare } from "react-icons/lu";
 
 export function MenuAnimation() {
   const animation = useMainStore((s) => s.properties.animation);
@@ -30,6 +30,14 @@ export function MenuAnimation() {
           </Button>
           <Button icon size="lg" variant="outline" onClick={stop}>
             <LuSquare />
+          </Button>
+          <Button
+            icon
+            size="lg"
+            variant="outline"
+            onClick={resetAnimationTimer}
+          >
+            <LuRewind />
           </Button>
         </div>
 

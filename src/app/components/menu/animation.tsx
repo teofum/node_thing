@@ -9,7 +9,7 @@ import {
   MenuSeparator,
   Submenu,
 } from "@/ui/menu-bar";
-import { LuPause, LuPlay, LuSquare } from "react-icons/lu";
+import { LuPause, LuPlay, LuRewind, LuSquare } from "react-icons/lu";
 
 export function AnimationMenu() {
   const animation = useMainStore((s) => s.properties.animation);
@@ -32,9 +32,11 @@ export function AnimationMenu() {
       >
         {animation.state === "running" ? "Pause" : "Play"}
       </MenuItem>
-
       <MenuItem icon={<LuSquare />} onClick={stop}>
         Stop
+      </MenuItem>
+      <MenuItem icon={<LuRewind />} onClick={resetAnimationTimer}>
+        Restart
       </MenuItem>
 
       <MenuSeparator />
