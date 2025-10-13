@@ -75,6 +75,11 @@ export function Canvas() {
     animationSpeed.current = animation.animationSpeed;
   }, [animation.animationSpeed]);
 
+  const framerateLimit = useRef(animation.framerateLimit);
+  useEffect(() => {
+    framerateLimit.current = animation.framerateLimit;
+  }, [animation.framerateLimit]);
+
   const frameIndex = useRef(0);
   const elapsedTime = useRef(0);
   useEffect(() => {
@@ -82,7 +87,8 @@ export function Canvas() {
     elapsedTime.current = animation.time;
   }, [animation.frameIndex, animation.time]);
 
-  const lastFrameTime = useRef(Date.now());
+  const lastFrameTime = useRef(performance.now());
+  const lastFrameError = useRef(0);
   useEffect(() => {
     const cancel = () => {
       if (frameRequestHandle.current) {
@@ -101,40 +107,40 @@ export function Canvas() {
     if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
     const renderFrame = async () => {
-      cancel();
-
-      const target = ctx.getCurrentTexture();
-
-      for (const layerPipeline of pipeline) {
-        if (layerPipeline)
-          render(
-            device,
-            layerPipeline,
-            target,
-            textures,
-            sampler,
-            frameIndex.current,
-            elapsedTime.current,
-          );
-      }
-
-      if (nextRenderFinishedCallback) {
-        nextRenderFinishedCallback(canvas);
-        onNextRenderFinished(null);
-      }
-
-      await device.queue.onSubmittedWorkDone();
-
-      const now = Date.now();
+      const now = performance.now();
       const deltaTime = now - lastFrameTime.current;
-      updateAnimationTimer(deltaTime * animationSpeed.current);
-      lastFrameTime.current = now;
+      const minFrametime = 1000 / framerateLimit.current;
+      if (deltaTime + lastFrameError.current > minFrametime) {
+        const target = ctx.getCurrentTexture();
+        for (const layerPipeline of pipeline) {
+          if (layerPipeline)
+            render(
+              device,
+              layerPipeline,
+              target,
+              textures,
+              sampler,
+              frameIndex.current,
+              elapsedTime.current,
+            );
+        }
+
+        if (nextRenderFinishedCallback) {
+          nextRenderFinishedCallback(canvas);
+          onNextRenderFinished(null);
+        }
+
+        await device.queue.onSubmittedWorkDone();
+
+        updateAnimationTimer(deltaTime * animationSpeed.current);
+        lastFrameTime.current = now;
+        lastFrameError.current = deltaTime - minFrametime;
+      }
 
       if (animationState.current === "running") frame();
     };
 
-    lastFrameTime.current = Date.now();
-    cancel();
+    lastFrameTime.current = performance.now();
     frame();
 
     return () => {

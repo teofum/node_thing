@@ -1,6 +1,7 @@
 import { useMainStore } from "@/store/main.store";
 import { Button } from "@/ui/button";
 import { SliderInput } from "@/ui/slider";
+import { ToggleGroup, ToggleItem } from "@/ui/toggle-group";
 import { LuPause, LuPlay, LuSquare } from "react-icons/lu";
 
 export function MenuAnimation() {
@@ -8,6 +9,7 @@ export function MenuAnimation() {
   const toggleAnimationState = useMainStore((s) => s.toggleAnimationState);
   const resetAnimationTimer = useMainStore((s) => s.resetAnimationTimer);
   const setAnimationSpeed = useMainStore((s) => s.setAnimationSpeed);
+  const setFramerateLimit = useMainStore((s) => s.setFramerateLimit);
 
   const stop = () => {
     toggleAnimationState("stopped");
@@ -57,6 +59,30 @@ export function MenuAnimation() {
           step={0.1}
           className="w-full"
         />
+
+        <div className="text-xs/3 font-semibold text-white/60 ml-1">
+          Framerate limit
+        </div>
+        <ToggleGroup
+          type="single"
+          value={animation.framerateLimit.toString()}
+          onValueChange={(val) => {
+            if (val) setFramerateLimit(Number(val));
+          }}
+        >
+          <ToggleItem icon className="grow" variant="outline" value="30">
+            30
+          </ToggleItem>
+          <ToggleItem icon className="grow" variant="outline" value="60">
+            60
+          </ToggleItem>
+          <ToggleItem icon className="grow" variant="outline" value="120">
+            120
+          </ToggleItem>
+          <ToggleItem icon className="grow" variant="outline" value="10000">
+            Unlimited
+          </ToggleItem>
+        </ToggleGroup>
       </div>
     </div>
   );

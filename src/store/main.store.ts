@@ -40,7 +40,7 @@ export type ProjectProperties = {
   animation: {
     state: AnimationState;
     animationSpeed: number;
-    initialTime: number;
+    framerateLimit: number;
     time: number;
     frameIndex: number;
   };
@@ -134,6 +134,7 @@ type ProjectActions = {
   updateAnimationTimer: (deltaTime: number) => void;
   resetAnimationTimer: () => void;
   setAnimationSpeed: (value: number) => void;
+  setFramerateLimit: (value: number) => void;
 };
 
 export const useMainStore = create<Project & ProjectActions>()(
@@ -150,7 +151,7 @@ export const useMainStore = create<Project & ProjectActions>()(
         animation: {
           state: "stopped",
           animationSpeed: 1,
-          initialTime: Date.now(),
+          framerateLimit: 30,
           time: 0,
           frameIndex: 0,
         },
@@ -440,7 +441,6 @@ export const useMainStore = create<Project & ProjectActions>()(
             ...properties,
             animation: {
               ...properties.animation,
-              initialTime: Date.now(),
               time: 0,
               frameIndex: 0,
             },
@@ -454,6 +454,17 @@ export const useMainStore = create<Project & ProjectActions>()(
             animation: {
               ...properties.animation,
               animationSpeed: speed,
+            },
+          },
+        })),
+
+      setFramerateLimit: (fps) =>
+        set(({ properties }) => ({
+          properties: {
+            ...properties,
+            animation: {
+              ...properties.animation,
+              framerateLimit: fps,
             },
           },
         })),
@@ -486,7 +497,6 @@ export const useMainStore = create<Project & ProjectActions>()(
           animation: {
             ...current.properties.animation,
             ...(persisted as Project).properties.animation,
-            initialTime: Date.now(),
             time: 0,
             frameIndex: 0,
           },
