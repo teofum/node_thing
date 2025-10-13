@@ -135,9 +135,11 @@ export function Canvas() {
 
         await device.queue.onSubmittedWorkDone();
 
-        updateAnimationTimer(deltaTime * animationSpeed.current);
-        lastFrameTime.current = now;
-        lastFrameError.current = deltaTime - minFrametime;
+        if (animationState.current === "running") {
+          updateAnimationTimer(deltaTime * animationSpeed.current);
+          lastFrameTime.current = now;
+          lastFrameError.current = deltaTime - minFrametime;
+        }
       }
 
       if (animationState.current === "running") frame();
