@@ -80,7 +80,7 @@ export function MenuAnimation() {
             120
           </ToggleItem>
           <ToggleItem icon className="grow" variant="outline" value="10000">
-            Unlimited
+            Off
           </ToggleItem>
         </ToggleGroup>
       </div>

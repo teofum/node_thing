@@ -110,7 +110,10 @@ export function Canvas() {
       const now = performance.now();
       const deltaTime = now - lastFrameTime.current;
       const minFrametime = 1000 / framerateLimit.current;
-      if (deltaTime + lastFrameError.current > minFrametime) {
+      if (
+        animationState.current === "stopped" ||
+        deltaTime + lastFrameError.current > minFrametime
+      ) {
         const target = ctx.getCurrentTexture();
         for (const layerPipeline of pipeline) {
           if (layerPipeline)
