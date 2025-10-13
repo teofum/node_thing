@@ -55,6 +55,7 @@ export function NodeInput({
             step={input.step ?? 0.01}
             size="sm"
             className="w-24 nodrag"
+            progress
           />
         ) : (
           <ColorInput
