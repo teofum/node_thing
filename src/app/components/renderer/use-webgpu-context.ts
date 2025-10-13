@@ -17,6 +17,7 @@ export function useWebGPUContext(
         GPUTextureUsage.RENDER_ATTACHMENT |
         GPUTextureUsage.STORAGE_BINDING |
         GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_SRC |
         GPUTextureUsage.COPY_DST,
       alphaMode: "premultiplied",
     });
