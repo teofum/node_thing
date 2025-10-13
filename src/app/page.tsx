@@ -10,6 +10,7 @@ import { FileMenu } from "./components/menu/file";
 import { LayerMenu } from "./components/menu/layer";
 import { ProjectsMenu } from "./components/menu/projects";
 import { Tables } from "@/lib/supabase/database.types";
+import { AnimationMenu } from "./components/menu/animation";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -64,6 +65,7 @@ export default async function Home() {
         <Menubar className="mr-auto">
           <FileMenu />
           <LayerMenu />
+          <AnimationMenu />
           <ProjectsMenu userData={userData} projects={projects} />
         </Menubar>
 

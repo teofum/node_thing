@@ -9,6 +9,11 @@ export function MenuAnimation() {
   const resetAnimationTimer = useMainStore((s) => s.resetAnimationTimer);
   const setAnimationSpeed = useMainStore((s) => s.setAnimationSpeed);
 
+  const stop = () => {
+    toggleAnimationState("stopped");
+    resetAnimationTimer();
+  };
+
   return (
     <div className="flex flex-col h-full border-t border-white/15">
       <div className="flex flex-col gap-2 p-2">
@@ -21,15 +26,7 @@ export function MenuAnimation() {
           >
             {animation.state === "running" ? <LuPause /> : <LuPlay />}
           </Button>
-          <Button
-            icon
-            size="lg"
-            variant="outline"
-            onClick={() => {
-              toggleAnimationState("stopped");
-              resetAnimationTimer();
-            }}
-          >
+          <Button icon size="lg" variant="outline" onClick={stop}>
             <LuSquare />
           </Button>
         </div>

@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import cn from "classnames";
 
-import { AnimationState, useMainStore } from "@/store/main.store";
+import { useMainStore } from "@/store/main.store";
 import { render } from "./renderer";
 import { useGPU } from "./use-gpu";
 import { useWebGPUContext } from "./use-webgpu-context";
