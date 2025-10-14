@@ -33,9 +33,6 @@ export type ProjectProperties = {
     width: number;
     height: number;
   };
-  view: {
-    zoom: number;
-  };
 };
 
 export type Project = {
@@ -96,7 +93,6 @@ type ProjectActions = {
     value: string | null,
   ) => void;
 
-  setZoom: (zoom: number) => void;
   setCanvasSize: (width: number, height: number) => void;
 
   addLayer: () => void;
@@ -131,10 +127,7 @@ export const useMainStore = create<Project & ProjectActions>()(
        */
       layers: [createLayer("Background")],
       currentLayer: 0,
-      properties: {
-        canvas: initialSize,
-        view: { zoom: 1 },
-      },
+      properties: { canvas: initialSize },
       nodeTypes: NODE_TYPES,
       layerId: 0,
       projectName: "Untitled Project",
@@ -195,17 +188,6 @@ export const useMainStore = create<Project & ProjectActions>()(
             },
           })),
         ),
-
-      /*
-       * Actions: view
-       */
-      setZoom: (zoom) =>
-        set(({ properties }) => ({
-          properties: {
-            ...properties,
-            view: { ...properties.view, zoom },
-          },
-        })),
 
       /*
        * Actions: canvas

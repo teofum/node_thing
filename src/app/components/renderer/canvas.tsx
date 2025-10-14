@@ -12,6 +12,7 @@ import { useGPU } from "./use-gpu";
 import { usePipeline } from "./use-pipeline";
 import { useTextureCache } from "./use-texture-cache";
 import { useWebGPUContext } from "./use-webgpu-context";
+import { useConfigStore } from "@/store/config.store";
 
 const SAMPLER_DESC: GPUSamplerDescriptor = {
   magFilter: "linear",
@@ -22,11 +23,13 @@ export function Canvas() {
   /*
    * State
    */
-  const { canvas: canvasProperties, view } = useMainStore((s) => s.properties);
+  const { canvas: canvasProperties } = useMainStore((s) => s.properties);
 
   const animation = useAnimationStore();
   const updateAnimation = useAnimationStore((s) => s.update);
   const setAnimationState = useAnimationStore((s) => s.setState);
+
+  const view = useConfigStore((s) => s.view);
 
   const canvas = useUtilityStore((s) => s.canvas);
   const setCanvas = useUtilityStore((s) => s.setCanvas);

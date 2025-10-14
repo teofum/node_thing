@@ -1,8 +1,9 @@
 import { RefObject } from "react";
 
+import { useConfigStore } from "@/store/config.store";
 import { useMainStore } from "@/store/main.store";
-import { useDrag } from "@/utils/use-drag";
 import { clamp } from "@/utils/clamp";
+import { useDrag } from "@/utils/use-drag";
 
 export const DIR = {
   N: { top: "calc(0% - 4px)", left: "calc(50% - 3px)" },
@@ -22,7 +23,7 @@ export function useResizeLayer(
   direction: Direction,
 ) {
   const setLayerBounds = useMainStore((s) => s.setLayerBounds);
-  const view = useMainStore((s) => s.properties.view);
+  const view = useConfigStore((s) => s.view);
 
   const onDragStart = (ev: PointerEvent) => {
     const el = ref.current;

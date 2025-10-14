@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { LuCrop, LuMinus, LuPlus, LuTimer } from "react-icons/lu";
 
-import { useMainStore } from "@/store/main.store";
 import { useAssetStore } from "@/store/asset.store";
+import { useConfigStore } from "@/store/config.store";
+import { useMainStore } from "@/store/main.store";
 import { Button, ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Canvas } from "./canvas";
@@ -15,9 +22,11 @@ const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
 const ZOOM_SPEED = 0.01;
 
 export function Renderer() {
-  const { canvas, view } = useMainStore((s) => s.properties);
-  const setZoom = useMainStore((s) => s.setZoom);
+  const canvas = useMainStore((s) => s.properties.canvas);
   const setCanvasSize = useMainStore((s) => s.setCanvasSize);
+
+  const view = useConfigStore((s) => s.view);
+  const updateView = useConfigStore((s) => s.updateView);
 
   const [showLayerHandle, setShowLayerHandle] = useState(false);
   const [showTimeline, setShowTimeline] = useState(false);
@@ -28,6 +37,11 @@ export function Renderer() {
   /*
    * Zoom controls
    */
+  const setZoom = useCallback(
+    (zoom: number) => updateView({ zoom }),
+    [updateView],
+  );
+
   const zoomIn = () => {
     setZoom(
       ZOOM_STOPS.find((stop) => stop > view.zoom) ?? ZOOM_STOPS.at(-1) ?? 1,
