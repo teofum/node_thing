@@ -1,22 +1,11 @@
-import { useMainStore } from "@/store/main.store";
+import { useAnimationStore } from "@/store/animation.store";
 import { Button, ToggleButton } from "@/ui/button";
 import { NumberDrag } from "@/ui/number-drag";
 import { ToggleGroup, ToggleItem } from "@/ui/toggle-group";
 import { LuPause, LuPlay, LuRepeat, LuRewind, LuSquare } from "react-icons/lu";
 
 export function MenuAnimation() {
-  const animation = useMainStore((s) => s.properties.animation);
-  const toggleAnimationState = useMainStore((s) => s.toggleAnimationState);
-  const resetAnimationTimer = useMainStore((s) => s.resetAnimationTimer);
-  const setAnimationSpeed = useMainStore((s) => s.setAnimationSpeed);
-  const setFramerateLimit = useMainStore((s) => s.setFramerateLimit);
-  const setAnimationDuration = useMainStore((s) => s.setAnimationDuration);
-  const setAnimationRepeat = useMainStore((s) => s.setAnimationRepeat);
-
-  const stop = () => {
-    toggleAnimationState("stopped");
-    resetAnimationTimer();
-  };
+  const animation = useAnimationStore();
 
   return (
     <div className="flex flex-col h-full border-t border-white/15">
@@ -41,19 +30,14 @@ export function MenuAnimation() {
             icon
             size="lg"
             variant="outline"
-            onClick={() => toggleAnimationState()}
+            onClick={animation.toggleState}
           >
             {animation.state === "running" ? <LuPause /> : <LuPlay />}
           </Button>
-          <Button icon size="lg" variant="outline" onClick={stop}>
+          <Button icon size="lg" variant="outline" onClick={animation.stop}>
             <LuSquare />
           </Button>
-          <Button
-            icon
-            size="lg"
-            variant="outline"
-            onClick={resetAnimationTimer}
-          >
+          <Button icon size="lg" variant="outline" onClick={animation.reset}>
             <LuRewind />
           </Button>
         </div>
@@ -64,14 +48,14 @@ export function MenuAnimation() {
           </div>
           <div className="flex flex-row gap-2">
             <NumberDrag
-              value={animation.duration}
-              onChange={setAnimationDuration}
+              value={animation.options.duration}
+              onChange={(duration) => animation.setOptions({ duration })}
               min={0.5}
               className="grow"
             />
             <ToggleButton
-              pressed={animation.repeat}
-              onPressedChange={setAnimationRepeat}
+              pressed={animation.options.repeat}
+              onPressedChange={(repeat) => animation.setOptions({ repeat })}
               icon
               variant="outline"
             >
@@ -85,8 +69,8 @@ export function MenuAnimation() {
             Animation speed
           </div>
           <NumberDrag
-            value={animation.animationSpeed}
-            onChange={setAnimationSpeed}
+            value={animation.options.speed}
+            onChange={(speed) => animation.setOptions({ speed })}
             min={0.1}
             max={3}
             className="w-full"
@@ -94,9 +78,9 @@ export function MenuAnimation() {
           />
           <ToggleGroup
             type="single"
-            value={animation.animationSpeed.toString()}
+            value={animation.options.speed.toString()}
             onValueChange={(val) => {
-              if (val) setAnimationSpeed(Number(val));
+              if (val) animation.setOptions({ speed: Number(val) });
             }}
           >
             <ToggleItem icon className="grow" variant="outline" value="0.25">
@@ -120,9 +104,9 @@ export function MenuAnimation() {
           </div>
           <ToggleGroup
             type="single"
-            value={animation.framerateLimit.toString()}
+            value={animation.options.framerateLimit.toString()}
             onValueChange={(val) => {
-              if (val) setFramerateLimit(Number(val));
+              if (val) animation.setOptions({ framerateLimit: Number(val) });
             }}
           >
             <ToggleItem icon className="grow" variant="outline" value="30">

@@ -28,7 +28,6 @@ export type Layer = {
   name: string;
 };
 
-export type AnimationState = "running" | "stopped" | "frame";
 export type ProjectProperties = {
   canvas: {
     width: number;
@@ -36,16 +35,6 @@ export type ProjectProperties = {
   };
   view: {
     zoom: number;
-  };
-  animation: {
-    state: AnimationState;
-    animationSpeed: number;
-    framerateLimit: number;
-    time: number;
-    frameIndex: number;
-
-    duration: number;
-    repeat: boolean;
   };
 };
 
@@ -132,15 +121,6 @@ type ProjectActions = {
 
   removeLayer: (i: number) => void;
   duplicateLayer: (i: number) => void;
-
-  toggleAnimationState: (state?: AnimationState) => void;
-  updateAnimationTimer: (deltaTime: number) => void;
-  resetAnimationTimer: () => void;
-  setAnimationSpeed: (value: number) => void;
-  setFramerateLimit: (value: number) => void;
-  setAnimationDuration: (value: number) => void;
-  setAnimationRepeat: (value: boolean) => void;
-  scrubAnimation: (time: number) => void;
 };
 
 export const useMainStore = create<Project & ProjectActions>()(
@@ -154,15 +134,6 @@ export const useMainStore = create<Project & ProjectActions>()(
       properties: {
         canvas: initialSize,
         view: { zoom: 1 },
-        animation: {
-          state: "stopped",
-          animationSpeed: 1,
-          framerateLimit: 30,
-          time: 0,
-          frameIndex: 0,
-          duration: 10,
-          repeat: false,
-        },
       },
       nodeTypes: NODE_TYPES,
       layerId: 0,
@@ -424,120 +395,6 @@ export const useMainStore = create<Project & ProjectActions>()(
             currentLayer: newLayerIdx,
           };
         }),
-
-      /*
-       * Animation
-       */
-      toggleAnimationState: (state) =>
-        set(({ properties }) => ({
-          properties: {
-            ...properties,
-            animation: {
-              ...properties.animation,
-              state:
-                state ??
-                (properties.animation.state === "running"
-                  ? "stopped"
-                  : "running"),
-            },
-          },
-        })),
-
-      resetAnimationTimer: () =>
-        set(({ properties }) => ({
-          properties: {
-            ...properties,
-            animation: {
-              ...properties.animation,
-              time: 0,
-              frameIndex: 0,
-              state:
-                properties.animation.state === "stopped" ? "frame" : "running",
-            },
-          },
-        })),
-
-      setAnimationSpeed: (speed) =>
-        set(({ properties }) => ({
-          properties: {
-            ...properties,
-            animation: {
-              ...properties.animation,
-              animationSpeed: speed,
-            },
-          },
-        })),
-
-      setFramerateLimit: (fps) =>
-        set(({ properties }) => ({
-          properties: {
-            ...properties,
-            animation: {
-              ...properties.animation,
-              framerateLimit: fps,
-            },
-          },
-        })),
-
-      updateAnimationTimer: (deltaTime) =>
-        set(({ properties }) => {
-          let time = properties.animation.time + deltaTime;
-          let frameIndex = properties.animation.frameIndex + 1;
-
-          if (
-            properties.animation.repeat &&
-            time > properties.animation.duration * 1000
-          ) {
-            time = 0;
-            frameIndex = 0;
-          }
-
-          return {
-            properties: {
-              ...properties,
-              animation: {
-                ...properties.animation,
-                time,
-                frameIndex,
-              },
-            },
-          };
-        }),
-
-      setAnimationDuration: (val) =>
-        set(({ properties }) => ({
-          properties: {
-            ...properties,
-            animation: {
-              ...properties.animation,
-              duration: val,
-            },
-          },
-        })),
-
-      setAnimationRepeat: (val) =>
-        set(({ properties }) => ({
-          properties: {
-            ...properties,
-            animation: {
-              ...properties.animation,
-              repeat: val,
-            },
-          },
-        })),
-
-      scrubAnimation: (time) =>
-        set(({ properties }) => ({
-          properties: {
-            ...properties,
-            animation: {
-              ...properties.animation,
-              time,
-              frameIndex: 0,
-              state: "frame",
-            },
-          },
-        })),
     }),
     {
       name: "main-store",
@@ -552,12 +409,6 @@ export const useMainStore = create<Project & ProjectActions>()(
         properties: {
           ...current.properties,
           ...(persisted as Project).properties,
-          animation: {
-            ...current.properties.animation,
-            ...(persisted as Project).properties.animation,
-            time: 0,
-            frameIndex: 0,
-          },
         },
       }),
     },

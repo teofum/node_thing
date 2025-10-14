@@ -1,28 +1,21 @@
-import { useMainStore } from "@/store/main.store";
-import { Button } from "@/ui/button";
-import { Slider } from "@/ui/slider";
 import { LuPause, LuPlay, LuSquare, LuRewind } from "react-icons/lu";
 
-export function Timeline() {
-  const animation = useMainStore((s) => s.properties.animation);
-  const toggleAnimationState = useMainStore((s) => s.toggleAnimationState);
-  const resetAnimationTimer = useMainStore((s) => s.resetAnimationTimer);
-  const scrubAnimation = useMainStore((s) => s.scrubAnimation);
+import { useAnimationStore } from "@/store/animation.store";
+import { Button } from "@/ui/button";
+import { Slider } from "@/ui/slider";
 
-  const stop = () => {
-    toggleAnimationState("stopped");
-    resetAnimationTimer();
-  };
+export function Timeline() {
+  const animation = useAnimationStore();
 
   return (
     <div className="glass glass-border rounded-xl absolute bottom-1 left-1 right-1 p-3 flex flex-row gap-1.5 items-center">
-      <Button icon variant="outline" onClick={() => toggleAnimationState()}>
+      <Button icon variant="outline" onClick={animation.toggleState}>
         {animation.state === "running" ? <LuPause /> : <LuPlay />}
       </Button>
-      <Button icon variant="outline" onClick={stop}>
+      <Button icon variant="outline" onClick={animation.stop}>
         <LuSquare />
       </Button>
-      <Button icon variant="outline" onClick={resetAnimationTimer}>
+      <Button icon variant="outline" onClick={animation.reset}>
         <LuRewind />
       </Button>
       <div className="grow ml-1.5">
@@ -30,10 +23,14 @@ export function Timeline() {
           withInput
           className="w-full"
           value={animation.time / 1000}
-          max={animation.duration}
-          onChange={(v) => scrubAnimation(v * 1000)}
+          max={animation.options.duration}
+          onChange={(v) => animation.scrub(v * 1000)}
           min={0}
-          inputProps={{ readOnly: true, disabled: true, className: "!w-18" }}
+          inputProps={{
+            readOnly: true,
+            disabled: true,
+            className: "!min-w-16.5 text-center",
+          }}
           display={(v) =>
             `${Math.floor(v / 60).toLocaleString("en-us", { minimumIntegerDigits: 2, maximumFractionDigits: 0 })}:${(v % 60).toLocaleString("en-us", { minimumIntegerDigits: 2, maximumFractionDigits: 2, minimumFractionDigits: 2 })}`
           }

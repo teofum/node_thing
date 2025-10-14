@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import cn from "classnames";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
+import { useAnimationStore } from "@/store/animation.store";
 import { useMainStore } from "@/store/main.store";
+import { useUtilityStore } from "@/store/utility.store";
+import { usePropRef } from "@/utils/use-prop-ref";
 import { render } from "./renderer";
 import { useGPU } from "./use-gpu";
-import { useWebGPUContext } from "./use-webgpu-context";
 import { usePipeline } from "./use-pipeline";
 import { useTextureCache } from "./use-texture-cache";
-import { useUtilityStore } from "@/store/utility.store";
+import { useWebGPUContext } from "./use-webgpu-context";
 
 const SAMPLER_DESC: GPUSamplerDescriptor = {
   magFilter: "linear",
@@ -21,9 +23,10 @@ export function Canvas() {
    * State
    */
   const { canvas: canvasProperties, view } = useMainStore((s) => s.properties);
-  const animation = useMainStore((s) => s.properties.animation);
-  const updateAnimationTimer = useMainStore((s) => s.updateAnimationTimer);
-  const toggleAnimationState = useMainStore((s) => s.toggleAnimationState);
+
+  const animation = useAnimationStore();
+  const updateAnimation = useAnimationStore((s) => s.update);
+  const setAnimationState = useAnimationStore((s) => s.setState);
 
   const canvas = useUtilityStore((s) => s.canvas);
   const setCanvas = useUtilityStore((s) => s.setCanvas);
@@ -66,20 +69,9 @@ export function Canvas() {
   /*
    * Render a frame
    */
-  const animationState = useRef(animation.state);
-  useEffect(() => {
-    animationState.current = animation.state;
-  }, [animation.state]);
-
-  const animationSpeed = useRef(animation.animationSpeed);
-  useEffect(() => {
-    animationSpeed.current = animation.animationSpeed;
-  }, [animation.animationSpeed]);
-
-  const framerateLimit = useRef(animation.framerateLimit);
-  useEffect(() => {
-    framerateLimit.current = animation.framerateLimit;
-  }, [animation.framerateLimit]);
+  const animationState = usePropRef(animation.state);
+  const animationSpeed = usePropRef(animation.options.speed);
+  const framerateLimit = usePropRef(animation.options.framerateLimit);
 
   const frameIndex = useRef(0);
   const elapsedTime = useRef(0);
@@ -136,14 +128,14 @@ export function Canvas() {
         await device.queue.onSubmittedWorkDone();
 
         if (animationState.current === "running") {
-          updateAnimationTimer(deltaTime * animationSpeed.current);
+          updateAnimation(deltaTime * animationSpeed.current);
           lastFrameTime.current = now;
           lastFrameError.current = deltaTime - minFrametime;
         }
       }
 
       if (animationState.current === "running") frame();
-      if (animationState.current === "frame") toggleAnimationState("stopped");
+      if (animationState.current === "frame") setAnimationState("stopped");
     };
 
     lastFrameTime.current = performance.now();
@@ -163,8 +155,11 @@ export function Canvas() {
     animation.state,
     nextRenderFinishedCallback,
     onNextRenderFinished,
-    updateAnimationTimer,
-    toggleAnimationState,
+    framerateLimit,
+    animationState,
+    animationSpeed,
+    setAnimationState,
+    updateAnimation,
   ]);
 
   return (
