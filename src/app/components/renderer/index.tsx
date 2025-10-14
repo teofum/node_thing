@@ -1,25 +1,17 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { LuCrop, LuMinus, LuPlus, LuTimer } from "react-icons/lu";
+import { useEffect, useRef, useState } from "react";
+import { LuCrop, LuTimer } from "react-icons/lu";
 
 import { useAssetStore } from "@/store/asset.store";
 import { useConfigStore } from "@/store/config.store";
 import { useMainStore } from "@/store/main.store";
-import { Button, ToggleButton } from "@/ui/button";
+import { ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Canvas } from "./canvas";
 import { LayerHandle } from "./layer-handle";
 import { Timeline } from "./timeline";
-
-const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
-const ZOOM_SPEED = 0.01;
+import { ZoomControls } from "./zoom-controls";
 
 export function Renderer() {
   const canvas = useMainStore((s) => s.properties.canvas);
@@ -33,57 +25,6 @@ export function Renderer() {
   const [storeHydrated, setStoreHydrated] = useState(false);
 
   const viewport = useRef<HTMLDivElement | null>(null);
-
-  /*
-   * Zoom controls
-   */
-  const setZoom = useCallback(
-    (zoom: number) => updateView({ zoom }),
-    [updateView],
-  );
-
-  const zoomIn = () => {
-    setZoom(
-      ZOOM_STOPS.find((stop) => stop > view.zoom) ?? ZOOM_STOPS.at(-1) ?? 1,
-    );
-  };
-
-  const zoomOut = () => {
-    setZoom(ZOOM_STOPS.findLast((stop) => stop < view.zoom) ?? ZOOM_STOPS[0]);
-  };
-
-  const fit = () => {
-    if (!viewport.current) return;
-
-    const vzoom =
-      ((viewport.current.clientHeight - 32) / canvas.height) *
-      window.devicePixelRatio;
-    const hzoom =
-      ((viewport.current.clientWidth - 32) / canvas.width) *
-      window.devicePixelRatio;
-    setZoom(Math.min(vzoom, hzoom));
-  };
-
-  useLayoutEffect(() => {
-    const zoomScrollHandler = (ev: WheelEvent) => {
-      if (!ev.ctrlKey) return;
-
-      ev.preventDefault();
-      ev.stopPropagation();
-
-      const zoom = view.zoom * (1 - ev.deltaY * ZOOM_SPEED);
-      setZoom(Math.max(ZOOM_STOPS[1], Math.min(ZOOM_STOPS.at(-1) ?? 1, zoom)));
-    };
-
-    const viewportEl = viewport.current;
-    viewportEl?.addEventListener("wheel", zoomScrollHandler, {
-      passive: false,
-    });
-
-    return () => {
-      viewportEl?.removeEventListener("wheel", zoomScrollHandler);
-    };
-  }, [setZoom, view.zoom, storeHydrated]);
 
   /*
    * Canvas size
@@ -124,32 +65,11 @@ export function Renderer() {
   return (
     <div className="rounded-2xl bg-neutral-950 border border-white/15 w-full h-full flex flex-col overflow-hidden relative">
       <div className="p-2 flex flex-row gap-2 border-b border-white/15">
-        <div className="flex flex-row">
-          <Button
-            icon
-            variant="outline"
-            className="rounded-r-none"
-            onClick={zoomOut}
-          >
-            <LuMinus />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-r-0 border-l-0 rounded-none"
-            onClick={fit}
-          >
-            {(view.zoom * 100).toFixed(0)}%
-          </Button>
-          <Button
-            icon
-            variant="outline"
-            className="rounded-l-none"
-            onClick={zoomIn}
-          >
-            <LuPlus />
-          </Button>
-        </div>
+        <ZoomControls
+          viewport={viewport}
+          canvas={canvas}
+          storeHydrated={storeHydrated}
+        />
 
         <div className="flex flex-row items-center gap-1 ml-auto">
           <div className="font-medium text-xs">Canvas size</div>
