@@ -10,6 +10,7 @@ import {
 import { Fragment } from "react";
 import { Button } from "@/ui/button";
 import { ShaderEditor } from "./shader-editor";
+import { LuFilePlus2 } from "react-icons/lu";
 
 export function MenuLibrary() {
   const nodeTypes = useProjectStore((state) => state.nodeTypes);
@@ -76,7 +77,14 @@ export function MenuLibrary() {
       </div>
 
       <div className="p-2 flex flex-col gap-2">
-        <ShaderEditor trigger={<Button variant="outline">New Shader</Button>} />
+        <ShaderEditor
+          trigger={
+            <Button variant="outline">
+              <LuFilePlus2 />
+              New Shader
+            </Button>
+          }
+        />
       </div>
     </div>
   );

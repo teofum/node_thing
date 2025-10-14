@@ -177,7 +177,7 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
   };
 
   return (
-    <Dialog title="Shader Editor" description="Write shaders lol" {...props}>
+    <Dialog title="Shader Editor" description="Write custom shaders" {...props}>
       <div className="flex-1 border-b border-white/15 min-h-0 px-3 gap-3 grid grid-cols-[16rem_1fr]">
         <div className="flex flex-col h-full min-h-0 overflow-auto py-3">
           <div className="font-semibold text-sm/4 mb-2">Inputs</div>
