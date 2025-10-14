@@ -4,12 +4,16 @@ import { combine, persist } from "zustand/middleware";
 export type Config = {
   view: {
     zoom: number;
+    layerHandles: boolean;
+    timeline: boolean;
   };
 };
 
 const initialState: Config = {
   view: {
     zoom: 1,
+    layerHandles: false,
+    timeline: false,
   },
 };
 

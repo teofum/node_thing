@@ -20,8 +20,6 @@ export function Renderer() {
   const view = useConfigStore((s) => s.view);
   const updateView = useConfigStore((s) => s.updateView);
 
-  const [showLayerHandle, setShowLayerHandle] = useState(false);
-  const [showTimeline, setShowTimeline] = useState(false);
   const [storeHydrated, setStoreHydrated] = useState(false);
 
   const viewport = useRef<HTMLDivElement | null>(null);
@@ -99,16 +97,16 @@ export function Renderer() {
         <ToggleButton
           icon
           variant="outline"
-          pressed={showLayerHandle}
-          onPressedChange={setShowLayerHandle}
+          pressed={view.layerHandles}
+          onPressedChange={(layerHandles) => updateView({ layerHandles })}
         >
           <LuCrop />
         </ToggleButton>
         <ToggleButton
           icon
           variant="outline"
-          pressed={showTimeline}
-          onPressedChange={setShowTimeline}
+          pressed={view.timeline}
+          onPressedChange={(timeline) => updateView({ timeline })}
         >
           <LuTimer />
         </ToggleButton>
@@ -119,11 +117,11 @@ export function Renderer() {
       >
         <div className="relative">
           <Canvas />
-          {showLayerHandle ? <LayerHandle /> : null}
+          {view.layerHandles ? <LayerHandle /> : null}
         </div>
       </div>
 
-      {showTimeline ? <Timeline /> : null}
+      {view.timeline ? <Timeline /> : null}
     </div>
   );
 }
