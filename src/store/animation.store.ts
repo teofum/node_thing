@@ -26,7 +26,7 @@ const initialState: Animation = {
   options: {
     speed: 1,
     framerateLimit: 30,
-    recordingFramerate: 30,
+    recordingFramerate: 60,
     duration: 10,
     repeat: false,
   },
@@ -34,7 +34,7 @@ const initialState: Animation = {
 
 export const useAnimationStore = create(
   persist(
-    combine(initialState, (set) => ({
+    combine(initialState, (set, get) => ({
       setState: (state: AnimationState) => set({ state }),
       toggleState: () =>
         set(({ state: oldState }) => ({
@@ -49,25 +49,30 @@ export const useAnimationStore = create(
           state: oldState === "running" ? "running" : "frame",
         })),
 
-      update: (frametime: number) =>
-        set(({ time, frameIndex, options, recording, state }) => {
-          time = time + frametime;
-          frameIndex = frameIndex + 1;
+      update: (frametime: number) => {
+        let { time, frameIndex, recording, state } = get();
+        const { options } = get();
 
-          if (time > options.duration * 1000) {
-            if (options.repeat) {
-              time = 0;
-              frameIndex = 0;
-            }
+        time = time + frametime;
+        frameIndex = frameIndex + 1;
 
-            if (recording) {
-              recording = false;
-              state = "stopped";
-            }
+        const pastEnd = time > options.duration * 1000;
+        if (pastEnd) {
+          if (options.repeat) {
+            time = 0;
+            frameIndex = 0;
           }
 
-          return { time, frameIndex, recording, state };
-        }),
+          if (recording) {
+            recording = false;
+            state = "stopped";
+          }
+        }
+
+        set({ time, frameIndex, recording, state });
+
+        return pastEnd;
+      },
 
       scrub: (time: number) => set({ time, frameIndex: 0, state: "frame" }),
 

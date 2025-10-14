@@ -37,6 +37,7 @@ export function Canvas() {
     (s) => s.nextRenderFinishedCallback,
   );
   const onNextRenderFinished = useUtilityStore((s) => s.onNextRenderFinished);
+  const _recorder = useUtilityStore((s) => s.recorder);
 
   const frameRequestHandle = useRef<number | null>(null);
 
@@ -75,6 +76,9 @@ export function Canvas() {
   const animationState = usePropRef(animation.state);
   const animationSpeed = usePropRef(animation.options.speed);
   const framerateLimit = usePropRef(animation.options.framerateLimit);
+  const recordingFramerate = usePropRef(animation.options.recordingFramerate);
+  const recording = usePropRef(animation.recording);
+  const recorder = usePropRef(_recorder);
 
   const frameIndex = useRef(0);
   const elapsedTime = useRef(0);
@@ -102,11 +106,15 @@ export function Canvas() {
     const renderFrame = async () => {
       cancel();
 
-      const now = performance.now();
-      const deltaTime = now - lastFrameTime.current;
       const minFrametime = 1000 / framerateLimit.current;
+
+      const now = performance.now();
+      const deltaTime = recording.current
+        ? 1000 / recordingFramerate.current
+        : now - lastFrameTime.current;
       if (
         animationState.current !== "running" ||
+        recording.current ||
         deltaTime + lastFrameError.current > minFrametime
       ) {
         const target = ctx.getCurrentTexture();
@@ -128,10 +136,22 @@ export function Canvas() {
           onNextRenderFinished(null);
         }
 
+        if (recorder.current) {
+          if (recording.current) {
+            recorder.current.source.add(
+              elapsedTime.current / 1000,
+              deltaTime / 1000,
+            );
+          } else {
+            recorder.current.onRecordingFinished();
+          }
+        }
+
         await device.queue.onSubmittedWorkDone();
 
         if (animationState.current === "running") {
           updateAnimation(deltaTime * animationSpeed.current);
+
           lastFrameTime.current = now;
           lastFrameError.current = deltaTime - minFrametime;
         }
@@ -163,6 +183,9 @@ export function Canvas() {
     animationSpeed,
     setAnimationState,
     updateAnimation,
+    recording,
+    recordingFramerate,
+    recorder,
   ]);
 
   return (

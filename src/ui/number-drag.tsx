@@ -245,7 +245,7 @@ export function NumberDrag({
         onTouchStart={handleMouseDown}
         onKeyDown={handleKeyDown}
         className={cn(
-          "relative tabular-nums outline-none select-none text-center",
+          "relative tabular-nums outline-none select-none text-center overflow-hidden",
           "active:text-teal-400 transition-colors duration-200 min-w-0 max-w-full",
           {
             "text-xs/3 p-0.5 h-5": size === "sm",
