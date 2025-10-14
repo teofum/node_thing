@@ -76,7 +76,7 @@ export function Canvas() {
   const animationState = usePropRef(animation.state);
   const animationSpeed = usePropRef(animation.options.speed);
   const framerateLimit = usePropRef(animation.options.framerateLimit);
-  const recordingFramerate = usePropRef(animation.options.recordingFramerate);
+  const recordingFramerate = usePropRef(animation.recordingOptions.framerate);
   const recording = usePropRef(animation.recording);
   const recorder = usePropRef(_recorder);
 
