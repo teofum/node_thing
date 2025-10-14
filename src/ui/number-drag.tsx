@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import cn from "classnames";
-import useCallbackRef from "@/utils/use-callback-ref";
-import { clamp } from "@/utils/clamp";
+
+import { useLocalValue } from "@/utils/use-local-value";
 
 /*
  * Stolen from here
  * https://github.com/brettlyne/draggable-number-input/blob/main/src/react/DraggableNumberInput.tsx
  */
 
-type Modifier = {
+export type Modifier = {
   multiplier: number;
   sensitivity: number;
 };
 
-type Modifiers = {
+export type Modifiers = {
   [key in "default" | "shiftKey" | "ctrlKey" | "altKey" | "metaKey"]: Modifier;
 };
 
@@ -25,10 +25,6 @@ function defaultModifiers(step: number): Modifiers {
     metaKey: { multiplier: step, sensitivity: 1 },
     altKey: { multiplier: step, sensitivity: 0.5 },
   };
-}
-
-function getDecimalPlaces(multiplier: number) {
-  return Math.max(0, -Math.floor(Math.log10(multiplier)));
 }
 
 function handleArrow(
@@ -84,36 +80,14 @@ export function NumberDrag({
 
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [localValue, setLocalValue] = useState(String(value));
 
   const totalMovement = useRef(0);
   const startValue = useRef(0);
   const startX = useRef(0);
   const currentMultiplier = useRef(1);
 
-  const constrainedOnChange = useCallback(
-    (newValue: number) => onChange?.(clamp(newValue, min, max)),
-    [onChange, min, max],
-  );
-  const formatValue = useCallbackRef(display);
-
-  useEffect(() => {
-    const decimals = getDecimalPlaces(step);
-    setLocalValue(formatValue(value, decimals));
-  }, [value, step, formatValue]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setLocalValue(val);
-  };
-
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    const num = parseFloat(val);
-    if (!isNaN(num)) {
-      constrainedOnChange(num);
-    }
-  };
+  const { localValue, handleInputChange, handleBlur, constrainedOnChange } =
+    useLocalValue(value, min, max, step, onChange, display);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent | React.TouchEvent) => {
@@ -146,18 +120,6 @@ export function NumberDrag({
     [modifierKeys, step],
   );
 
-  const applyMovement = useCallback(
-    (newMovement: number, e: KeyboardEvent | MouseEvent | TouchEvent) => {
-      const { sensitivity, multiplier } = getModifiers(e);
-      const delta = newMovement * sensitivity * multiplier;
-      let newValue = startValue.current + delta;
-      newValue = Math.round(newValue / multiplier) * multiplier;
-      newValue = Object.is(newValue, -0) ? 0 : newValue; // avoid -0
-      constrainedOnChange(newValue);
-    },
-    [constrainedOnChange, getModifiers],
-  );
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       e.preventDefault(); // prevent default to avoid any selection / flickering
@@ -169,11 +131,21 @@ export function NumberDrag({
 
       const val = e.currentTarget.value;
       const num = parseFloat(val);
-      if (!isNaN(num)) {
-        constrainedOnChange(num);
-      }
+      if (!isNaN(num)) constrainedOnChange(num);
     }
   };
+
+  const applyMovement = useCallback(
+    (newMovement: number, e: KeyboardEvent | MouseEvent | TouchEvent) => {
+      const { sensitivity, multiplier } = getModifiers(e);
+      const delta = newMovement * sensitivity * multiplier;
+      let newValue = startValue.current + delta;
+      newValue = Math.round(newValue / multiplier) * multiplier;
+      newValue = Object.is(newValue, -0) ? 0 : newValue; // avoid -0
+      constrainedOnChange(newValue);
+    },
+    [constrainedOnChange, getModifiers],
+  );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent | TouchEvent) => {

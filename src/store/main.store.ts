@@ -28,7 +28,7 @@ export type Layer = {
   name: string;
 };
 
-export type AnimationState = "running" | "stopped";
+export type AnimationState = "running" | "stopped" | "frame";
 export type ProjectProperties = {
   canvas: {
     width: number;
@@ -140,6 +140,7 @@ type ProjectActions = {
   setFramerateLimit: (value: number) => void;
   setAnimationDuration: (value: number) => void;
   setAnimationRepeat: (value: boolean) => void;
+  scrubAnimation: (time: number) => void;
 };
 
 export const useMainStore = create<Project & ProjectActions>()(
@@ -450,6 +451,8 @@ export const useMainStore = create<Project & ProjectActions>()(
               ...properties.animation,
               time: 0,
               frameIndex: 0,
+              state:
+                properties.animation.state === "stopped" ? "frame" : "running",
             },
           },
         })),
@@ -519,6 +522,19 @@ export const useMainStore = create<Project & ProjectActions>()(
             animation: {
               ...properties.animation,
               repeat: val,
+            },
+          },
+        })),
+
+      scrubAnimation: (time) =>
+        set(({ properties }) => ({
+          properties: {
+            ...properties,
+            animation: {
+              ...properties.animation,
+              time,
+              frameIndex: 0,
+              state: "frame",
             },
           },
         })),

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { LuCrop, LuMinus, LuPlus } from "react-icons/lu";
+import { LuCrop, LuMinus, LuPlus, LuTimer } from "react-icons/lu";
 
 import { useMainStore } from "@/store/main.store";
 import { useAssetStore } from "@/store/asset.store";
@@ -9,6 +9,7 @@ import { Button, ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Canvas } from "./canvas";
 import { LayerHandle } from "./layer-handle";
+import { Timeline } from "./timeline";
 
 const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];
 const ZOOM_SPEED = 0.01;
@@ -17,7 +18,9 @@ export function Renderer() {
   const { canvas, view } = useMainStore((s) => s.properties);
   const setZoom = useMainStore((s) => s.setZoom);
   const setCanvasSize = useMainStore((s) => s.setCanvasSize);
+
   const [showLayerHandle, setShowLayerHandle] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
   const [storeHydrated, setStoreHydrated] = useState(false);
 
   const viewport = useRef<HTMLDivElement | null>(null);
@@ -105,7 +108,7 @@ export function Renderer() {
    * Component UI
    */
   return (
-    <div className="rounded-2xl bg-neutral-950 border border-white/15 w-full h-full flex flex-col overflow-hidden">
+    <div className="rounded-2xl bg-neutral-950 border border-white/15 w-full h-full flex flex-col overflow-hidden relative">
       <div className="p-2 flex flex-row gap-2 border-b border-white/15">
         <div className="flex flex-row">
           <Button
@@ -135,11 +138,11 @@ export function Renderer() {
         </div>
 
         <div className="flex flex-row items-center gap-1 ml-auto">
-          <div className="font-medium text-sm">Canvas size</div>
+          <div className="font-medium text-xs">Canvas size</div>
           <Input
             variant="outline"
             size="sm"
-            className="min-w-20 w-0"
+            className="min-w-12 w-0"
             defaultValue={canvas.width}
             onBlur={(ev) => updateWidth(ev.target.value)}
             onKeyDown={(ev) => {
@@ -150,7 +153,7 @@ export function Renderer() {
           <Input
             size="sm"
             variant="outline"
-            className="min-w-20 w-0"
+            className="min-w-12 w-0"
             defaultValue={canvas.height}
             onBlur={(ev) => updateHeight(ev.target.value)}
             onKeyDown={(ev) => {
@@ -167,6 +170,14 @@ export function Renderer() {
         >
           <LuCrop />
         </ToggleButton>
+        <ToggleButton
+          icon
+          variant="outline"
+          pressed={showTimeline}
+          onPressedChange={setShowTimeline}
+        >
+          <LuTimer />
+        </ToggleButton>
       </div>
       <div
         ref={viewport}
@@ -177,6 +188,8 @@ export function Renderer() {
           {showLayerHandle ? <LayerHandle /> : null}
         </div>
       </div>
+
+      {showTimeline ? <Timeline /> : null}
     </div>
   );
 }

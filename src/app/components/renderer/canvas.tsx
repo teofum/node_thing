@@ -23,6 +23,7 @@ export function Canvas() {
   const { canvas: canvasProperties, view } = useMainStore((s) => s.properties);
   const animation = useMainStore((s) => s.properties.animation);
   const updateAnimationTimer = useMainStore((s) => s.updateAnimationTimer);
+  const toggleAnimationState = useMainStore((s) => s.toggleAnimationState);
 
   const canvas = useUtilityStore((s) => s.canvas);
   const setCanvas = useUtilityStore((s) => s.setCanvas);
@@ -113,7 +114,7 @@ export function Canvas() {
       const deltaTime = now - lastFrameTime.current;
       const minFrametime = 1000 / framerateLimit.current;
       if (
-        animationState.current === "stopped" ||
+        animationState.current !== "running" ||
         deltaTime + lastFrameError.current > minFrametime
       ) {
         const target = ctx.getCurrentTexture();
@@ -145,6 +146,7 @@ export function Canvas() {
       }
 
       if (animationState.current === "running") frame();
+      if (animationState.current === "frame") toggleAnimationState("stopped");
     };
 
     lastFrameTime.current = performance.now();
@@ -165,6 +167,7 @@ export function Canvas() {
     nextRenderFinishedCallback,
     onNextRenderFinished,
     updateAnimationTimer,
+    toggleAnimationState,
   ]);
 
   return (
