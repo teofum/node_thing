@@ -84,7 +84,7 @@ function createInitialState(): Project {
   };
 }
 
-export const useMainStore = create(
+export const useProjectStore = create(
   persist(
     combine(createInitialState(), (set, get) => ({
       setActiveLayer: (idx: number) => set({ currentLayer: idx }),

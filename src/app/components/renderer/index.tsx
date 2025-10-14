@@ -5,7 +5,7 @@ import { LuCrop, LuTimer } from "react-icons/lu";
 
 import { useAssetStore } from "@/store/asset.store";
 import { useConfigStore } from "@/store/config.store";
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import { ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Canvas } from "./canvas";
@@ -14,8 +14,8 @@ import { Timeline } from "./timeline";
 import { ZoomControls } from "./zoom-controls";
 
 export function Renderer() {
-  const canvas = useMainStore((s) => s.properties.canvas);
-  const setCanvasSize = useMainStore((s) => s.setCanvasSize);
+  const canvas = useProjectStore((s) => s.properties.canvas);
+  const setCanvasSize = useProjectStore((s) => s.setCanvasSize);
 
   const view = useConfigStore((s) => s.view);
   const updateView = useConfigStore((s) => s.updateView);

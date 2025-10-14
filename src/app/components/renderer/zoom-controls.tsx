@@ -2,7 +2,7 @@ import { RefObject, useCallback, useLayoutEffect } from "react";
 import { LuMinus, LuPlus } from "react-icons/lu";
 
 import { useConfigStore } from "@/store/config.store";
-import { ProjectProperties } from "@/store/main.store";
+import { ProjectProperties } from "@/store/project.store";
 import { Button } from "@/ui/button";
 
 const ZOOM_STOPS = [0.125, 0.25, 0.5, 0.75, 1, 1.5, 2, 4, 8];

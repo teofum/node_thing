@@ -4,15 +4,15 @@ import cn from "classnames";
 import { useLayoutEffect, useRef } from "react";
 
 import { useConfigStore } from "@/store/config.store";
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import { useMoveLayer } from "./use-move-layer";
 import { DIR, useResizeLayer, type Direction } from "./use-resize-layer";
 
 const directions = Object.keys(DIR) as Direction[];
 
 export function LayerHandle() {
-  const layers = useMainStore((s) => s.layers);
-  const currentLayer = useMainStore((s) => s.currentLayer);
+  const layers = useProjectStore((s) => s.layers);
+  const currentLayer = useProjectStore((s) => s.currentLayer);
   const layer = layers[currentLayer];
 
   const view = useConfigStore((s) => s.view);

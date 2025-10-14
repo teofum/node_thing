@@ -4,7 +4,7 @@ import cn from "classnames";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import { useAnimationStore } from "@/store/animation.store";
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import { useUtilityStore } from "@/store/utility.store";
 import { usePropRef } from "@/utils/use-prop-ref";
 import { render } from "./renderer";
@@ -23,7 +23,7 @@ export function Canvas() {
   /*
    * State
    */
-  const { canvas: canvasProperties } = useMainStore((s) => s.properties);
+  const { canvas: canvasProperties } = useProjectStore((s) => s.properties);
 
   const animation = useAnimationStore();
   const updateAnimation = useAnimationStore((s) => s.update);

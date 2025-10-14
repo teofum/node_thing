@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import { saveFile, openFile } from "./file";
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import { useAssetStore } from "@/store/asset.store";
 import { ImageAsset, imageTypeSchema } from "@/schemas/asset.schema";
 import { getImageType } from "./image";
@@ -32,7 +32,7 @@ export async function zipExportProjectFromFile() {
 }
 
 export async function zipExportProject() {
-  const project = useMainStore.getState().exportProject();
+  const project = useProjectStore.getState().exportProject();
   const images = useAssetStore.getState().images;
 
   // creo nuevo JSZip
@@ -97,5 +97,5 @@ export async function zipImportProject(file: File) {
 
   // import del JSON al store
   const json = await jsonFile.async("string");
-  useMainStore.getState().importProject(json);
+  useProjectStore.getState().importProject(json);
 }

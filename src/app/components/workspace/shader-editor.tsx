@@ -13,7 +13,7 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Select, SelectItem } from "@/ui/select";
-import { HandleDescriptor, useMainStore } from "@/store/main.store";
+import { HandleDescriptor, useProjectStore } from "@/store/project.store";
 import { NodeType } from "@/schemas/node.schema";
 
 type ShaderEditorProps = {
@@ -120,9 +120,9 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
   const codeRef = useRef<HTMLTextAreaElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
-  const nodeTypes = useMainStore((s) => s.nodeTypes);
-  const createNodeType = useMainStore((s) => s.createNodeType);
-  const updateNodeType = useMainStore((s) => s.updateNodeType);
+  const nodeTypes = useProjectStore((s) => s.nodeTypes);
+  const createNodeType = useProjectStore((s) => s.createNodeType);
+  const updateNodeType = useProjectStore((s) => s.updateNodeType);
 
   const editNodeType = editNode ? nodeTypes[editNode] : undefined;
 

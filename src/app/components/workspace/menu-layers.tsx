@@ -17,23 +17,23 @@ import {
   LuTrash2,
 } from "react-icons/lu";
 
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
 import { Input } from "@/ui/input";
 import { Button } from "@/ui/button";
 import { loadJsonFromFile, saveJsonToFile } from "@/utils/json";
 
 export function MenuLayers() {
-  const setActiveLayer = useMainStore((s) => s.setActiveLayer);
-  const addLayer = useMainStore((s) => s.addLayer);
-  const layers = useMainStore((s) => s.layers);
-  const currentLayer = useMainStore((s) => s.currentLayer);
-  const reorderLayers = useMainStore((s) => s.reorderLayers);
-  const exportLayer = useMainStore((s) => s.exportLayer);
-  const importLayer = useMainStore((s) => s.importLayer);
-  const changeLayerName = useMainStore((s) => s.changeLayerName);
-  const removeLayer = useMainStore((s) => s.removeLayer);
-  const duplicateLayer = useMainStore((s) => s.duplicateLayer);
+  const setActiveLayer = useProjectStore((s) => s.setActiveLayer);
+  const addLayer = useProjectStore((s) => s.addLayer);
+  const layers = useProjectStore((s) => s.layers);
+  const currentLayer = useProjectStore((s) => s.currentLayer);
+  const reorderLayers = useProjectStore((s) => s.reorderLayers);
+  const exportLayer = useProjectStore((s) => s.exportLayer);
+  const importLayer = useProjectStore((s) => s.importLayer);
+  const changeLayerName = useProjectStore((s) => s.changeLayerName);
+  const removeLayer = useProjectStore((s) => s.removeLayer);
+  const duplicateLayer = useProjectStore((s) => s.duplicateLayer);
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
