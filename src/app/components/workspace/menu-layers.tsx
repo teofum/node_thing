@@ -193,7 +193,7 @@ export function MenuLayers() {
         </DragDropContext>
       </div>
 
-      <div className="p-3 gap-2 flex flex-col">
+      <div className="p-2 gap-2 flex flex-col">
         <Button variant="outline" onClick={addLayer}>
           <LuPlus />
           New Layer
