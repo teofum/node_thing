@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { combine } from "zustand/middleware";
+import { combine, persist } from "zustand/middleware";
 
 export type Config = {
   view: {
@@ -14,13 +14,16 @@ const initialState: Config = {
 };
 
 export const useConfigStore = create(
-  combine(initialState, (set) => ({
-    updateView: (view: Partial<Config["view"]>) =>
-      set(({ view: oldView }) => ({
-        view: {
-          ...oldView,
-          ...view,
-        },
-      })),
-  })),
+  persist(
+    combine(initialState, (set) => ({
+      updateView: (view: Partial<Config["view"]>) =>
+        set(({ view: oldView }) => ({
+          view: {
+            ...oldView,
+            ...view,
+          },
+        })),
+    })),
+    { name: "config-store" },
+  ),
 );
