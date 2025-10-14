@@ -4,13 +4,13 @@ import {
   applyNodeChanges,
   Connection,
   Edge,
-  OnConnect,
-  OnEdgesChange,
-  OnNodesChange,
+  EdgeChange,
+  Node,
+  NodeChange,
 } from "@xyflow/react";
 import { nanoid } from "nanoid";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { combine, persist } from "zustand/middleware";
 
 import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
@@ -57,6 +57,11 @@ type NodeTypeDescriptor = {
   code: string;
 };
 
+type Point = {
+  x: number;
+  y: number;
+};
+
 const initialNodes: ShaderNode[] = [
   {
     id: "__output",
@@ -69,89 +74,36 @@ const initialNodes: ShaderNode[] = [
 const initialEdges: Edge[] = [];
 const initialSize = { width: 1920, height: 1080 };
 
-type ProjectActions = {
-  setActiveLayer: (idx: number) => void;
+function createInitialState(): Project {
+  return {
+    layers: [createLayer("Background")],
+    currentLayer: 0,
+    properties: { canvas: initialSize },
+    nodeTypes: NODE_TYPES,
+    projectName: "Untitled Project",
+  };
+}
 
-  loadNodeTypes: () => Promise<void>;
-  createNodeType: (desc: NodeTypeDescriptor) => void;
-  updateNodeType: (id: string, desc: NodeTypeDescriptor) => void;
-  deleteNodeType: (id: string) => void;
-
-  onNodesChange: OnNodesChange;
-  onEdgesChange: OnEdgesChange;
-  onConnect: OnConnect;
-
-  updateNodeDefaultValue: (
-    id: string,
-    input: string,
-    value: number | number[],
-  ) => void;
-
-  updateNodeParameter: (
-    id: string,
-    param: string,
-    value: string | null,
-  ) => void;
-
-  setCanvasSize: (width: number, height: number) => void;
-
-  addLayer: () => void;
-  setLayerBounds: (x: number, y: number, width: number, height: number) => void;
-
-  reorderLayers: (from: number, to: number) => void;
-
-  exportLayer: (i: number) => string;
-  importLayer: (json: string) => void;
-
-  exportProject: () => string;
-  importProject: (json: string | Project) => void;
-
-  addNode: (
-    type: NodeData["type"],
-    position: { x: number; y: number },
-    parameters?: NodeData["parameters"],
-  ) => void;
-  removeNode: (id: string) => void;
-
-  changeLayerName: (name: string, idx: number) => void;
-
-  removeLayer: (i: number) => void;
-  duplicateLayer: (i: number) => void;
-};
-
-export const useMainStore = create<Project & ProjectActions>()(
+export const useMainStore = create(
   persist(
-    (set, get) => ({
-      /*
-       * State
-       */
-      layers: [createLayer("Background")],
-      currentLayer: 0,
-      properties: { canvas: initialSize },
-      nodeTypes: NODE_TYPES,
-      layerId: 0,
-      projectName: "Untitled Project",
+    combine(createInitialState(), (set, get) => ({
+      setActiveLayer: (idx: number) => set({ currentLayer: idx }),
 
-      /*
-       * Actions
-       */
-      setActiveLayer: (idx) => set({ currentLayer: idx }),
-
-      onNodesChange: (changes) =>
+      onNodesChange: (changes: NodeChange<Node>[]) =>
         set(
           modifyLayer((layer) => ({
             nodes: applyNodeChanges(changes, layer.nodes) as ShaderNode[],
           })),
         ),
 
-      onEdgesChange: (changes) =>
+      onEdgesChange: (changes: EdgeChange<Edge>[]) =>
         set(
           modifyLayer((layer) => ({
             edges: applyEdgeChanges(changes, layer.edges),
           })),
         ),
 
-      onConnect: (connection) =>
+      onConnect: (connection: Connection) =>
         set(
           modifyLayer((layer) => {
             const { nodeTypes } = get();
@@ -169,7 +121,11 @@ export const useMainStore = create<Project & ProjectActions>()(
           }),
         ),
 
-      updateNodeDefaultValue: (id, input, value) =>
+      updateNodeDefaultValue: (
+        id: string,
+        input: string,
+        value: number | number[],
+      ) =>
         set(
           modifyNode(id, (node) => ({
             data: {
@@ -179,7 +135,7 @@ export const useMainStore = create<Project & ProjectActions>()(
           })),
         ),
 
-      updateNodeParameter: (id, param, value) =>
+      updateNodeParameter: (id: string, param: string, value: string | null) =>
         set(
           modifyNode(id, (node) => ({
             data: {
@@ -192,7 +148,7 @@ export const useMainStore = create<Project & ProjectActions>()(
       /*
        * Actions: canvas
        */
-      setCanvasSize: (width, height) =>
+      setCanvasSize: (width: number, height: number) =>
         set(({ properties }) => ({
           properties: {
             ...properties,
@@ -208,7 +164,7 @@ export const useMainStore = create<Project & ProjectActions>()(
           };
         }),
 
-      setLayerBounds: (x, y, width, height) =>
+      setLayerBounds: (x: number, y: number, width: number, height: number) =>
         set(
           modifyLayer((layer) => ({
             ...layer,
@@ -217,7 +173,7 @@ export const useMainStore = create<Project & ProjectActions>()(
           })),
         ),
 
-      reorderLayers: (from, to) =>
+      reorderLayers: (from: number, to: number) =>
         set(({ layers, currentLayer }) => {
           const newLayers = [...layers];
           const [moved] = newLayers.splice(from, 1);
@@ -239,13 +195,13 @@ export const useMainStore = create<Project & ProjectActions>()(
           };
         }),
 
-      exportLayer: (i) => {
+      exportLayer: (i: number) => {
         const layers = get().layers;
         const layer = layers[i];
         return JSON.stringify(layer, null, 2);
       },
 
-      importLayer: (json) =>
+      importLayer: (json: string) =>
         set(({ layers }) => {
           const parsedLayer: Layer = JSON.parse(json);
           parsedLayer.id = newLayerId();
@@ -297,15 +253,15 @@ export const useMainStore = create<Project & ProjectActions>()(
         }));
       },
 
-      createNodeType: (desc) => {
+      createNodeType: (desc: NodeTypeDescriptor) => {
         set(updateNodeType(`custom_${nanoid()}`, desc));
       },
 
-      updateNodeType: (id, desc) => {
+      updateNodeType: (id: string, desc: NodeTypeDescriptor) => {
         set(updateNodeType(id, desc));
       },
 
-      deleteNodeType: (name) => {
+      deleteNodeType: (name: string) => {
         set(({ nodeTypes, layers }) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [name]: _, ...rest } = nodeTypes;
@@ -324,7 +280,11 @@ export const useMainStore = create<Project & ProjectActions>()(
         });
       },
 
-      addNode: (type, position, parameters = {}) =>
+      addNode: (
+        type: string,
+        position: Point,
+        parameters: NodeData["parameters"] = {},
+      ) =>
         set(
           modifyLayer((layer) => {
             const { nodeTypes } = get();
@@ -337,16 +297,17 @@ export const useMainStore = create<Project & ProjectActions>()(
           }),
         ),
 
-      removeNode: (id) =>
+      removeNode: (id: string) =>
         set(
           modifyLayer((layer) => ({
             nodes: layer.nodes.filter((node) => node.id !== id),
           })),
         ),
 
-      changeLayerName: (name, idx) => set(modifyLayer(() => ({ name }), idx)),
+      changeLayerName: (name: string, idx: number) =>
+        set(modifyLayer(() => ({ name }), idx)),
 
-      removeLayer: (i) => {
+      removeLayer: (i: number) => {
         set(({ layers, currentLayer }) => {
           if (layers.length <= 1) return {};
 
@@ -377,7 +338,7 @@ export const useMainStore = create<Project & ProjectActions>()(
             currentLayer: newLayerIdx,
           };
         }),
-    }),
+    })),
     {
       name: "main-store",
       merge: (persisted, current) => ({
