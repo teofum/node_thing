@@ -6,10 +6,12 @@ type Animation = {
   state: AnimationState;
   time: number;
   frameIndex: number;
+  recording: boolean;
 
   options: {
     speed: number;
     framerateLimit: number;
+    recordingFramerate: number;
     duration: number;
     repeat: boolean;
   };
@@ -19,10 +21,12 @@ const initialState: Animation = {
   state: "stopped",
   time: 0,
   frameIndex: 0,
+  recording: false,
 
   options: {
     speed: 1,
     framerateLimit: 30,
+    recordingFramerate: 30,
     duration: 10,
     repeat: false,
   },
@@ -46,16 +50,23 @@ export const useAnimationStore = create(
         })),
 
       update: (frametime: number) =>
-        set(({ time, frameIndex, options }) => {
+        set(({ time, frameIndex, options, recording, state }) => {
           time = time + frametime;
           frameIndex = frameIndex + 1;
 
-          if (options.repeat && time > options.duration * 1000) {
-            time = 0;
-            frameIndex = 0;
+          if (time > options.duration * 1000) {
+            if (options.repeat) {
+              time = 0;
+              frameIndex = 0;
+            }
+
+            if (recording) {
+              recording = false;
+              state = "stopped";
+            }
           }
 
-          return { time, frameIndex };
+          return { time, frameIndex, recording, state };
         }),
 
       scrub: (time: number) => set({ time, frameIndex: 0, state: "frame" }),
@@ -64,8 +75,19 @@ export const useAnimationStore = create(
         set(({ options: oldOptions }) => ({
           options: { ...oldOptions, ...options },
         })),
+
+      startRecording: () =>
+        set({
+          time: 0,
+          frameIndex: 0,
+          state: "running",
+          recording: true,
+        }),
     })),
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    { name: "animation-store", partialize: ({ state, ...rest }) => rest },
+    {
+      name: "animation-store",
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      partialize: ({ state, recording, ...rest }) => rest,
+    },
   ),
 );
