@@ -43,6 +43,7 @@ export const useUtilityStore = create(
     createRecorder: async (
       outputOptions: OutputOptions,
       encodingOptions: VideoEncodingConfig,
+      finishedCallback?: () => void,
     ) => {
       const { recorder, canvas } = get();
       if (recorder) throw new Error("recorder already exists!");
@@ -61,6 +62,7 @@ export const useUtilityStore = create(
 
       const onRecordingFinished = async () => {
         await output.finalize();
+        finishedCallback?.();
         set({ recorder: null });
       };
 

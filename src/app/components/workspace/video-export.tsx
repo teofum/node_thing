@@ -1,6 +1,6 @@
-import { ComponentProps } from "react";
+import { ComponentProps, useState } from "react";
 import { Mp4OutputFormat, QUALITY_HIGH, StreamTarget } from "mediabunny";
-import { LuCircle } from "react-icons/lu";
+import { LuCircle, LuCircleCheckBig } from "react-icons/lu";
 
 import { useAnimationStore } from "@/store/animation.store";
 import { useUtilityStore } from "@/store/utility.store";
@@ -20,6 +20,8 @@ export function VideoExport({ trigger, open, onOpenChange }: VideoExportProps) {
   const animation = useAnimationStore();
   const createRecorder = useUtilityStore((s) => s.createRecorder);
 
+  const [recordingDone, setRecordingDone] = useState(false);
+
   const record = async () => {
     const format = new Mp4OutputFormat();
 
@@ -34,6 +36,10 @@ export function VideoExport({ trigger, open, onOpenChange }: VideoExportProps) {
       {
         codec: "avc",
         bitrate: QUALITY_HIGH,
+      },
+      () => {
+        setRecordingDone(true);
+        setTimeout(() => setRecordingDone(false), 2000);
       },
     );
     animation.startRecording();
@@ -86,10 +92,14 @@ export function VideoExport({ trigger, open, onOpenChange }: VideoExportProps) {
           size="lg"
           variant="outline"
           onClick={record}
-          disabled={animation.recording}
+          disabled={animation.recording || recordingDone}
           className="relative overflow-hidden mt-auto"
         >
-          {animation.recording ? (
+          {recordingDone ? (
+            <>
+              <LuCircleCheckBig className="text-green-400" /> Done!
+            </>
+          ) : animation.recording ? (
             <>
               <div
                 className="absolute inset-0 bg-current/10"
