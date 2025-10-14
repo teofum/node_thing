@@ -188,6 +188,7 @@ export function MenuAnimation() {
             variant="outline"
             onClick={animation.startRecording}
             disabled={animation.recording}
+            className="relative"
           >
             {animation.recording ? (
               <>
