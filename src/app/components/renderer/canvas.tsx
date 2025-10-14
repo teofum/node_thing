@@ -92,15 +92,12 @@ export function Canvas() {
   const lastFrameError = useRef(0);
   useEffect(() => {
     const cancel = () => {
-      if (frameRequestHandle.current) {
-        console.log("cancel", frameRequestHandle.current);
+      if (frameRequestHandle.current)
         cancelAnimationFrame(frameRequestHandle.current);
-      }
     };
 
     const frame = () => {
       frameRequestHandle.current = requestAnimationFrame(renderFrame);
-      console.log("frame", frameRequestHandle.current);
     };
 
     cancel();
