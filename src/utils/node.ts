@@ -20,10 +20,22 @@ export function createNode<
     data: {
       type,
       defaultValues: getDefaultValues(nodeTypes, type),
-      parameters,
+      parameters: {
+        ...getDefaultParameters(nodeTypes[type]),
+        ...parameters,
+      },
     },
     selected: true,
   };
+}
+
+function getDefaultParameters(type: NodeType) {
+  const parameters: NodeData["parameters"] = {};
+  for (const [key, param] of Object.entries(type.parameters)) {
+    if (param.type === "select") parameters[key] = { value: "0" };
+  }
+
+  return parameters;
 }
 
 function getDefaultValues(nodeTypes: Record<string, NodeType>, type: string) {
