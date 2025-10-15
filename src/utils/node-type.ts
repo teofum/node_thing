@@ -7,6 +7,7 @@ import boxBlurShader from "@/shaders/box-blur.wgsl";
 import checkersPatternShader from "@/shaders/checker-pattern.wgsl";
 import mergeChannelsShader from "@/shaders/combine-channels.wgsl";
 import constantShader from "@/shaders/constant.wgsl";
+import contrastShader from "@/shaders/contrast.wgsl";
 import displaceShader from "@/shaders/displace.wgsl";
 import edgeTangentFlowShader from "@/shaders/edge-tangent-flow.wgsl";
 import exposureShader from "@/shaders/exposure.wgsl";
@@ -464,6 +465,35 @@ export const NODE_TYPES = {
     },
   },
   // Color category ///////////////////////////////
+  contrast: {
+    name: "Contrast",
+    category: "Color",
+    shader: contrastShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      contrast: {
+        name: "Contrast",
+        type: "number",
+        min: 0,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {
+      mode: {
+        name: "Mode",
+        type: "select",
+        options: ["Gamma", "Linear"],
+      },
+    },
+  },
   saturation: {
     name: "Saturation",
     category: "Color",
