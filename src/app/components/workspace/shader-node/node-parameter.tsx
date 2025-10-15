@@ -7,13 +7,45 @@ import { useProjectStore } from "@/store/project.store";
 import { Button } from "@/ui/button";
 import { imageURLFromAsset } from "@/utils/image-url-from-asset";
 import { AssetManager } from "../asset-manager";
+import { Select, SelectItem } from "@/ui/select";
 
 type ParameterProps = NodeProps<ShaderNode> & {
   name: string;
   param: NodeType["parameters"][string];
 };
 
-export function NodeParameter({ id, data, name, param }: ParameterProps) {
+export function NodeParameter(props: ParameterProps) {
+  return props.param.type === "image" ? (
+    <ImageParameter {...props} />
+  ) : (
+    <SelectParameter {...props} />
+  );
+}
+
+function SelectParameter({ id, data, name, param }: ParameterProps) {
+  const setParameter = useProjectStore((s) => s.updateNodeParameter);
+
+  if (param.type !== "select") return null;
+  return (
+    <div className="col-span-3 grid grid-cols-subgrid items-center mb-1.5">
+      <div className="text-xs/4 min-w-4">{param.name}</div>
+      <Select
+        variant="outline"
+        size="sm"
+        className="col-span-2"
+        value={data.parameters[name].value ?? param.options[0]}
+        onValueChange={(v) => setParameter(id, name, v)}
+      >
+        {param.options.map((option, i) => (
+          <SelectItem size="sm" key={option} value={`${i}`}>
+            {option}
+          </SelectItem>
+        ))}
+      </Select>
+    </div>
+  );
+}
+function ImageParameter({ id, data, name }: ParameterProps) {
   const images = useAssetStore((s) => s.images);
   const setParameter = useProjectStore((s) => s.updateNodeParameter);
 
@@ -21,8 +53,6 @@ export function NodeParameter({ id, data, name, param }: ParameterProps) {
     const imageName = data.parameters[name]?.value;
     return imageName && imageURLFromAsset(images[imageName]);
   }, [images, data.parameters, name]);
-
-  if (param.type === "select") return "not implemented yet";
 
   const image = data.parameters[name]?.value ?? "No image";
   const setImage = (newValue: string) => {
@@ -35,7 +65,7 @@ export function NodeParameter({ id, data, name, param }: ParameterProps) {
       trigger={
         <Button
           variant="outline"
-          className="col-start-1 col-span-2 justify-start pl-1 pt-1 pb-1 pr-2 mt-2 w-40"
+          className="col-start-1 col-span-3 justify-start pl-1 pt-1 pb-1 pr-2 mb-2 w-40"
         >
           {imageUrl ? (
             /* We don't care about nextjs image optimization here, it's a local data url */

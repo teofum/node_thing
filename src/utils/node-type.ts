@@ -472,7 +472,13 @@ export const NODE_TYPES = {
         type: "color",
       },
     },
-    parameters: {},
+    parameters: {
+      mode: {
+        name: "Mode",
+        type: "select",
+        options: ["Mix"],
+      },
+    },
   },
   diff: {
     name: "Difference",
