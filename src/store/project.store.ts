@@ -293,7 +293,7 @@ export const useProjectStore = create(
             const { nodeTypes } = get();
             return {
               nodes: [
-                ...layer.nodes,
+                ...layer.nodes.map((node) => ({ ...node, selected: false })),
                 createNode(type, position, nodeTypes, parameters),
               ],
             };
