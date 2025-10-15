@@ -7,6 +7,7 @@ import boxBlurShader from "@/shaders/box-blur.wgsl";
 import checkersPatternShader from "@/shaders/checker-pattern.wgsl";
 import mergeChannelsShader from "@/shaders/combine-channels.wgsl";
 import constantShader from "@/shaders/constant.wgsl";
+import displaceShader from "@/shaders/displace.wgsl";
 import edgeTangentFlowShader from "@/shaders/edge-tangent-flow.wgsl";
 import exposureShader from "@/shaders/exposure.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
@@ -662,6 +663,34 @@ export const NODE_TYPES = {
         type: "number",
         min: 2,
         max: 50,
+        step: 1,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  displace: {
+    name: "Displace",
+    category: "Effects",
+    shader: displaceShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      x: {
+        name: "x",
+        type: "number",
+        step: 1,
+      },
+      y: {
+        name: "y",
+        type: "number",
         step: 1,
       },
     },
