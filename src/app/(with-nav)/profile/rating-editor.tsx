@@ -2,7 +2,10 @@
 
 import { LuStar } from "react-icons/lu";
 import { ComponentProps, useState } from "react";
-import { submitShaderReview } from "@/app/(with-nav)/profile/actions";
+import {
+  deleteShaderReview,
+  submitShaderReview,
+} from "@/app/(with-nav)/profile/actions";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 
@@ -32,7 +35,9 @@ export default function RatingEditor({
     await submitShaderReview(id, rating, comment);
   };
 
-  // TODO recuperar lo de hover de stars
+  const handleDelete = async () => {
+    await deleteShaderReview(id);
+  };
 
   return (
     <Dialog trigger={trigger} title={title} description={category}>
@@ -59,11 +64,18 @@ export default function RatingEditor({
           onChange={(e) => setComment(e.target.value)}
           rows={4}
         />
-        <DialogClose asChild>
-          <Button onClick={handleSubmit} className="mt-3 justify-items-end">
-            Submit Review
-          </Button>
-        </DialogClose>
+        <div className="flex flex-row gap-2 justify-between">
+          <DialogClose asChild>
+            <Button onClick={handleDelete} className="mt-3 text-red-400">
+              Delete Review
+            </Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button onClick={handleSubmit} className="mt-3">
+              Submit Review
+            </Button>
+          </DialogClose>
+        </div>
       </div>
     </Dialog>
   );

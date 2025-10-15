@@ -101,8 +101,6 @@ export async function getShaders() {
       title,
       description,
       price,
-      average_rating,
-      rating_count,
       downloads,
       created_at,
       category:categories (
