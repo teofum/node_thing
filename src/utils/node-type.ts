@@ -476,7 +476,7 @@ export const NODE_TYPES = {
       mode: {
         name: "Mode",
         type: "select",
-        options: ["Mix"],
+        options: ["Mix", "Multiply", "Add"],
       },
     },
   },

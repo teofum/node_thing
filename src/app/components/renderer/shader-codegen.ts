@@ -11,6 +11,7 @@ export function generateShaderCode(
   const outputs = getOutputsForPass(passIdx, type);
 
   const bindingCode = generateBindingCode(inputs, outputs);
+  const parameterCode = generateParameterCode(pass.parameters);
   const computeAttributes = `@compute @workgroup_size(16, 16)`;
   const initializationCode = generateInitializationCode(inputs);
 
@@ -31,6 +32,7 @@ export function generateShaderCode(
 
   const code = [
     bindingCode,
+    parameterCode,
     codeBeforeMain,
     computeAttributes,
     codeMainPrototype,
@@ -131,4 +133,9 @@ function getInputsForPass(passIdx: number, type: NodeType) {
 
 function getPassIndex(pass: RenderPass) {
   return pass.shader === "main" ? 0 : Number(pass.shader.substring(5)) + 1;
+}
+function generateParameterCode(parameters: Record<string, string>) {
+  return Object.entries(parameters)
+    .map(([name, value]) => `const ${name}: u32 = ${value}u;\n`)
+    .join("");
 }
