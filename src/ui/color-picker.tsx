@@ -13,6 +13,7 @@ import {
   Dialog,
   Popover,
   Button,
+  parseColor,
 } from "react-aria-components";
 import cn from "classnames";
 
@@ -28,18 +29,14 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
     { defaultColor = [0, 0, 1, 1], onChange, className, ...props },
     forwardedRef,
   ) => {
-    const rgbaColor = defaultColor.map((val) => Math.round(val * 255));
-    const [color, setColor] = useState(`rgba(${rgbaColor.toString()})`);
+    const [r, g, b] = defaultColor.map((val) => Math.round(val * 255));
 
-    const changeColor = (c: Color) => {
-      const colorStr = c.toString("rgba");
-      setColor(colorStr);
-
-      const colorRgb = c.toFormat("rgba");
-      const rgb = colorRgb
+    const handleChange = (c: Color) => {
+      const rgba = c.toFormat("rgba");
+      const rgb = rgba
         .getColorChannels()
-        .map((ch) => colorRgb.getChannelValue(ch) / 255);
-      if (onChange) onChange(rgb);
+        .map((ch) => rgba.getChannelValue(ch) / 255);
+      onChange?.(rgb);
     };
 
     return (
@@ -48,14 +45,16 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
         className={cn("flex gap-2 items-center", className)}
         {...props}
       >
-        <ColorPicker value={color} onChange={changeColor}>
+        <ColorPicker
+          defaultValue={parseColor(`rgb(${r}, ${g}, ${b})`)}
+          onChange={handleChange}
+        >
           <DialogTrigger>
-            <Button className="flex w-full items-center gap-2 px-0 py-0 bg-transparent border-0 rounded-lg text-base text-white focus-visible:outline-2 focus-visible:outline-teal-400">
-              <ColorSwatch color={color} className="w-full h-5 rounded-lg" />
+            <Button className="w-full cursor-pointer rounded-lg overflow-hidden">
+              <ColorSwatch className="w-full h-5" />
             </Button>
             <Popover
               className={cn(
-                "w-auto",
                 "transform transition-transform duration-200 ease-out",
                 "data-[entering]:opacity-0 data-[entering]:scale-90",
                 "data-[exiting]:opacity-0 data-[exiting]:scale-90",
@@ -76,7 +75,7 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
                   channel="hue"
                   className="grid w-full gap-1"
                 >
-                  <SliderTrack className="relative rounded-md h-7">
+                  <SliderTrack className="relative rounded-md h-6">
                     <ColorThumb className="top-1/2 w-5 h-5 rounded-full border-2 border-white shadow-[0_0_0_1px_black,inset_0_0_0_1px_black] box-border" />
                   </SliderTrack>
                 </ColorSlider>
