@@ -59,12 +59,12 @@ export function RenderShaderNode(
           : null}
 
         {/* inputs */}
-        {Object.entries(nodeTypeInfo.inputs).map(([key, input], i) => (
+        {Object.entries(nodeTypeInfo.inputs).map(([key, input]) => (
           <NodeInput key={key} input={[key, input]} {...props} />
         ))}
 
         {/* outputs */}
-        {Object.entries(nodeTypeInfo.outputs).map(([key, output], i) => (
+        {Object.entries(nodeTypeInfo.outputs).map(([key, output]) => (
           <NodeOutput key={key} output={[key, output]} {...props} />
         ))}
       </div>
