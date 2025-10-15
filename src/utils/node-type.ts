@@ -1,42 +1,35 @@
 import { NodeType } from "@/schemas/node.schema";
 
-import uvShader from "@/shaders/uv.wgsl";
-import timeShader from "@/shaders/time.wgsl";
-import grayscaleShader from "@/shaders/grayscale.wgsl";
-import thresholdShader from "@/shaders/threshold.wgsl";
-import extThresholdShader from "@/shaders/threshold_ext.wgsl";
+import absShader from "@/shaders/abs.wgsl";
+import addShader from "@/shaders/add.wgsl";
+import bayerPatternShader from "@/shaders/bayer-pattern-8x8.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
-import sobelShader from "@/shaders/sobel.wgsl";
+import checkersPatternShader from "@/shaders/checker-pattern.wgsl";
+import mergeChannelsShader from "@/shaders/combine-channels.wgsl";
+import constantShader from "@/shaders/constant.wgsl";
 import edgeTangentFlowShader from "@/shaders/edge-tangent-flow.wgsl";
-import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
-import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
-import gaussianBlurEdgeShader from "@/shaders/gaussian-blur-edge.wgsl";
-import gaussianBlurEdgeAlongShader from "@/shaders/gaussian-blur-edge-along.wgsl";
-import mixShader from "@/shaders/mix.wgsl";
-import diffShader from "@/shaders/diff.wgsl";
-import extDiffShader from "@/shaders/diff_ext.wgsl";
 import exposureShader from "@/shaders/exposure.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
-import mergeChannelsShader from "@/shaders/combine-channels.wgsl";
-import chromaticAberrationShader from "@/shaders/chromatic-aberration.wgsl";
+import fractShader from "@/shaders/fract.wgsl";
+import gaussianBlurEdgeShader from "@/shaders/gaussian-blur-edge.wgsl";
+import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
+import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
+import grayscaleShader from "@/shaders/grayscale.wgsl";
+import hueShiftShader from "@/shaders/hue-shift.wgsl";
+import mixShader from "@/shaders/mix.wgsl";
+import multiplyShader from "@/shaders/multiply.wgsl";
+import pixelateShader from "@/shaders/pixelate.wgsl";
 import posterizeShader from "@/shaders/posterize.wgsl";
 import sharpnessShader from "@/shaders/sharpness.wgsl";
-import bloomShader from "@/shaders/bloom.wgsl";
-import addShader from "@/shaders/add.wgsl";
-import multiplyShader from "@/shaders/multiply.wgsl";
-import absShader from "@/shaders/abs.wgsl";
 import sineShader from "@/shaders/sine.wgsl";
-import fractShader from "@/shaders/fract.wgsl";
-import constantShader from "@/shaders/constant.wgsl";
-import whiteNoiseShader from "@/shaders/white-noise.wgsl";
-import checkersPatternShader from "@/shaders/checker-pattern.wgsl";
-import bayerPatternShader from "@/shaders/bayer-pattern-8x8.wgsl";
-import pixelateShader from "@/shaders/pixelate.wgsl";
-import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
+import sobelShader from "@/shaders/sobel.wgsl";
+import thresholdShader from "@/shaders/threshold.wgsl";
+import timeShader from "@/shaders/time.wgsl";
 import tonemapACESShader from "@/shaders/tone-map-aces.wgsl";
 import tonemapHableShader from "@/shaders/tone-map-hable.wgsl";
-import heatmapShader from "@/shaders/heatmap.wgsl";
-import multiStepMixShader from "@/shaders/multiStepMix.wgsl";
+import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
+import uvShader from "@/shaders/uv.wgsl";
+import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -352,38 +345,9 @@ export const NODE_TYPES = {
     ],
   },
   gaussBlurEdge: {
-    name: "Gaussian blur across edges",
+    name: "Directional blur",
     category: "Filter",
     shader: gaussianBlurEdgeShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-      std_dev: {
-        name: "Std. dev",
-        type: "number",
-        min: 0.1,
-        max: 50,
-        step: 0.1,
-      },
-      tangent: {
-        name: "Tangent",
-        type: "color",
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  gaussBlurEdgeAlong: {
-    name: "Gaussian blur along edges",
-    category: "Filter",
-    shader: gaussianBlurEdgeAlongShader,
     inputs: {
       input: {
         name: "Input",
@@ -517,50 +481,21 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  threshold: {
-    name: "Threshold",
+  hueShift: {
+    name: "Hue Shift",
     category: "Color",
-    shader: thresholdShader,
+    shader: hueShiftShader,
     inputs: {
       input: {
         name: "Input",
         type: "color",
       },
-      threshold: {
-        name: "Threshold",
+      angle: {
+        name: "Angle",
         type: "number",
         min: 0,
-        max: 1,
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  threshold_ext: {
-    name: "Extended Threshold",
-    category: "Color",
-    shader: extThresholdShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-      threshold: {
-        name: "Threshold",
-        type: "number",
-        min: 0,
-        max: 1,
-      },
-      phi: {
-        name: "Falloff",
-        type: "number",
-        min: 0,
-        max: 1,
+        max: 360,
+        step: 1,
       },
     },
     outputs: {
@@ -596,6 +531,7 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  // Tonemapping category ///////////////////////////////
   tonemapReinhard: {
     name: "Reinhard",
     category: "Tone mapping",
@@ -658,21 +594,21 @@ export const NODE_TYPES = {
     parameters: {},
   },
   // Effects category ///////////////////////////////
-  chromaticAberration: {
-    name: "Chromatic Aberration",
+  threshold: {
+    name: "Threshold",
     category: "Effects",
-    shader: chromaticAberrationShader,
+    shader: thresholdShader,
     inputs: {
       input: {
         name: "Input",
         type: "color",
       },
-      angle_r: { name: "Angle R", type: "number" },
-      angle_g: { name: "Angle G", type: "number" },
-      angle_b: { name: "Angle B", type: "number" },
-      magni_r: { name: "Magnitude R", type: "number" },
-      magni_g: { name: "Magnitude G", type: "number" },
-      magni_b: { name: "Magnitude B", type: "number" },
+      threshold: {
+        name: "Threshold",
+        type: "number",
+        min: 0,
+        max: 1,
+      },
     },
     outputs: {
       output: {
@@ -707,37 +643,8 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  bloom: {
-    name: "Bloom",
-    category: "Effects",
-    shader: bloomShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-      std_dev: {
-        name: "Std. dev",
-        type: "number",
-        min: 0.1,
-        max: 10,
-        step: 0.1,
-      },
-      threshold: {
-        name: "Threshold",
-        type: "number",
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
   pixelate: {
-    name: "pixelate",
+    name: "Pixelate",
     category: "Effects",
     shader: pixelateShader,
     inputs: {
@@ -751,62 +658,6 @@ export const NODE_TYPES = {
         min: 2,
         max: 50,
         step: 1,
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  heatmap: {
-    name: "Heatmap",
-    category: "Effects",
-    shader: heatmapShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  multiStepMix: {
-    name: "Multi step Mix",
-    category: "Effects",
-    shader: multiStepMixShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-      color1: {
-        name: "color1",
-        type: "color",
-      },
-      color2: {
-        name: "color2",
-        type: "color",
-      },
-      color3: {
-        name: "color3",
-        type: "color",
-      },
-      color4: {
-        name: "color4",
-        type: "color",
-      },
-      color5: {
-        name: "color5",
-        type: "color",
       },
     },
     outputs: {
