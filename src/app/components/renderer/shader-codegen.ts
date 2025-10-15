@@ -93,6 +93,8 @@ struct Uniforms {
   global_width: u32,
   global_height: u32,
   has_alpha: u32,
+  frame_idx: u32,
+  time: u32,
 };
 
 @group(1) @binding(0)

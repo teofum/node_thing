@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Menu,
-  MenuItem,
-  menuItemClassNames,
-  MenuSeparator,
-} from "@/ui/menu-bar";
+import { Menu, MenuItem, MenuSeparator } from "@/ui/menu-bar";
 import {
   LuCloudDownload,
   LuCloudUpload,

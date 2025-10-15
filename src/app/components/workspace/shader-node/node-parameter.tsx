@@ -3,7 +3,7 @@ import { useMemo } from "react";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
 import { useAssetStore } from "@/store/asset.store";
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import { Button } from "@/ui/button";
 import { imageURLFromAsset } from "@/utils/image-url-from-asset";
 import { AssetManager } from "../asset-manager";
@@ -15,7 +15,7 @@ type ParameterProps = NodeProps<ShaderNode> & {
 
 export function NodeParameter({ id, data, name, param }: ParameterProps) {
   const images = useAssetStore((s) => s.images);
-  const setParameter = useMainStore((s) => s.updateNodeParameter);
+  const setParameter = useProjectStore((s) => s.updateNodeParameter);
 
   const imageUrl = useMemo(() => {
     const imageName = data.parameters[name]?.value;

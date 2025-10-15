@@ -28,7 +28,7 @@ function buttonClassnames(
       "px-4 min-w-20": !icon && size === "md",
       "px-6 min-w-20": !icon && size === "lg",
       "border border-current/15": variant === "outline",
-      "hover:bg-current/10 aria-[disabled]:hover:bg-transparent":
+      "hover:bg-current/10 aria-[disabled]:hover:bg-transparent active:bg-current/15 aria-[disabled]:active:bg-transparent":
         variant === "outline" || variant === "ghost",
       "bg-gradient-to-b from-neutral-900 to-neutral-950 border-t border-b border-t-white/20 border-b-black/60 hover:from-neutral-800 hover:to-neutral-900 active:border-t-black/30 active:border-b-white/15 active:translate-y-px":
         variant === "default",

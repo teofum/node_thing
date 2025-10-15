@@ -3,7 +3,7 @@ import cn from "classnames";
 import { LuStar } from "react-icons/lu";
 
 import { ShaderNode as ShaderNodeType } from "@/schemas/node.schema";
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { CustomShaderMenu } from "./custom-shader-menu";
 import { NodeInput } from "./node-input";
@@ -15,7 +15,7 @@ export function RenderShaderNode(
   props: NodeProps<ShaderNodeType> & { mock?: boolean },
 ) {
   const { data, selected } = props;
-  const nodeTypes = useMainStore((state) => state.nodeTypes);
+  const nodeTypes = useProjectStore((state) => state.nodeTypes);
 
   const nodeTypeInfo = nodeTypes[data.type];
   if (!nodeTypeInfo) return null;

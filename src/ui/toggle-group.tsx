@@ -16,7 +16,7 @@ function buttonClassnames(
   className?: string,
 ) {
   return cn(
-    "font-semibold text-white flex flex-row items-center justify-center gap-2",
+    "font-semibold flex flex-row items-center justify-center gap-2",
     "data-[orientation=horizontal]:first:rounded-l-lg data-[orientation=horizontal]:last:rounded-r-lg",
     "data-[orientation=vertical]:first:rounded-t-lg data-[orientation=vertical]:last:rounded-b-lg",
     "cursor-pointer transition duration-150 data-[state=on]:text-teal-500",
@@ -30,9 +30,14 @@ function buttonClassnames(
       "px-4 min-w-20": !icon && size === "md",
       "px-6 min-w-20": !icon && size === "lg",
       "border border-current/15": variant === "outline",
-      "hover:bg-current/10": variant === "outline" || variant === "ghost",
+      "hover:bg-current/10 active:bg-current/15":
+        variant === "outline" || variant === "ghost",
       "bg-gradient-to-b from-neutral-900 to-neutral-950 border-t border-b border-t-white/20 border-b-black/60 hover:from-neutral-800 hover:to-neutral-900 active:border-t-black/30 active:border-b-white/15 active:translate-y-px":
         variant === "default",
+    },
+    {
+      "not-first:border-l-0 data-[state=on]:border-l has-[+[data-state=on]]:border-r-0":
+        variant === "outline",
     },
     className,
   );

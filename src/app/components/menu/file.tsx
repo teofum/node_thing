@@ -9,11 +9,9 @@ import { saveImageToFile } from "@/utils/image";
 import { imageTypeSchema } from "@/schemas/asset.schema";
 import { ExportOptions } from "./export-options";
 import {
-  zipExportProject,
   zipExportProjectFromFile,
   zipImportProjectFromFile,
 } from "@/utils/zip";
-import { saveFile } from "@/utils/file";
 
 export function FileMenu() {
   const canvas = useUtilityStore((s) => s.canvas);
@@ -37,10 +35,10 @@ export function FileMenu() {
     <>
       <Menu label="File" value="file">
         <MenuItem icon={<LuSave />} onClick={zipExportProjectFromFile}>
-          Export project
+          Save
         </MenuItem>
         <MenuItem icon={<LuFolderOpen />} onClick={zipImportProjectFromFile}>
-          Import project
+          Open
         </MenuItem>
 
         <MenuSeparator />

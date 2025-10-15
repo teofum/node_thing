@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { combine } from "zustand/middleware";
 
 /*
  * Utility store
@@ -8,28 +9,20 @@ import { create } from "zustand";
  */
 
 type RenderFinishedCallback = (canvas: HTMLCanvasElement) => void;
-
 type UtilityState = {
   canvas: HTMLCanvasElement | null;
   nextRenderFinishedCallback: RenderFinishedCallback | null;
 };
 
-type UtilityActions = {
-  setCanvas: (canvas: HTMLCanvasElement | null) => void;
-  onNextRenderFinished: (callback: RenderFinishedCallback | null) => void;
-};
-
-export const useUtilityStore = create<UtilityState & UtilityActions>((set) => ({
-  /*
-   * State
-   */
+const initialState: UtilityState = {
   canvas: null,
   nextRenderFinishedCallback: null,
+};
 
-  /*
-   * Actions
-   */
-  setCanvas: (canvas) => set({ canvas }),
-  onNextRenderFinished: (callback) =>
-    set({ nextRenderFinishedCallback: callback }),
-}));
+export const useUtilityStore = create(
+  combine(initialState, (set) => ({
+    setCanvas: (canvas: HTMLCanvasElement | null) => set({ canvas }),
+    onNextRenderFinished: (callback: RenderFinishedCallback | null) =>
+      set({ nextRenderFinishedCallback: callback }),
+  })),
+);

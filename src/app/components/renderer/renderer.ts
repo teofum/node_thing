@@ -348,6 +348,8 @@ export function render(
   target: GPUTexture,
   textures: [string, GPUTexture][],
   sampler: GPUSampler,
+  frameIndex: number,
+  time: number,
 ) {
   const {
     desc,
@@ -364,7 +366,10 @@ export function render(
   const renderTarget = device.createTexture({
     format: "rgba8unorm",
     size: [target.width, target.height],
-    usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.COPY_SRC,
+    usage:
+      GPUTextureUsage.STORAGE_BINDING |
+      GPUTextureUsage.COPY_SRC |
+      GPUTextureUsage.COPY_DST,
   });
 
   /*
@@ -401,6 +406,8 @@ export function render(
     opts.globalWidth,
     opts.globalHeight,
     desc.outputAlphaBuffer === -1 ? 0 : 1,
+    frameIndex,
+    time,
   ]);
   device.queue.writeBuffer(
     uniform.buffer,
@@ -426,6 +433,11 @@ export function render(
    * Create command encoder
    */
   const enc = device.createCommandEncoder();
+
+  enc.copyTextureToTexture({ texture: target }, { texture: renderTarget }, [
+    target.width,
+    target.height,
+  ]);
 
   for (const input of desc.inputs) {
     let texture: GPUTexture;

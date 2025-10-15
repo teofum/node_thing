@@ -1,6 +1,7 @@
 import { NodeType } from "@/schemas/node.schema";
 
 import uvShader from "@/shaders/uv.wgsl";
+import timeShader from "@/shaders/time.wgsl";
 import grayscaleShader from "@/shaders/grayscale.wgsl";
 import thresholdShader from "@/shaders/threshold.wgsl";
 import extThresholdShader from "@/shaders/threshold_ext.wgsl";
@@ -24,6 +25,7 @@ import bloomShader from "@/shaders/bloom.wgsl";
 import addShader from "@/shaders/add.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
 import absShader from "@/shaders/abs.wgsl";
+import sineShader from "@/shaders/sine.wgsl";
 import fractShader from "@/shaders/fract.wgsl";
 import constantShader from "@/shaders/constant.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
@@ -89,6 +91,19 @@ export const NODE_TYPES = {
       },
       out_v: {
         name: "V",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  time: {
+    name: "Time",
+    category: "Input",
+    shader: timeShader,
+    inputs: {},
+    outputs: {
+      output: {
+        name: "t",
         type: "number",
       },
     },
@@ -227,6 +242,28 @@ export const NODE_TYPES = {
     outputs: {
       output: {
         name: "|x|",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  sine: {
+    name: "Sine wave",
+    category: "Math",
+    shader: sineShader,
+    inputs: {
+      t: {
+        name: "t",
+        type: "number",
+      },
+      phase: {
+        name: "Phase",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Sine",
         type: "number",
       },
     },

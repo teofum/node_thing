@@ -1,6 +1,6 @@
 import { RenderShaderNode } from "./shader-node";
 import { NodeType } from "@/schemas/node.schema";
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import * as Accordion from "@radix-ui/react-accordion";
 import {
   AccordionContent,
@@ -12,7 +12,7 @@ import { Button } from "@/ui/button";
 import { ShaderEditor } from "./shader-editor";
 
 export function MenuLibrary() {
-  const nodeTypes = useMainStore((state) => state.nodeTypes);
+  const nodeTypes = useProjectStore((state) => state.nodeTypes);
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.effectAllowed = "move";

@@ -5,8 +5,8 @@ import { createNode } from "@/utils/node";
 
 import { mockNodeTypes } from "./node.mock";
 
-jest.mock("@/src/store/main.store", () => ({
-  useMainStore: jest.fn((selector) =>
+jest.mock("@/src/store/project.store", () => ({
+  useProjectStore: jest.fn((selector) =>
     selector({
       nodeTypes: mockNodeTypes,
       layers: {
