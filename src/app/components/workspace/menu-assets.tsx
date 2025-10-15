@@ -3,6 +3,7 @@ import { Button } from "@/ui/button";
 import { AssetThumbnail } from "./asset-manager/thumbnail";
 import { loadImageAssetFromFile } from "@/utils/image";
 import { AssetManager } from "./asset-manager";
+import { LuUpload } from "react-icons/lu";
 
 export function MenuAssets() {
   const images = useAssetStore((s) => s.images);
@@ -37,6 +38,7 @@ export function MenuAssets() {
           className="col-start-1 col-span-2"
           onClick={uploadImageAsset}
         >
+          <LuUpload />
           Upload image
         </Button>
 

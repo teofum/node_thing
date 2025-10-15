@@ -25,14 +25,18 @@ export function RenderShaderNode(
 
   return (
     <div
-      className={cn("glass rounded-lg border min-w-32", {
+      className={cn("glass rounded-xl border min-w-32", {
         "border-white/20": !selected,
         "border-teal-400/40 outline-teal-400/20 outline-2": selected,
       })}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
     >
       <div
         className={cn(
-          "text-xs/4 px-3 py-2 font-bold border-b border-white/15 bg-clip-padding rounded-t-[7px]",
+          "text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px]",
           {
             "bg-purple-400/15": data.type === "__output",
             "bg-orange-400/15": nodeTypeInfo.category === "Input",
@@ -50,7 +54,7 @@ export function RenderShaderNode(
         </div>
       </div>
 
-      <div className="p-2">
+      <div className="p-2 grid grid-cols-[auto_auto_auto] gap-x-2">
         {/* inputs */}
         {Object.entries(nodeTypeInfo.inputs).map(([key, input], i) => (
           <NodeInput key={key} input={[key, input]} i={i} {...props} />

@@ -19,7 +19,7 @@ export function NodeOutput({
   mock = false,
 }: NodeOutputProps) {
   return (
-    <div className="flex flex-row-reverse gap-2 h-6 items-center">
+    <div className="grid grid-cols-subgrid col-span-3 h-6 items-center">
       <HandleWithMock
         mock={mock}
         type="source"
@@ -31,7 +31,9 @@ export function NodeOutput({
           "!bg-neutral-100": output.type === "number",
         })}
       />
-      <div className="text-white text-xs/4 flex justify-end">{output.name}</div>
+      <div className="text-white text-xs/4 text-end col-start-3 min-w-4">
+        {output.name}
+      </div>
     </div>
   );
 }

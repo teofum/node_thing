@@ -9,13 +9,28 @@ export function Timeline() {
 
   return (
     <div className="glass glass-border rounded-xl absolute bottom-1 left-1 right-1 p-3 flex flex-row gap-1.5 items-center">
-      <Button icon variant="outline" onClick={animation.toggleState}>
+      <Button
+        icon
+        variant="outline"
+        onClick={animation.toggleState}
+        disabled={animation.recording}
+      >
         {animation.state === "running" ? <LuPause /> : <LuPlay />}
       </Button>
-      <Button icon variant="outline" onClick={animation.stop}>
+      <Button
+        icon
+        variant="outline"
+        onClick={animation.stop}
+        disabled={animation.recording}
+      >
         <LuSquare />
       </Button>
-      <Button icon variant="outline" onClick={animation.reset}>
+      <Button
+        icon
+        variant="outline"
+        onClick={animation.reset}
+        disabled={animation.recording}
+      >
         <LuRewind />
       </Button>
       <div className="grow ml-1.5">
@@ -26,6 +41,7 @@ export function Timeline() {
           max={animation.options.duration}
           onChange={(v) => animation.scrub(v * 1000)}
           min={0}
+          disabled={animation.recording}
           inputProps={{
             readOnly: true,
             disabled: true,

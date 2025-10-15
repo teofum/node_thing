@@ -52,7 +52,7 @@ export const Select = forwardRef<HTMLButtonElement, Props>(
 
         <SelectPrimitive.Portal>
           <SelectPrimitive.Content className="bg-black/60 backdrop-blur-md border border-white/15 rounded-xl">
-            <SelectPrimitive.ScrollUpButton>
+            <SelectPrimitive.ScrollUpButton className="flex flex-col items-center">
               <LuChevronUp />
             </SelectPrimitive.ScrollUpButton>
 
@@ -60,7 +60,7 @@ export const Select = forwardRef<HTMLButtonElement, Props>(
               {children}
             </SelectPrimitive.Viewport>
 
-            <SelectPrimitive.ScrollDownButton>
+            <SelectPrimitive.ScrollDownButton className="flex flex-col items-center">
               <LuChevronDown />
             </SelectPrimitive.ScrollDownButton>
           </SelectPrimitive.Content>

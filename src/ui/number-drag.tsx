@@ -74,6 +74,7 @@ export function NumberDrag({
   onDragStart,
   onDragEnd,
   style,
+  disabled,
   ...props
 }: NumberDragProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -217,7 +218,12 @@ export function NumberDrag({
   return (
     <div
       className={cn(
-        "relative rounded-lg border border-current/15 hover:bg-current/10 active:text-teal-400 transition-colors duration-200 overflow-hidden text-xs/3",
+        "relative rounded-lg border border-current/15 hover:bg-current/10",
+        "transition-colors duration-200 overflow-hidden text-xs/3",
+        {
+          "active:text-teal-400": !disabled,
+          "text-white/40 bg-current/10 pointer-events-none": disabled,
+        },
         className,
       )}
     >
@@ -239,8 +245,8 @@ export function NumberDrag({
         onTouchStart={handleMouseDown}
         onKeyDown={handleKeyDown}
         className={cn(
-          "relative tabular-nums outline-none select-none text-center",
-          "active:text-teal-400 transition-colors duration-200 min-w-0 max-w-full",
+          "relative tabular-nums outline-none select-none text-center overflow-hidden",
+          "active:text-teal-400 transition-colors duration-200 min-w-0 w-full max-w-full",
           {
             "text-xs/3 p-0.5 h-5": size === "sm",
             "text-sm/4 p-2": size === "md",
@@ -251,6 +257,7 @@ export function NumberDrag({
           caretColor: isDragging ? "transparent" : "initial",
           ...style,
         }}
+        disabled={disabled}
         {...props}
       />
     </div>

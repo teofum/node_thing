@@ -7,6 +7,7 @@ type DialogProps = Omit<D.DialogProps & D.DialogContentProps, "asChild"> & {
   trigger: React.ReactNode;
   title: React.ReactNode;
   description: React.ReactNode;
+  disableClose?: boolean;
 };
 
 export function Dialog({
@@ -17,10 +18,12 @@ export function Dialog({
   description,
   open,
   onOpenChange,
+  modal,
+  disableClose = false,
   ...props
 }: DialogProps) {
   return (
-    <D.Root {...{ open, onOpenChange }}>
+    <D.Root {...{ open, onOpenChange, modal }}>
       <D.Trigger asChild>{trigger}</D.Trigger>
       <D.Portal>
         <D.Overlay className="fixed inset-0 bg-neutral-700/10 animate-[dialogOverlay_500ms_ease-out_forwards]" />
@@ -40,7 +43,12 @@ export function Dialog({
               </D.Description>
             </div>
             <D.Close asChild>
-              <Button icon variant="ghost" className="ml-auto">
+              <Button
+                icon
+                variant="ghost"
+                className="ml-auto"
+                disabled={disableClose}
+              >
                 <LuX />
               </Button>
             </D.Close>

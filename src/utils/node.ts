@@ -22,6 +22,7 @@ export function createNode<
       defaultValues: getDefaultValues(nodeTypes, type),
       parameters,
     },
+    selected: true,
   };
 }
 
