@@ -29,6 +29,10 @@ export function RenderShaderNode(
         "border-white/20": !selected,
         "border-teal-400/40 outline-teal-400/20 outline-2": selected,
       })}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
     >
       <div
         className={cn(
