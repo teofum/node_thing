@@ -4,5 +4,5 @@ fn main(
     let luma = vec3f(0.2126, 0.7152, 0.0722);
     let val = dot(input, luma);
 
-    output[index] = vec3f(val);
+    output[index] = mix(vec3f(val), input, saturation);
 }

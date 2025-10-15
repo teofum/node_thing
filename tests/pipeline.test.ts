@@ -258,7 +258,7 @@ describe("RenderPipeline", () => {
       NODE_TYPES,
     );
 
-    expect(pipeline.passes[0].nodeType).toBe("grayscale");
+    expect(pipeline.passes[0].nodeType).toBe("saturation");
     expect(pipeline.passes[1].nodeType).toBe("threshold");
     expect(pipeline.passes[2].nodeType).toBe("mix");
 

@@ -14,7 +14,7 @@ import fractShader from "@/shaders/fract.wgsl";
 import gaussianBlurEdgeShader from "@/shaders/gaussian-blur-edge.wgsl";
 import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
 import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
-import grayscaleShader from "@/shaders/grayscale.wgsl";
+import saturationShader from "@/shaders/saturation.wgsl";
 import hueShiftShader from "@/shaders/hue-shift.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
@@ -463,14 +463,19 @@ export const NODE_TYPES = {
     },
   },
   // Color category ///////////////////////////////
-  grayscale: {
-    name: "Grayscale",
+  saturation: {
+    name: "Saturation",
     category: "Color",
-    shader: grayscaleShader,
+    shader: saturationShader,
     inputs: {
       input: {
         name: "Input",
         type: "color",
+      },
+      saturation: {
+        name: "Saturation",
+        type: "number",
+        min: 0,
       },
     },
     outputs: {
