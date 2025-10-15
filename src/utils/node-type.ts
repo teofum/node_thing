@@ -304,6 +304,7 @@ export const NODE_TYPES = {
       kernel_size: {
         name: "Radius",
         type: "number",
+        min: 1,
         max: 25,
         step: 1,
       },
@@ -461,6 +462,8 @@ export const NODE_TYPES = {
       factor: {
         name: "Factor",
         type: "number",
+        min: 0,
+        max: 1,
       },
     },
     outputs: {
@@ -553,6 +556,8 @@ export const NODE_TYPES = {
       threshold: {
         name: "Threshold",
         type: "number",
+        min: 0,
+        max: 1,
       },
     },
     outputs: {
@@ -575,10 +580,14 @@ export const NODE_TYPES = {
       threshold: {
         name: "Threshold",
         type: "number",
+        min: 0,
+        max: 1,
       },
       phi: {
         name: "Falloff",
         type: "number",
+        min: 0,
+        max: 1,
       },
     },
     outputs: {
@@ -615,8 +624,8 @@ export const NODE_TYPES = {
     parameters: {},
   },
   tonemapReinhard: {
-    name: "Tonemap Reinhard",
-    category: "Color",
+    name: "Reinhard",
+    category: "Tone mapping",
     shader: tonemapReinhardShader,
     inputs: {
       input: {
@@ -626,7 +635,7 @@ export const NODE_TYPES = {
       white: {
         name: "White point",
         type: "number",
-        min: 0.0,
+        min: 1.0,
         max: 10.0,
         step: 0.1,
       },
@@ -640,8 +649,8 @@ export const NODE_TYPES = {
     parameters: {},
   },
   tonemapACES: {
-    name: "Tonemap ACES",
-    category: "Color",
+    name: "ACES",
+    category: "Tone mapping",
     shader: tonemapACESShader,
     inputs: {
       input: {
@@ -658,8 +667,8 @@ export const NODE_TYPES = {
     parameters: {},
   },
   tonemapHable: {
-    name: "Tonemap hable",
-    category: "Color",
+    name: "Hable",
+    category: "Tone mapping",
     shader: tonemapHableShader,
     inputs: {
       input: {
@@ -766,7 +775,8 @@ export const NODE_TYPES = {
       kernel_size: {
         name: "Radius",
         type: "number",
-        max: 25,
+        min: 2,
+        max: 50,
         step: 1,
       },
     },
