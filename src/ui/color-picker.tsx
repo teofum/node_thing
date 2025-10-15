@@ -9,10 +9,14 @@ import {
   ColorField,
   Color,
   ColorFieldRenderProps,
+  DialogTrigger,
+  Dialog,
+  Popover,
+  Button,
 } from "react-aria-components";
-import { DialogTrigger, Dialog, Popover, Button } from "react-aria-components";
-import { Input } from "@/ui/input";
 import cn from "classnames";
+
+import { Input } from "@/ui/input";
 
 type ColorInputProps = {
   defaultColor?: number[];
@@ -46,19 +50,18 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
       >
         <ColorPicker value={color} onChange={changeColor}>
           <DialogTrigger>
-            <Button className="flex items-center gap-2 px-0 py-0 bg-transparent border-0 rounded-md text-base text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-400">
-              <ColorSwatch color={color} className="w-5 h-5 rounded-sm" />
+            <Button className="flex w-full items-center gap-2 px-0 py-0 bg-transparent border-0 rounded-lg text-base text-white focus-visible:outline-2 focus-visible:outline-teal-400">
+              <ColorSwatch color={color} className="w-full h-5 rounded-lg" />
             </Button>
             <Popover
               className={cn(
-                "rounded-lg text-black",
-                "shadow-black shadow-[0_0_40px] w-auto",
+                "w-auto",
                 "transform transition-transform duration-200 ease-out",
                 "data-[entering]:opacity-0 data-[entering]:scale-90",
                 "data-[exiting]:opacity-0 data-[exiting]:scale-90",
               )}
             >
-              <Dialog className="flex flex-col gap-4 p-4 min-w-48 box-border rounded-md glass glass-border focus-visible:outline-none">
+              <Dialog className="flex flex-col gap-4 p-4 min-w-48 box-border rounded-xl glass glass-border focus-visible:outline-none">
                 <ColorArea
                   className="w-48 h-48 rounded-md flex-shrink-0 relative"
                   colorSpace="hsb"
@@ -100,7 +103,8 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
                       <Input
                         {...inputProps}
                         variant="outline"
-                        className="h-7 w-23 text-white"
+                        size="sm"
+                        className="w-full"
                         onChange={(ev) => {
                           inputProps.state.setInputValue(
                             ev.currentTarget.value,

@@ -31,7 +31,7 @@ export function NodeInput({
     !edges.some((edge) => edge.target === id && edge.targetHandle === key);
 
   return (
-    <div className="flex flex-row gap-2 h-6 items-center">
+    <div className="grid grid-cols-subgrid col-span-3 h-6 items-center">
       <HandleWithMock
         mock={mock}
         type="target"
@@ -43,7 +43,7 @@ export function NodeInput({
           "!bg-neutral-100": input.type === "number",
         })}
       />
-      <div className="text-white text-xs/4">{input.name}</div>
+      <div className="text-white text-xs/4 min-w-4">{input.name}</div>
 
       {renderDefaultValueInput ? (
         input.type === "number" ? (
@@ -54,7 +54,7 @@ export function NodeInput({
             max={input.max}
             step={input.step ?? 0.01}
             size="sm"
-            className="w-24 nodrag"
+            className="w-20 nodrag"
             progress
           />
         ) : (
