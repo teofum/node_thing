@@ -263,7 +263,7 @@ export const NODE_TYPES = {
     parameters: {},
   },
   fract: {
-    name: "Split decimal",
+    name: "Floor/Fract",
     category: "Math",
     shader: fractShader,
     inputs: {
