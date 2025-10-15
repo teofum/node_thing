@@ -32,7 +32,7 @@ export function RenderShaderNode(
     >
       <div
         className={cn(
-          "text-xs/4 px-3 py-2 font-bold border-b border-white/15 bg-clip-padding rounded-t-[7px]",
+          "text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[7px]",
           {
             "bg-purple-400/15": data.type === "__output",
             "bg-orange-400/15": nodeTypeInfo.category === "Input",
