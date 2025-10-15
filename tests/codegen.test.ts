@@ -95,4 +95,11 @@ describe("Shader code generation", () => {
 
     expect(code).toMatch(/const test: u32 = 42u;/);
   });
+
+  it("should include parameter constants", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+
+    expect(code).toMatch(/const test_foo_bar: u32 = 0u;/);
+    expect(code).toMatch(/const test_bob: u32 = 1u;/);
+  });
 });

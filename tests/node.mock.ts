@@ -27,6 +27,12 @@ export const mockNodeTypes = {
         type: "color",
       },
     },
-    parameters: {},
+    parameters: {
+      test: {
+        name: "Test",
+        type: "select",
+        options: ["Foo Bar", "Bob"],
+      },
+    },
   },
 } satisfies Record<string, NodeType>;

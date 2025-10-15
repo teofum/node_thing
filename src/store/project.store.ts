@@ -349,7 +349,7 @@ export const useProjectStore = create(
         ...(persisted as Project),
         nodeTypes: {
           ...current.nodeTypes,
-          ...(persisted as Project).nodeTypes,
+          // ...(persisted as Project).nodeTypes,
           ...NODE_TYPES,
         },
         properties: {

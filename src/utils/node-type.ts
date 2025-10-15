@@ -479,70 +479,24 @@ export const NODE_TYPES = {
         options: [
           "Normal",
           "Multiply",
+          "Color Burn",
+          "Linear Burn",
           "Darken",
           "Darker color",
           "Add",
+          "Screen",
+          "Color Dodge",
           "Lighten",
           "Lighter color",
-          "Screen",
+          "Tint",
           "Overlay",
           "Difference",
+          "Exclusion",
           "Subtract",
           "Contrast",
         ],
       },
     },
-  },
-  diff: {
-    name: "Difference",
-    category: "Blend",
-    shader: diffShader,
-    inputs: {
-      input_a: {
-        name: "A",
-        type: "color",
-      },
-      input_b: {
-        name: "B",
-        type: "color",
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  diffExt: {
-    name: "Extended Difference",
-    category: "Blend",
-    shader: extDiffShader,
-    inputs: {
-      input_a: {
-        name: "A",
-        type: "color",
-      },
-      input_b: {
-        name: "B",
-        type: "color",
-      },
-      tau: {
-        name: "Tau",
-        type: "number",
-        min: 1,
-        max: 10,
-        step: 0.1,
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
   },
   // Color category ///////////////////////////////
   grayscale: {

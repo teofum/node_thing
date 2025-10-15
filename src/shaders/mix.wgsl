@@ -5,16 +5,22 @@ fn main(
 
     let luma = vec3f(0.2126, 0.7152, 0.0722);
     switch mode {
-        case 0: {
+        case mode_normal: {
             output[index] = mix(input_a, input_b, factor);
         }
-        case 1: {
+        case mode_multiply: {
             output[index] = mix(input_a, input_a * input_b, factor);
         }
-        case 2: {
+        case mode_color_burn: {
+            output[index] = mix(input_a, 1.0 - (1.0 - input_a) / input_b, factor);
+        }
+        case mode_linear_burn: {
+            output[index] = mix(input_a, input_a + input_b - 1, factor);
+        }
+        case mode_darken: {
             output[index] = mix(input_a, min(input_a, input_b), factor);
         }
-        case 3: {
+        case mode_darker_color: {
             let luma_a = dot(input_a, luma);
             let luma_b = dot(input_b, luma);
             var darker = input_a;
@@ -22,13 +28,19 @@ fn main(
 
             output[index] = darker;
         }
-        case 4: {
+        case mode_add: {
             output[index] = input_a + input_b * factor;
         }
-        case 5: {
+        case mode_screen: {
+            output[index] = mix(input_a, 1.0 - (1.0 - input_a) * (1.0 - input_b), factor);
+        }
+        case mode_color_dodge: {
+            output[index] = mix(input_a, input_a / (1.0 - input_b), factor);
+        }
+        case mode_lighten: {
             output[index] = mix(input_a, max(input_a, input_b), factor);
         }
-        case 6: {
+        case mode_lighter_color: {
             let luma_a = dot(input_a, luma);
             let luma_b = dot(input_b, luma);
             var lighter = input_a;
@@ -36,22 +48,30 @@ fn main(
 
             output[index] = lighter;
         }
-        case 7: {
-            output[index] = mix(input_a, 1.0 - (1.0 - input_a) * (1.0 - input_b), factor);
-        }
-        case 8: {
+        case mode_tint: {
             let luma_a = dot(input_a, luma);
             let multiply = mix(input_a, input_a * input_b, factor);
             let screen = mix(input_a, 1.0 - (1.0 - input_a) * (1.0 - input_b), factor);
             output[index] = mix(multiply, screen, luma_a);
         }
-        case 9: {
+        case mode_overlay: {
+            let luma_a = dot(input_a, luma);
+            if luma_a > 0.5 {
+                output[index] = mix(input_a, 1.0 - (1.0 - 2.0 * saturate(input_a - 0.5)) * (1.0 - input_b), factor);
+            } else {
+                output[index] = mix(input_a, 2.0 * input_a * input_b, factor);
+            }
+        }
+        case mode_difference: {
             output[index] = mix(input_a, abs(input_a - input_b), factor);
         }
-        case 10: {
+        case mode_exclusion: {
+            output[index] = mix(input_a, 0.5 - 2.0 * (input_a - 0.5) * (input_b - 0.5), factor);
+        }
+        case mode_subtract: {
             output[index] = mix(input_a, input_a - input_b, factor);
         }
-        case 11: {
+        case mode_contrast: {
             let tau = 1.0 / max(0.01, factor);
             output[index] = abs(input_a * (1.0 + tau) - input_b * tau);
         }
