@@ -8,13 +8,13 @@ import {
 } from "@/app/(with-nav)/profile/actions";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
+import { UserRatingsDisplay } from "./page";
 
 type RatingEditorProps = {
   id: string;
   title: string;
   category: string;
-  initialRating?: number | null;
-  initialComment?: string | null;
+  userRating: UserRatingsDisplay | null;
   trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 
@@ -22,13 +22,12 @@ export default function RatingEditor({
   id,
   title,
   category,
-  initialRating = 0,
-  initialComment,
+  userRating,
   trigger,
 }: RatingEditorProps) {
   const [hovered, setHovered] = useState<number | null>(null);
-  const [rating, setRating] = useState(initialRating ?? 0);
-  const [comment, setComment] = useState(initialComment ?? "");
+  const [rating, setRating] = useState(userRating?.rating ?? 0);
+  const [comment, setComment] = useState(userRating?.comment ?? "");
   const stars = [1, 2, 3, 4, 5];
 
   const handleSubmit = async () => {
@@ -64,14 +63,16 @@ export default function RatingEditor({
           onChange={(e) => setComment(e.target.value)}
           rows={4}
         />
-        <div className="flex flex-row gap-2 justify-between">
+        <div className="flex flex-row gap-2">
+          {userRating && (
+            <DialogClose asChild>
+              <Button onClick={handleDelete} className="mt-3 text-red-400">
+                Delete Review
+              </Button>
+            </DialogClose>
+          )}
           <DialogClose asChild>
-            <Button onClick={handleDelete} className="mt-3 text-red-400">
-              Delete Review
-            </Button>
-          </DialogClose>
-          <DialogClose asChild>
-            <Button onClick={handleSubmit} className="mt-3">
+            <Button onClick={handleSubmit} className="mt-3 ml-auto">
               Submit Review
             </Button>
           </DialogClose>
