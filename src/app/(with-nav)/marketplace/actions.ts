@@ -111,7 +111,8 @@ export async function getShaders() {
       ),
       profiles!fk_shaders_user_id (
         username
-      )
+      ),
+      ratings(rating)
     `,
     )
     .eq("published", true)
@@ -121,13 +122,29 @@ export async function getShaders() {
     query = query.not("id", "in", `(${owned.join(",")})`);
   }
 
-  const { data, error } = await query;
+  const { data: shaders, error } = await query;
 
   if (error) {
     throw new Error(`Failed to load shaders: ${error.message}`);
   }
 
-  return camelcaseKeys(data) || [];
+  const data = shaders.map((shader) => {
+    const ratings = (shader.ratings ?? [])
+      .map((r) => r.rating)
+      .filter((r): r is number => r !== null);
+
+    const rating_count = ratings.length;
+    const average_rating =
+      rating_count > 0 ? ratings.reduce((a, b) => a + b, 0) / rating_count : 0;
+
+    return {
+      ...shader,
+      rating_count,
+      average_rating,
+    };
+  });
+
+  return camelcaseKeys(data);
 }
 
 export async function getCategories(): Promise<Category[]> {
