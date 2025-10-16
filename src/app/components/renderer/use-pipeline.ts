@@ -45,6 +45,10 @@ export function usePipeline(
     if (!pipelineCache.current) pipelineCache.current = [];
     if (!layersCache.current) layersCache.current = [];
 
+    layersCache.current = layersCache.current.slice(0, layers.length);
+    descCache.current = descCache.current.slice(0, layers.length);
+    pipelineCache.current = pipelineCache.current.slice(0, layers.length);
+
     /*
      * Check what needs rebuilding
      */
