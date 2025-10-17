@@ -18,6 +18,7 @@ import {
 
 import { signOutAction } from "@/app/auth/actions";
 import { Button, LinkButton } from "@/ui/button";
+import { redirect } from "next/navigation";
 import AccountEditor from "./account-editor";
 import {
   cancelSubscriptionAction,
@@ -28,7 +29,6 @@ import {
   getUserRatings,
   resumeSubscriptionAction,
   subscribePremiumAction,
-  updatePayoutSettingsAction,
 } from "./actions";
 import RatingCard from "./components/ratingcard";
 
@@ -40,8 +40,7 @@ function parseDate(date: string) {
 export type UserData = {
   username: string;
   isPremium: boolean | null;
-  mpEmail?: string | null;
-  pendingBalance?: number | null;
+  mpAccessToken?: string | null;
   cancelled?: boolean | null;
   subscriptionId?: string | null;
 };
@@ -82,11 +81,9 @@ AccountInfoTab.displayName = "AccountInfoTab";
 type UserShaderDisplay = {
   id: string;
   title: string;
-  averageRating: number | null;
   category: {
     name: string;
   };
-  ratingCount?: number | null;
 };
 
 export type UserRatingsDisplay = {
@@ -116,11 +113,11 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            averageRating={shader.averageRating}
+            averageRating={null}
             userRating={
               ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={shader?.ratingCount ?? 0}
+            ratingCount={0}
             trigger={<Button variant="outline">test</Button>}
           />
         ))
@@ -138,11 +135,11 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            averageRating={shader.averageRating}
+            averageRating={null}
             userRating={
               ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={shader?.ratingCount ?? 0}
+            ratingCount={0}
             trigger={null}
           />
         ))
@@ -171,10 +168,11 @@ UserShadersTab.displayName = "UserShadersTab";
 
 type PremiumTabProps = {
   userData: UserData;
+  user: { id: string };
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
-  ({ userData, className, ...props }, forwardedRef) => {
+  ({ userData, user, className, ...props }, forwardedRef) => {
     const featureList: IconTextLine[] = [
       {
         id: "cloud",
@@ -255,39 +253,55 @@ const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
           )}
 
           <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4">Payout Settings</h3>
+            <h3 className="text-lg font-semibold mb-4">Payment Settings</h3>
             <p className="text-neutral-400 text-sm mb-4">
-              Configure your Mercado Pago email to receive payments from shader
+              Connect your MercadoPago account to receive payments from shader
               sales
             </p>
-            <form action={updatePayoutSettingsAction}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
-                  Mercado Pago Email
-                </label>
-                <input
-                  type="email"
-                  name="mp_email"
-                  defaultValue={userData.mpEmail || ""}
-                  placeholder="tu@email.com"
-                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white focus:outline-none focus:border-neutral-500"
-                />
-              </div>
-              <div className="bg-neutral-800 rounded-lg p-4 mb-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-neutral-300">Pending earnings:</span>
-                  <span className="text-xl font-bold text-teal-400">
-                    ${(userData.pendingBalance || 0).toFixed(2)} ARS
+            {userData.mpAccessToken ? (
+              <div className="bg-green-900/20 border border-green-700 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-green-400 font-medium">
+                    MercadoPago Connected
                   </span>
                 </div>
-                <p className="text-xs text-neutral-500 mt-2">
-                  Paid weekly via Mercado Pago
+                <p className="text-neutral-400 text-sm">
+                  You can now receive payments from shader sales
                 </p>
               </div>
-              <Button type="submit" size="lg" className="w-full">
-                Save Payout Settings
-              </Button>
-            </form>
+            ) : (
+              <div className="bg-yellow-900/20 border border-yellow-700 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-yellow-400 font-medium">
+                    MercadoPago Not Connected
+                  </span>
+                </div>
+                <p className="text-neutral-400 text-sm mb-4">
+                  Connect your MercadoPago account to start selling shaders
+                </p>
+                <form
+                  action={async () => {
+                    "use server";
+                    const authUrl = `https://auth.mercadopago.com/authorization?${new URLSearchParams(
+                      {
+                        client_id: process.env.MP_APP_ID!,
+                        response_type: "code",
+                        platform_id: "mp",
+                        state: user.id,
+                        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/mercadopago/callback`,
+                      },
+                    ).toString()}`;
+                    redirect(authUrl);
+                  }}
+                >
+                  <Button type="submit" size="lg" className="w-full">
+                    Connect MercadoPago
+                  </Button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -395,6 +409,7 @@ export default async function ProfilePage() {
             <PremiumTab
               className="rounded-2xl p-4 min-h-[300px] mb-3"
               userData={userData}
+              user={user}
             />
           </Tabs.Content>
         </Tabs.Root>

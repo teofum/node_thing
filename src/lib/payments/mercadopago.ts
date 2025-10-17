@@ -1,5 +1,6 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { redirect } from "next/navigation";
+import { getBaseUrl } from "@/lib/utils";
 
 export async function createMPCheckout({
   orderId,
@@ -9,6 +10,8 @@ export async function createMPCheckout({
   successUrl,
   failureUrl,
   pendingUrl,
+  sellerAccessToken,
+  marketplaceFee = 0,
 }: {
   orderId: string;
   userId: string;
@@ -17,9 +20,11 @@ export async function createMPCheckout({
   successUrl: string;
   failureUrl: string;
   pendingUrl: string;
+  sellerAccessToken: string;
+  marketplaceFee?: number;
 }) {
   const client = new MercadoPagoConfig({
-    accessToken: process.env.MP_ACCESS_TOKEN!,
+    accessToken: sellerAccessToken,
   });
 
   const preference = new Preference(client);
@@ -34,6 +39,7 @@ export async function createMPCheckout({
           quantity: 1,
         },
       ],
+      marketplace_fee: marketplaceFee,
       external_reference: orderId,
       metadata: {
         user_id: userId,
@@ -48,4 +54,17 @@ export async function createMPCheckout({
   });
 
   redirect(response.init_point!);
+}
+
+export async function generateMPAuthUrl(userId: string): Promise<string> {
+  const baseUrl = await getBaseUrl();
+  const params = new URLSearchParams({
+    client_id: process.env.MP_APP_ID!,
+    response_type: "code",
+    platform_id: "mp",
+    state: userId,
+    redirect_uri: `${baseUrl}/api/mercadopago/callback`,
+  });
+
+  return `https://auth.mercadopago.com/authorization?${params.toString()}`;
 }

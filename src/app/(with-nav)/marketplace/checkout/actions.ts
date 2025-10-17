@@ -87,6 +87,29 @@ export async function createMercadoPagoCheckout(orderId: string) {
   const order = await getOrderDetails(orderId);
   const baseUrl = await getBaseUrl();
 
+  // Get seller info for the first item (assuming single seller per order for now)
+  const firstItem = order.order_items[0];
+  const { data: shader } = await supabase
+    .from("shaders")
+    .select(
+      `
+      user_id,
+      profiles!fk_shaders_user_id (
+        mp_access_token
+      )
+    `,
+    )
+    .eq("id", firstItem.shader.id)
+    .single();
+
+  if (!shader?.profiles?.mp_access_token) {
+    redirect(
+      `/marketplace/checkout/${orderId}?error=${encodeURIComponent("Seller has not connected MercadoPago")}`,
+    );
+  }
+
+  const marketplaceFee = Math.round(order.total_amount * 0.1); // 10% commission
+
   await createMPCheckout({
     orderId,
     userId: user.id,
@@ -95,6 +118,8 @@ export async function createMercadoPagoCheckout(orderId: string) {
     successUrl: `${baseUrl}/marketplace/checkout/${orderId}/success`,
     failureUrl: `${baseUrl}/marketplace/checkout/${orderId}?error=payment_failed`,
     pendingUrl: `${baseUrl}/marketplace/checkout/${orderId}/success`,
+    sellerAccessToken: shader.profiles.mp_access_token,
+    marketplaceFee,
   });
 }
 
