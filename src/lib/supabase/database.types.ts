@@ -316,7 +316,6 @@ export type Database = {
       };
       shaders: {
         Row: {
-          average_rating: number | null;
           category_id: number;
           code: string;
           created_at: string;
@@ -326,14 +325,12 @@ export type Database = {
           node_config: Json | null;
           price: number;
           published: boolean | null;
-          rating_count: number | null;
           step: number | null;
           title: string;
           updated_at: string;
           user_id: string;
         };
         Insert: {
-          average_rating?: number | null;
           category_id: number;
           code: string;
           created_at?: string;
@@ -343,14 +340,12 @@ export type Database = {
           node_config?: Json | null;
           price: number;
           published?: boolean | null;
-          rating_count?: number | null;
           step?: number | null;
           title: string;
           updated_at?: string;
           user_id: string;
         };
         Update: {
-          average_rating?: number | null;
           category_id?: number;
           code?: string;
           created_at?: string;
@@ -360,7 +355,6 @@ export type Database = {
           node_config?: Json | null;
           price?: number;
           published?: boolean | null;
-          rating_count?: number | null;
           step?: number | null;
           title?: string;
           updated_at?: string;
@@ -402,7 +396,7 @@ export type Database = {
       };
       increment_shader_downloads: {
         Args: { shader_id: string };
-        Returns: void;
+        Returns: undefined;
       };
     };
     Enums: {
