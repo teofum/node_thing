@@ -33,6 +33,7 @@ import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
 import uvShader from "@/shaders/uv.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 import LGGShader from "@/shaders/LGG.wgsl";
+import perlinNoiseShader from "@/shaders/perlin-noise.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -157,6 +158,35 @@ export const NODE_TYPES = {
     outputs: {
       output: {
         name: "Pattern",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  perlin_noise: {
+    name: "Perlin noise",
+    category: "Generate",
+    shader: perlinNoiseShader,
+    inputs: {
+      size: {
+        name: "size",
+        type: "number",
+        min: 2,
+        max: 50,
+        step: 1,
+      },
+      t: {
+        name: "t",
+        type: "number",
+      },
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Noise",
         type: "number",
       },
     },
