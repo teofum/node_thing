@@ -32,6 +32,7 @@ import tonemapHableShader from "@/shaders/tone-map-hable.wgsl";
 import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
 import uvShader from "@/shaders/uv.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
+import LGGShader from "@/shaders/LGG.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -629,6 +630,37 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  LGG: {
+    name: "Lift gamma gain",
+    category: "Tone mapping",
+    shader: LGGShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      lift: {
+        name: "lift",
+        type: "number",
+      },
+      gamma: {
+        name: "gamma",
+        type: "number",
+      },
+      gain: {
+        name: "gain",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+
   // Effects category ///////////////////////////////
   threshold: {
     name: "Threshold",
