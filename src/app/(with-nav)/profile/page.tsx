@@ -149,17 +149,31 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
         </p>
       );
 
+    const subtabStyle =
+      "flex h-[40px] hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-4 font-medium text-sm leading-none outline-none first:rounded-tl-lg last:rounded-tr-lg data-[state=active]:border-teal-500 data-[state=active]:border-b-2 transition data-[state=active]:focus:relative";
+
     return (
       <div className={className} {...props} ref={forwardedRef}>
-        <h2 className="text-xl font-semibold mb-4">Purchased Shaders</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {purchasedCards}
-        </div>
-
-        <h2 className="text-xl font-semibold mb-4 mt-8">Published Shaders</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {publishedCards}
-        </div>
+        <Tabs.Root defaultValue="published">
+          <Tabs.List className="flex shrink-0 border border-white/10 rounded-lg mb-6">
+            <Tabs.Trigger className={subtabStyle} value="published">
+              Published
+            </Tabs.Trigger>
+            <Tabs.Trigger className={subtabStyle} value="library">
+              Library
+            </Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="published">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {publishedCards}
+            </div>
+          </Tabs.Content>
+          <Tabs.Content value="library">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {purchasedCards}
+            </div>
+          </Tabs.Content>
+        </Tabs.Root>
       </div>
     );
   },
@@ -329,28 +343,18 @@ export default async function ProfilePage() {
         >
           <Tabs.List className="flex shrink-0">
             <Tabs.Trigger className={triggerStyle} value="tab1">
-              Info
-            </Tabs.Trigger>
-            <Tabs.Trigger className={triggerStyle} value="tab2">
               Shaders
             </Tabs.Trigger>
-            <Tabs.Trigger className={triggerStyle} value="tab3">
+            <Tabs.Trigger className={triggerStyle} value="tab2">
               Premium
+            </Tabs.Trigger>
+            <Tabs.Trigger className={triggerStyle} value="tab3">
+              Settings
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content
             className="grow rounded-b-md p-5 outline-none"
             value="tab1"
-          >
-            <AccountInfoTab
-              className="rounded-2xl p-4 min-h-[300px] mb-3"
-              lines={accountInfo}
-              userData={userData}
-            />
-          </Tabs.Content>
-          <Tabs.Content
-            className="grow rounded-b-md p-5 outline-none"
-            value="tab2"
           >
             <UserShadersTab
               className="rounded-2xl p-4 min-h-[300px] mb-3"
@@ -361,10 +365,20 @@ export default async function ProfilePage() {
           </Tabs.Content>
           <Tabs.Content
             className="grow rounded-b-md p-5 outline-none"
-            value="tab3"
+            value="tab2"
           >
             <PremiumTab
               className="rounded-2xl p-4 min-h-[300px] mb-3"
+              userData={userData}
+            />
+          </Tabs.Content>
+          <Tabs.Content
+            className="grow rounded-b-md p-5 outline-none"
+            value="tab3"
+          >
+            <AccountInfoTab
+              className="rounded-2xl p-4 min-h-[300px] mb-3"
+              lines={accountInfo}
               userData={userData}
             />
           </Tabs.Content>
