@@ -4,7 +4,6 @@ import { LuStar } from "react-icons/lu";
 
 import { ShaderNode as ShaderNodeType } from "@/schemas/node.schema";
 import { useProjectStore } from "@/store/project.store";
-import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { CustomShaderMenu } from "./custom-shader-menu";
 import { NodeInput } from "./node-input";
 import { NodeMenu } from "./node-menu";
@@ -19,9 +18,6 @@ export function RenderShaderNode(
 
   const nodeTypeInfo = nodeTypes[data.type];
   if (!nodeTypeInfo) return null;
-
-  const outputOffset =
-    Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
 
   return (
     <div
@@ -55,28 +51,22 @@ export function RenderShaderNode(
       </div>
 
       <div className="p-2 grid grid-cols-[auto_auto_auto] gap-x-2">
-        {/* inputs */}
-        {Object.entries(nodeTypeInfo.inputs).map(([key, input], i) => (
-          <NodeInput key={key} input={[key, input]} i={i} {...props} />
-        ))}
-
-        {/* outputs */}
-        {Object.entries(nodeTypeInfo.outputs).map(([key, output], i) => (
-          <NodeOutput
-            key={key}
-            output={[key, output]}
-            i={i}
-            offset={outputOffset}
-            {...props}
-          />
-        ))}
-
         {/* parameters */}
         {!props.mock
           ? Object.entries(nodeTypeInfo.parameters).map(([key, param]) => (
               <NodeParameter key={key} name={key} param={param} {...props} />
             ))
           : null}
+
+        {/* inputs */}
+        {Object.entries(nodeTypeInfo.inputs).map(([key, input]) => (
+          <NodeInput key={key} input={[key, input]} {...props} />
+        ))}
+
+        {/* outputs */}
+        {Object.entries(nodeTypeInfo.outputs).map(([key, output]) => (
+          <NodeOutput key={key} output={[key, output]} {...props} />
+        ))}
       </div>
     </div>
   );
