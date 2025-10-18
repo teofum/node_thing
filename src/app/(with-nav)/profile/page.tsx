@@ -4,21 +4,15 @@ import * as Tabs from "@radix-ui/react-tabs";
 import Image from "next/image";
 import { forwardRef } from "react";
 import { IconType } from "react-icons/lib";
-import {
-  LuArrowLeft,
-  LuCalendar,
-  LuCloudUpload,
-  LuGem,
-  LuGlobe,
-  LuMail,
-  LuSparkles,
-  LuSquarePen,
-  LuUser,
-} from "react-icons/lu";
+import { LuCloudUpload, LuGem, LuGlobe, LuSparkles } from "react-icons/lu";
 
 import { signOutAction } from "@/app/auth/actions";
-import { Button, LinkButton } from "@/ui/button";
-import AccountEditor from "./account-editor";
+import { Button } from "@/ui/button";
+import type { User } from "@supabase/supabase-js";
+import AccountEditor from "./dialogs/change-username";
+import DisplayNameEditor from "./dialogs/change-displayname";
+import PasswordEditor from "./dialogs/change-password";
+
 import {
   cancelSubscriptionAction,
   getPublishedShaders,
@@ -31,52 +25,96 @@ import {
 } from "./actions";
 import RatingCard from "./components/ratingcard";
 
-function parseDate(date: string) {
-  const idx = date.indexOf("T");
-  return date.substring(0, idx);
-}
-
 export type UserData = {
   username: string;
   isPremium: boolean | null;
-  mpEmail?: string | null;
-  pendingBalance?: number | null;
   cancelled?: boolean | null;
   subscriptionId?: string | null;
 };
 
 type IconTextLine = { id: string; icon: IconType; text: string };
-type AccountInfoProps = {
-  lines: IconTextLine[];
+type SettingsTabProps = {
   userData: UserData;
+  user: User;
 } & React.HTMLAttributes<HTMLDivElement>;
 
-const AccountInfoTab = forwardRef<HTMLDivElement, AccountInfoProps>(
-  ({ lines, userData, className, ...props }, forwardedRef) => {
+const SettingsTab = forwardRef<HTMLDivElement, SettingsTabProps>(
+  ({ userData, user, className, ...props }, forwardedRef) => {
     return (
       <div className={className} {...props} ref={forwardedRef}>
-        <div className="flex gap-3 items-center text-xl font-semibold mb-4">
-          <h2>Account Information</h2>
-          <AccountEditor
-            trigger={
-              <div className="cursor-pointer hover:bg-white/15 transition duration-80 rounded scale-150">
-                <LuSquarePen className="scale-66" />
+        <div className="flex flex-col gap-8">
+          <div>
+            <h2 className="text-xl font-semibold mb-6">Account Settings</h2>
+
+            {/* Profile Information */}
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                  <div>
+                    <p className="font-medium">Username</p>
+                    <p className="text-sm text-neutral-400">
+                      @{userData.username}
+                    </p>
+                  </div>
+                  <AccountEditor
+                    trigger={
+                      <Button size="sm" variant="outline">
+                        Edit
+                      </Button>
+                    }
+                    title="Edit Username"
+                    userData={userData}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                  <div>
+                    <p className="font-medium">Display Name</p>
+                    <p className="text-sm text-neutral-400">
+                      {user.user_metadata.full_name || "Not set"}
+                    </p>
+                  </div>
+                  <DisplayNameEditor
+                    trigger={
+                      <Button size="sm" variant="outline">
+                        Edit
+                      </Button>
+                    }
+                    currentDisplayName={user.user_metadata.full_name || ""}
+                  />
+                </div>
               </div>
-            }
-            title="Edit Account Information"
-            userData={userData}
-          />
-        </div>
-        {lines.map(({ id, icon: Icon, text }) => (
-          <div key={id} className="flex h gap-2 items-center">
-            <Icon /> {text}
+
+              <div className="flex items-center justify-between p-4 bg-neutral-800/50 rounded-lg border border-white/5">
+                <div>
+                  <p className="font-medium text-neutral-400">Email</p>
+                  <p className="text-sm text-neutral-500">{user.email!}</p>
+                </div>
+                <p className="text-xs text-neutral-500">Cannot be changed</p>
+              </div>
+
+              {user.app_metadata.provider === "email" && (
+                <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
+                  <div>
+                    <p className="font-medium">Password</p>
+                  </div>
+                  <PasswordEditor
+                    trigger={
+                      <Button size="sm" variant="outline">
+                        Change
+                      </Button>
+                    }
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        ))}
+        </div>
       </div>
     );
   },
 );
-AccountInfoTab.displayName = "AccountInfoTab";
+SettingsTab.displayName = "SettingsTab";
 
 type UserShaderDisplay = {
   id: string;
@@ -279,24 +317,6 @@ export default async function ProfilePage() {
   const userData = await getUserData();
   const user = await getUser();
 
-  const accountInfo: IconTextLine[] = [
-    {
-      id: "username",
-      icon: LuUser,
-      text: `Username: ${userData.username}`,
-    },
-    {
-      id: "creation",
-      icon: LuCalendar,
-      text: `Date created: ${parseDate(user.created_at)}`,
-    },
-    {
-      id: "email",
-      icon: LuMail,
-      text: `Email: ${user.email}`,
-    },
-  ];
-
   const triggerStyle =
     "flex h-[45px] hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-5 font-semibold text-[15px] leading-none outline-none first:rounded-tl-2xl last:rounded-tr-2xl data-[state=active]:border-teal-500 data-[state=active]:border-b-2 transition data-[state=active]:focus:relative";
 
@@ -376,10 +396,10 @@ export default async function ProfilePage() {
             className="grow rounded-b-md p-5 outline-none"
             value="tab3"
           >
-            <AccountInfoTab
+            <SettingsTab
               className="rounded-2xl p-4 min-h-[300px] mb-3"
-              lines={accountInfo}
               userData={userData}
+              user={user}
             />
           </Tabs.Content>
         </Tabs.Root>

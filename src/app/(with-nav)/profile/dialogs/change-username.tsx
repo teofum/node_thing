@@ -2,10 +2,10 @@
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Input } from "@/ui/input";
-import { ReactNode, useRef } from "react";
-import { UserData } from "./page";
+import { ReactNode, useRef, useState } from "react";
+import { UserData } from "../page";
 import { Button } from "@/ui/button";
-import { setUsername } from "./actions";
+import { setUsername, checkUsernameAvailable } from "../actions";
 
 type AccountEditorProps = {
   trigger: ReactNode;
@@ -13,17 +13,13 @@ type AccountEditorProps = {
   userData: UserData;
 };
 
-function isValidUsername(name: string) {
-  return name.length > 0;
-  //TODO: Agregar cualquier restriccion que necesite la DB
-}
-
 export default function AccountEditor({
   trigger,
   title,
   userData,
 }: AccountEditorProps) {
   const usernameRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <Dialog trigger={trigger} title={title} description="">
@@ -36,14 +32,26 @@ export default function AccountEditor({
           className="min-w-40"
           defaultValue={userData.username}
         />
+        {error && <p className="text-sm text-red-400 mt-1">{error}</p>}
         <div className="mt-auto flex justify-end gap-2">
           <Button
-            onClick={() => {
-              if (
-                usernameRef.current &&
-                isValidUsername(usernameRef.current.value)
-              ) {
-                setUsername(usernameRef.current.value);
+            onClick={async () => {
+              if (usernameRef.current) {
+                const username = usernameRef.current.value;
+                setError(null);
+
+                if (username.length === 0) {
+                  setError("Username cannot be empty");
+                  return;
+                }
+
+                const isAvailable = await checkUsernameAvailable(username);
+                if (!isAvailable) {
+                  setError("Username already taken");
+                  return;
+                }
+
+                setUsername(username);
                 window.location.reload();
               }
             }}
