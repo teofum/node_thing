@@ -78,6 +78,10 @@ export async function signUpAction(formData: FormData) {
     );
   }
 
+  // Generate default avatar URL using first letter of display name or username
+  const firstLetter = (displayName || username || email)[0].toUpperCase();
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(firstLetter)}&background=14b8a6&color=ffffff&size=128`;
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -86,6 +90,7 @@ export async function signUpAction(formData: FormData) {
       data: {
         username,
         full_name: displayName,
+        avatar_url: avatarUrl,
       },
     },
   });
