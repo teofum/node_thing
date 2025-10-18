@@ -28,7 +28,6 @@ import {
   getUserRatings,
   resumeSubscriptionAction,
   subscribePremiumAction,
-  updatePayoutSettingsAction,
 } from "./actions";
 import RatingCard from "./components/ratingcard";
 
@@ -82,11 +81,9 @@ AccountInfoTab.displayName = "AccountInfoTab";
 type UserShaderDisplay = {
   id: string;
   title: string;
-  averageRating: number | null;
   category: {
     name: string;
   };
-  ratingCount?: number | null;
 };
 
 export type UserRatingsDisplay = {
@@ -116,11 +113,11 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            averageRating={shader.averageRating}
+            averageRating={null}
             userRating={
               ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={shader?.ratingCount ?? 0}
+            ratingCount={0}
             trigger={<Button variant="outline">test</Button>}
           />
         ))
@@ -138,11 +135,11 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            averageRating={shader.averageRating}
+            averageRating={null}
             userRating={
               ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={shader?.ratingCount ?? 0}
+            ratingCount={0}
             trigger={null}
           />
         ))
@@ -253,42 +250,6 @@ const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
               )}
             </div>
           )}
-
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4">Payout Settings</h3>
-            <p className="text-neutral-400 text-sm mb-4">
-              Configure your Mercado Pago email to receive payments from shader
-              sales
-            </p>
-            <form action={updatePayoutSettingsAction}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
-                  Mercado Pago Email
-                </label>
-                <input
-                  type="email"
-                  name="mp_email"
-                  defaultValue={userData.mpEmail || ""}
-                  placeholder="tu@email.com"
-                  className="w-full px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white focus:outline-none focus:border-neutral-500"
-                />
-              </div>
-              <div className="bg-neutral-800 rounded-lg p-4 mb-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-neutral-300">Pending earnings:</span>
-                  <span className="text-xl font-bold text-teal-400">
-                    ${(userData.pendingBalance || 0).toFixed(2)} ARS
-                  </span>
-                </div>
-                <p className="text-xs text-neutral-500 mt-2">
-                  Paid weekly via Mercado Pago
-                </p>
-              </div>
-              <Button type="submit" size="lg" className="w-full">
-                Save Payout Settings
-              </Button>
-            </form>
-          </div>
         </div>
       </div>
     );
@@ -328,28 +289,38 @@ export default async function ProfilePage() {
   return (
     <div className="p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-10">
+        <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
             <Image
               src={user.user_metadata.avatar_url}
               alt=""
-              width={100}
-              height={100}
+              width={80}
+              height={80}
               unoptimized
               className="rounded-full"
             />
-            <h1 className="text-3xl font-bold text-white">
-              {userData.username}
-            </h1>
-            {userData.isPremium && <LuGem className="text-2xl" />}
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-white">
+                  {user.user_metadata.full_name || userData.username}
+                </h1>
+                {userData.isPremium && <LuGem className="text-xl" />}
+              </div>
+              <div className="flex items-center gap-4 mt-1">
+                <span className="text-sm text-neutral-400">
+                  @{userData.username}
+                </span>
+                <span className="text-sm text-neutral-400">
+                  {publishedShaders.length} shaders published
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-4">
-            <form action={signOutAction} className="inline">
-              <Button type="submit" variant="outline">
-                Logout
-              </Button>
-            </form>
-          </div>
+          <form action={signOutAction}>
+            <Button type="submit" variant="outline">
+              Logout
+            </Button>
+          </form>
         </div>
 
         <Tabs.Root

@@ -91,25 +91,6 @@ export async function resumeSubscriptionAction() {
   redirect("/profile");
 }
 
-export async function updatePayoutSettingsAction(formData: FormData) {
-  const mpEmail = formData.get("mp_email") as string;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
-
-  await supabase
-    .from("profiles")
-    .update({ mp_email: mpEmail })
-    .eq("id", user.id);
-
-  redirect("/profile");
-}
-
 export async function getUser() {
   const supabase = await createClient();
   const {
@@ -135,9 +116,7 @@ export async function getUserData() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select(
-      "username, is_premium, mp_email, pending_balance, cancelled, subscription_id",
-    )
+    .select("username, is_premium, cancelled, subscription_id")
     .eq("id", user.id)
     .single();
 
@@ -164,9 +143,7 @@ export async function getPublishedShaders() {
       `
       id,
       title,
-      average_rating,
-      category:categories(name),
-      rating_count
+      category:categories(name)
       `,
     )
     .eq("user_id", user.id)
@@ -204,9 +181,7 @@ export async function getPurchasedShaders() {
 
   const { data: shaders, error: err2 } = await supabase
     .from("shaders")
-    .select(
-      "id, title, average_rating, category:categories(name), rating_count",
-    )
+    .select("id, title, category:categories(name)")
     .in("id", shaderIds);
 
   if (err2) throw new Error(errorMessage(err2));
