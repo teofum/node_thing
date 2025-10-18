@@ -158,16 +158,15 @@ export async function getPublishedShaders() {
     redirect("/auth/login?next=/profile");
   }
 
-  const { data, error } = await supabase
+  const { data: shaders, error } = await supabase
     .from("shaders")
     .select(
       `
-      id,
-      title,
-      average_rating,
-      category:categories(name),
-      rating_count
-      `,
+    id,
+    title,
+    category:categories(name),
+    ratings(rating)
+  `,
     )
     .eq("user_id", user.id)
     .eq("published", true);
@@ -176,7 +175,23 @@ export async function getPublishedShaders() {
     throw new Error(`Failed to load published shaders: ${error.message}`);
   }
 
-  return camelcaseKeys(data) ?? [];
+  const data = shaders.map((shader) => {
+    const ratings = (shader.ratings ?? [])
+      .map((r) => r.rating)
+      .filter((r): r is number => r !== null);
+
+    const rating_count = ratings.length;
+    const average_rating =
+      rating_count > 0 ? ratings.reduce((a, b) => a + b, 0) / rating_count : 0;
+
+    return {
+      ...shader,
+      rating_count,
+      average_rating,
+    };
+  });
+
+  return camelcaseKeys(data);
 }
 
 export async function getPurchasedShaders() {
@@ -205,13 +220,34 @@ export async function getPurchasedShaders() {
   const { data: shaders, error: err2 } = await supabase
     .from("shaders")
     .select(
-      "id, title, average_rating, category:categories(name), rating_count",
+      `
+      id,
+      title,
+      category:categories(name),
+      ratings(rating)
+    `,
     )
     .in("id", shaderIds);
 
   if (err2) throw new Error(errorMessage(err2));
 
-  return camelcaseKeys(shaders) ?? [];
+  const data = shaders.map((shader) => {
+    const ratings = (shader.ratings ?? [])
+      .map((r) => r.rating)
+      .filter((r): r is number => r !== null);
+
+    const rating_count = ratings.length;
+    const average_rating =
+      rating_count > 0 ? ratings.reduce((a, b) => a + b, 0) / rating_count : 0;
+
+    return {
+      ...shader,
+      rating_count,
+      average_rating,
+    };
+  });
+
+  return camelcaseKeys(data);
 }
 
 export async function submitShaderReview(
@@ -288,4 +324,25 @@ export async function setUsername(newUsername: string) {
   }
 
   return data;
+}
+
+export async function deleteShaderReview(shaderId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  const { error } = await supabase
+    .from("ratings")
+    .delete()
+    .eq("shader_id", shaderId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to delete rating: ${error.message}`);
+  }
 }

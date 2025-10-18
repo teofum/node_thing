@@ -59,8 +59,7 @@ export default function RatingCard({
           id={id}
           title={title}
           category={category}
-          initialRating={userRating?.rating ?? 0}
-          initialComment={userRating?.comment ?? ""}
+          userRating={userRating}
           trigger={
             <Button variant="outline" className="text-xs">
               {userRating ? "Edit review" : "Add review"}
