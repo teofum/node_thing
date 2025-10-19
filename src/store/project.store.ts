@@ -162,15 +162,12 @@ export const useProjectStore = create(
 
       exportProject: () => {
         const project = get();
-        return JSON.stringify(prepareProjectForExport(project), null, 2);
+        return prepareProjectForExport(project);
       },
 
-      importProject: (jsonOrObj: string | Project) =>
+      importProject: (project: Project) =>
         set((current) => {
-          const imported: Project =
-            typeof jsonOrObj === "string" ? JSON.parse(jsonOrObj) : jsonOrObj;
-
-          return mergeProject(imported, current);
+          return mergeProject(project, current);
         }),
 
       loadNodeTypes: async () => {

@@ -7,7 +7,7 @@ import { Input } from "@/ui/input";
 
 import { deleteProject, loadProjectOnline, updateProjectName } from "./actions";
 import { Tables } from "@/lib/supabase/database.types";
-import { zipImportProject } from "@/utils/zip";
+import { importProject } from "@/utils/project";
 
 type ManageProjectsProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
@@ -75,7 +75,7 @@ export function ManageProjects({
                       type: blob.type,
                     });
 
-                    await zipImportProject(file);
+                    await importProject(file);
                   }}
                 >
                   <LuCloudDownload />

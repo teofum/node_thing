@@ -12,7 +12,7 @@ import Link from "next/link";
 import { Tables } from "@/lib/supabase/database.types";
 import { ManageProjects } from "./manage-projects";
 import cn from "classnames";
-import { zipExportProject, zipImportProject } from "@/utils/zip";
+import { exportProject, importProject } from "@/utils/project";
 import { useState } from "react";
 
 export interface ProjectsMenuProps {
@@ -26,7 +26,6 @@ export interface ProjectsMenuProps {
 export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
   const [projectsManagerOpen, setProjectsManagerOpen] = useState(false);
 
-  // caso sin login o sin premium
   if (!userData || !userData.is_premium) {
     return (
       <Menu label="Projects" value="file">
@@ -40,13 +39,12 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
     );
   }
 
-  // caso tiene premium
   return (
     <>
       <Menu label="Projects" value="file">
         <MenuItem
           icon={<LuCloudUpload />}
-          onClick={async () => saveProjectOnline(await zipExportProject())}
+          onClick={async () => saveProjectOnline(await exportProject())}
         >
           Save Online
         </MenuItem>
@@ -71,7 +69,6 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
         </div>
 
         {projects.length ? (
-          // muestro los últimos 3 modificados
           projects.slice(0, 3).map((currProject) => (
             <MenuItem
               key={currProject.id}
@@ -83,7 +80,7 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
                   type: blob.type,
                 });
 
-                await zipImportProject(file);
+                await importProject(file);
               }}
             >
               {currProject.name}
