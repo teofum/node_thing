@@ -4,7 +4,6 @@ import { LuStar } from "react-icons/lu";
 
 import { ShaderNode as ShaderNodeType } from "@/schemas/node.schema";
 import { useProjectStore } from "@/store/project.store";
-import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { CustomShaderMenu } from "./custom-shader-menu";
 import { NodeInput } from "./node-input";
 import { NodeMenu } from "./node-menu";
@@ -20,19 +19,20 @@ export function RenderShaderNode(
   const nodeTypeInfo = nodeTypes[data.type];
   if (!nodeTypeInfo) return null;
 
-  const outputOffset =
-    Object.keys(nodeTypeInfo.inputs).length * HANDLE_HEIGHT + HEADER_HEIGHT;
-
   return (
     <div
-      className={cn("glass rounded-lg border min-w-32", {
+      className={cn("glass rounded-xl border min-w-32", {
         "border-white/20": !selected,
         "border-teal-400/40 outline-teal-400/20 outline-2": selected,
       })}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
     >
       <div
         className={cn(
-          "text-xs/4 px-3 py-2 font-bold border-b border-white/15 bg-clip-padding rounded-t-[7px]",
+          "text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px]",
           {
             "bg-purple-400/15": data.type === "__output",
             "bg-orange-400/15": nodeTypeInfo.category === "Input",
@@ -50,29 +50,23 @@ export function RenderShaderNode(
         </div>
       </div>
 
-      <div className="p-2">
-        {/* inputs */}
-        {Object.entries(nodeTypeInfo.inputs).map(([key, input], i) => (
-          <NodeInput key={key} input={[key, input]} i={i} {...props} />
-        ))}
-
-        {/* outputs */}
-        {Object.entries(nodeTypeInfo.outputs).map(([key, output], i) => (
-          <NodeOutput
-            key={key}
-            output={[key, output]}
-            i={i}
-            offset={outputOffset}
-            {...props}
-          />
-        ))}
-
+      <div className="p-2 grid grid-cols-[auto_auto_auto] gap-x-2">
         {/* parameters */}
         {!props.mock
           ? Object.entries(nodeTypeInfo.parameters).map(([key, param]) => (
               <NodeParameter key={key} name={key} param={param} {...props} />
             ))
           : null}
+
+        {/* inputs */}
+        {Object.entries(nodeTypeInfo.inputs).map(([key, input]) => (
+          <NodeInput key={key} input={[key, input]} {...props} />
+        ))}
+
+        {/* outputs */}
+        {Object.entries(nodeTypeInfo.outputs).map(([key, output]) => (
+          <NodeOutput key={key} output={[key, output]} {...props} />
+        ))}
       </div>
     </div>
   );

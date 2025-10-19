@@ -19,22 +19,29 @@ type SaveFileOptions = {
   data: FileSystemWriteChunkType;
 };
 
-export async function saveFile(options: SaveFileOptions) {
-  const { suggestedName, types, data } = options;
+export async function openFileForWriting(
+  options: Omit<SaveFileOptions, "data">,
+) {
   try {
-    const handle = await window.showSaveFilePicker({
-      suggestedName,
-      types,
-    });
-
-    const writable = await handle.createWritable();
-    await writable.write(data);
-    await writable.close();
-    return true;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (_) {
+    const handle = await window.showSaveFilePicker(options);
+    return await handle.createWritable();
+  } catch {
     // TODO handle actual errors
     // By far the most common cause of throwing will be the user clicking cancel
+    return null;
+  }
+}
+
+export async function saveFile(options: SaveFileOptions) {
+  try {
+    const writable = await openFileForWriting(options);
+    if (!writable) return false;
+
+    await writable.write(options.data);
+    await writable.close();
+    return true;
+  } catch {
+    // TODO handle actual errors
     return false;
   }
 }

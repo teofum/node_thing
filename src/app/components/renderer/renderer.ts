@@ -144,15 +144,9 @@ function compileShaders(
   desc: RenderPipeline,
   nodeTypes: Record<string, NodeType>,
 ) {
-  const shaders: Record<string, GPUShaderModule> = {};
-
-  for (const pass of desc.passes) {
-    shaders[`${pass.nodeType}_${pass.shader}`] = device.createShaderModule({
-      code: generateShaderCode(pass, nodeTypes),
-    });
-  }
-
-  return shaders;
+  return desc.passes.map((pass) =>
+    device.createShaderModule({ code: generateShaderCode(pass, nodeTypes) }),
+  );
 }
 
 /*
@@ -171,7 +165,7 @@ function createComputePSOs(
   return desc.passes.map((pass, i) =>
     device.createComputePipeline({
       compute: {
-        module: shaders[`${pass.nodeType}_${pass.shader}`],
+        module: shaders[i],
         entryPoint: "main",
       },
       layout: device.createPipelineLayout({

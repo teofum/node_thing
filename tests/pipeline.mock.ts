@@ -6,7 +6,7 @@ import { Edge } from "@xyflow/react";
 export function getNodesForTesting() {
   const output = createNode("__output", { x: 0, y: 0 }, NODE_TYPES, {});
   const mix = createNode("mix", { x: 0, y: 0 }, NODE_TYPES, {});
-  const gray = createNode("grayscale", { x: 0, y: 0 }, NODE_TYPES, {});
+  const gray = createNode("saturation", { x: 0, y: 0 }, NODE_TYPES, {});
   const threshold = createNode("threshold", { x: 0, y: 0 }, NODE_TYPES, {});
   const input = createNode("__input_image", { x: 0, y: 0 }, NODE_TYPES, {});
 

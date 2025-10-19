@@ -157,9 +157,12 @@ export const useProjectStore = create(
         })),
 
       addLayer: () =>
-        set(({ layers }) => {
+        set(({ layers, properties }) => {
           return {
-            layers: [...layers, createLayer(`Layer ${layers.length}`)],
+            layers: [
+              ...layers,
+              createLayer(`Layer ${layers.length}`, properties.canvas),
+            ],
             currentLayer: layers.length,
           };
         }),
@@ -290,7 +293,7 @@ export const useProjectStore = create(
             const { nodeTypes } = get();
             return {
               nodes: [
-                ...layer.nodes,
+                ...layer.nodes.map((node) => ({ ...node, selected: false })),
                 createNode(type, position, nodeTypes, parameters),
               ],
             };
@@ -346,7 +349,7 @@ export const useProjectStore = create(
         ...(persisted as Project),
         nodeTypes: {
           ...current.nodeTypes,
-          ...(persisted as Project).nodeTypes,
+          // ...(persisted as Project).nodeTypes,
           ...NODE_TYPES,
         },
         properties: {
@@ -453,12 +456,12 @@ function createHandles(desc: HandleDescriptor[]) {
   return handles;
 }
 
-function createLayer(name: string): Layer {
+function createLayer(name: string, size = initialSize): Layer {
   return {
     nodes: [...initialNodes],
     edges: [...initialEdges],
     position: { x: 0, y: 0 },
-    size: initialSize,
+    size,
     id: newLayerId(),
     name,
   };

@@ -3,7 +3,6 @@ import cn from "classnames";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
 import { useProjectStore } from "@/store/project.store";
-import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
 import { HandleWithMock } from "./mock-handle";
 
 import { ColorInput } from "@/ui/color-picker";
@@ -11,7 +10,6 @@ import { NumberDrag } from "@/ui/number-drag";
 
 type NodeInputProps = NodeProps<ShaderNode> & {
   input: [string, NodeType["inputs"][string]];
-  i: number;
   mock?: boolean;
 };
 
@@ -19,7 +17,6 @@ export function NodeInput({
   data,
   id,
   input: [key, input],
-  i,
   mock = false,
 }: NodeInputProps) {
   const updateDefaultValue = useProjectStore((s) => s.updateNodeDefaultValue);
@@ -31,19 +28,18 @@ export function NodeInput({
     !edges.some((edge) => edge.target === id && edge.targetHandle === key);
 
   return (
-    <div className="flex flex-row gap-2 h-6 items-center">
+    <div className="grid grid-cols-subgrid col-span-3 h-6 items-center relative">
       <HandleWithMock
         mock={mock}
         type="target"
         position={Position.Left}
         id={key}
-        style={{ top: i * HANDLE_HEIGHT + HEADER_HEIGHT }}
-        className={cn({
+        className={cn("!-left-2", {
           "!bg-teal-500": input.type === "color",
           "!bg-neutral-100": input.type === "number",
         })}
       />
-      <div className="text-white text-xs/4">{input.name}</div>
+      <div className="text-xs/4 min-w-4">{input.name}</div>
 
       {renderDefaultValueInput ? (
         input.type === "number" ? (
@@ -54,12 +50,13 @@ export function NodeInput({
             max={input.max}
             step={input.step ?? 0.01}
             size="sm"
-            className="w-24 nodrag"
+            className="w-20 nodrag"
             progress
           />
         ) : (
           <ColorInput
             defaultColor={data.defaultValues[key] as number[]}
+            className="w-20 nodrag"
             onChange={(c) => {
               updateDefaultValue(id, key, c);
             }}

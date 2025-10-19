@@ -1,10 +1,6 @@
 import * as z from "zod/v4";
 import { Node } from "@xyflow/react";
 
-const parameterTypeSchema = z.enum(["select", "image"]);
-
-export type ParameterType = z.infer<typeof parameterTypeSchema>;
-
 const handleSchema = z
   .object({
     name: z.string(),
@@ -23,19 +19,21 @@ const handleSchema = z
 
 export type HandleType = z.infer<typeof handleSchema>["type"];
 
-const parameterSchema = z.object({
-  name: z.string(),
-  type: parameterTypeSchema,
-
-  // Only used for select type parameter
-  options: z
-    .object({
-      name: z.string(),
-      value: z.string(),
-    })
-    .array()
-    .optional(),
-});
+const parameterSchema = z
+  .object({
+    name: z.string(),
+  })
+  .and(
+    z.union([
+      z.object({
+        type: z.literal("image"),
+      }),
+      z.object({
+        type: z.literal("select"),
+        options: z.string().array(),
+      }),
+    ]),
+  );
 
 const passBufferSchema = z.object({
   name: z.string(),
@@ -66,8 +64,6 @@ export const nodeTypeSchema = z.object({
 
 export type NodeType = z.infer<typeof nodeTypeSchema>;
 
-// no sabía como incluir los default y los purchased acá
-// no sé si usar z.string() está bien
 const nodeTypeIdSchema = z.string();
 
 export const nodeDataSchema = z.object({

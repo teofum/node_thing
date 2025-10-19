@@ -1,42 +1,37 @@
 import { NodeType } from "@/schemas/node.schema";
 
-import uvShader from "@/shaders/uv.wgsl";
-import timeShader from "@/shaders/time.wgsl";
-import grayscaleShader from "@/shaders/grayscale.wgsl";
-import thresholdShader from "@/shaders/threshold.wgsl";
-import extThresholdShader from "@/shaders/threshold_ext.wgsl";
+import absShader from "@/shaders/abs.wgsl";
+import addShader from "@/shaders/add.wgsl";
+import bayerPatternShader from "@/shaders/bayer-pattern-8x8.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
-import sobelShader from "@/shaders/sobel.wgsl";
+import checkersPatternShader from "@/shaders/checker-pattern.wgsl";
+import mergeChannelsShader from "@/shaders/combine-channels.wgsl";
+import constantShader from "@/shaders/constant.wgsl";
+import contrastShader from "@/shaders/contrast.wgsl";
+import displaceShader from "@/shaders/displace.wgsl";
 import edgeTangentFlowShader from "@/shaders/edge-tangent-flow.wgsl";
-import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
-import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
-import gaussianBlurEdgeShader from "@/shaders/gaussian-blur-edge.wgsl";
-import gaussianBlurEdgeAlongShader from "@/shaders/gaussian-blur-edge-along.wgsl";
-import mixShader from "@/shaders/mix.wgsl";
-import diffShader from "@/shaders/diff.wgsl";
-import extDiffShader from "@/shaders/diff_ext.wgsl";
 import exposureShader from "@/shaders/exposure.wgsl";
 import splitChannelsShader from "@/shaders/extract-channel.wgsl";
-import mergeChannelsShader from "@/shaders/combine-channels.wgsl";
-import chromaticAberrationShader from "@/shaders/chromatic-aberration.wgsl";
+import fractShader from "@/shaders/fract.wgsl";
+import gaussianBlurEdgeShader from "@/shaders/gaussian-blur-edge.wgsl";
+import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
+import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
+import saturationShader from "@/shaders/saturation.wgsl";
+import hslShader from "@/shaders/hsl.wgsl";
+import mixShader from "@/shaders/mix.wgsl";
+import multiplyShader from "@/shaders/multiply.wgsl";
+import pixelateShader from "@/shaders/pixelate.wgsl";
 import posterizeShader from "@/shaders/posterize.wgsl";
 import sharpnessShader from "@/shaders/sharpness.wgsl";
-import bloomShader from "@/shaders/bloom.wgsl";
-import addShader from "@/shaders/add.wgsl";
-import multiplyShader from "@/shaders/multiply.wgsl";
-import absShader from "@/shaders/abs.wgsl";
 import sineShader from "@/shaders/sine.wgsl";
-import fractShader from "@/shaders/fract.wgsl";
-import constantShader from "@/shaders/constant.wgsl";
-import whiteNoiseShader from "@/shaders/white-noise.wgsl";
-import checkersPatternShader from "@/shaders/checker-pattern.wgsl";
-import bayerPatternShader from "@/shaders/bayer-pattern-8x8.wgsl";
-import pixelateShader from "@/shaders/pixelate.wgsl";
-import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
+import sobelShader from "@/shaders/sobel.wgsl";
+import thresholdShader from "@/shaders/threshold.wgsl";
+import timeShader from "@/shaders/time.wgsl";
 import tonemapACESShader from "@/shaders/tone-map-aces.wgsl";
 import tonemapHableShader from "@/shaders/tone-map-hable.wgsl";
-import heatmapShader from "@/shaders/heatmap.wgsl";
-import multiStepMixShader from "@/shaders/multiStepMix.wgsl";
+import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
+import uvShader from "@/shaders/uv.wgsl";
+import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -270,7 +265,7 @@ export const NODE_TYPES = {
     parameters: {},
   },
   fract: {
-    name: "Split decimal",
+    name: "Floor/Fract",
     category: "Math",
     shader: fractShader,
     inputs: {
@@ -304,6 +299,7 @@ export const NODE_TYPES = {
       kernel_size: {
         name: "Radius",
         type: "number",
+        min: 1,
         max: 25,
         step: 1,
       },
@@ -351,38 +347,9 @@ export const NODE_TYPES = {
     ],
   },
   gaussBlurEdge: {
-    name: "Gaussian blur across edges",
+    name: "Directional blur",
     category: "Filter",
     shader: gaussianBlurEdgeShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-      std_dev: {
-        name: "Std. dev",
-        type: "number",
-        min: 0.1,
-        max: 50,
-        step: 0.1,
-      },
-      tangent: {
-        name: "Tangent",
-        type: "color",
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  gaussBlurEdgeAlong: {
-    name: "Gaussian blur along edges",
-    category: "Filter",
-    shader: gaussianBlurEdgeAlongShader,
     inputs: {
       input: {
         name: "Input",
@@ -461,6 +428,8 @@ export const NODE_TYPES = {
       factor: {
         name: "Factor",
         type: "number",
+        min: 0,
+        max: 1,
       },
     },
     outputs: {
@@ -469,68 +438,75 @@ export const NODE_TYPES = {
         type: "color",
       },
     },
-    parameters: {},
-  },
-  diff: {
-    name: "Difference",
-    category: "Blend",
-    shader: diffShader,
-    inputs: {
-      input_a: {
-        name: "A",
-        type: "color",
-      },
-      input_b: {
-        name: "B",
-        type: "color",
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  diffExt: {
-    name: "Extended Difference",
-    category: "Blend",
-    shader: extDiffShader,
-    inputs: {
-      input_a: {
-        name: "A",
-        type: "color",
-      },
-      input_b: {
-        name: "B",
-        type: "color",
-      },
-      tau: {
-        name: "Tau",
-        type: "number",
-        min: 1,
-        max: 10,
-        step: 0.1,
+    parameters: {
+      mode: {
+        name: "Mode",
+        type: "select",
+        options: [
+          "Normal",
+          "Multiply",
+          "Color Burn",
+          "Linear Burn",
+          "Darken",
+          "Darker color",
+          "Add",
+          "Screen",
+          "Color Dodge",
+          "Lighten",
+          "Lighter color",
+          "Tint",
+          "Overlay",
+          "Difference",
+          "Exclusion",
+          "Subtract",
+          "Contrast",
+        ],
       },
     },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
   },
   // Color category ///////////////////////////////
-  grayscale: {
-    name: "Grayscale",
+  contrast: {
+    name: "Contrast",
     category: "Color",
-    shader: grayscaleShader,
+    shader: contrastShader,
     inputs: {
       input: {
         name: "Input",
         type: "color",
+      },
+      contrast: {
+        name: "Contrast",
+        type: "number",
+        min: 0,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {
+      mode: {
+        name: "Mode",
+        type: "select",
+        options: ["Gamma", "Linear"],
+      },
+    },
+  },
+  saturation: {
+    name: "Saturation",
+    category: "Color",
+    shader: saturationShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      saturation: {
+        name: "Saturation",
+        type: "number",
+        min: 0,
       },
     },
     outputs: {
@@ -541,44 +517,32 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  threshold: {
-    name: "Threshold",
+  hsl: {
+    name: "HSL",
     category: "Color",
-    shader: thresholdShader,
+    shader: hslShader,
     inputs: {
       input: {
         name: "Input",
         type: "color",
       },
-      threshold: {
-        name: "Threshold",
+      angle: {
+        name: "Hue Shift",
         type: "number",
+        min: 0,
+        max: 360,
+        step: 1,
       },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-  threshold_ext: {
-    name: "Extended Threshold",
-    category: "Color",
-    shader: extThresholdShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-      threshold: {
-        name: "Threshold",
+      saturation: {
+        name: "Saturation",
         type: "number",
+        min: 0,
       },
-      phi: {
-        name: "Falloff",
+      luminance: {
+        name: "Luminance",
         type: "number",
+        min: -1,
+        max: 1,
       },
     },
     outputs: {
@@ -614,9 +578,10 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  // Tonemapping category ///////////////////////////////
   tonemapReinhard: {
-    name: "Tonemap Reinhard",
-    category: "Color",
+    name: "Reinhard",
+    category: "Tone mapping",
     shader: tonemapReinhardShader,
     inputs: {
       input: {
@@ -626,7 +591,7 @@ export const NODE_TYPES = {
       white: {
         name: "White point",
         type: "number",
-        min: 0.0,
+        min: 1.0,
         max: 10.0,
         step: 0.1,
       },
@@ -640,8 +605,8 @@ export const NODE_TYPES = {
     parameters: {},
   },
   tonemapACES: {
-    name: "Tonemap ACES",
-    category: "Color",
+    name: "ACES",
+    category: "Tone mapping",
     shader: tonemapACESShader,
     inputs: {
       input: {
@@ -658,8 +623,8 @@ export const NODE_TYPES = {
     parameters: {},
   },
   tonemapHable: {
-    name: "Tonemap hable",
-    category: "Color",
+    name: "Hable",
+    category: "Tone mapping",
     shader: tonemapHableShader,
     inputs: {
       input: {
@@ -676,21 +641,21 @@ export const NODE_TYPES = {
     parameters: {},
   },
   // Effects category ///////////////////////////////
-  chromaticAberration: {
-    name: "Chromatic Aberration",
+  threshold: {
+    name: "Threshold",
     category: "Effects",
-    shader: chromaticAberrationShader,
+    shader: thresholdShader,
     inputs: {
       input: {
         name: "Input",
         type: "color",
       },
-      angle_r: { name: "Angle R", type: "number" },
-      angle_g: { name: "Angle G", type: "number" },
-      angle_b: { name: "Angle B", type: "number" },
-      magni_r: { name: "Magnitude R", type: "number" },
-      magni_g: { name: "Magnitude G", type: "number" },
-      magni_b: { name: "Magnitude B", type: "number" },
+      threshold: {
+        name: "Threshold",
+        type: "number",
+        min: 0,
+        max: 1,
+      },
     },
     outputs: {
       output: {
@@ -725,37 +690,8 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  bloom: {
-    name: "Bloom",
-    category: "Effects",
-    shader: bloomShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-      std_dev: {
-        name: "Std. dev",
-        type: "number",
-        min: 0.1,
-        max: 10,
-        step: 0.1,
-      },
-      threshold: {
-        name: "Threshold",
-        type: "number",
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
   pixelate: {
-    name: "pixelate",
+    name: "Pixelate",
     category: "Effects",
     shader: pixelateShader,
     inputs: {
@@ -766,7 +702,8 @@ export const NODE_TYPES = {
       kernel_size: {
         name: "Radius",
         type: "number",
-        max: 25,
+        min: 2,
+        max: 50,
         step: 1,
       },
     },
@@ -778,52 +715,24 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  heatmap: {
-    name: "Heatmap",
+  displace: {
+    name: "Displace",
     category: "Effects",
-    shader: heatmapShader,
+    shader: displaceShader,
     inputs: {
       input: {
         name: "Input",
         type: "color",
       },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
+      x: {
+        name: "x",
+        type: "number",
+        step: 1,
       },
-    },
-    parameters: {},
-  },
-  multiStepMix: {
-    name: "Multi step Mix",
-    category: "Effects",
-    shader: multiStepMixShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-      color1: {
-        name: "color1",
-        type: "color",
-      },
-      color2: {
-        name: "color2",
-        type: "color",
-      },
-      color3: {
-        name: "color3",
-        type: "color",
-      },
-      color4: {
-        name: "color4",
-        type: "color",
-      },
-      color5: {
-        name: "color5",
-        type: "color",
+      y: {
+        name: "y",
+        type: "number",
+        step: 1,
       },
     },
     outputs: {

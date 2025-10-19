@@ -8,6 +8,7 @@ const mixRenderPass: RenderPass = {
   inputBindings: {},
   outputBindings: {},
   defaultInputValues: {},
+  parameters: { test: "42" },
 };
 
 describe("Shader code generation", () => {
@@ -87,5 +88,18 @@ describe("Shader code generation", () => {
     expect(code).toMatch(
       /var factor: f32;.*if arrayLength\(&raw_factor\) <= 4u\s*\{.*factor = raw_factor\[0\];.*\}.*else.*\{.*factor = raw_factor\[index\];.*\}/s,
     );
+  });
+
+  it("should include parameter initialization code", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+
+    expect(code).toMatch(/const test: u32 = 42u;/);
+  });
+
+  it("should include parameter constants", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+
+    expect(code).toMatch(/const test_foo_bar: u32 = 0u;/);
+    expect(code).toMatch(/const test_bob: u32 = 1u;/);
   });
 });
