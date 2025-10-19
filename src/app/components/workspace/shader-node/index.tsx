@@ -3,18 +3,18 @@ import cn from "classnames";
 import { LuStar } from "react-icons/lu";
 
 import { ShaderNode as ShaderNodeType } from "@/schemas/node.schema";
-import { useProjectStore } from "@/store/project.store";
 import { CustomShaderMenu } from "./custom-shader-menu";
 import { NodeInput } from "./node-input";
 import { NodeMenu } from "./node-menu";
 import { NodeOutput } from "./node-output";
 import { NodeParameter } from "./node-parameter";
+import { useNodeTypes } from "@/utils/use-node-types";
 
 export function RenderShaderNode(
   props: NodeProps<ShaderNodeType> & { mock?: boolean },
 ) {
   const { data, selected } = props;
-  const nodeTypes = useProjectStore((state) => state.nodeTypes);
+  const nodeTypes = useNodeTypes();
 
   const nodeTypeInfo = nodeTypes[data.type];
   if (!nodeTypeInfo) return null;

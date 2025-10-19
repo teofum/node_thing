@@ -5,6 +5,7 @@ import { PreparedPipeline, preparePipeline } from "./renderer";
 import { RenderPipeline } from "./pipeline";
 import { compareLayerDims, compareLayers } from "./compare-layers";
 import { enumerate } from "@/utils/enumerate";
+import { useNodeTypes } from "@/utils/use-node-types";
 
 function compareSize(
   a: { width: number; height: number },
@@ -19,7 +20,7 @@ export function usePipeline(
 ) {
   const layers = useProjectStore((s) => s.layers);
   const canvas = useProjectStore((s) => s.properties.canvas);
-  const nodeTypes = useProjectStore((s) => s.nodeTypes);
+  const nodeTypes = useNodeTypes();
 
   /*
    * Pipeline descriptor and layer cache

@@ -16,6 +16,7 @@ import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 import { createNode } from "@/utils/node";
+import { DeepPartial } from "@/utils/deep-partial";
 
 export type Layer = {
   nodes: ShaderNode[];
@@ -35,11 +36,17 @@ export type ProjectProperties = {
   };
 };
 
+type NodeTypes = Record<string, NodeType>;
+
 export type Project = {
   layers: Layer[];
   currentLayer: number;
   properties: ProjectProperties;
-  nodeTypes: Record<string, NodeType>;
+  nodeTypes: {
+    default: NodeTypes;
+    custom: NodeTypes;
+    external: NodeTypes;
+  };
   projectName: string;
 };
 
@@ -79,7 +86,11 @@ function createInitialState(): Project {
     layers: [createLayer("Background")],
     currentLayer: 0,
     properties: { canvas: initialSize },
-    nodeTypes: NODE_TYPES,
+    nodeTypes: {
+      default: NODE_TYPES,
+      custom: {},
+      external: {},
+    },
     projectName: "Untitled Project",
   };
 }
@@ -107,7 +118,8 @@ export const useProjectStore = create(
         set(
           modifyLayer((layer) => {
             const { nodeTypes } = get();
-            if (!isConnectionValid(layer, connection, nodeTypes)) return {};
+            const allNodeTypes = getAllNodeTypes(nodeTypes);
+            if (!isConnectionValid(layer, connection, allNodeTypes)) return {};
 
             const edgesWithoutConflictingConnections = layer.edges.filter(
               (e) =>
@@ -216,26 +228,20 @@ export const useProjectStore = create(
 
       exportProject: () => {
         const project = get();
-        return JSON.stringify(project, null, 2);
+        return JSON.stringify(prepareProjectForExport(project), null, 2);
       },
 
       importProject: (jsonOrObj: string | Project) =>
-        set((state) => {
-          const parsedProject: Project =
+        set((current) => {
+          const imported: Project =
             typeof jsonOrObj === "string" ? JSON.parse(jsonOrObj) : jsonOrObj;
 
-          return {
-            layers: parsedProject.layers,
-            currentLayer: parsedProject.currentLayer,
-            properties: parsedProject.properties,
-            nodeTypes: state.nodeTypes,
-            projectName: parsedProject.projectName,
-          };
+          return mergeProject(imported, current);
         }),
 
       loadNodeTypes: async () => {
         const purchased = await getPurchasedShaders();
-        const purchasedNodeTypes = Object.fromEntries(
+        const external = Object.fromEntries(
           purchased
             .filter((shader) => shader.node_config)
             .map((shader) => {
@@ -244,7 +250,6 @@ export const useProjectStore = create(
                 shader.id,
                 {
                   ...config,
-                  shader: config.shader,
                   isPurchased: true,
                 },
               ];
@@ -252,7 +257,7 @@ export const useProjectStore = create(
         );
 
         set(({ nodeTypes }) => ({
-          nodeTypes: { ...nodeTypes, ...purchasedNodeTypes },
+          nodeTypes: { ...nodeTypes, external },
         }));
       },
 
@@ -267,9 +272,9 @@ export const useProjectStore = create(
       deleteNodeType: (name: string) => {
         set(({ nodeTypes, layers }) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { [name]: _, ...rest } = nodeTypes;
+          const { [name]: _, ...rest } = nodeTypes.custom;
           return {
-            nodeTypes: rest,
+            nodeTypes: { ...nodeTypes, custom: rest },
             layers: layers.map((layer) => ({
               ...layer,
               nodes: layer.nodes.filter((n) => n.data.type !== name),
@@ -291,10 +296,11 @@ export const useProjectStore = create(
         set(
           modifyLayer((layer) => {
             const { nodeTypes } = get();
+            const allNodeTypes = getAllNodeTypes(nodeTypes);
             return {
               nodes: [
                 ...layer.nodes.map((node) => ({ ...node, selected: false })),
-                createNode(type, position, nodeTypes, parameters),
+                createNode(type, position, allNodeTypes, parameters),
               ],
             };
           }),
@@ -346,20 +352,46 @@ export const useProjectStore = create(
       name: "main-store",
       merge: (persisted, current) => ({
         ...current,
-        ...(persisted as Project),
-        nodeTypes: {
-          ...current.nodeTypes,
-          // ...(persisted as Project).nodeTypes,
-          ...NODE_TYPES,
-        },
-        properties: {
-          ...current.properties,
-          ...(persisted as Project).properties,
-        },
+        ...mergeProject(persisted, current),
       }),
+      partialize: prepareProjectForExport,
     },
   ),
 );
+
+function mergeProject(imported: unknown, current: Project): Project {
+  return {
+    ...current,
+    ...(imported as Project),
+    nodeTypes: {
+      ...current.nodeTypes,
+      custom: (imported as Project).nodeTypes.custom,
+    },
+    properties: {
+      ...current.properties,
+      ...(imported as Project).properties,
+    },
+  };
+}
+
+function prepareProjectForExport(project: Project): DeepPartial<Project> {
+  return {
+    ...project,
+    nodeTypes: { custom: project.nodeTypes.custom },
+  };
+}
+
+export function getAllNodeTypes(nodeTypes: {
+  default: NodeTypes;
+  custom: NodeTypes;
+  external: NodeTypes;
+}) {
+  return {
+    ...nodeTypes.default,
+    ...nodeTypes.custom,
+    ...nodeTypes.external,
+  };
+}
 
 function isConnectionValid(
   layer: Layer,
@@ -443,7 +475,10 @@ function updateNodeType(
     };
 
     return {
-      nodeTypes: { ...nodeTypes, [name]: newNodeType },
+      nodeTypes: {
+        ...nodeTypes,
+        custom: { ...nodeTypes.custom, [name]: newNodeType },
+      },
     };
   };
 }
