@@ -44,7 +44,7 @@ const SettingsTab = forwardRef<HTMLDivElement, SettingsTabProps>(
                   <div>
                     <p className="font-medium">Display Name</p>
                     <p className="text-sm text-neutral-400">
-                      {user.user_metadata.full_name || "Not set"}
+                      {userData.displayName || "Not set"}
                     </p>
                   </div>
                   <DisplayNameEditor
@@ -53,7 +53,7 @@ const SettingsTab = forwardRef<HTMLDivElement, SettingsTabProps>(
                         Edit
                       </Button>
                     }
-                    currentDisplayName={user.user_metadata.full_name || ""}
+                    currentDisplayName={userData.displayName || ""}
                   />
                 </div>
               </div>

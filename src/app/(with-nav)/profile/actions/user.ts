@@ -29,7 +29,7 @@ export async function getUserData() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("username, is_premium, cancelled, subscription_id")
+    .select("username, display_name, is_premium, cancelled, subscription_id")
     .eq("id", user.id)
     .single();
 
@@ -37,5 +37,10 @@ export async function getUserData() {
     throw new Error(`Failed to load user data: ${error.message}`);
   }
 
-  return camelcaseKeys(data, { deep: true });
+  const camelData = camelcaseKeys(data, { deep: true });
+
+  return {
+    ...camelData,
+    displayName: camelData.displayName || user.user_metadata.full_name || null,
+  };
 }

@@ -1,9 +1,10 @@
 import Image from "next/image";
-import { LuGem } from "react-icons/lu";
+import { LuGem, LuPencil } from "react-icons/lu";
 import { signOutAction } from "@/app/auth/actions";
 import { Button } from "@/ui/button";
 import type { User } from "@supabase/supabase-js";
 import type { UserData } from "../page";
+import AvatarEditor from "../dialogs/change-avatar";
 
 type ProfileHeaderProps = {
   user: User;
@@ -19,18 +20,28 @@ export default function ProfileHeader({
   return (
     <div className="flex justify-between items-center mb-8">
       <div className="flex items-center gap-4">
-        <Image
-          src={user.user_metadata.avatar_url}
-          alt=""
-          width={80}
-          height={80}
-          unoptimized
-          className="rounded-full"
+        <AvatarEditor
+          currentAvatarUrl={user.user_metadata.avatar_url}
+          trigger={
+            <div className="relative w-[80px] h-[80px] rounded-full overflow-hidden cursor-pointer group">
+              <Image
+                src={user.user_metadata.avatar_url}
+                alt=""
+                width={80}
+                height={80}
+                unoptimized
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <LuPencil className="text-white text-base" />
+              </div>
+            </div>
+          }
         />
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-white">
-              {user.user_metadata.full_name || userData.username}
+              {userData.displayName || userData.username}
             </h1>
             {userData.isPremium && <LuGem className="text-xl" />}
           </div>

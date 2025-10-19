@@ -12,6 +12,7 @@ import { getUser, getUserData } from "./actions/user";
 
 export type UserData = {
   username: string;
+  displayName: string | null;
   isPremium: boolean | null;
   cancelled?: boolean | null;
   subscriptionId?: string | null;
