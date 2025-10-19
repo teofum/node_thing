@@ -1,12 +1,24 @@
 import {
   createInitialState,
   createLayer,
+  mergeProject,
   prepareProjectForExport,
 } from "@/store/project.actions";
 import { NodeTypes } from "@/store/project.types";
+import { createNode } from "@/utils/node";
 import { NODE_TYPES } from "@/utils/node-type";
 
 const nodeTypes: NodeTypes = NODE_TYPES;
+const customNodeTypes: NodeTypes = {
+  test: {
+    name: "Test node",
+    category: "Custom",
+    shader: "",
+    inputs: {},
+    outputs: {},
+    parameters: {},
+  },
+};
 
 describe("createLayer", () => {
   it("includes an output node", () => {
@@ -63,16 +75,6 @@ describe("createInitialState", () => {
 
 describe("prepareProjectForExport", () => {
   const project = createInitialState();
-  const customNodeTypes: NodeTypes = {
-    test: {
-      name: "Test node",
-      category: "Custom",
-      shader: "",
-      inputs: {},
-      outputs: {},
-      parameters: {},
-    },
-  };
   project.nodeTypes.custom = customNodeTypes;
   project.nodeTypes.external = customNodeTypes;
 
@@ -101,5 +103,41 @@ describe("prepareProjectForExport", () => {
 
     expect(projectExport.nodeTypes).toBeDefined();
     expect(projectExport.nodeTypes?.external).toBeUndefined();
+  });
+});
+
+describe("mergeProject", () => {
+  const projectBase = createInitialState();
+  const projectImport = createInitialState();
+  projectImport.layers[0].size = { width: 100, height: 100 };
+  projectImport.layers[0].nodes.push(
+    createNode("mix", { x: 0, y: 0 }, NODE_TYPES, {}),
+  );
+  projectImport.nodeTypes.custom = customNodeTypes;
+  projectImport.nodeTypes.default = customNodeTypes;
+  projectImport.nodeTypes.external = customNodeTypes;
+
+  it("overrides layers with imported project", () => {
+    const merged = mergeProject(projectImport, projectBase);
+
+    expect(merged.layers).toEqual(projectImport.layers);
+  });
+
+  it("imports custom node types", () => {
+    const merged = mergeProject(projectImport, projectBase);
+
+    expect(merged.nodeTypes.custom).toEqual(projectImport.nodeTypes.custom);
+  });
+
+  it("does not import default node types", () => {
+    const merged = mergeProject(projectImport, projectBase);
+
+    expect(merged.nodeTypes.default).toEqual(projectBase.nodeTypes.default);
+  });
+
+  it("does not import external node types", () => {
+    const merged = mergeProject(projectImport, projectBase);
+
+    expect(merged.nodeTypes.external).toEqual(projectBase.nodeTypes.external);
   });
 });
