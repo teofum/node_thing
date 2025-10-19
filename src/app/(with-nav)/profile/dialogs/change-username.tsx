@@ -5,7 +5,7 @@ import { Input } from "@/ui/input";
 import { ReactNode, useRef, useState } from "react";
 import { UserData } from "../page";
 import { Button } from "@/ui/button";
-import { setUsername, checkUsernameAvailable } from "../actions";
+import { setUsername, checkUsernameAvailable } from "../actions/settings";
 
 type AccountEditorProps = {
   trigger: ReactNode;

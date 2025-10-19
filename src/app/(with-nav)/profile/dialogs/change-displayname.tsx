@@ -4,7 +4,7 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { Input } from "@/ui/input";
 import { ReactNode, useRef } from "react";
 import { Button } from "@/ui/button";
-import { setDisplayName } from "../actions";
+import { setDisplayName } from "../actions/settings";
 
 type DisplayNameEditorProps = {
   trigger: ReactNode;

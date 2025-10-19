@@ -4,7 +4,7 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { Input } from "@/ui/input";
 import { ReactNode, useRef, useState } from "react";
 import { Button } from "@/ui/button";
-import { changePassword } from "../actions";
+import { changePassword } from "../actions/settings";
 
 type PasswordEditorProps = {
   trigger: ReactNode;
