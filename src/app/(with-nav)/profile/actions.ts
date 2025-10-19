@@ -10,6 +10,7 @@ import { getBaseUrl } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import { PostgrestError } from "@supabase/supabase-js";
 import camelcaseKeys from "camelcase-keys";
+import { Replace } from "@/utils/replace";
 
 export async function subscribePremiumAction(formData: FormData) {
   const variantId = formData.get("variant_id") as string;
@@ -166,20 +167,12 @@ export async function getPublishedShaders() {
     throw new Error(`Failed to load published shaders: ${error.message}`);
   }
 
-  // Supabase me devuelve tipo Json para category y profiles, no tengo otra que mandar any
-  // eslint-disable-next-line
-  const castData = data.map((shader: any) => ({
-    ...shader,
-    category:
-      shader.category && typeof shader.category === "object"
-        ? {
-            id: shader.category.id ?? "",
-            name: shader.category.name ?? "",
-          }
-        : { id: "", name: "" },
-  }));
-
-  return camelcaseKeys(castData);
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      { category: { id: string; name: string } }
+    >[],
+  );
 }
 
 export async function getPurchasedShaders() {
@@ -200,20 +193,12 @@ export async function getPurchasedShaders() {
     throw new Error(`Failed to load purchased shaders: ${error.message}`);
   }
 
-  // Supabase me devuelve tipo Json para category y profiles, no tengo otra que mandar any
-  // eslint-disable-next-line
-  const castData = data.map((shader: any) => ({
-    ...shader,
-    category:
-      shader.category && typeof shader.category === "object"
-        ? {
-            id: shader.category.id ?? "",
-            name: shader.category.name ?? "",
-          }
-        : { id: "", name: "" },
-  }));
-
-  return camelcaseKeys(castData);
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      { category: { id: string; name: string } }
+    >[],
+  );
 }
 
 export async function submitShaderReview(

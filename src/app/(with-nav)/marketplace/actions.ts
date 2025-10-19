@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { Tables } from "@/lib/supabase/database.types";
 import camelcaseKeys from "camelcase-keys";
+import { Replace } from "@/utils/replace";
 
 type Category = Tables<"categories">;
 
@@ -94,26 +95,18 @@ export async function getShaders() {
     throw new Error(`Failed rpc function: ${error.message}`);
   }
 
-  // Supabase me devuelve tipo Json para category y profiles, no tengo otra que mandar any
-  // eslint-disable-next-line
-  const castData = data.map((shader: any) => ({
-    ...shader,
-    category:
-      shader.category && typeof shader.category === "object"
-        ? {
-            id: shader.category.id ?? "",
-            name: shader.category.name ?? "",
-          }
-        : { id: "", name: "" },
-    profiles:
-      shader.profiles && typeof shader.profiles === "object"
-        ? {
-            username: shader.profiles.username ?? "",
-          }
-        : { username: "" },
-  }));
-
-  return camelcaseKeys(castData);
+  // TODO we really shouldn't need to do this shit
+  // Look into https://github.com/orgs/supabase/discussions/32925 or stop using
+  // JSON objects in db functions altogether
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      {
+        category: { id: string; name: string };
+        profiles: { username: string };
+      }
+    >[],
+  );
 }
 
 export async function getCategories(): Promise<Category[]> {
