@@ -127,51 +127,14 @@ export type Database = {
         };
         Relationships: [];
       };
-      payouts: {
-        Row: {
-          amount: number;
-          created_at: string | null;
-          id: string;
-          mp_transaction_id: string | null;
-          paid_at: string | null;
-          seller_id: string;
-          status: string | null;
-        };
-        Insert: {
-          amount: number;
-          created_at?: string | null;
-          id?: string;
-          mp_transaction_id?: string | null;
-          paid_at?: string | null;
-          seller_id: string;
-          status?: string | null;
-        };
-        Update: {
-          amount?: number;
-          created_at?: string | null;
-          id?: string;
-          mp_transaction_id?: string | null;
-          paid_at?: string | null;
-          seller_id?: string;
-          status?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "payouts_seller_id_fkey";
-            columns: ["seller_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       profiles: {
         Row: {
           cancelled: boolean | null;
           id: string;
           is_premium: boolean | null;
-          mp_email: string | null;
-          pending_balance: number | null;
+          mp_access_token: string | null;
+          mp_refresh_token: string | null;
+          mp_user_id: string | null;
           subscription_id: string | null;
           username: string;
         };
@@ -179,8 +142,9 @@ export type Database = {
           cancelled?: boolean | null;
           id: string;
           is_premium?: boolean | null;
-          mp_email?: string | null;
-          pending_balance?: number | null;
+          mp_access_token?: string | null;
+          mp_refresh_token?: string | null;
+          mp_user_id?: string | null;
           subscription_id?: string | null;
           username: string;
         };
@@ -188,8 +152,9 @@ export type Database = {
           cancelled?: boolean | null;
           id?: string;
           is_premium?: boolean | null;
-          mp_email?: string | null;
-          pending_balance?: number | null;
+          mp_access_token?: string | null;
+          mp_refresh_token?: string | null;
+          mp_user_id?: string | null;
           subscription_id?: string | null;
           username?: string;
         };
@@ -327,6 +292,7 @@ export type Database = {
           published: boolean | null;
           step: number | null;
           title: string;
+          type: string;
           updated_at: string;
           user_id: string;
         };
@@ -342,6 +308,7 @@ export type Database = {
           published?: boolean | null;
           step?: number | null;
           title: string;
+          type?: string;
           updated_at?: string;
           user_id: string;
         };
@@ -357,6 +324,7 @@ export type Database = {
           published?: boolean | null;
           step?: number | null;
           title?: string;
+          type?: string;
           updated_at?: string;
           user_id?: string;
         };
@@ -390,6 +358,41 @@ export type Database = {
         Args: { order_uuid: string; user_uuid: string };
         Returns: boolean;
       };
+      get_published_shaders: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          category: Json;
+          id: string;
+          rating_count: number;
+          title: string;
+        }[];
+      };
+      get_purchased_shaders: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          category: Json;
+          id: string;
+          rating_count: number;
+          title: string;
+        }[];
+      };
+      get_shaders_with_avg: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          category: Json;
+          created_at: string;
+          description: string;
+          downloads: number;
+          id: string;
+          price: number;
+          profiles: Json;
+          rating_count: number;
+          title: string;
+        }[];
+      };
       get_user_email_by_username: {
         Args: { username_param: string };
         Returns: string;
@@ -397,6 +400,10 @@ export type Database = {
       increment_shader_downloads: {
         Args: { shader_id: string };
         Returns: undefined;
+      };
+      verify_user_password: {
+        Args: { password: string };
+        Returns: boolean;
       };
     };
     Enums: {

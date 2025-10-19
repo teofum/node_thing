@@ -86,63 +86,34 @@ export async function getShaders() {
     redirect("/auth/login?next=/marketplace");
   }
 
-  const { data: purchases } = await supabase
-    .from("purchases")
-    .select("shader_id")
-    .eq("user_id", user.id);
-
-  const owned = purchases?.map((p) => p.shader_id) || [];
-
-  let query = supabase
-    .from("shaders")
-    .select(
-      `
-      id,
-      title,
-      description,
-      price,
-      downloads,
-      created_at,
-      category:categories (
-        id,
-        name
-      ),
-      profiles!fk_shaders_user_id (
-        username
-      ),
-      ratings(rating)
-    `,
-    )
-    .eq("published", true)
-    .order("created_at", { ascending: false });
-
-  if (owned.length) {
-    query = query.not("id", "in", `(${owned.join(",")})`);
-  }
-
-  const { data: shaders, error } = await query;
-
-  if (error) {
-    throw new Error(`Failed to load shaders: ${error.message}`);
-  }
-
-  const data = shaders.map((shader) => {
-    const ratings = (shader.ratings ?? [])
-      .map((r) => r.rating)
-      .filter((r): r is number => r !== null);
-
-    const rating_count = ratings.length;
-    const average_rating =
-      rating_count > 0 ? ratings.reduce((a, b) => a + b, 0) / rating_count : 0;
-
-    return {
-      ...shader,
-      rating_count,
-      average_rating,
-    };
+  const { data, error } = await supabase.rpc("get_shaders_with_avg", {
+    user_uuid: user.id,
   });
 
-  return camelcaseKeys(data);
+  if (error) {
+    throw new Error(`Failed rpc function: ${error.message}`);
+  }
+
+  // Supabase me devuelve tipo Json para category y profiles, no tengo otra que mandar any
+  // eslint-disable-next-line
+  const castData = data.map((shader: any) => ({
+    ...shader,
+    category:
+      shader.category && typeof shader.category === "object"
+        ? {
+            id: shader.category.id ?? "",
+            name: shader.category.name ?? "",
+          }
+        : { id: "", name: "" },
+    profiles:
+      shader.profiles && typeof shader.profiles === "object"
+        ? {
+            username: shader.profiles.username ?? "",
+          }
+        : { username: "" },
+  }));
+
+  return camelcaseKeys(castData);
 }
 
 export async function getCategories(): Promise<Category[]> {
