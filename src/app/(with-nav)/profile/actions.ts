@@ -92,22 +92,20 @@ export async function resumeSubscriptionAction() {
 }
 
 export async function updatePayoutSettingsAction(formData: FormData) {
-  const mpEmail = formData.get("mp_email") as string;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
-
-  await supabase
-    .from("profiles")
-    .update({ mp_email: mpEmail })
-    .eq("id", user.id);
-
-  redirect("/profile");
+  // TODO comento para que compile
+  // const mpEmail = formData.get("mp_email") as string;
+  // const supabase = await createClient();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
+  // if (!user) {
+  //   redirect("/auth/login?next=/profile");
+  // }
+  // await supabase
+  //   .from("profiles")
+  //   .update({ mp_email: mpEmail })
+  //   .eq("id", user.id);
+  // redirect("/profile");
 }
 
 export async function getUser() {
@@ -136,7 +134,9 @@ export async function getUserData() {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "username, is_premium, mp_email, pending_balance, cancelled, subscription_id",
+      // TODO comento para que compile
+      // "username, is_premium, mp_email, pending_balance, cancelled, subscription_id",
+      "username, is_premium, cancelled, subscription_id",
     )
     .eq("id", user.id)
     .single();
@@ -158,40 +158,28 @@ export async function getPublishedShaders() {
     redirect("/auth/login?next=/profile");
   }
 
-  const { data: shaders, error } = await supabase
-    .from("shaders")
-    .select(
-      `
-    id,
-    title,
-    category:categories(name),
-    ratings(rating)
-  `,
-    )
-    .eq("user_id", user.id)
-    .eq("published", true);
+  const { data, error } = await supabase.rpc("get_published_shaders", {
+    user_uuid: user.id,
+  });
 
   if (error) {
     throw new Error(`Failed to load published shaders: ${error.message}`);
   }
 
-  const data = shaders.map((shader) => {
-    const ratings = (shader.ratings ?? [])
-      .map((r) => r.rating)
-      .filter((r): r is number => r !== null);
+  // Supabase me devuelve tipo Json para category y profiles, no tengo otra que mandar any
+  // eslint-disable-next-line
+  const castData = data.map((shader: any) => ({
+    ...shader,
+    category:
+      shader.category && typeof shader.category === "object"
+        ? {
+            id: shader.category.id ?? "",
+            name: shader.category.name ?? "",
+          }
+        : { id: "", name: "" },
+  }));
 
-    const rating_count = ratings.length;
-    const average_rating =
-      rating_count > 0 ? ratings.reduce((a, b) => a + b, 0) / rating_count : 0;
-
-    return {
-      ...shader,
-      rating_count,
-      average_rating,
-    };
-  });
-
-  return camelcaseKeys(data);
+  return camelcaseKeys(castData);
 }
 
 export async function getPurchasedShaders() {
@@ -204,50 +192,28 @@ export async function getPurchasedShaders() {
     redirect("/auth/login?next=/profile");
   }
 
-  const errorMessage = (err: PostgrestError) => {
-    return `Failed to load purchased shaders: ${err.message}`;
-  };
-
-  const { data: purchases, error: err1 } = await supabase
-    .from("purchases")
-    .select("shader_id")
-    .eq("user_id", user.id);
-
-  if (err1) throw new Error(errorMessage(err1));
-
-  const shaderIds = purchases.map((p) => p.shader_id);
-
-  const { data: shaders, error: err2 } = await supabase
-    .from("shaders")
-    .select(
-      `
-      id,
-      title,
-      category:categories(name),
-      ratings(rating)
-    `,
-    )
-    .in("id", shaderIds);
-
-  if (err2) throw new Error(errorMessage(err2));
-
-  const data = shaders.map((shader) => {
-    const ratings = (shader.ratings ?? [])
-      .map((r) => r.rating)
-      .filter((r): r is number => r !== null);
-
-    const rating_count = ratings.length;
-    const average_rating =
-      rating_count > 0 ? ratings.reduce((a, b) => a + b, 0) / rating_count : 0;
-
-    return {
-      ...shader,
-      rating_count,
-      average_rating,
-    };
+  const { data, error } = await supabase.rpc("get_purchased_shaders", {
+    user_uuid: user.id,
   });
 
-  return camelcaseKeys(data);
+  if (error) {
+    throw new Error(`Failed to load purchased shaders: ${error.message}`);
+  }
+
+  // Supabase me devuelve tipo Json para category y profiles, no tengo otra que mandar any
+  // eslint-disable-next-line
+  const castData = data.map((shader: any) => ({
+    ...shader,
+    category:
+      shader.category && typeof shader.category === "object"
+        ? {
+            id: shader.category.id ?? "",
+            name: shader.category.name ?? "",
+          }
+        : { id: "", name: "" },
+  }));
+
+  return camelcaseKeys(castData);
 }
 
 export async function submitShaderReview(
