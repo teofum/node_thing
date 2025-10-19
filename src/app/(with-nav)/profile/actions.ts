@@ -10,6 +10,7 @@ import { getBaseUrl } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
 import { PostgrestError } from "@supabase/supabase-js";
 import camelcaseKeys from "camelcase-keys";
+import { Replace } from "@/utils/replace";
 
 export async function subscribePremiumAction(formData: FormData) {
   const variantId = formData.get("variant_id") as string;
@@ -92,22 +93,20 @@ export async function resumeSubscriptionAction() {
 }
 
 export async function updatePayoutSettingsAction(formData: FormData) {
-  const mpEmail = formData.get("mp_email") as string;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
-
-  await supabase
-    .from("profiles")
-    .update({ mp_email: mpEmail })
-    .eq("id", user.id);
-
-  redirect("/profile");
+  // TODO comento para que compile
+  // const mpEmail = formData.get("mp_email") as string;
+  // const supabase = await createClient();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
+  // if (!user) {
+  //   redirect("/auth/login?next=/profile");
+  // }
+  // await supabase
+  //   .from("profiles")
+  //   .update({ mp_email: mpEmail })
+  //   .eq("id", user.id);
+  // redirect("/profile");
 }
 
 export async function getUser() {
@@ -136,7 +135,9 @@ export async function getUserData() {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "username, is_premium, mp_email, pending_balance, cancelled, subscription_id",
+      // TODO comento para que compile
+      // "username, is_premium, mp_email, pending_balance, cancelled, subscription_id",
+      "username, is_premium, cancelled, subscription_id",
     )
     .eq("id", user.id)
     .single();
@@ -158,25 +159,20 @@ export async function getPublishedShaders() {
     redirect("/auth/login?next=/profile");
   }
 
-  const { data, error } = await supabase
-    .from("shaders")
-    .select(
-      `
-      id,
-      title,
-      average_rating,
-      category:categories(name),
-      rating_count
-      `,
-    )
-    .eq("user_id", user.id)
-    .eq("published", true);
+  const { data, error } = await supabase.rpc("get_published_shaders", {
+    user_uuid: user.id,
+  });
 
   if (error) {
     throw new Error(`Failed to load published shaders: ${error.message}`);
   }
 
-  return camelcaseKeys(data) ?? [];
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      { category: { id: string; name: string } }
+    >[],
+  );
 }
 
 export async function getPurchasedShaders() {
@@ -189,29 +185,20 @@ export async function getPurchasedShaders() {
     redirect("/auth/login?next=/profile");
   }
 
-  const errorMessage = (err: PostgrestError) => {
-    return `Failed to load purchased shaders: ${err.message}`;
-  };
+  const { data, error } = await supabase.rpc("get_purchased_shaders", {
+    user_uuid: user.id,
+  });
 
-  const { data: purchases, error: err1 } = await supabase
-    .from("purchases")
-    .select("shader_id")
-    .eq("user_id", user.id);
+  if (error) {
+    throw new Error(`Failed to load purchased shaders: ${error.message}`);
+  }
 
-  if (err1) throw new Error(errorMessage(err1));
-
-  const shaderIds = purchases.map((p) => p.shader_id);
-
-  const { data: shaders, error: err2 } = await supabase
-    .from("shaders")
-    .select(
-      "id, title, average_rating, category:categories(name), rating_count",
-    )
-    .in("id", shaderIds);
-
-  if (err2) throw new Error(errorMessage(err2));
-
-  return camelcaseKeys(shaders) ?? [];
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      { category: { id: string; name: string } }
+    >[],
+  );
 }
 
 export async function submitShaderReview(
@@ -288,4 +275,25 @@ export async function setUsername(newUsername: string) {
   }
 
   return data;
+}
+
+export async function deleteShaderReview(shaderId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  const { error } = await supabase
+    .from("ratings")
+    .delete()
+    .eq("shader_id", shaderId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to delete rating: ${error.message}`);
+  }
 }
