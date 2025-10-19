@@ -1,0 +1,160 @@
+import { Connection, Edge } from "@xyflow/react";
+import { nanoid } from "nanoid";
+
+import { NodeType, ShaderNode } from "@/schemas/node.schema";
+import { DeepPartial } from "@/utils/deep-partial";
+import {
+  Project,
+  Layer,
+  NodeTypeDescriptor,
+  HandleDescriptor,
+  NodeTypes,
+} from "./project.types";
+
+const initialNodes: ShaderNode[] = [
+  {
+    id: "__output",
+    position: { x: 0, y: 0 },
+    data: { type: "__output", defaultValues: {}, parameters: {} },
+    type: "RenderShaderNode",
+    deletable: false,
+  },
+];
+const initialEdges: Edge[] = [];
+
+export function prepareProjectForExport(
+  project: Project,
+): DeepPartial<Project> {
+  return {
+    ...project,
+    nodeTypes: { custom: project.nodeTypes.custom },
+  };
+}
+
+export function getAllNodeTypes(nodeTypes: {
+  default: NodeTypes;
+  custom: NodeTypes;
+  external: NodeTypes;
+}) {
+  return {
+    ...nodeTypes.default,
+    ...nodeTypes.custom,
+    ...nodeTypes.external,
+  };
+}
+
+export function isConnectionValid(
+  layer: Layer,
+  connection: Connection,
+  nodeTypes: Record<string, NodeType>,
+) {
+  const targetType = layer.nodes.find((node) => node.id === connection.target)!
+    .data.type;
+  const sourceType = layer.nodes.find((node) => node.id === connection.source)!
+    .data.type;
+
+  const targetHandleType =
+    nodeTypes[targetType].inputs[connection.targetHandle ?? ""].type;
+  const sourceHandleType =
+    nodeTypes[sourceType].outputs[connection.sourceHandle ?? ""].type;
+
+  return targetHandleType === sourceHandleType;
+}
+
+export function modifyNode(
+  id: string,
+  updater: (node: ShaderNode) => Partial<ShaderNode>,
+): (state: Project) => Partial<Project> {
+  return modifyLayer(({ nodes }) => {
+    const node = nodes.find((n) => n.id === id);
+    if (!node) return {};
+
+    return {
+      nodes: [
+        ...nodes.filter((n) => n.id !== id),
+        {
+          ...node,
+          ...updater(node),
+          id: node.id,
+        },
+      ],
+    };
+  });
+}
+
+export function modifyLayer(
+  updater: (layer: Layer) => Partial<Layer>,
+  idx?: number,
+): (state: Project) => Partial<Project> {
+  return ({ layers, currentLayer }) => {
+    const layerIdx = idx ?? currentLayer;
+    const layerToModify = layers[layerIdx];
+    if (!layerToModify) return {};
+
+    const layersUnder = layers.slice(0, layerIdx);
+    const layersOver = layers.slice(layerIdx + 1);
+
+    return {
+      layers: [
+        ...layersUnder,
+        {
+          ...layerToModify,
+          ...updater(layerToModify),
+        },
+        ...layersOver,
+      ],
+    };
+  };
+}
+
+export function updateNodeType(
+  name: string,
+  desc: NodeTypeDescriptor,
+): (state: Project) => Partial<Project> {
+  return ({ nodeTypes }: Project) => {
+    const inputs = createHandles(desc.inputs);
+    const outputs = createHandles(desc.outputs);
+
+    const newNodeType: NodeType = {
+      name: desc.name,
+      category: "Custom",
+      shader: desc.code,
+      inputs,
+      outputs,
+      parameters: {},
+    };
+
+    return {
+      nodeTypes: {
+        ...nodeTypes,
+        custom: { ...nodeTypes.custom, [name]: newNodeType },
+      },
+    };
+  };
+}
+
+export function createHandles(desc: HandleDescriptor[]) {
+  const handles: NodeType["inputs" | "outputs"] = {};
+  for (const { name, display, type } of desc) {
+    handles[name] = { name: display, type };
+  }
+  return handles;
+}
+
+export function createLayer(
+  name: string,
+  size = { width: 1920, height: 1080 },
+): Layer {
+  return {
+    nodes: [...initialNodes],
+    edges: [...initialEdges],
+    position: { x: 0, y: 0 },
+    size,
+    id: newLayerId(),
+    name,
+  };
+}
+
+export function newLayerId(): string {
+  return `layer_${nanoid()}`;
+}
