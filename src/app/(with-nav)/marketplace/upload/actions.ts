@@ -140,7 +140,7 @@ export async function getUserProjects() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login?next=/profile");
+    redirect("/auth/login?next=/marketplace/upload");
   }
 
   let projects: Tables<"projects">[] = [];
@@ -167,4 +167,27 @@ export async function getUserProjects() {
   }
 
   return projects;
+}
+
+export async function getCreatedShaders() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/marketplace/upload");
+  }
+
+  const { data, error } = await supabase
+    .from("shaders")
+    .select("*")
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to load published shaders: ${error.message}`);
+  }
+
+  const shaders: Tables<"shaders">[] = data ?? [];
+  return shaders;
 }
