@@ -1,5 +1,6 @@
 import { ComponentProps, useState } from "react";
 import { LuCloudDownload, LuPencilLine, LuTrash2 } from "react-icons/lu";
+import { useRouter } from "next/navigation";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
@@ -24,13 +25,17 @@ export function ManageProjects({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [nameDraft, setNameDraft] = useState<string>("");
 
+  const router = useRouter();
+
   async function handleRename(projectId: string) {
     await updateProjectName(projectId, nameDraft);
     setEditingId(null);
+    router.refresh();
   }
 
   async function handleDelete(projectId: string) {
     await deleteProject(projectId);
+    router.refresh();
   }
 
   return (
