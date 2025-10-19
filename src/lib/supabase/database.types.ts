@@ -165,6 +165,7 @@ export type Database = {
           created_at: string | null;
           id: string;
           name: string | null;
+          published: boolean | null;
           updated_at: string | null;
           user_id: string;
           user_project: string;
@@ -173,6 +174,7 @@ export type Database = {
           created_at?: string | null;
           id?: string;
           name?: string | null;
+          published?: boolean | null;
           updated_at?: string | null;
           user_id: string;
           user_project: string;
@@ -181,6 +183,7 @@ export type Database = {
           created_at?: string | null;
           id?: string;
           name?: string | null;
+          published?: boolean | null;
           updated_at?: string | null;
           user_id?: string;
           user_project?: string;

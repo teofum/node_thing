@@ -62,9 +62,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">
-              Shader Marketplace
-            </h1>
+            <h1 className="text-3xl font-bold text-white">Marketplace</h1>
             <p className="text-neutral-400 mt-2">
               Discover and share amazing shaders
             </p>
@@ -79,7 +77,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
               <LuShoppingCart />
             </LinkButton>
             <LinkButton href="/marketplace/upload" variant="default" size="lg">
-              Upload Shader
+              Publish
             </LinkButton>
           </div>
         </div>
