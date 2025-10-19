@@ -167,6 +167,29 @@ export async function getCategories(): Promise<Category[]> {
   return categories || [];
 }
 
+export async function getTypes(): Promise<Category[]> {
+  //TODO
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/marketplace");
+  }
+
+  const { data: categories, error } = await supabase
+    .from("categories")
+    .select("id, name")
+    .order("name");
+
+  if (error) {
+    throw new Error(`Failed to load categories: ${error.message}`);
+  }
+
+  return categories || [];
+}
+
 // get shaders that the user bought so they can use them in the editor
 // it's not a marketplace action, but I don't know where else to put it :/
 export async function getPurchasedShaders() {

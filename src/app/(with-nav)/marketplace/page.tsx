@@ -2,7 +2,7 @@ import { LuSearch, LuShoppingCart } from "react-icons/lu";
 
 import { Button, LinkButton } from "@/ui/button";
 import { RangeSliderInput } from "@/ui/range-slider";
-import { getCategories, getShaders } from "./actions";
+import { getCategories, getShaders, getTypes } from "./actions";
 import { getCartItems } from "./cart/actions";
 import { ShaderListClient } from "./components/shaders-sort";
 
@@ -13,6 +13,7 @@ type Props = {
     search?: string;
     minPrice?: string;
     maxPrice?: string;
+    type?: string | string[];
   }>;
 };
 
@@ -21,6 +22,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
   const shaders = params.error ? [] : await getShaders();
   const categories = await getCategories();
   const cartItems = await getCartItems();
+  const types = await getTypes();
   const cartIds = new Set(cartItems.map((item) => item.shader_id));
 
   // Filter by category and search from URL params to not use client-side
@@ -30,6 +32,12 @@ export default async function MarketplacePage({ searchParams }: Props) {
       ? [params.category]
       : [];
   const searchTerm = params.search;
+
+  const selectedTypes = Array.isArray(params.type)
+    ? params.type
+    : params.type
+      ? [params.type]
+      : ["shader", "project"];
 
   let filteredShaders =
     selectedCategories.length > 0
@@ -122,6 +130,43 @@ export default async function MarketplacePage({ searchParams }: Props) {
             />
           </div>
         </form>
+
+        <div className="mb-6 flex justify-center gap-2 flex-wrap">
+          {["shader", "project"].map((type) => {
+            const isSelected = selectedTypes.includes(type);
+            const remainingTypes = isSelected
+              ? selectedTypes.filter((t) => t !== type)
+              : [...selectedTypes, type];
+
+            const newTypes =
+              remainingTypes.length === 0 ? [type] : remainingTypes;
+
+            const typeParams = new URLSearchParams();
+
+            if (searchTerm) typeParams.set("search", searchTerm);
+            selectedCategories.forEach((cat) =>
+              typeParams.append("category", cat),
+            );
+            newTypes.forEach((t) => typeParams.append("type", t));
+            if (params.minPrice) typeParams.set("minPrice", params.minPrice);
+            if (params.maxPrice) typeParams.set("maxPrice", params.maxPrice);
+
+            const typeUrl = `/marketplace${
+              typeParams.toString() ? "?" + typeParams.toString() : ""
+            }`;
+
+            return (
+              <LinkButton
+                key={type}
+                href={typeUrl}
+                variant="outline"
+                data-state={isSelected ? "on" : "off"}
+              >
+                {type === "shader" ? "Shader" : "Project"}
+              </LinkButton>
+            );
+          })}
+        </div>
 
         <div className="mb-6 flex justify-center gap-2 flex-wrap">
           <LinkButton
