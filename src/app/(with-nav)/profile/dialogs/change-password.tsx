@@ -71,11 +71,6 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
                   return;
                 }
 
-                if (newPass.length < 6) {
-                  setError("New password must be at least 6 characters");
-                  return;
-                }
-
                 if (newPass !== confirm) {
                   setError("New passwords do not match");
                   return;
