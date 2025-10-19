@@ -4,6 +4,8 @@ import { Tables } from "@/lib/supabase/database.types";
 import { SchemaForm } from "./components/schema-form";
 import { CodeForm } from "./components/code-form";
 import { PublishForm } from "./components/publish-form";
+import { getUserProjects } from "./actions";
+import { Button } from "@/ui/button";
 
 type ShaderInput = { name: string; type: "color" | "number" };
 type ShaderOutput = { name: string; type: "color" | "number" };
@@ -87,6 +89,8 @@ export default async function UploadPage({
     throw new Error(`Failed to load categories: ${error.message}`);
   }
 
+  const projects = await getUserProjects();
+
   return (
     <div className="min-h-screen bg-neutral-900 p-6">
       <div className="max-w-4xl mx-auto">
@@ -113,7 +117,35 @@ export default async function UploadPage({
           </h2>
           <div className="space-y-6 glass glass-border p-6 rounded-xl ">
             <div className="space-y-1 ">
-              <h1>TODO Seba</h1>
+              {/* TODO Juani mejor diseño */}
+              {projects.length ? (
+                projects.map((currProject) => (
+                  <div
+                    key={currProject.id}
+                    className="flex flex-row items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
+                  >
+                    {currProject.name}
+
+                    {currProject.published ? (
+                      <Button
+                        type="submit"
+                        variant="ghost"
+                        size="sm"
+                        icon
+                        disabled
+                      >
+                        Publish
+                      </Button>
+                    ) : (
+                      <Button type="submit" variant="ghost" size="sm" icon>
+                        Publish
+                      </Button>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-white/50 mt-2">No projects yet...</p>
+              )}
             </div>
           </div>
         </div>
