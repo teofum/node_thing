@@ -13,7 +13,8 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Select, SelectItem } from "@/ui/select";
-import { HandleDescriptor, useProjectStore } from "@/store/project.store";
+import { HandleDescriptor } from "@/store/project.types";
+import { useProjectStore } from "@/store/project.store";
 import { NodeType } from "@/schemas/node.schema";
 import { useNodeTypes } from "@/utils/use-node-types";
 
