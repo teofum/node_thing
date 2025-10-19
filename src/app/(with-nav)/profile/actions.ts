@@ -92,20 +92,20 @@ export async function resumeSubscriptionAction() {
 }
 
 export async function updatePayoutSettingsAction(formData: FormData) {
-  const mpEmail = formData.get("mp_email") as string;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const mpEmail = formData.get("mp_email") as string;
+  // const supabase = await createClient();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  // if (!user) {
+  //   redirect("/auth/login?next=/profile");
+  // }
 
-  await supabase
-    .from("profiles")
-    .update({ mp_email: mpEmail })
-    .eq("id", user.id);
+  // await supabase
+  //   .from("profiles")
+  //   .update({ mp_email: mpEmail })
+  //   .eq("id", user.id);
 
   redirect("/profile");
 }
@@ -136,7 +136,8 @@ export async function getUserData() {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "username, is_premium, mp_email, pending_balance, cancelled, subscription_id",
+      // "username, is_premium, mp_email, pending_balance, cancelled, subscription_id",
+      "username, is_premium, cancelled, subscription_id",
     )
     .eq("id", user.id)
     .single();
