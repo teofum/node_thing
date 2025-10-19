@@ -91,7 +91,7 @@ export default async function UploadPage({
     <div className="min-h-screen bg-neutral-900 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Publish a shader</h1>
+          <h1 className="text-3xl font-bold text-white">Publish shader</h1>
         </div>
         <div className="glass glass-border rounded-xl p-6">
           <h2 className="text-xl font-semibold text-white mb-4">
@@ -99,13 +99,13 @@ export default async function UploadPage({
           </h2>
           <div className="space-y-6 glass glass-border p-6 rounded-xl ">
             <div className="space-y-1 ">
-              <h1>TODO</h1>
+              <h1>TODO Santi</h1>
             </div>
           </div>
         </div>
 
         <div className="mt-8 mb-8">
-          <h1 className="text-3xl font-bold text-white">Publish a project</h1>
+          <h1 className="text-3xl font-bold text-white">Publish project</h1>
         </div>
         <div className="glass glass-border rounded-xl p-6">
           <h2 className="text-xl font-semibold text-white mb-4">
@@ -113,7 +113,7 @@ export default async function UploadPage({
           </h2>
           <div className="space-y-6 glass glass-border p-6 rounded-xl ">
             <div className="space-y-1 ">
-              <h1>TODO</h1>
+              <h1>TODO Seba</h1>
             </div>
           </div>
         </div>

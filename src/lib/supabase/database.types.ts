@@ -292,7 +292,6 @@ export type Database = {
           published: boolean | null;
           step: number | null;
           title: string;
-          type: string;
           updated_at: string;
           user_id: string;
         };
@@ -308,7 +307,6 @@ export type Database = {
           published?: boolean | null;
           step?: number | null;
           title: string;
-          type?: string;
           updated_at?: string;
           user_id: string;
         };
@@ -324,7 +322,6 @@ export type Database = {
           published?: boolean | null;
           step?: number | null;
           title?: string;
-          type?: string;
           updated_at?: string;
           user_id?: string;
         };
@@ -358,20 +355,39 @@ export type Database = {
         Args: { order_uuid: string; user_uuid: string };
         Returns: boolean;
       };
+      get_published_shaders: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          category: Json;
+          id: string;
+          rating_count: number;
+          title: string;
+        }[];
+      };
+      get_purchased_shaders: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          category: Json;
+          id: string;
+          rating_count: number;
+          title: string;
+        }[];
+      };
       get_shaders_with_avg: {
         Args: { user_uuid: string };
         Returns: {
           average_rating: number;
-          category_id: number;
-          category_name: string;
+          category: Json;
           created_at: string;
           description: string;
           downloads: number;
           id: string;
           price: number;
+          profiles: Json;
           rating_count: number;
           title: string;
-          username: string;
         }[];
       };
       get_user_email_by_username: {
