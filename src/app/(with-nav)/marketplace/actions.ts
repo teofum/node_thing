@@ -25,6 +25,7 @@ export async function uploadShaderAction(formData: FormData) {
   const code = formData.get("code") as string;
   const priceStr = formData.get("price") as string;
   const categoryIdStr = formData.get("category") as string;
+  const type = formData.get("type") as string;
 
   if (!title?.trim()) {
     redirect(
@@ -66,6 +67,7 @@ export async function uploadShaderAction(formData: FormData) {
     price,
     category_id: categoryId,
     node_config: null,
+    type,
   });
 
   if (error) {
@@ -76,7 +78,7 @@ export async function uploadShaderAction(formData: FormData) {
   redirect("/marketplace");
 }
 
-export async function getShaders() {
+export async function getShaders(types: ("shader" | "project")[] = ["shader"]) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -103,6 +105,7 @@ export async function getShaders() {
       price,
       downloads,
       created_at,
+      type,
       category:categories (
         id,
         name
@@ -115,6 +118,12 @@ export async function getShaders() {
     )
     .eq("published", true)
     .order("created_at", { ascending: false });
+
+  if (types.length === 1) {
+    query = query.eq("type", types[0]);
+  } else {
+    query = query.in("type", types);
+  }
 
   if (owned.length) {
     query = query.not("id", "in", `(${owned.join(",")})`);

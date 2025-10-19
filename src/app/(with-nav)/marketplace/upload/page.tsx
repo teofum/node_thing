@@ -91,51 +91,31 @@ export default async function UploadPage({
     <div className="min-h-screen bg-neutral-900 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Create Shader</h1>
+          <h1 className="text-3xl font-bold text-white">Publish a shader</h1>
+        </div>
+        <div className="glass glass-border rounded-xl p-6">
+          <h2 className="text-xl font-semibold text-white mb-4">
+            Your shaders
+          </h2>
+          <div className="space-y-6 glass glass-border p-6 rounded-xl ">
+            <div className="space-y-1 ">
+              <h1>TODO</h1>
+            </div>
+          </div>
         </div>
 
+        <div className="mt-8 mb-8">
+          <h1 className="text-3xl font-bold text-white">Publish a project</h1>
+        </div>
         <div className="glass glass-border rounded-xl p-6">
-          {currentStep === 1 && (
-            <div>
-              <h2 className="text-xl font-semibold text-white mb-4">
-                Define Schema
-              </h2>
-              <SchemaForm
-                draftId={draft!.id}
-                initialInputs={inputs}
-                initialOutputs={outputs}
-                error={params.error}
-              />
+          <h2 className="text-xl font-semibold text-white mb-4">
+            Your projects
+          </h2>
+          <div className="space-y-6 glass glass-border p-6 rounded-xl ">
+            <div className="space-y-1 ">
+              <h1>TODO</h1>
             </div>
-          )}
-
-          {currentStep === 2 && (
-            <div>
-              <h2 className="text-xl font-semibold text-white mb-4">
-                Write Code
-              </h2>
-              <CodeForm
-                draftId={draft!.id}
-                initialCode={draft!.code}
-                inputs={inputs}
-                outputs={outputs}
-              />
-            </div>
-          )}
-
-          {currentStep === 4 && (
-            <div>
-              <h2 className="text-xl font-semibold text-white mb-4">Publish</h2>
-              <PublishForm
-                draftId={draft!.id}
-                initialTitle={draft!.title}
-                initialDescription={draft!.description || ""}
-                initialPrice={draft!.price}
-                initialCategoryId={draft!.category_id}
-                categories={categories!}
-              />
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

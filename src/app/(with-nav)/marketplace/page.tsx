@@ -13,12 +13,20 @@ type Props = {
     search?: string;
     minPrice?: string;
     maxPrice?: string;
+    type?: string | string[];
   }>;
 };
 
 export default async function MarketplacePage({ searchParams }: Props) {
   const params = await searchParams;
-  const shaders = params.error ? [] : await getShaders();
+  const selectedTypes = Array.isArray(params.type)
+    ? params.type
+    : params.type
+      ? [params.type]
+      : ["shader", "project"];
+  const shaders = params.error
+    ? []
+    : await getShaders(selectedTypes as ("shader" | "project")[]);
   const categories = await getCategories();
   const cartItems = await getCartItems();
   const cartIds = new Set(cartItems.map((item) => item.shader_id));
@@ -31,14 +39,14 @@ export default async function MarketplacePage({ searchParams }: Props) {
       : [];
   const searchTerm = params.search;
 
-  let filteredShaders =
-    selectedCategories.length > 0
-      ? shaders.filter(
-          (shader) =>
-            shader.category?.name &&
-            selectedCategories.includes(shader.category.name),
-        )
-      : shaders;
+  let filteredShaders = shaders.filter((shader) => {
+    const matchesType = selectedTypes.includes(shader.type);
+    const matchesCategory =
+      selectedCategories.length === 0 || // si no hay filtro de categoría, pasa todo
+      (shader.category?.name &&
+        selectedCategories.includes(shader.category.name));
+    return matchesType && matchesCategory;
+  });
 
   if (searchTerm) {
     const searchLower = searchTerm.toLowerCase().trim();
@@ -62,9 +70,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">
-              Shader Marketplace
-            </h1>
+            <h1 className="text-3xl font-bold text-white">Marketplace</h1>
             <p className="text-neutral-400 mt-2">
               Discover and share amazing shaders
             </p>
@@ -79,7 +85,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
               <LuShoppingCart />
             </LinkButton>
             <LinkButton href="/marketplace/upload" variant="default" size="lg">
-              Upload Shader
+              Publish
             </LinkButton>
           </div>
         </div>
@@ -124,6 +130,39 @@ export default async function MarketplacePage({ searchParams }: Props) {
             />
           </div>
         </form>
+
+        <div className="mb-6 flex justify-center gap-2 flex-wrap">
+          {["shader", "project"].map((type) => {
+            const isSelected = selectedTypes.includes(type);
+            const newTypes = isSelected
+              ? selectedTypes.length === 1
+                ? [type] // no se puede deseleccionar el único tipo
+                : selectedTypes.filter((t) => t !== type) // quitar este tipo
+              : [...selectedTypes, type]; // agregar este tipo
+
+            const typeParams = new URLSearchParams();
+            if (searchTerm) typeParams.set("search", searchTerm);
+            if (params.minPrice) typeParams.set("minPrice", params.minPrice);
+            if (params.maxPrice) typeParams.set("maxPrice", params.maxPrice);
+            selectedCategories.forEach((cat) =>
+              typeParams.append("category", cat),
+            );
+            newTypes.forEach((t) => typeParams.append("type", t));
+
+            const typeUrl = `/marketplace${typeParams.toString() ? "?" + typeParams.toString() : ""}`;
+
+            return (
+              <LinkButton
+                key={type}
+                href={typeUrl}
+                variant="outline"
+                data-state={isSelected ? "on" : "off"}
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </LinkButton>
+            );
+          })}
+        </div>
 
         <div className="mb-6 flex justify-center gap-2 flex-wrap">
           <LinkButton
