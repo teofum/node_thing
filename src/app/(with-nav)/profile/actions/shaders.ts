@@ -99,6 +99,27 @@ export async function submitShaderReview(
   }
 }
 
+export async function deleteShaderReview(shaderId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  const { error } = await supabase
+    .from("ratings")
+    .delete()
+    .eq("shader_id", shaderId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to delete rating: ${error.message}`);
+  }
+}
+
 export async function getUserRatings() {
   const supabase = await createClient();
   const {

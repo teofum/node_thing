@@ -17,7 +17,7 @@ import gaussianBlurEdgeShader from "@/shaders/gaussian-blur-edge.wgsl";
 import gaussianBlurXShader from "@/shaders/gaussian-blur-x.wgsl";
 import gaussianBlurYShader from "@/shaders/gaussian-blur-y.wgsl";
 import saturationShader from "@/shaders/saturation.wgsl";
-import hueShiftShader from "@/shaders/hue-shift.wgsl";
+import hslShader from "@/shaders/hsl.wgsl";
 import mixShader from "@/shaders/mix.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
 import pixelateShader from "@/shaders/pixelate.wgsl";
@@ -517,21 +517,32 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  hueShift: {
-    name: "Hue Shift",
+  hsl: {
+    name: "HSL",
     category: "Color",
-    shader: hueShiftShader,
+    shader: hslShader,
     inputs: {
       input: {
         name: "Input",
         type: "color",
       },
       angle: {
-        name: "Angle",
+        name: "Hue Shift",
         type: "number",
         min: 0,
         max: 360,
         step: 1,
+      },
+      saturation: {
+        name: "Saturation",
+        type: "number",
+        min: 0,
+      },
+      luminance: {
+        name: "Luminance",
+        type: "number",
+        min: -1,
+        max: 1,
       },
     },
     outputs: {
