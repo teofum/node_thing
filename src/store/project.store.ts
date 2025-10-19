@@ -14,7 +14,6 @@ import { combine, persist } from "zustand/middleware";
 
 import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
-import { NODE_TYPES } from "@/utils/node-type";
 import { createNode } from "@/utils/node";
 import { Project, Layer, NodeTypeDescriptor, Point } from "./project.types";
 import {
@@ -26,23 +25,9 @@ import {
   newLayerId,
   prepareProjectForExport,
   updateNodeType,
+  createInitialState,
+  mergeProject,
 } from "./project.actions";
-
-const initialSize = { width: 1920, height: 1080 };
-
-function createInitialState(): Project {
-  return {
-    layers: [createLayer("Background")],
-    currentLayer: 0,
-    properties: { canvas: initialSize },
-    nodeTypes: {
-      default: NODE_TYPES,
-      custom: {},
-      external: {},
-    },
-    projectName: "Untitled Project",
-  };
-}
 
 export const useProjectStore = create(
   persist(
@@ -307,18 +292,3 @@ export const useProjectStore = create(
     },
   ),
 );
-
-function mergeProject(imported: unknown, current: Project): Project {
-  return {
-    ...current,
-    ...(imported as Project),
-    nodeTypes: {
-      ...current.nodeTypes,
-      custom: (imported as Project).nodeTypes.custom,
-    },
-    properties: {
-      ...current.properties,
-      ...(imported as Project).properties,
-    },
-  };
-}

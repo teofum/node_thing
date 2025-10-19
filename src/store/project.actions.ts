@@ -10,6 +10,7 @@ import {
   HandleDescriptor,
   NodeTypes,
 } from "./project.types";
+import { NODE_TYPES } from "@/utils/node-type";
 
 const initialNodes: ShaderNode[] = [
   {
@@ -21,6 +22,7 @@ const initialNodes: ShaderNode[] = [
   },
 ];
 const initialEdges: Edge[] = [];
+const initialSize = { width: 1920, height: 1080 };
 
 export function prepareProjectForExport(
   project: Project,
@@ -133,7 +135,7 @@ export function updateNodeType(
   };
 }
 
-export function createHandles(desc: HandleDescriptor[]) {
+function createHandles(desc: HandleDescriptor[]) {
   const handles: NodeType["inputs" | "outputs"] = {};
   for (const { name, display, type } of desc) {
     handles[name] = { name: display, type };
@@ -157,4 +159,33 @@ export function createLayer(
 
 export function newLayerId(): string {
   return `layer_${nanoid()}`;
+}
+
+export function createInitialState(): Project {
+  return {
+    layers: [createLayer("Background")],
+    currentLayer: 0,
+    properties: { canvas: initialSize },
+    nodeTypes: {
+      default: NODE_TYPES,
+      custom: {},
+      external: {},
+    },
+    projectName: "Untitled Project",
+  };
+}
+
+export function mergeProject(imported: unknown, current: Project): Project {
+  return {
+    ...current,
+    ...(imported as Project),
+    nodeTypes: {
+      ...current.nodeTypes,
+      custom: (imported as Project).nodeTypes.custom,
+    },
+    properties: {
+      ...current.properties,
+      ...(imported as Project).properties,
+    },
+  };
 }
