@@ -19,7 +19,7 @@ export default function DisplayNameEditor({
 
   return (
     <Dialog trigger={trigger} title="Edit Display Name" description="">
-      <div className="flex flex-col p-4 text-lg h-64">
+      <div className="flex flex-col p-4 text-lg gap-4">
         <h1 className="mb-2">Display Name</h1>
         <Input
           ref={displayNameRef}
@@ -29,7 +29,7 @@ export default function DisplayNameEditor({
           defaultValue={currentDisplayName}
           placeholder="Your display name"
         />
-        <div className="mt-auto flex justify-end gap-2">
+        <div className="flex justify-end gap-2">
           <Button
             onClick={() => {
               if (displayNameRef.current) {

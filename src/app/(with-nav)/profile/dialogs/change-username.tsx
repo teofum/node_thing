@@ -23,7 +23,7 @@ export default function AccountEditor({
 
   return (
     <Dialog trigger={trigger} title={title} description="">
-      <div className="flex flex-col p-4 text-lg h-64">
+      <div className="flex flex-col p-4 text-lg gap-4">
         <h1 className="mb-2">Username</h1>
         <Input
           ref={usernameRef}
@@ -33,7 +33,7 @@ export default function AccountEditor({
           defaultValue={userData.username}
         />
         {error && <p className="text-sm text-red-400 mt-1">{error}</p>}
-        <div className="mt-auto flex justify-end gap-2">
+        <div className="flex justify-end gap-2">
           <Button
             onClick={async () => {
               if (usernameRef.current) {
