@@ -39,7 +39,7 @@ export async function AuthButton() {
         side="bottom"
         align="end"
         sideOffset={4}
-        className="min-w-56 flex flex-col"
+        className="min-w-56 flex flex-col p-3"
       >
         <span className="text-lg font-bold mb-3 text-center">
           Hey, {displayName}!
