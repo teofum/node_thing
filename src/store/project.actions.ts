@@ -36,14 +36,12 @@ export function prepareProjectForExport(project: Project): StoredProject {
 }
 
 function getNodeTypeDependencies(project: Project): NodeTypeDependency[] {
-  console.log(project);
   const projectNodeTypes = new Set(
     project.layers
       .flatMap((layer) => layer.nodes.map((node) => node.data.type))
       .filter((type) => Object.hasOwn(project.nodeTypes.external, type))
       .map((type) => [type, project.nodeTypes.external[type]] as const),
   );
-  console.log(projectNodeTypes);
 
   return [...projectNodeTypes].map(([id, type]) => ({
     id,
