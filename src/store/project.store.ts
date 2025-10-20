@@ -16,6 +16,7 @@ import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 import { createNode } from "@/utils/node";
+import { saveNewShader, updateShader, deleteShader } from "./actions";
 
 export type Layer = {
   nodes: ShaderNode[];
@@ -251,32 +252,56 @@ export const useProjectStore = create(
             }),
         );
 
+        // TODO: Fetch custom shaders
+
         set(({ nodeTypes }) => ({
           nodeTypes: { ...nodeTypes, ...purchasedNodeTypes },
         }));
       },
 
-      createNodeType: (desc: NodeTypeDescriptor) => {
-        set(updateNodeType(`custom_${nanoid()}`, desc));
+      createNodeType: async (desc: NodeTypeDescriptor) => {
+        const data = await saveNewShader(desc);
+        const key = `custom_${nanoid()}`;
+        const remoteId = data.id;
+        set(updateNodeType(key, desc));
+        set(({ nodeTypes }) => ({
+          nodeTypes: {
+            ...nodeTypes,
+            [key]: { ...nodeTypes[key], remoteId: remoteId },
+          },
+        }));
       },
 
-      updateNodeType: (id: string, desc: NodeTypeDescriptor) => {
+      updateNodeType: async (id: string, desc: NodeTypeDescriptor) => {
+        const { nodeTypes } = get();
+        const remoteId = nodeTypes[id].remoteId;
+        if (remoteId) await updateShader(desc, remoteId);
         set(updateNodeType(id, desc));
+        set(({ nodeTypes }) => ({
+          nodeTypes: {
+            ...nodeTypes,
+            [id]: { ...nodeTypes[id], remoteId: remoteId },
+          },
+        }));
       },
 
-      deleteNodeType: (name: string) => {
+      deleteNodeType: async (id: string) => {
+        const { nodeTypes } = get();
+        const remoteId = nodeTypes[id].remoteId;
+        if (remoteId) await deleteShader(remoteId);
+
         set(({ nodeTypes, layers }) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { [name]: _, ...rest } = nodeTypes;
+          const { [id]: _, ...rest } = nodeTypes;
           return {
             nodeTypes: rest,
             layers: layers.map((layer) => ({
               ...layer,
-              nodes: layer.nodes.filter((n) => n.data.type !== name),
+              nodes: layer.nodes.filter((n) => n.data.type !== id),
               edges: layer.edges.filter((e) => {
                 const source = layer.nodes.find((n) => n.id === e.source);
                 const target = layer.nodes.find((n) => n.id === e.target);
-                return source?.data.type !== name && target?.data.type !== name;
+                return source?.data.type !== id && target?.data.type !== id;
               }),
             })),
           };

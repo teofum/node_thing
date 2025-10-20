@@ -15,7 +15,6 @@ import { Input } from "@/ui/input";
 import { Select, SelectItem } from "@/ui/select";
 import { HandleDescriptor, useProjectStore } from "@/store/project.store";
 import { NodeType } from "@/schemas/node.schema";
-import { saveShader, updateShader } from "./actions";
 
 type ShaderEditorProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
@@ -160,7 +159,7 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
     ]);
   };
 
-  const save = () => {
+  const save = async () => {
     if (!nameRef.current || !codeRef.current) return;
 
     const desc = {
@@ -200,7 +199,10 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
             ref={nameRef}
             variant="outline"
             className="w-full"
-            defaultValue={editNodeType?.name ?? "New Shader"}
+            defaultValue={
+              editNodeType?.name ??
+              "New Shader" /*TODO: meter restriccion de longitud de la DB*/
+            }
           />
           <textarea
             ref={codeRef}

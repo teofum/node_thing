@@ -60,6 +60,7 @@ export const nodeTypeSchema = z.object({
     .optional(),
 
   isPurchased: z.boolean().optional(),
+  remoteId: z.string().optional(),
 });
 
 export type NodeType = z.infer<typeof nodeTypeSchema>;
