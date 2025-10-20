@@ -172,7 +172,6 @@ export const NODE_TYPES = {
         name: "size",
         type: "number",
         min: 2,
-        max: 50,
         step: 1,
       },
       t: {

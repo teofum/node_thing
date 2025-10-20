@@ -19,19 +19,17 @@ fn main( @builtin(global_invocation_id) id: vec3u,) {
 
     let root: vec2f = vec2f( f32((id.x/usize)*usize) , f32((id.y/usize)*usize) );
     let kernel00 = root;
-    let kernel10 = root + vec2f(size ,    0);
-    let kernel01 = root + vec2f(   0 , size);
+    let kernel10 = root + vec2f(size ,  0.0);
+    let kernel01 = root + vec2f(  0.0, size);
     let kernel11 = root + vec2f(size , size);
     
-    //let a: f32 = rand(root + seed) + t;
-    let a00: f32 = rand(kernel00) + t;
-    let a10: f32 = rand(kernel10) + t;
-    let a01: f32 = rand(kernel01) + t;
-    let a11: f32 = rand(kernel11) + t;
+    let a00: f32 = rand(kernel00 + seed) + t;
+    let a10: f32 = rand(kernel10 + seed) + t;
+    let a01: f32 = rand(kernel01 + seed) + t;
+    let a11: f32 = rand(kernel11 + seed) + t;
 
     let kernelPos = vec2f(id.xy) - root;
 
-    // ---- ADDED: Perlin finalize ----
     // Local coords in cell [0, size) -> [0,1)
     let uv   = kernelPos / size;
     let u    = uv.x * uv.x * uv.x * (uv.x * (uv.x * 6.0 - 15.0) + 10.0);
@@ -39,27 +37,27 @@ fn main( @builtin(global_invocation_id) id: vec3u,) {
 
     // Turn corner scalars into gradient directions via angle = pi2 * a
     let pi2  = 6.28318530718;
-    let g00  = vec2f(cos(a00 * pi2), sin(a00 * pi2));
-    let g10  = vec2f(cos(a10 * pi2), sin(a10 * pi2));
-    let g01  = vec2f(cos(a01 * pi2), sin(a01 * pi2));
-    let g11  = vec2f(cos(a11 * pi2), sin(a11 * pi2));
+    let avec00  = vec2f(cos(a00 * pi2), sin(a00 * pi2));
+    let avec10  = vec2f(cos(a10 * pi2), sin(a10 * pi2));
+    let avec01  = vec2f(cos(a01 * pi2), sin(a01 * pi2));
+    let avec11  = vec2f(cos(a11 * pi2), sin(a11 * pi2));
 
     // Offset vectors from each corner to sample point
-    let d00  = kernelPos - vec2f(0.0,   0.0);
-    let d10  = kernelPos - vec2f(size,  0.0);
-    let d01  = kernelPos - vec2f(0.0,   size);
-    let d11  = kernelPos - vec2f(size,  size);
+    let offset00  = kernelPos - vec2f(0.0,   0.0);
+    let offset10  = kernelPos - vec2f(size,  0.0);
+    let offset01  = kernelPos - vec2f(0.0,   size);
+    let offset11  = kernelPos - vec2f(size,  size);
 
-    // Corner contributions (dot of gradient with offset)
-    let n00  = dot(g00, d00 / size);
-    let n10  = dot(g10, d10 / size);
-    let n01  = dot(g01, d01 / size);
-    let n11  = dot(g11, d11 / size);
+    // Corner contributions (dot of avec and setient with offset)
+    let n00  = dot(avec00, offset00 / size);
+    let n10  = dot(avec10, offset10 / size);
+    let n01  = dot(avec01, offset01 / size);
+    let n11  = dot(avec11, offset11 / size);
 
     // Bilinear interpolation with Perlin fade
-    let nx0  = mix(n00, n10, u);
-    let nx1  = mix(n01, n11, u);
-    let n    = mix(nx0, nx1, v);
+    let lerp0  = mix(n00, n10, u);
+    let lerp1  = mix(n01, n11, u);
+    let n    = mix(lerp0, lerp1, v);
 
     // Remap roughly from [-1,1] -> [0,1] and clamp
     let val  = clamp(n * 0.5 + 0.5, 0.0, 1.0);
