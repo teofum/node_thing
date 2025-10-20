@@ -39,13 +39,15 @@ export async function updateShader(node: NodeType) {
     redirect("/auth/login");
   }
 
+  /*
+  TODO: de alguna forma conseguir el shader ID del que estaba editando
+
   const { error } = await supabase.from("shaders").update({
-    title: node.name.trim(),
-    code: node.shader.trim(),
-    node_config: node,
+    
   });
 
   if (error) {
     throw new Error(`Failed to save shader: ${error.message}`);
   }
+  */
 }
