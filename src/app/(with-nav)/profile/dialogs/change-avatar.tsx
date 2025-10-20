@@ -6,7 +6,6 @@ import { Button } from "@/ui/button";
 import { uploadAvatar, removeAvatar } from "../actions/settings";
 import Image from "next/image";
 import Cropper, { type Area } from "react-easy-crop";
-import { useRouter } from "next/navigation";
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
@@ -33,7 +32,6 @@ export default function AvatarEditor({
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [success, setSuccess] = useState(false);
-  const router = useRouter();
 
   const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
     setCroppedAreaPixels(croppedPixels);
@@ -116,8 +114,7 @@ export default function AvatarEditor({
                     await removeAvatar();
                     setIsPending(false);
                     setSuccess(true);
-                    router.refresh();
-                    setTimeout(() => setSuccess(false), 2000);
+                    window.location.reload();
                   } catch (err) {
                     setError(
                       err instanceof Error
@@ -189,8 +186,7 @@ export default function AvatarEditor({
                   await uploadAvatar(formData);
                   setIsPending(false);
                   setSuccess(true);
-                  router.refresh();
-                  setTimeout(() => setSuccess(false), 2000);
+                  window.location.reload();
                 } catch (err) {
                   setError(
                     err instanceof Error
