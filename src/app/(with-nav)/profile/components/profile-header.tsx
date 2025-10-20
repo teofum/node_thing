@@ -23,7 +23,10 @@ export default function ProfileHeader({
         <AvatarEditor
           currentAvatarUrl={user.user_metadata.avatar_url}
           trigger={
-            <div className="relative w-[80px] h-[80px] rounded-full overflow-hidden cursor-pointer group">
+            <button
+              type="button"
+              className="relative w-20 h-20 rounded-full overflow-hidden group"
+            >
               <Image
                 src={user.user_metadata.avatar_url}
                 alt=""
@@ -35,7 +38,7 @@ export default function ProfileHeader({
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <LuPencil className="text-white text-base" />
               </div>
-            </div>
+            </button>
           }
         />
         <div>
