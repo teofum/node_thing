@@ -169,7 +169,11 @@ export async function getUserProjects() {
   return projects;
 }
 
-export async function publishProject(projectID: string, price: number) {
+export async function publishProject(
+  projectID: string,
+  price: number,
+  description: string,
+) {
   const supabase = await createClient();
 
   const {
@@ -185,6 +189,7 @@ export async function publishProject(projectID: string, price: number) {
     .update({
       published: true,
       price: price,
+      description: description,
     })
     .eq("id", projectID);
 }
