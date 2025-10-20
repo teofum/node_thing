@@ -181,7 +181,7 @@ export const useProjectStore = create(
                 shader.id,
                 {
                   ...config,
-                  isPurchased: true,
+                  externalShaderId: shader.id,
                 },
               ];
             }),

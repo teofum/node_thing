@@ -42,7 +42,7 @@ export function RenderShaderNode(
       >
         <div className="flex items-center gap-1">
           {nodeTypeInfo.name}
-          {nodeTypeInfo.isPurchased ? (
+          {nodeTypeInfo.externalShaderId ? (
             <LuStar className="w-3 h-3 opacity-70" />
           ) : null}
           <NodeMenu {...props} />
