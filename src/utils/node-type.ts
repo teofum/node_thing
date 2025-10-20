@@ -34,6 +34,7 @@ import uvShader from "@/shaders/uv.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
 import LGGShader from "@/shaders/LGG.wgsl";
 import perlinNoiseShader from "@/shaders/perlin-noise.wgsl";
+import voronoiNoiseShader from "@/shaders/voronoi-noise.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -191,6 +192,35 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  voronoi_noise: {
+    name: "Voronoi noise",
+    category: "Generate",
+    shader: voronoiNoiseShader,
+    inputs: {
+      size: {
+        name: "size",
+        type: "number",
+        min: 2,
+        step: 1,
+      },
+      t: {
+        name: "t",
+        type: "number",
+      },
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Noise",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+
   // Math category ///////////////////////////////
   constant: {
     name: "Constant",
