@@ -410,6 +410,10 @@ export type Database = {
         Args: { shader_id: string };
         Returns: undefined;
       };
+      replicate_project: {
+        Args: { new_user_id: string; original_key: string };
+        Returns: string;
+      };
       verify_user_password: {
         Args: { password: string };
         Returns: boolean;

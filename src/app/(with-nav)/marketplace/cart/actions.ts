@@ -150,3 +150,66 @@ export async function clearCart() {
 
   revalidatePath("/marketplace/cart");
 }
+
+// TODO should generalize code with addToCart (the shader one)
+// TODO should edit DB to standardize purchases (shader_id -> item_id, and add item_type (values: shader, project, group) column)
+export async function addToCartProject(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/marketplace");
+  }
+
+  // TODO hardcoded, adding to cart directly purchases the project
+
+  const projectId = formData.get("projectId") as string;
+
+  const { data: project, error: projectError } = await supabase
+    .from("projects")
+    .select("user_project, name")
+    .eq("id", projectId)
+    .single();
+
+  if (projectError || !project) {
+    throw new Error("Original project not found");
+  }
+
+  const { data: purchasedBlob, error: downloadError } = await supabase.storage
+    .from("user_projects")
+    .download(project.user_project);
+
+  if (downloadError || !purchasedBlob) {
+    throw new Error(
+      `Failed to download purchased project: ${downloadError?.message || downloadError}`,
+    );
+  }
+
+  const newFileName = `${user.id}_${Date.now()}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("user_projects")
+    .upload(newFileName, purchasedBlob, {
+      contentType: "application/zip",
+      upsert: true,
+    });
+
+  if (uploadError) {
+    throw new Error(
+      `Failed to upload purchased project: ${uploadError.message}`,
+    );
+  }
+
+  const { error: insertError } = await supabase.from("projects").insert({
+    user_id: user.id,
+    name: project.name,
+    updated_at: new Date().toISOString(),
+    user_project: newFileName,
+  });
+
+  if (insertError) {
+    throw new Error(`Failed to save purchased project: ${insertError.message}`);
+  }
+}
