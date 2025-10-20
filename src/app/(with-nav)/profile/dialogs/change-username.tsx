@@ -6,6 +6,7 @@ import { ReactNode, useRef, useState } from "react";
 import { UserData } from "../page";
 import { Button } from "@/ui/button";
 import { setUsername, checkUsernameAvailable } from "../actions/settings";
+import { useRouter } from "next/navigation";
 
 type AccountEditorProps = {
   trigger: ReactNode;
@@ -21,6 +22,8 @@ export default function AccountEditor({
   const usernameRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   return (
     <Dialog trigger={trigger} title={title} description="">
@@ -55,12 +58,15 @@ export default function AccountEditor({
                 }
 
                 await setUsername(username);
-                window.location.reload();
+                setIsPending(false);
+                setSuccess(true);
+                router.refresh();
+                setTimeout(() => setSuccess(false), 2000);
               }
             }}
-            disabled={isPending}
+            disabled={isPending || success}
           >
-            {isPending ? "Saving..." : "Apply"}
+            {isPending ? "Saving..." : success ? "✓ Saved!" : "Apply"}
           </Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>

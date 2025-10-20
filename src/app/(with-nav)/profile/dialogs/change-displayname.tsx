@@ -5,6 +5,7 @@ import { Input } from "@/ui/input";
 import { ReactNode, useRef, useState } from "react";
 import { Button } from "@/ui/button";
 import { setDisplayName } from "../actions/settings";
+import { useRouter } from "next/navigation";
 
 type DisplayNameEditorProps = {
   trigger: ReactNode;
@@ -17,7 +18,9 @@ export default function DisplayNameEditor({
 }: DisplayNameEditorProps) {
   const displayNameRef = useRef<HTMLInputElement>(null);
   const [isPending, setIsPending] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   return (
     <Dialog trigger={trigger} title="Edit Display Name" description="">
@@ -47,7 +50,10 @@ export default function DisplayNameEditor({
                 setIsPending(true);
                 try {
                   await setDisplayName(displayName);
-                  window.location.reload();
+                  setIsPending(false);
+                  setSuccess(true);
+                  router.refresh();
+                  setTimeout(() => setSuccess(false), 2000);
                 } catch (err) {
                   setError(
                     err instanceof Error
@@ -58,9 +64,9 @@ export default function DisplayNameEditor({
                 }
               }
             }}
-            disabled={isPending}
+            disabled={isPending || success}
           >
-            {isPending ? "Saving..." : "Apply"}
+            {isPending ? "Saving..." : success ? "✓ Saved!" : "Apply"}
           </Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>

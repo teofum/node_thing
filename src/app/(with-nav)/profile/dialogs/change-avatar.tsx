@@ -6,6 +6,7 @@ import { Button } from "@/ui/button";
 import { uploadAvatar, removeAvatar } from "../actions/settings";
 import Image from "next/image";
 import Cropper, { type Area } from "react-easy-crop";
+import { useRouter } from "next/navigation";
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
@@ -30,6 +31,9 @@ export default function AvatarEditor({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
     setCroppedAreaPixels(croppedPixels);
@@ -107,19 +111,25 @@ export default function AvatarEditor({
               <Button
                 variant="outline"
                 onClick={async () => {
+                  setIsPending(true);
                   try {
                     await removeAvatar();
-                    window.location.reload();
+                    setIsPending(false);
+                    setSuccess(true);
+                    router.refresh();
+                    setTimeout(() => setSuccess(false), 2000);
                   } catch (err) {
                     setError(
                       err instanceof Error
                         ? err.message
                         : "Failed to remove avatar",
                     );
+                    setIsPending(false);
                   }
                 }}
+                disabled={isPending || success}
               >
-                Remove
+                {isPending ? "Removing..." : success ? "✓ Removed!" : "Remove"}
               </Button>
               <Button onClick={() => fileInputRef.current?.click()}>
                 Choose Image
@@ -171,22 +181,28 @@ export default function AvatarEditor({
             </Button>
             <Button
               onClick={async () => {
+                setIsPending(true);
                 try {
                   const croppedBlob = await createCroppedImage();
                   const formData = new FormData();
                   formData.append("avatar", croppedBlob, "avatar.jpg");
                   await uploadAvatar(formData);
-                  window.location.reload();
+                  setIsPending(false);
+                  setSuccess(true);
+                  router.refresh();
+                  setTimeout(() => setSuccess(false), 2000);
                 } catch (err) {
                   setError(
                     err instanceof Error
                       ? err.message
                       : "Failed to upload avatar",
                   );
+                  setIsPending(false);
                 }
               }}
+              disabled={isPending || success}
             >
-              Save
+              {isPending ? "Saving..." : success ? "✓ Saved!" : "Save"}
             </Button>
           </div>
         )}
