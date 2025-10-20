@@ -177,6 +177,7 @@ export async function addToCartProject(formData: FormData) {
     throw new Error("Original project not found");
   }
 
+  // note: do not use RPC, bc blob is bytecode it gets corrupted when doing it server side
   const { data: purchasedBlob, error: downloadError } = await supabase.storage
     .from("user_projects")
     .download(project.user_project);
