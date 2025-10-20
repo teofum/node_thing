@@ -26,6 +26,66 @@ interface Project {
   profiles?: { username?: string };
 }
 
+function mixSortedLists(
+  sortedShaders: Shader[],
+  sortedProjects: Project[],
+  sortBy: string,
+  ascending: boolean,
+) {
+  const mixed: (Shader | Project)[] = [];
+
+  const comparable = ["price", "reviews", "date", "downloads"];
+
+  if (!comparable.includes(sortBy)) {
+    return [...sortedShaders, ...sortedProjects];
+  }
+
+  let i = 0,
+    j = 0;
+  while (i < sortedShaders.length && j < sortedProjects.length) {
+    const s = sortedShaders[i];
+    const p = sortedProjects[j];
+
+    let sValue: number, pValue: number;
+
+    switch (sortBy) {
+      case "price":
+        sValue = s.price ?? 0;
+        pValue = p.price ?? 0;
+        break;
+      case "reviews":
+        sValue = s.averageRating ?? 0;
+        pValue = 0;
+        break;
+      case "date":
+        sValue = new Date(s.createdAt).getTime();
+        pValue = new Date(p.createdAt ?? "").getTime();
+        break;
+      case "downloads":
+        sValue = s.downloads ?? 0;
+        pValue = 0;
+        break;
+      default:
+        sValue = 0;
+        pValue = 0;
+    }
+
+    const compare = sValue - pValue;
+    if ((ascending && compare <= 0) || (!ascending && compare >= 0)) {
+      mixed.push(s);
+      i++;
+    } else {
+      mixed.push(p);
+      j++;
+    }
+  }
+
+  while (i < sortedShaders.length) mixed.push(sortedShaders[i++]);
+  while (j < sortedProjects.length) mixed.push(sortedProjects[j++]);
+
+  return mixed;
+}
+
 export function ShaderListClient({
   shaders,
   cartIds,
@@ -64,9 +124,8 @@ export function ShaderListClient({
     return sorted;
   }, [shaders, sortBy, ascending]);
 
-  // TODO
   const sortedProjects = useMemo(() => {
-    return projects.map((p) => ({
+    const mapped = projects.map((p) => ({
       ...p,
       name: p.name ?? "Untitled Project",
       description: p.description ?? "",
@@ -74,7 +133,33 @@ export function ShaderListClient({
       createdAt: p.createdAt ?? new Date().toISOString(),
       profiles: { username: p.profiles?.username ?? "" },
     }));
-  }, [projects]);
+
+    mapped.sort((a, b) => {
+      let valA, valB;
+
+      switch (sortBy) {
+        case "price":
+          valA = a.price ?? 0;
+          valB = b.price ?? 0;
+          break;
+        case "date":
+          valA = new Date(a.createdAt!).getTime();
+          valB = new Date(b.createdAt!).getTime();
+          break;
+        default:
+          valA = 0;
+          valB = 0;
+      }
+
+      return ascending ? valA - valB : valB - valA;
+    });
+
+    return mapped;
+  }, [projects, sortBy, ascending]);
+
+  const finalList = useMemo((): (Shader | Project)[] => {
+    return mixSortedLists(sortedShaders, sortedProjects, sortBy, ascending);
+  }, [sortedShaders, sortedProjects, sortBy, ascending]);
 
   return (
     <>
@@ -85,33 +170,34 @@ export function ShaderListClient({
         }}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedShaders.map((shader) => (
-          <ShaderCard
-            key={shader.id}
-            id={shader.id}
-            title={shader.title}
-            price={shader.price}
-            downloads={shader.downloads}
-            inCart={cartIds.has(shader.id)}
-            username={shader.profiles?.username}
-            category={shader.category.name}
-            createdAt={shader.createdAt}
-            averageRating={shader.averageRating}
-            ratingCount={shader.ratingCount}
-          />
-        ))}
-        {sortedProjects.map((project) => (
-          <ProjectCard
-            key={project.id}
-            id={project.id}
-            name={project.name}
-            description={project.description}
-            price={project.price}
-            inCart={cartIds.has(project.id)}
-            username={project.profiles?.username}
-            createdAt={project.createdAt}
-          />
-        ))}
+        {finalList.map((item) =>
+          "title" in item ? (
+            <ShaderCard
+              key={item.id}
+              id={item.id}
+              title={item.title}
+              price={item.price}
+              downloads={item.downloads}
+              inCart={cartIds.has(item.id)}
+              username={item.profiles?.username}
+              category={item.category.name}
+              createdAt={item.createdAt}
+              averageRating={item.averageRating}
+              ratingCount={item.ratingCount}
+            />
+          ) : (
+            <ProjectCard
+              key={item.id}
+              id={item.id}
+              name={item.name ?? "Untilted project"}
+              description={item.description ?? ""}
+              price={item.price ?? 0}
+              inCart={cartIds.has(item.id)}
+              username={item.profiles?.username}
+              createdAt={item.createdAt ?? new Date().toISOString()}
+            />
+          ),
+        )}
       </div>
     </>
   );
