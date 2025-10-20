@@ -81,9 +81,11 @@ AccountInfoTab.displayName = "AccountInfoTab";
 type UserShaderDisplay = {
   id: string;
   title: string;
+  averageRating: number | null;
   category: {
     name: string;
   };
+  ratingCount?: number | null;
 };
 
 export type UserRatingsDisplay = {
@@ -113,11 +115,11 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            averageRating={null}
+            averageRating={shader.averageRating}
             userRating={
               ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={0}
+            ratingCount={shader?.ratingCount ?? 0}
             trigger={<Button variant="outline">test</Button>}
           />
         ))
@@ -135,11 +137,11 @@ const UserShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            averageRating={null}
+            averageRating={shader.averageRating}
             userRating={
               ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={0}
+            ratingCount={shader?.ratingCount ?? 0}
             trigger={null}
           />
         ))
