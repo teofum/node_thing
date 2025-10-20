@@ -39,6 +39,9 @@ export default function ProjectCard({
           <p className="text-sm text-white/60 mb-2">
             by <span className="font-bold">{username}</span>
           </p>
+          <p className="inline-block text-sm text-teal-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
+            Project
+          </p>
         </>
       )}
 
