@@ -16,7 +16,10 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(
       <P.Portal>
         <P.Content
           ref={forwardedRef}
-          className={cn("glass glass-border rounded-xl p-3 z-100", className)}
+          className={cn(
+            "glass glass-border rounded-xl z-100 outline-none",
+            className,
+          )}
           {...props}
         >
           {children}
