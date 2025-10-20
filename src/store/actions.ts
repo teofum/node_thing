@@ -94,3 +94,25 @@ export async function deleteShader(id: string) {
     throw new Error(`Failed to save shader: ${error.message}`);
   }
 }
+
+export async function getCustomShaders() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const { data, error } = await supabase
+    .from("shaders")
+    .select("*")
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to load published shaders: ${error.message}`);
+  }
+
+  return data ?? [];
+}

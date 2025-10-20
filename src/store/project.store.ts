@@ -16,7 +16,12 @@ import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { NODE_TYPES } from "@/utils/node-type";
 import { createNode } from "@/utils/node";
-import { saveNewShader, updateShader, deleteShader } from "./actions";
+import {
+  saveNewShader,
+  updateShader,
+  deleteShader,
+  getCustomShaders,
+} from "./actions";
 
 export type Layer = {
   nodes: ShaderNode[];
@@ -252,10 +257,30 @@ export const useProjectStore = create(
             }),
         );
 
-        // TODO: Fetch custom shaders
+        const custom = await getCustomShaders();
+        const customNodeTypes = Object.fromEntries(
+          custom
+            .filter((shader) => shader.node_config)
+            .map((shader) => {
+              const config = shader.node_config as NodeType;
+              return [
+                `custom_${nanoid()}`,
+                {
+                  ...config,
+                  shader: config.shader,
+                  remoteId: shader.id,
+                  category: "Custom",
+                },
+              ];
+            }),
+        );
 
         set(({ nodeTypes }) => ({
-          nodeTypes: { ...nodeTypes, ...purchasedNodeTypes },
+          nodeTypes: {
+            ...nodeTypes,
+            ...purchasedNodeTypes,
+            ...customNodeTypes,
+          },
         }));
       },
 
