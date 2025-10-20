@@ -66,7 +66,7 @@ export default function AccountEditor({
             }}
             disabled={isPending || success}
           >
-            {isPending ? "Saving..." : success ? "✓ Saved!" : "Apply"}
+            {isPending ? "Saving..." : success ? "Saved!" : "Apply"}
           </Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>

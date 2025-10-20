@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogClose } from "@/ui/dialog";
+import { Dialog } from "@/ui/dialog";
 import { ReactNode, useCallback, useRef, useState } from "react";
 import { Button } from "@/ui/button";
 import { uploadAvatar, removeAvatar } from "../actions/settings";
@@ -202,7 +202,7 @@ export default function AvatarEditor({
               }}
               disabled={isPending || success}
             >
-              {isPending ? "Saving..." : success ? "✓ Saved!" : "Save"}
+              {isPending ? "Saving..." : success ? "Saved!" : "Save"}
             </Button>
           </div>
         )}
