@@ -67,7 +67,24 @@ export default async function MarketplacePage({ searchParams }: Props) {
   );
 
   // TODO filter projects
-  const filteredProjects = projects;
+  let filteredProjects = projects;
+  if (searchTerm) {
+    const searchLower = searchTerm.toLowerCase().trim();
+    filteredProjects = filteredProjects.filter(
+      (project) =>
+        (project.name && project.name.toLowerCase().includes(searchLower)) ||
+        (project.description &&
+          project.description.toLowerCase().includes(searchLower)),
+    );
+  }
+
+  filteredProjects = filteredProjects.filter(
+    (project) =>
+      project.price && project.price >= minPrice && project.price <= maxPrice,
+  );
+
+  if (!selectedTypes.includes("shader")) filteredShaders = [];
+  if (!selectedTypes.includes("project")) filteredProjects = [];
 
   return (
     <div className="p-6">
@@ -218,16 +235,16 @@ export default async function MarketplacePage({ searchParams }: Props) {
           <div className="bg-red-900/20 border border-red-700 text-red-400 px-4 py-3 rounded mb-6">
             {decodeURIComponent(params.error)}
           </div>
-        ) : filteredShaders.length === 0 ? (
+        ) : filteredShaders.length === 0 && filteredProjects.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-neutral-400">
               {searchTerm && selectedCategories.length > 0
-                ? `No shaders found for "${searchTerm}" in ${selectedCategories.join(", ")} categories` // both filters active
+                ? `No results found for "${searchTerm}" in ${selectedCategories.join(", ")} categories` // both filters active
                 : searchTerm
-                  ? `No shaders found for "${searchTerm}"` // only search active
+                  ? `No results found for "${searchTerm}"` // only search active
                   : selectedCategories.length > 0
-                    ? `No shaders found in ${selectedCategories.join(", ")} categories` // only category active
-                    : "No shaders yet. Be the first to upload one!"}
+                    ? `No results found in ${selectedCategories.join(", ")} categories` // only category active
+                    : "No shaders or projects yet. Be the first to upload one!"}
             </p>
           </div>
         ) : (
