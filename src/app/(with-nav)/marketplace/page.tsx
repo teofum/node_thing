@@ -2,7 +2,7 @@ import { LuSearch, LuShoppingCart } from "react-icons/lu";
 
 import { Button, LinkButton } from "@/ui/button";
 import { RangeSliderInput } from "@/ui/range-slider";
-import { getCategories, getShaders, getTypes } from "./actions";
+import { getCategories, getProjects, getShaders, getTypes } from "./actions";
 import { getCartItems } from "./cart/actions";
 import { ShaderListClient } from "./components/shaders-sort";
 
@@ -20,6 +20,7 @@ type Props = {
 export default async function MarketplacePage({ searchParams }: Props) {
   const params = await searchParams;
   const shaders = params.error ? [] : await getShaders();
+  const projects = await getProjects();
   const categories = await getCategories();
   const cartItems = await getCartItems();
   const types = await getTypes();
@@ -64,6 +65,9 @@ export default async function MarketplacePage({ searchParams }: Props) {
   filteredShaders = filteredShaders.filter(
     (shader) => shader.price >= minPrice && shader.price <= maxPrice,
   );
+
+  // TODO filter projects
+  const filteredProjects = projects;
 
   return (
     <div className="p-6">
@@ -227,7 +231,11 @@ export default async function MarketplacePage({ searchParams }: Props) {
             </p>
           </div>
         ) : (
-          <ShaderListClient shaders={filteredShaders} cartIds={cartIds} />
+          <ShaderListClient
+            shaders={filteredShaders}
+            projects={filteredProjects}
+            cartIds={cartIds}
+          />
         )}
       </div>
     </div>

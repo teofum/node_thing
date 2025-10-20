@@ -219,3 +219,51 @@ export async function getPurchasedShaders() {
 
   return purchases?.map((p) => p.shader).filter(Boolean) || [];
 }
+
+export async function getProjects() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/marketplace");
+  }
+
+  const { data: purchases } = await supabase
+    .from("purchases")
+    .select("shader_id") // TODO reutilizing shader_id for projects too
+    .eq("user_id", user.id);
+
+  const owned = purchases?.map((p) => p.shader_id) || [];
+
+  let query = supabase
+    .from("projects")
+    .select(
+      `
+      id,
+      name,
+      description,
+      price,
+      created_at,
+      profiles!projects_user_id_fkey (
+        username
+      )
+    `,
+    )
+    .eq("published", true)
+    .order("created_at", { ascending: false });
+
+  // TODO filter purchased projects
+  if (owned.length) {
+    query = query.not("id", "in", `(${owned.join(",")})`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(`Failed to load shaders: ${error.message}`);
+  }
+
+  return camelcaseKeys(data);
+}

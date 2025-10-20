@@ -64,7 +64,6 @@ export type Database = {
           id: string;
           order_id: string;
           price: number;
-          seller_amount: number | null;
           shader_id: string;
         };
         Insert: {
@@ -72,7 +71,6 @@ export type Database = {
           id?: string;
           order_id: string;
           price: number;
-          seller_amount?: number | null;
           shader_id: string;
         };
         Update: {
@@ -80,7 +78,6 @@ export type Database = {
           id?: string;
           order_id?: string;
           price?: number;
-          seller_amount?: number | null;
           shader_id?: string;
         };
         Relationships: [
@@ -129,7 +126,9 @@ export type Database = {
       };
       profiles: {
         Row: {
+          avatar_url: string | null;
           cancelled: boolean | null;
+          display_name: string | null;
           id: string;
           is_premium: boolean | null;
           mp_access_token: string | null;
@@ -139,7 +138,9 @@ export type Database = {
           username: string;
         };
         Insert: {
+          avatar_url?: string | null;
           cancelled?: boolean | null;
+          display_name?: string | null;
           id: string;
           is_premium?: boolean | null;
           mp_access_token?: string | null;
@@ -149,7 +150,9 @@ export type Database = {
           username: string;
         };
         Update: {
+          avatar_url?: string | null;
           cancelled?: boolean | null;
+          display_name?: string | null;
           id?: string;
           is_premium?: boolean | null;
           mp_access_token?: string | null;
@@ -163,8 +166,10 @@ export type Database = {
       projects: {
         Row: {
           created_at: string | null;
+          description: string | null;
           id: string;
           name: string | null;
+          price: number | null;
           published: boolean | null;
           updated_at: string | null;
           user_id: string;
@@ -172,8 +177,10 @@ export type Database = {
         };
         Insert: {
           created_at?: string | null;
+          description?: string | null;
           id?: string;
           name?: string | null;
+          price?: number | null;
           published?: boolean | null;
           updated_at?: string | null;
           user_id: string;
@@ -181,8 +188,10 @@ export type Database = {
         };
         Update: {
           created_at?: string | null;
+          description?: string | null;
           id?: string;
           name?: string | null;
+          price?: number | null;
           published?: boolean | null;
           updated_at?: string | null;
           user_id?: string;

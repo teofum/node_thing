@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { SortMenubar } from "./sort-bar";
 import ShaderCard from "./shadercard";
+import ProjectCard from "./projectcard";
 
 interface Shader {
   id: string;
@@ -16,12 +17,23 @@ interface Shader {
   profiles?: { username?: string };
 }
 
+interface Project {
+  id: string;
+  name: string | null;
+  description: string | null;
+  price: number | null;
+  createdAt: string | null;
+  profiles?: { username?: string };
+}
+
 export function ShaderListClient({
   shaders,
   cartIds,
+  projects,
 }: {
   shaders: Shader[];
   cartIds: Set<string>;
+  projects: Project[];
 }) {
   const [sortBy, setSortBy] = useState("price");
   const [ascending, setAscending] = useState(true);
@@ -52,6 +64,18 @@ export function ShaderListClient({
     return sorted;
   }, [shaders, sortBy, ascending]);
 
+  // TODO
+  const sortedProjects = useMemo(() => {
+    return projects.map((p) => ({
+      ...p,
+      name: p.name ?? "Untitled Project",
+      description: p.description ?? "",
+      price: p.price ?? 0,
+      createdAt: p.createdAt ?? new Date().toISOString(),
+      profiles: { username: p.profiles?.username ?? "" },
+    }));
+  }, [projects]);
+
   return (
     <>
       <SortMenubar
@@ -74,6 +98,18 @@ export function ShaderListClient({
             createdAt={shader.createdAt}
             averageRating={shader.averageRating}
             ratingCount={shader.ratingCount}
+          />
+        ))}
+        {sortedProjects.map((project) => (
+          <ProjectCard
+            key={project.id}
+            id={project.id}
+            name={project.name}
+            description={project.description}
+            price={project.price}
+            inCart={cartIds.has(project.id)}
+            username={project.profiles?.username}
+            createdAt={project.createdAt}
           />
         ))}
       </div>
