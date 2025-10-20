@@ -41,9 +41,15 @@ describe("createNode", () => {
     expect(node.data.type).toBe("mix");
   });
 
+  it("should have values for all parameters", () => {
+    const node = createTestNode();
+
+    expect(node.data.parameters.mode.value).toEqual("0");
+  });
+
   it("should have the parameters object passed to the factory", () => {
     const node = createTestNode();
 
-    expect(node.data.parameters).toEqual(nodeParameters);
+    expect(node.data.parameters.test).toEqual(nodeParameters.test);
   });
 });

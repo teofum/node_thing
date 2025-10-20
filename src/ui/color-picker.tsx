@@ -80,7 +80,7 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
                   </SliderTrack>
                 </ColorSlider>
 
-                <ColorField>
+                <ColorField aria-label="picker">
                   {(
                     props: ColorFieldRenderProps & {
                       defaultChildren?: React.ReactNode;

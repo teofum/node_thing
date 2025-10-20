@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { Tables } from "@/lib/supabase/database.types";
 import camelcaseKeys from "camelcase-keys";
+import { Replace } from "@/utils/replace";
 
 type Category = Tables<"categories">;
 
@@ -86,46 +87,26 @@ export async function getShaders() {
     redirect("/auth/login?next=/marketplace");
   }
 
-  const { data: purchases } = await supabase
-    .from("purchases")
-    .select("shader_id")
-    .eq("user_id", user.id);
-
-  const owned = purchases?.map((p) => p.shader_id) || [];
-
-  let query = supabase
-    .from("shaders")
-    .select(
-      `
-      id,
-      title,
-      description,
-      price,
-      downloads,
-      created_at,
-      category:categories (
-        id,
-        name
-      ),
-      profiles!fk_shaders_user_id (
-        username
-      )
-    `,
-    )
-    .eq("published", true)
-    .order("created_at", { ascending: false });
-
-  if (owned.length) {
-    query = query.not("id", "in", `(${owned.join(",")})`);
-  }
-
-  const { data, error } = await query;
+  const { data, error } = await supabase.rpc("get_shaders_with_avg", {
+    user_uuid: user.id,
+  });
 
   if (error) {
-    throw new Error(`Failed to load shaders: ${error.message}`);
+    throw new Error(`Failed rpc function: ${error.message}`);
   }
 
-  return camelcaseKeys(data) || [];
+  // TODO we really shouldn't need to do this shit
+  // Look into https://github.com/orgs/supabase/discussions/32925 or stop using
+  // JSON objects in db functions altogether
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      {
+        category: { id: string; name: string };
+        profiles: { username: string };
+      }
+    >[],
+  );
 }
 
 export async function getCategories(): Promise<Category[]> {

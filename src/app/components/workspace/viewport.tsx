@@ -33,6 +33,8 @@ export function Viewport() {
   const nodeCategories = useMemo(() => {
     const categories: [string, [string, NodeType][]][] = [];
     for (const [key, type] of Object.entries(storeNodeTypes)) {
+      if (key === "__output") continue;
+
       let category = categories.find(([name]) => name === type.category);
       if (!category) {
         category = [type.category, []];
