@@ -1,6 +1,7 @@
 import { Edge } from "@xyflow/react";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
+import { DeepPartial } from "@/utils/deep-partial";
 
 export type Layer = {
   nodes: ShaderNode[];
@@ -33,6 +34,20 @@ export type Project = {
   };
   projectName: string;
 };
+
+export type NodeTypeDependency = {
+  name: string;
+  id: string;
+  externalId: string;
+};
+
+export type ProjectDependencies = {
+  externalDependencies: {
+    nodeTypes: NodeTypeDependency[];
+  };
+};
+
+export type StoredProject = DeepPartial<Project> & Partial<ProjectDependencies>;
 
 export type HandleDescriptor = {
   id: string;

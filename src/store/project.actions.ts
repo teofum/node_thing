@@ -2,13 +2,14 @@ import { Connection, Edge } from "@xyflow/react";
 import { nanoid } from "nanoid";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
-import { DeepPartial } from "@/utils/deep-partial";
 import {
   Project,
   Layer,
   NodeTypeDescriptor,
   HandleDescriptor,
   NodeTypes,
+  StoredProject,
+  NodeTypeDependency,
 } from "./project.types";
 import { NODE_TYPES } from "@/utils/node-type";
 
@@ -24,13 +25,31 @@ const initialNodes: ShaderNode[] = [
 const initialEdges: Edge[] = [];
 const initialSize = { width: 1920, height: 1080 };
 
-export function prepareProjectForExport(
-  project: Project,
-): DeepPartial<Project> {
+export function prepareProjectForExport(project: Project): StoredProject {
   return {
     ...project,
     nodeTypes: { custom: project.nodeTypes.custom },
+    externalDependencies: {
+      nodeTypes: getNodeTypeDependencies(project),
+    },
   };
+}
+
+function getNodeTypeDependencies(project: Project): NodeTypeDependency[] {
+  console.log(project);
+  const projectNodeTypes = new Set(
+    project.layers
+      .flatMap((layer) => layer.nodes.map((node) => node.data.type))
+      .filter((type) => Object.hasOwn(project.nodeTypes.external, type))
+      .map((type) => [type, project.nodeTypes.external[type]] as const),
+  );
+  console.log(projectNodeTypes);
+
+  return [...projectNodeTypes].map(([id, type]) => ({
+    id,
+    name: type.name,
+    externalId: type.externalShaderId ?? "",
+  }));
 }
 
 export function getAllNodeTypes(nodeTypes: {

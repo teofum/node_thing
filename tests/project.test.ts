@@ -17,6 +17,7 @@ const customNodeTypes: NodeTypes = {
     inputs: {},
     outputs: {},
     parameters: {},
+    externalShaderId: "test_id",
   },
 };
 
@@ -78,6 +79,14 @@ describe("prepareProjectForExport", () => {
   project.nodeTypes.custom = customNodeTypes;
   project.nodeTypes.external = customNodeTypes;
 
+  const testExternalNode = createNode(
+    "test",
+    { x: 0, y: 0 },
+    customNodeTypes,
+    {},
+  );
+  project.layers[0].nodes.push(testExternalNode);
+
   it("contains the same layer data", () => {
     const projectExport = prepareProjectForExport(project);
 
@@ -103,6 +112,18 @@ describe("prepareProjectForExport", () => {
 
     expect(projectExport.nodeTypes).toBeDefined();
     expect(projectExport.nodeTypes?.external).toBeUndefined();
+  });
+
+  it("exports external dependencies", () => {
+    const projectExport = prepareProjectForExport(project);
+
+    expect(projectExport.externalDependencies).toBeDefined();
+    expect(projectExport.externalDependencies?.nodeTypes[0]).toBeDefined();
+    expect(projectExport.externalDependencies?.nodeTypes[0]).toEqual({
+      name: "Test node",
+      id: "test",
+      externalId: "test_id",
+    });
   });
 });
 
