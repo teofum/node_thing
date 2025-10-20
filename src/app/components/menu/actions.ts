@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { zipImportProject } from "@/utils/zip";
 import { redirect } from "next/navigation";
 
 export async function saveProjectOnline(blob: Blob) {

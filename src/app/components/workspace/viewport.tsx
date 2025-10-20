@@ -9,6 +9,7 @@ import {
   ContextSubmenu,
 } from "@/ui/context-menu";
 import { LuPlus } from "react-icons/lu";
+import { useNodeTypes } from "@/utils/use-node-types";
 
 const nodeTypes = {
   RenderShaderNode,
@@ -17,7 +18,7 @@ const nodeTypes = {
 export function Viewport() {
   const layers = useProjectStore((s) => s.layers);
   const currentLayer = useProjectStore((s) => s.currentLayer);
-  const storeNodeTypes = useProjectStore((s) => s.nodeTypes);
+  const storeNodeTypes = useNodeTypes();
   const onNodesChange = useProjectStore((s) => s.onNodesChange);
   const onEdgesChange = useProjectStore((s) => s.onEdgesChange);
   const onConnect = useProjectStore((s) => s.onConnect);

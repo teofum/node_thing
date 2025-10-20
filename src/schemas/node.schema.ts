@@ -59,7 +59,7 @@ export const nodeTypeSchema = z.object({
     .array()
     .optional(),
 
-  isPurchased: z.boolean().optional(),
+  externalShaderId: z.string().optional(),
 });
 
 export type NodeType = z.infer<typeof nodeTypeSchema>;

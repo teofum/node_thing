@@ -1,10 +1,12 @@
-import { LuSearch, LuShoppingCart } from "react-icons/lu";
+import { LuPlus, LuSearch } from "react-icons/lu";
 
 import { Button, LinkButton } from "@/ui/button";
 import { RangeSliderInput } from "@/ui/range-slider";
 import { getCategories, getShaders } from "./actions";
-import { getCartItems } from "./cart/actions";
+import { getCartItems } from "./cart.actions";
 import { ShaderListClient } from "./components/shaders-sort";
+import { Cart } from "./components/cart";
+import { Input } from "@/ui/input";
 
 type Props = {
   searchParams: Promise<{
@@ -70,16 +72,10 @@ export default async function MarketplacePage({ searchParams }: Props) {
             </p>
           </div>
           <div className="flex gap-4 items-center">
-            <LinkButton
-              href="/marketplace/cart"
-              variant="outline"
-              size="lg"
-              icon
-            >
-              <LuShoppingCart />
-            </LinkButton>
-            <LinkButton href="/marketplace/upload" variant="default" size="lg">
-              Upload Shader
+            <Cart items={cartItems} />
+            <LinkButton href="/marketplace/upload">
+              <LuPlus />
+              Create
             </LinkButton>
           </div>
         </div>
@@ -93,14 +89,12 @@ export default async function MarketplacePage({ searchParams }: Props) {
               value={category}
             />
           ))}
-          <input
+          <Input
             type="text"
             name="search"
             defaultValue={searchTerm || ""}
             placeholder="Search shaders..."
-            className="w-full rounded-full bg-neutral-800 text-white px-5 py-3 pr-12
-                         border border-neutral-700 placeholder-neutral-500 focus:outline-none
-                         focus:ring-1 focus:ring-purple-500 "
+            className="w-full"
           />
           <Button
             type="submit"
