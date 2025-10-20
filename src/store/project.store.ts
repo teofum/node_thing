@@ -262,16 +262,20 @@ export const useProjectStore = create(
           custom
             .filter((shader) => shader.node_config)
             .map((shader) => {
-              const config = shader.node_config as NodeType;
-              return [
-                `custom_${nanoid()}`,
-                {
-                  ...config,
-                  shader: config.shader,
-                  remoteId: shader.id,
-                  category: "Custom",
-                },
-              ];
+              const config = shader.node_config as NodeTypeDescriptor;
+              const inputs = createHandles(config.inputs ?? []);
+              const outputs = createHandles(config.outputs ?? []);
+
+              const nodeType: NodeType & { remoteId?: string } = {
+                name: config.name ?? shader.title ?? "Custom",
+                category: "Custom",
+                shader: config.code ?? "",
+                inputs,
+                outputs,
+                parameters: {},
+                remoteId: shader.id,
+              };
+              return [`custom_${nanoid()}`, nodeType];
             }),
         );
 
