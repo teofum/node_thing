@@ -22,7 +22,7 @@ export function PromptDialog({
   return (
     <Dialog {...props}>
       <div className="p-3 flex-1">{children}</div>
-      <div className="p-3 flex flex-row gap-2 justify-end items-end">
+      <div className="p-3 flex flex-row gap-2 justify-end items-end border-t border-white/15">
         <DialogClose asChild>
           <Button variant="outline">{cancelText}</Button>
         </DialogClose>
