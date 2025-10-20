@@ -12,28 +12,19 @@ function validateSignature(
   const xRequestId = request.headers.get("x-request-id");
 
   if (!xSignature || !xRequestId) {
-    console.error("Missing signature headers");
     return false;
   }
 
-  const parts = xSignature.split(",");
-  let ts: string | undefined;
-  let hash: string | undefined;
-
-  parts.forEach((part) => {
-    const [key, value] = part.split("=");
-    if (key?.trim() === "ts") ts = value?.trim();
-    if (key?.trim() === "v1") hash = value?.trim();
-  });
+  const [tsPart, v1Part] = xSignature.split(",");
+  const ts = tsPart?.split("=")[1];
+  const hash = v1Part?.split("=")[1];
 
   if (!ts || !hash) {
-    console.error("Invalid signature format");
     return false;
   }
 
   const dataId = body.data?.id;
   if (!dataId) {
-    console.error("Missing data.id");
     return false;
   }
 
@@ -44,42 +35,31 @@ function validateSignature(
   hmac.update(manifest);
   const sha = hmac.digest("hex");
 
-  return sha === hash;
+  return sha == hash;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("[MP Webhook] Received notification");
-
     const body: { data: { id: string } } = await request.json();
-    console.log("[MP Webhook] Payment ID:", body.data.id);
 
     // Validate signature
     if (!validateSignature(request, body)) {
-      console.error("[MP Webhook] Invalid signature");
       return new Response(JSON.stringify({ error: "Invalid signature" }), {
         status: 401,
       });
     }
-
-    console.log("[MP Webhook] Signature validated");
 
     const client = new MercadoPagoConfig({
       accessToken: process.env.MP_ACCESS_TOKEN!,
     });
 
     const payment = await new Payment(client).get({ id: body.data.id });
-    console.log("[MP Webhook] Payment status:", payment.status);
-    console.log("[MP Webhook] Payment metadata:", payment.metadata);
 
     if (payment.status === "approved") {
       const orderId = payment.external_reference;
       const userId = payment.metadata?.user_id;
 
-      console.log("[MP Webhook] Order ID:", orderId, "User ID:", userId);
-
       if (!orderId || !userId) {
-        console.error("[MP Webhook] Missing orderId or userId");
         return new Response(JSON.stringify({ error: "Missing data" }), {
           status: 400,
         });
@@ -97,19 +77,15 @@ export async function POST(request: NextRequest) {
       });
 
       if (error) {
-        console.error("[MP Webhook] finish_payment error:", error);
         return new Response(JSON.stringify({ error: error.message }), {
           status: 500,
         });
       }
-
-      console.log("[MP Webhook] Payment processed successfully");
       revalidatePath("/marketplace");
     }
 
     return new Response(null, { status: 200 });
   } catch (error) {
-    console.error("[MP Webhook] Error:", error);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
     });
