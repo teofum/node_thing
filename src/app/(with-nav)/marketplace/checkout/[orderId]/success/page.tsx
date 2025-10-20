@@ -31,13 +31,6 @@ export default async function SuccessPage({ params }: Props) {
     redirect("/marketplace");
   }
 
-  if (order.status === "pending") {
-    await supabase.rpc("finish_payment", {
-      order_uuid: orderId,
-      user_uuid: user.id,
-    });
-  }
-
   const isPending = order.status === "pending";
 
   return (
