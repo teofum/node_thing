@@ -31,11 +31,11 @@ export function PublishDialog({
       trigger={trigger}
       title={"Publish " + type}
       description="Publish things lol"
-      className="w-3/5"
+      className="w-2/5"
       {...props}
     >
-      <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
-        <div className="font-semibold text-xl mb-4">Projects</div>
+      <div className="h-full min-h-0 overflow-auto p-4 border-white/15 ">
+        <div className="font-semibold text-xl mb-4">Price</div>
 
         <Input
           value={price}
@@ -44,16 +44,15 @@ export function PublishDialog({
           autoFocus
           className="w-full"
         />
+      </div>
+      <div className="flex justify-between p-4 mt-15">
+        <DialogClose asChild>
+          <Button variant="outline">Close</Button>
+        </DialogClose>
 
         <Button icon variant="outline" onClick={() => handlePublish()}>
           Publish
         </Button>
-      </div>
-
-      <div className="p-3 flex justify-end gap-2">
-        <DialogClose asChild>
-          <Button variant="outline">Close</Button>
-        </DialogClose>
       </div>
     </Dialog>
   );
