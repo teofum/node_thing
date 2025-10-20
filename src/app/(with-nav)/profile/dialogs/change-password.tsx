@@ -15,6 +15,7 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
   const newPasswordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   return (
     <Dialog trigger={trigger} title="Change Password" description="">
@@ -76,6 +77,7 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
                   return;
                 }
 
+                setIsPending(true);
                 try {
                   await changePassword(current, newPass);
                   window.location.reload();
@@ -85,11 +87,13 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
                       ? err.message
                       : "Failed to change password",
                   );
+                  setIsPending(false);
                 }
               }
             }}
+            disabled={isPending}
           >
-            Change Password
+            {isPending ? "Changing..." : "Change Password"}
           </Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>

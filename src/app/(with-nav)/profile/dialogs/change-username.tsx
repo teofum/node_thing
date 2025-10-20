@@ -20,6 +20,7 @@ export default function AccountEditor({
 }: AccountEditorProps) {
   const usernameRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   return (
     <Dialog trigger={trigger} title={title} description="">
@@ -45,18 +46,21 @@ export default function AccountEditor({
                   return;
                 }
 
+                setIsPending(true);
                 const isAvailable = await checkUsernameAvailable(username);
                 if (!isAvailable) {
                   setError("Username already taken");
+                  setIsPending(false);
                   return;
                 }
 
-                setUsername(username);
+                await setUsername(username);
                 window.location.reload();
               }
             }}
+            disabled={isPending}
           >
-            Apply
+            {isPending ? "Saving..." : "Apply"}
           </Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>

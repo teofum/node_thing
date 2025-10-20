@@ -2,7 +2,7 @@
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Input } from "@/ui/input";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { Button } from "@/ui/button";
 import { setDisplayName } from "../actions/settings";
 
@@ -16,6 +16,8 @@ export default function DisplayNameEditor({
   currentDisplayName,
 }: DisplayNameEditorProps) {
   const displayNameRef = useRef<HTMLInputElement>(null);
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <Dialog trigger={trigger} title="Edit Display Name" description="">
@@ -29,16 +31,36 @@ export default function DisplayNameEditor({
           defaultValue={currentDisplayName}
           placeholder="Your display name"
         />
+        {error && <p className="text-sm text-red-400 mt-1">{error}</p>}
         <div className="flex justify-end gap-2">
           <Button
-            onClick={() => {
+            onClick={async () => {
               if (displayNameRef.current) {
-                setDisplayName(displayNameRef.current.value);
-                window.location.reload();
+                const displayName = displayNameRef.current.value.trim();
+                setError(null);
+
+                if (displayName.length === 0) {
+                  setError("Display name cannot be empty");
+                  return;
+                }
+
+                setIsPending(true);
+                try {
+                  await setDisplayName(displayName);
+                  window.location.reload();
+                } catch (err) {
+                  setError(
+                    err instanceof Error
+                      ? err.message
+                      : "Failed to update display name",
+                  );
+                  setIsPending(false);
+                }
               }
             }}
+            disabled={isPending}
           >
-            Apply
+            {isPending ? "Saving..." : "Apply"}
           </Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
