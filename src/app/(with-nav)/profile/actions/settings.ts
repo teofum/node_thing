@@ -20,7 +20,7 @@ export async function checkUsernameAvailable(username: string) {
     .neq("id", user.id)
     .single();
 
-  return !data; // true if available, false if taken
+  return !data;
 }
 
 export async function setUsername(newUsername: string) {
