@@ -168,3 +168,23 @@ export async function getUserProjects() {
 
   return projects;
 }
+
+export async function publishProject(projectID: string, price: number) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  await supabase
+    .from("projects")
+    .update({
+      published: true,
+      price: price,
+    })
+    .eq("id", projectID);
+}

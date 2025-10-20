@@ -5,6 +5,8 @@ import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 
 import { Tables } from "@/lib/supabase/database.types";
+import { publishProject } from "../actions";
+import { useRouter } from "next/navigation";
 
 type PublishDialogProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
@@ -22,8 +24,14 @@ export function PublishDialog({
 }: PublishDialogProps) {
   const [price, setPrice] = useState(0);
 
-  async function handlePublish() {
-    // TODO
+  const router = useRouter();
+
+  async function handlePublish(id: string, price: number) {
+    // TODO invalid price error handling
+
+    publishProject(id, price);
+
+    router.refresh();
   }
 
   return (
@@ -40,7 +48,7 @@ export function PublishDialog({
         <Input
           value={price}
           onChange={(e) => setPrice(Number(e.target.value))}
-          type="number"
+          type=""
           autoFocus
           className="w-full"
         />
@@ -50,9 +58,15 @@ export function PublishDialog({
           <Button variant="outline">Close</Button>
         </DialogClose>
 
-        <Button icon variant="outline" onClick={() => handlePublish()}>
-          Publish
-        </Button>
+        <DialogClose asChild>
+          <Button
+            icon
+            variant="outline"
+            onClick={() => handlePublish(id, price)}
+          >
+            Publish
+          </Button>
+        </DialogClose>
       </div>
     </Dialog>
   );
