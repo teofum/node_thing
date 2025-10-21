@@ -1,6 +1,5 @@
 "use client";
 
-import { ComponentProps } from "react";
 import { Dialog } from "@/ui/dialog";
 import RatingEditor from "../rating-editor";
 import { UserRatingsDisplay } from "../page";
@@ -14,7 +13,6 @@ type RatingCardProps = {
   averageRating?: number | null;
   userRating: UserRatingsDisplay | null;
   ratingCount: number | null;
-  trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 
 export default function RatingCard({

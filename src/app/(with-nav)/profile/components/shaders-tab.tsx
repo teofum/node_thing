@@ -7,6 +7,8 @@ import type { UserRatingsDisplay } from "../page";
 type UserShaderDisplay = {
   id: string;
   title: string;
+  averageRating: number | null;
+  ratingCount: number | null;
   category: {
     name: string;
   };
@@ -31,12 +33,11 @@ const ShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            averageRating={null}
+            averageRating={shader.averageRating}
             userRating={
               ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={0}
-            trigger={<Button variant="outline">test</Button>}
+            ratingCount={shader.ratingCount ?? 0}
           />
         ))
       ) : (
@@ -53,12 +54,11 @@ const ShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
             id={shader.id}
             title={shader.title}
             category={shader.category.name}
-            averageRating={null}
+            averageRating={shader.averageRating}
             userRating={
               ratingsList.find((r) => r.shaderId === shader.id) ?? null
             }
-            ratingCount={0}
-            trigger={null}
+            ratingCount={shader.ratingCount ?? 0}
           />
         ))
       ) : (
@@ -68,7 +68,7 @@ const ShadersTab = forwardRef<HTMLDivElement, ShadersTabProps>(
       );
 
     const subtabStyle =
-      "flex h-[40px] hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-4 font-medium text-sm leading-none outline-none first:rounded-tl-lg last:rounded-tr-lg data-[state=active]:border-teal-500 data-[state=active]:border-b-2 transition data-[state=active]:focus:relative";
+      "flex h-10 hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-4 font-medium text-sm leading-none outline-none first:rounded-tl-lg last:rounded-tr-lg data-[state=active]:border-teal-500 data-[state=active]:border-b-2 transition data-[state=active]:focus:relative";
 
     return (
       <div className={className} {...props} ref={forwardedRef}>

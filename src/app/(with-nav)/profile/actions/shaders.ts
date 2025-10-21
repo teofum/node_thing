@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { PostgrestError } from "@supabase/supabase-js";
 import camelcaseKeys from "camelcase-keys";
+import { Replace } from "@/utils/replace";
 
 export async function getPublishedShaders() {
   const supabase = await createClient();
@@ -15,23 +15,20 @@ export async function getPublishedShaders() {
     redirect("/auth/login?next=/profile");
   }
 
-  const { data, error } = await supabase
-    .from("shaders")
-    .select(
-      `
-      id,
-      title,
-      category:categories(name)
-      `,
-    )
-    .eq("user_id", user.id)
-    .eq("published", true);
+  const { data, error } = await supabase.rpc("get_published_shaders", {
+    user_uuid: user.id,
+  });
 
   if (error) {
     throw new Error(`Failed to load published shaders: ${error.message}`);
   }
 
-  return camelcaseKeys(data) ?? [];
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      { category: { id: string; name: string } }
+    >[],
+  );
 }
 
 export async function getPurchasedShaders() {
@@ -44,27 +41,20 @@ export async function getPurchasedShaders() {
     redirect("/auth/login?next=/profile");
   }
 
-  const errorMessage = (err: PostgrestError) => {
-    return `Failed to load purchased shaders: ${err.message}`;
-  };
+  const { data, error } = await supabase.rpc("get_purchased_shaders", {
+    user_uuid: user.id,
+  });
 
-  const { data: purchases, error: err1 } = await supabase
-    .from("purchases")
-    .select("shader_id")
-    .eq("user_id", user.id);
+  if (error) {
+    throw new Error(`Failed to load purchased shaders: ${error.message}`);
+  }
 
-  if (err1) throw new Error(errorMessage(err1));
-
-  const shaderIds = purchases.map((p) => p.shader_id);
-
-  const { data: shaders, error: err2 } = await supabase
-    .from("shaders")
-    .select("id, title, category:categories(name)")
-    .in("id", shaderIds);
-
-  if (err2) throw new Error(errorMessage(err2));
-
-  return camelcaseKeys(shaders) ?? [];
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      { category: { id: string; name: string } }
+    >[],
+  );
 }
 
 export async function submitShaderReview(
