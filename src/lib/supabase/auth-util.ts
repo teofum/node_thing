@@ -1,9 +1,13 @@
 import { createClient } from "./server";
 import { redirect } from "next/navigation";
 
-export async function getSupabaseUserOrRedirect(nextPath: string = "/") {
-  if (!nextPath.startsWith("/")) {
-    throw new Error(`Invalid nextPath: "${nextPath}", should start with '/'`);
+export async function getSupabaseUserOrRedirect(
+  redirectPath: string = "/auth/login?next=/",
+) {
+  if (!redirectPath.startsWith("/")) {
+    throw new Error(
+      `Invalid nextPath: "${redirectPath}", should start with '/'`,
+    );
   }
 
   const supabase = await createClient();
@@ -12,7 +16,7 @@ export async function getSupabaseUserOrRedirect(nextPath: string = "/") {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(`/auth/login?next=${encodeURIComponent(nextPath)}`);
+    redirect(redirectPath);
   }
 
   return { supabase, user };
