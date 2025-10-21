@@ -20,7 +20,9 @@ export async function getUserData() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("username, display_name, is_premium, cancelled, subscription_id")
+    .select(
+      "username, display_name, is_premium, mp_access_token, cancelled, subscription_id",
+    )
     .eq("id", user.id)
     .single();
 

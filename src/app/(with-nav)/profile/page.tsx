@@ -15,6 +15,7 @@ export type UserData = {
   username: string;
   displayName: string | null;
   isPremium: boolean | null;
+  mpAccessToken?: string | null;
   cancelled?: boolean | null;
   subscriptionId?: string | null;
 };
@@ -79,6 +80,7 @@ export default async function ProfilePage() {
             <PremiumTab
               className="rounded-2xl p-4 min-h-[300px] mb-3"
               userData={userData}
+              user={user}
             />
           </Tabs.Content>
           <Tabs.Content
