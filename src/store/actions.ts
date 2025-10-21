@@ -16,7 +16,7 @@ export async function saveNewShader(desc: {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    return null;
   }
 
   const { data, error } = await supabase
@@ -57,7 +57,7 @@ export async function updateShader(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    return null;
   }
 
   const { data, error } = await supabase
@@ -72,7 +72,7 @@ export async function updateShader(
     .single();
 
   if (error || !data) {
-    throw new Error(`Failed to save shader: ${error.message}`);
+    throw new Error(`Failed to update shader: ${error.message}`);
   }
 
   return data;
@@ -85,14 +85,16 @@ export async function deleteShader(id: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    return false;
   }
 
   const { error } = await supabase.from("shaders").delete().eq("id", id);
 
   if (error) {
-    throw new Error(`Failed to save shader: ${error.message}`);
+    throw new Error(`Failed to delete shader: ${error.message}`);
   }
+
+  return true;
 }
 
 export async function getCustomShaders() {
@@ -111,7 +113,7 @@ export async function getCustomShaders() {
     .eq("user_id", user.id);
 
   if (error) {
-    throw new Error(`Failed to load published shaders: ${error.message}`);
+    throw new Error(`Failed to load shaders: ${error.message}`);
   }
 
   return data ?? [];

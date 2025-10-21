@@ -11,7 +11,6 @@ import {
 import { Button } from "@/ui/button";
 import { useNodeTypes } from "@/utils/use-node-types";
 import { ShaderEditor } from "./shader-editor";
-import { checkLogin } from "./actions";
 import { RenderShaderNode } from "./shader-node";
 
 export function MenuLibrary() {
@@ -81,7 +80,7 @@ export function MenuLibrary() {
       <div className="p-2 flex flex-col gap-2">
         <ShaderEditor
           trigger={
-            <Button variant="outline" onClick={checkLogin}>
+            <Button variant="outline">
               <LuFilePlus2 />
               New Shader
             </Button>
