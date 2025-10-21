@@ -8,6 +8,7 @@ import {
 } from "@/lib/payments/lemonsqueezy";
 import { getBaseUrl } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 export async function subscribePremiumAction(formData: FormData) {
   const variantId = formData.get("variant_id") as string;
@@ -25,14 +26,9 @@ export async function subscribePremiumAction(formData: FormData) {
 }
 
 export async function cancelSubscriptionAction() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -56,14 +52,9 @@ export async function cancelSubscriptionAction() {
 }
 
 export async function resumeSubscriptionAction() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data: profile } = await supabase
     .from("profiles")

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 export async function checkUsernameAvailable(username: string) {
   const supabase = await createClient();
@@ -24,14 +25,9 @@ export async function checkUsernameAvailable(username: string) {
 }
 
 export async function setUsername(newUsername: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const isAvailable = await checkUsernameAvailable(newUsername);
   if (!isAvailable) {
@@ -51,14 +47,9 @@ export async function setUsername(newUsername: string) {
 }
 
 export async function setDisplayName(newDisplayName: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { error } = await supabase.auth.updateUser({
     data: { full_name: newDisplayName },
@@ -73,14 +64,9 @@ export async function changePassword(
   currentPassword: string,
   newPassword: string,
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data: isValid, error: verifyError } = await supabase.rpc(
     "verify_user_password",
@@ -105,14 +91,9 @@ export async function changePassword(
 }
 
 export async function uploadAvatar(formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const file = formData.get("avatar") as File;
   if (!file || file.size === 0) {
@@ -144,14 +125,9 @@ export async function uploadAvatar(formData: FormData) {
 }
 
 export async function removeAvatar() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const firstLetter = (user.user_metadata.full_name ||
     user.user_metadata.username ||
