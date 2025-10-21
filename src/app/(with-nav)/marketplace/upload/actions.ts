@@ -190,6 +190,7 @@ export async function publishProject(
       published: true,
       price: price,
       description: description,
+      downloads: 0,
     })
     .eq("id", projectID);
 }

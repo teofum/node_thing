@@ -22,6 +22,7 @@ interface Project {
   name: string | null;
   description: string | null;
   price: number | null;
+  downloads: number | null;
   createdAt: string | null;
   profiles?: { username?: string };
 }
@@ -63,7 +64,7 @@ function mixSortedLists(
         break;
       case "downloads":
         sValue = s.downloads ?? 0;
-        pValue = 0;
+        pValue = p.downloads ?? 0;
         break;
       default:
         sValue = 0;
@@ -146,6 +147,10 @@ export function ShaderListClient({
           valA = new Date(a.createdAt!).getTime();
           valB = new Date(b.createdAt!).getTime();
           break;
+        case "downloads":
+          valA = a.downloads ?? 0;
+          valB = b.downloads ?? 0;
+          break;
         default:
           valA = 0;
           valB = 0;
@@ -192,6 +197,7 @@ export function ShaderListClient({
               name={item.name ?? "Untilted project"}
               description={item.description ?? ""}
               price={item.price ?? 0}
+              downloads={item.downloads ?? 0}
               inCart={cartIds.has(item.id)}
               username={item.profiles?.username}
               createdAt={item.createdAt ?? new Date().toISOString()}

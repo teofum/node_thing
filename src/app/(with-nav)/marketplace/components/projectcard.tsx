@@ -10,6 +10,7 @@ type ProjectCardProps = {
   name: string;
   description: string;
   price: number;
+  downloads: number;
   inCart: boolean;
   username?: string;
   createdAt: string;
@@ -19,6 +20,7 @@ export default function ProjectCard({
   id,
   name,
   description,
+  downloads,
   price,
   inCart,
   username,
@@ -55,6 +57,9 @@ export default function ProjectCard({
 
       <div className="flex flex-row gap-3">
         <div className="grow text-2xl font-bold text-teal-400">${price}</div>
+        <div className="flex flex-row items-center gap-1 text-white/60">
+          <LuDownload /> {downloads}
+        </div>
       </div>
 
       <div className="mt-2">

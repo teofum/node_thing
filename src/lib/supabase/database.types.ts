@@ -17,23 +17,39 @@ export type Database = {
       cart_items: {
         Row: {
           created_at: string | null;
+          id: string | null;
+          item_type: string | null;
           price_at_time: number;
+          project_id: string | null;
           shader_id: string;
           user_id: string;
         };
         Insert: {
           created_at?: string | null;
+          id?: string | null;
+          item_type?: string | null;
           price_at_time: number;
+          project_id?: string | null;
           shader_id: string;
           user_id: string;
         };
         Update: {
           created_at?: string | null;
+          id?: string | null;
+          item_type?: string | null;
           price_at_time?: number;
+          project_id?: string | null;
           shader_id?: string;
           user_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "cart_items_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "cart_items_shader_id_fkey";
             columns: ["shader_id"];
@@ -167,6 +183,7 @@ export type Database = {
         Row: {
           created_at: string | null;
           description: string | null;
+          downloads: number | null;
           id: string;
           name: string | null;
           price: number | null;
@@ -178,6 +195,7 @@ export type Database = {
         Insert: {
           created_at?: string | null;
           description?: string | null;
+          downloads?: number | null;
           id?: string;
           name?: string | null;
           price?: number | null;
@@ -189,6 +207,7 @@ export type Database = {
         Update: {
           created_at?: string | null;
           description?: string | null;
+          downloads?: number | null;
           id?: string;
           name?: string | null;
           price?: number | null;
@@ -409,10 +428,6 @@ export type Database = {
       increment_shader_downloads: {
         Args: { shader_id: string };
         Returns: undefined;
-      };
-      replicate_project: {
-        Args: { new_user_id: string; original_key: string };
-        Returns: string;
       };
       verify_user_password: {
         Args: { password: string };

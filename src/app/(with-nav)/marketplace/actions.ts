@@ -245,6 +245,7 @@ export async function getProjects() {
       name,
       description,
       price,
+      downloads,
       created_at,
       profiles!projects_user_id_fkey (
         username
@@ -262,7 +263,7 @@ export async function getProjects() {
   const { data, error } = await query;
 
   if (error) {
-    throw new Error(`Failed to load shaders: ${error.message}`);
+    throw new Error(`Failed to load projects: ${error.message}`);
   }
 
   return camelcaseKeys(data);

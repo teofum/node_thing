@@ -66,7 +66,6 @@ export default async function MarketplacePage({ searchParams }: Props) {
     (shader) => shader.price >= minPrice && shader.price <= maxPrice,
   );
 
-  // TODO filter projects
   let filteredProjects = projects;
   if (searchTerm) {
     const searchLower = searchTerm.toLowerCase().trim();
