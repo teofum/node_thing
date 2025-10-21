@@ -240,10 +240,9 @@ export const useProjectStore = create(
       },
 
       updateNodeType: async (id: string, desc: NodeTypeDescriptor) => {
-        set(updateNodeType(id, desc));
-
         const { nodeTypes } = get();
         const remoteId = nodeTypes.custom[id].externalShaderId;
+        set(updateNodeType(id, desc));
         if (remoteId) {
           const data = await updateShader(desc, remoteId);
           if (!data) return;
