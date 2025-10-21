@@ -4,16 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { createMPCheckout } from "@/lib/payments/mercadopago";
 import { getBaseUrl } from "@/lib/utils";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 export async function createOrderFromCart() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/marketplace/cart");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace/cart",
+  );
 
   const { data: orderId, error } = await supabase.rpc("checkout_cart", {
     user_uuid: user.id,
@@ -33,14 +29,9 @@ export async function createOrderFromCart() {
 }
 
 export async function getOrderDetails(orderId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/auth/login?next=/marketplace/checkout/${orderId}`);
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    `/auth/login?next=/marketplace/checkout/${orderId}`,
+  );
 
   const { data: order, error } = await supabase
     .from("orders")
@@ -75,14 +66,9 @@ export async function getOrderDetails(orderId: string) {
 }
 
 export async function createMercadoPagoCheckout(orderId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/auth/login?next=/marketplace/checkout/${orderId}`);
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    `/auth/login?next=/marketplace/checkout/${orderId}`,
+  );
 
   const order = await getOrderDetails(orderId);
   const baseUrl = await getBaseUrl();

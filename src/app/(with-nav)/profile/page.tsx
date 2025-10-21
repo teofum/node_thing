@@ -8,7 +8,8 @@ import {
   getPurchasedShaders,
   getUserRatings,
 } from "./actions/shaders";
-import { getUser, getUserData } from "./actions/user";
+import { getUserData } from "./actions/user";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 export type UserData = {
   username: string;
@@ -31,7 +32,7 @@ export default async function ProfilePage() {
   const publishedShaders = await getPublishedShaders();
   const userRatings = await getUserRatings();
   const userData = await getUserData();
-  const user = await getUser();
+  const { supabase, user } = await getSupabaseUserOrRedirect();
 
   const triggerStyle =
     "flex h-[45px] hover:bg-white/5 flex-1 cursor-default select-none items-center justify-center px-5 font-semibold text-[15px] leading-none outline-none first:rounded-tl-2xl last:rounded-tr-2xl data-[state=active]:border-teal-500 data-[state=active]:border-b-2 transition data-[state=active]:focus:relative";

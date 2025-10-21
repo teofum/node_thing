@@ -6,20 +6,14 @@ import { revalidatePath } from "next/cache";
 import type { Tables } from "@/lib/supabase/database.types";
 import camelcaseKeys from "camelcase-keys";
 import { Replace } from "@/utils/replace";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 type Category = Tables<"categories">;
 
 export async function uploadShaderAction(formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Authentication required")}`,
-    );
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    `/marketplace/upload?error=${encodeURIComponent("Authentication required")}`,
+  );
 
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
@@ -110,14 +104,9 @@ export async function getShaders() {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/marketplace");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
 
   const { data: categories, error } = await supabase
     .from("categories")
