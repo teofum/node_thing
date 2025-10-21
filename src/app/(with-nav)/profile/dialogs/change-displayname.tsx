@@ -42,7 +42,7 @@ export default function DisplayNameEditor({
             <Button variant="outline">Cancel</Button>
           </DialogClose>
           <DialogClose asChild>
-            <Button onClick={() => displayNameChangeHandler()}>Save</Button>
+            <Button onClick={() => displayNameChangeHandler()}>Apply</Button>
           </DialogClose>
         </div>
       </div>

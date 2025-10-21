@@ -42,8 +42,6 @@ export async function setUsername(newUsername: string) {
   if (error) {
     throw new Error(`Failed to update username: ${error.message}`);
   }
-
-  return data;
 }
 
 export async function setDisplayName(newDisplayName: string) {

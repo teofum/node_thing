@@ -19,57 +19,33 @@ export default function AccountEditor({
   title,
   userData,
 }: AccountEditorProps) {
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [name, setName] = useState(userData.username ?? "");
   const router = useRouter();
 
+  const accountNameChangeHandler = async () => {
+    await setUsername(name);
+    router.refresh();
+  };
+
   return (
-    <Dialog trigger={trigger} title={title} description="">
+    <Dialog trigger={trigger} title="Edit Username" description="">
       <div className="flex flex-col p-4 text-lg gap-4">
         <h1 className="mb-2">Username</h1>
-        <Input
-          ref={usernameRef}
-          variant="outline"
-          size="md"
-          className="min-w-40"
-          defaultValue={userData.username}
+        <textarea
+          //className="min-w-40"
+          className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15"
+          placeholder="Your username"
+          value={name}
+          rows={1}
+          onChange={(e) => setName(e.target.value)}
         />
-        {error && <p className="text-sm text-red-400 mt-1">{error}</p>}
+
         <div className="flex justify-end gap-2">
-          <Button
-            onClick={async () => {
-              if (usernameRef.current) {
-                const username = usernameRef.current.value;
-                setError(null);
-
-                if (username.length === 0) {
-                  setError("Username cannot be empty");
-                  return;
-                }
-
-                setIsPending(true);
-                const isAvailable = await checkUsernameAvailable(username);
-                if (!isAvailable) {
-                  setError("Username already taken");
-                  setIsPending(false);
-                  return;
-                }
-
-                await setUsername(username);
-                setIsPending(false);
-                setSuccess(true);
-                router.refresh();
-                setTimeout(() => setSuccess(false), 2000);
-              }
-            }}
-            disabled={isPending || success}
-          >
-            {isPending ? "Saving..." : success ? "Saved!" : "Apply"}
-          </Button>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button onClick={() => accountNameChangeHandler()}>Apply</Button>
           </DialogClose>
         </div>
       </div>
