@@ -1,102 +1,69 @@
 "use client";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
-import { Input } from "@/ui/input";
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useState } from "react";
 import { Button } from "@/ui/button";
 import { changePassword } from "../actions/settings";
+import { useRouter } from "next/navigation";
 
 type PasswordEditorProps = {
   trigger: ReactNode;
 };
 
 export default function PasswordEditor({ trigger }: PasswordEditorProps) {
-  const currentPasswordRef = useRef<HTMLInputElement>(null);
-  const newPasswordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const router = useRouter();
+
+  const passwordChangeHandler = async () => {
+    await changePassword(currentPassword, newPassword);
+    router.refresh();
+  };
+
+  const passwordsMatch =
+    newPassword.length > 0 && newPassword === confirmPassword;
 
   return (
     <Dialog trigger={trigger} title="Change Password" description="">
-      <div className="flex flex-col p-4 text-lg">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1">Current Password</label>
-            <Input
-              ref={currentPasswordRef}
-              type="password"
-              variant="outline"
-              size="md"
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">New Password</label>
-            <Input
-              ref={newPasswordRef}
-              type="password"
-              variant="outline"
-              size="md"
-              className="w-full"
-            />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">Confirm New Password</label>
-            <Input
-              ref={confirmPasswordRef}
-              type="password"
-              variant="outline"
-              size="md"
-              className="w-full"
-            />
-          </div>
-        </div>
-        {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
-        <div className="flex justify-end gap-2 mt-4">
-          <Button
-            onClick={async () => {
-              if (
-                currentPasswordRef.current &&
-                newPasswordRef.current &&
-                confirmPasswordRef.current
-              ) {
-                const current = currentPasswordRef.current.value;
-                const newPass = newPasswordRef.current.value;
-                const confirm = confirmPasswordRef.current.value;
+      <div className="flex flex-col p-4 text-lg gap-3">
+        <h1 className="text-sm/3">Current Password</h1>
+        <textarea
+          className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15  mb-2"
+          value={currentPassword}
+          rows={1}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+        />
+        <h1 className="text-sm/3">New Password</h1>
+        <textarea
+          className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15  mb-2"
+          value={newPassword}
+          rows={1}
+          onChange={(e) => setNewPassword(e.target.value)}
+        />
+        <h1 className="text-sm/3">Confirm New Password</h1>
+        <textarea
+          className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15  mb-2"
+          value={confirmPassword}
+          rows={1}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
 
-                setError(null);
+        {!passwordsMatch && confirmPassword.length > 0 && (
+          <p className="text-sm text-red-400">Passwords do not match</p>
+        )}
 
-                if (current.length === 0) {
-                  setError("Current password is required");
-                  return;
-                }
-
-                if (newPass !== confirm) {
-                  setError("New passwords do not match");
-                  return;
-                }
-
-                setIsPending(true);
-                try {
-                  await changePassword(current, newPass);
-                  window.location.reload();
-                } catch (err) {
-                  setError(
-                    err instanceof Error
-                      ? err.message
-                      : "Failed to change password",
-                  );
-                  setIsPending(false);
-                }
-              }
-            }}
-            disabled={isPending}
-          >
-            {isPending ? "Changing..." : "Change Password"}
-          </Button>
+        <div className="flex justify-end gap-2">
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button
+              onClick={() => passwordChangeHandler()}
+              disabled={!passwordsMatch}
+            >
+              Change Password
+            </Button>
           </DialogClose>
         </div>
       </div>

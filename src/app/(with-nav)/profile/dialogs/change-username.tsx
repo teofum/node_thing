@@ -1,8 +1,7 @@
 "use client";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
-import { Input } from "@/ui/input";
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useState } from "react";
 import { UserData } from "../page";
 import { Button } from "@/ui/button";
 import { setUsername, checkUsernameAvailable } from "../actions/settings";
@@ -32,7 +31,6 @@ export default function AccountEditor({
       <div className="flex flex-col p-4 text-lg gap-4">
         <h1 className="mb-2">Username</h1>
         <textarea
-          //className="min-w-40"
           className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15"
           placeholder="Your username"
           value={name}

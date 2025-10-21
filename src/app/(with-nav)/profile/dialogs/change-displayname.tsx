@@ -1,8 +1,7 @@
 "use client";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
-import { Input } from "@/ui/input";
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useState } from "react";
 import { Button } from "@/ui/button";
 import { setDisplayName } from "../actions/settings";
 import { useRouter } from "next/navigation";
@@ -29,7 +28,6 @@ export default function DisplayNameEditor({
       <div className="flex flex-col p-4 text-lg gap-4">
         <h1 className="mb-2">Display Name</h1>
         <textarea
-          //className="min-w-40"
           className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15"
           placeholder="Your display name"
           value={name}
