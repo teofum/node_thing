@@ -2,7 +2,7 @@ import Image from "next/image";
 import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 
 import { Button } from "@/ui/button";
-import { addToCart } from "../../marketplace/cart/actions";
+import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
 import { Stars } from "./stars";
 
 type ShaderCardProps = {

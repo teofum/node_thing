@@ -1,19 +1,20 @@
-import { RenderShaderNode } from "./shader-node";
-import { NodeType } from "@/schemas/node.schema";
-import { useProjectStore } from "@/store/project.store";
 import * as Accordion from "@radix-ui/react-accordion";
+import { Fragment } from "react";
+import { LuFilePlus2 } from "react-icons/lu";
+
+import { NodeType } from "@/schemas/node.schema";
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/ui/accordion";
-import { Fragment } from "react";
 import { Button } from "@/ui/button";
+import { useNodeTypes } from "@/utils/use-node-types";
 import { ShaderEditor } from "./shader-editor";
-import { LuFilePlus2 } from "react-icons/lu";
+import { RenderShaderNode } from "./shader-node";
 
 export function MenuLibrary() {
-  const nodeTypes = useProjectStore((state) => state.nodeTypes);
+  const nodeTypes = useNodeTypes();
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.effectAllowed = "move";

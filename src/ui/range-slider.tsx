@@ -67,17 +67,22 @@ export const RangeSliderInput = React.forwardRef<
     return (
       <div
         ref={ref}
-        className={cn("flex items-center gap-2 nodrag", className)}
+        className={cn(
+          "grid grid-cols-[auto_1fr_auto] gap-3 items-center",
+          className,
+        )}
       >
         <div className="relative w-20">
           <Input
+            variant="outline"
+            size="sm"
             type="number"
             name={nameMin}
             step={step}
             min={min}
             max={max}
             value={inputTexts[0]}
-            className="w-21 text-xs pr-4"
+            className="w-20"
             onChange={(e) => handleInputChange(0, e.target.value)}
             onBlur={() => handleInputBlur(0)}
           />
@@ -106,13 +111,14 @@ export const RangeSliderInput = React.forwardRef<
 
         <div className="relative w-20">
           <Input
-            type="number"
+            variant="outline"
+            size="sm"
             name={nameMax}
             value={inputTexts[1]}
             min={min}
             max={max}
             step={step}
-            className="w-21 text-xs pr-4"
+            className="w-20"
             onChange={(e) => handleInputChange(1, e.target.value)}
             onBlur={() => handleInputBlur(1)}
           />
