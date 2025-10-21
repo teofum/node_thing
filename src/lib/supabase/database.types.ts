@@ -129,7 +129,9 @@ export type Database = {
       };
       profiles: {
         Row: {
+          avatar_url: string | null;
           cancelled: boolean | null;
+          display_name: string | null;
           id: string;
           is_premium: boolean | null;
           mp_access_token: string | null;
@@ -139,7 +141,9 @@ export type Database = {
           username: string;
         };
         Insert: {
+          avatar_url?: string | null;
           cancelled?: boolean | null;
+          display_name?: string | null;
           id: string;
           is_premium?: boolean | null;
           mp_access_token?: string | null;
@@ -149,7 +153,9 @@ export type Database = {
           username: string;
         };
         Update: {
+          avatar_url?: string | null;
           cancelled?: boolean | null;
+          display_name?: string | null;
           id?: string;
           is_premium?: boolean | null;
           mp_access_token?: string | null;
@@ -295,7 +301,6 @@ export type Database = {
           published: boolean | null;
           step: number | null;
           title: string;
-          type: string;
           updated_at: string;
           user_id: string;
         };
@@ -311,7 +316,6 @@ export type Database = {
           published?: boolean | null;
           step?: number | null;
           title: string;
-          type?: string;
           updated_at?: string;
           user_id: string;
         };
@@ -327,7 +331,6 @@ export type Database = {
           published?: boolean | null;
           step?: number | null;
           title?: string;
-          type?: string;
           updated_at?: string;
           user_id?: string;
         };
