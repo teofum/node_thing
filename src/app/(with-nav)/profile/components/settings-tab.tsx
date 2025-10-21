@@ -25,7 +25,7 @@ const SettingsTab = forwardRef<HTMLDivElement, SettingsTabProps>(
                 <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
                   <div>
                     <p className="font-medium">Username</p>
-                    <p className="text-sm text-neutral-400">
+                    <p className="text-sm text-white/60">
                       @{userData.username}
                     </p>
                   </div>
@@ -43,7 +43,7 @@ const SettingsTab = forwardRef<HTMLDivElement, SettingsTabProps>(
                 <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
                   <div>
                     <p className="font-medium">Display Name</p>
-                    <p className="text-sm text-neutral-400">
+                    <p className="text-sm text-white/60">
                       {userData.displayName || "Not set"}
                     </p>
                   </div>
@@ -60,10 +60,10 @@ const SettingsTab = forwardRef<HTMLDivElement, SettingsTabProps>(
 
               <div className="flex items-center justify-between p-4 bg-neutral-800/50 rounded-lg border border-white/5">
                 <div>
-                  <p className="font-medium text-neutral-400">Email</p>
-                  <p className="text-sm text-neutral-500">{user.email!}</p>
+                  <p className="font-medium text-white/60">Email</p>
+                  <p className="text-sm text-white/40">{user.email!}</p>
                 </div>
-                <p className="text-xs text-neutral-500">Cannot be changed</p>
+                <p className="text-xs text-white/40">Cannot be changed</p>
               </div>
 
               {user.app_metadata.provider === "email" && (

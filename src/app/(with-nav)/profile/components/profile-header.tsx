@@ -36,23 +36,21 @@ export default function ProfileHeader({
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <LuPencil className="text-white text-base" />
+                <LuPencil className="text-base" />
               </div>
             </button>
           }
         />
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold">
               {userData.displayName || userData.username}
             </h1>
             {userData.isPremium && <LuGem className="text-xl" />}
           </div>
           <div className="flex items-center gap-4 mt-1">
-            <span className="text-sm text-neutral-400">
-              @{userData.username}
-            </span>
-            <span className="text-sm text-neutral-400">
+            <span className="text-sm text-white/60">@{userData.username}</span>
+            <span className="text-sm text-white/60">
               {publishedCount} shaders published
             </span>
           </div>

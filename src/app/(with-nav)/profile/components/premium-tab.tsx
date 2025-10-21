@@ -48,7 +48,7 @@ const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
                 <LuGem />
                 <p>Thank you for your support!</p>
               </div>
-              <p className="text-neutral-400">
+              <p className="text-white/60">
                 {userData.cancelled
                   ? "Subscription valid until period end"
                   : "Subscription renews automatically"}

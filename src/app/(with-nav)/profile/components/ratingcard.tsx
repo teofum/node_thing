@@ -27,7 +27,7 @@ export default function RatingCard({
 }: RatingCardProps) {
   return (
     <div className="glass glass-border p-6 rounded-2xl">
-      <h3 className="text-xl font-semibold text-white mb-1">{title}</h3>
+      <h3 className="text-xl font-semibold mb-1">{title}</h3>
       {category && (
         <p className="inline-block text-sm text-teal-400 border border-current/15 mb-4 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
           {category}
