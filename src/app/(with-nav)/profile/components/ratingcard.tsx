@@ -1,5 +1,3 @@
-"use client";
-
 import { Dialog } from "@/ui/dialog";
 import RatingEditor from "../dialogs/rating-editor";
 import { UserRatingsDisplay } from "../page";
