@@ -2,7 +2,7 @@ import Image from "next/image";
 import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 
 import { Button } from "@/ui/button";
-import { addToCart, addToCartProject } from "../../marketplace/cart.actions";
+import { addToCart } from "../../marketplace/cart.actions";
 
 type ProjectCardProps = {
   id: string;
@@ -33,7 +33,7 @@ export default function ProjectCard({
           NEW
         </div>
       )}
-      <div className="text-xl font-semibold text-white mb-1">{name}</div>
+      <div className="text-xl font-semibold mb-1">{name}</div>
       {username && (
         <>
           <p className="text-sm text-white/60 mb-2">
@@ -62,13 +62,14 @@ export default function ProjectCard({
 
       <div className="mt-2">
         {inCart ? (
-          <div className="flex justify-center items-center h-13.5 text-base/5 font-semibold text-white rounded-lg border border-current/15 select-none">
+          <div className="flex justify-center items-center h-13.5 text-base/5 font-semibold rounded-lg border border-current/15 select-none">
             <LuCircleCheckBig className="inline mr-2 text-emerald-600" />
             In cart
           </div>
         ) : (
-          <form action={addToCartProject}>
-            <input type="hidden" name="projectId" value={id} />
+          <form action={addToCart}>
+            <input type="hidden" name="itemId" value={id} />
+            <input type="hidden" name="itemType" value="project" />
             <Button
               size="lg"
               variant="outline"

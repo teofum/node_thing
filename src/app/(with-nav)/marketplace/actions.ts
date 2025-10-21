@@ -103,25 +103,9 @@ export async function getShaders() {
   );
 }
 
-export async function getCategories(): Promise<Category[]> {
-  const { supabase, user } = await getSupabaseUserOrRedirect(
-    "/auth/login?next=/marketplace",
-  );
-
-  const { data: categories, error } = await supabase
-    .from("categories")
-    .select("id, name")
-    .order("name");
-
-  if (error) {
-    throw new Error(`Failed to load categories: ${error.message}`);
-  }
-
-  return categories || [];
-}
-
-export async function getTypes(): Promise<Category[]> {
-  //TODO
+// This function is almost identical to getShaders
+// TODO: see if we can make it one
+export async function getProjects() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -130,6 +114,29 @@ export async function getTypes(): Promise<Category[]> {
   if (!user) {
     redirect("/auth/login?next=/marketplace");
   }
+
+  const { data, error } = await supabase.rpc("get_projects", {
+    user_uuid: user.id,
+  });
+
+  if (error) {
+    throw new Error(`Failed rpc function: ${error.message}`);
+  }
+
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      {
+        profiles: { username: string };
+      }
+    >[],
+  );
+}
+
+export async function getCategories(): Promise<Category[]> {
+  const { supabase } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
 
   const { data: categories, error } = await supabase
     .from("categories")
@@ -168,56 +175,8 @@ export async function getPurchasedShaders() {
       )
     `,
     )
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .not("shader_id", "is", null);
 
   return purchases?.map((p) => p.shader).filter(Boolean) || [];
-}
-
-export async function getProjects() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/marketplace");
-  }
-
-  const { data: purchases } = await supabase
-    .from("purchases")
-    .select("shader_id") // TODO reutilizing shader_id for projects too
-    .eq("user_id", user.id);
-
-  const owned = purchases?.map((p) => p.shader_id) || [];
-
-  let query = supabase
-    .from("projects")
-    .select(
-      `
-      id,
-      name,
-      description,
-      price,
-      downloads,
-      created_at,
-      profiles!projects_user_id_fkey (
-        username
-      )
-    `,
-    )
-    .eq("published", true)
-    .order("created_at", { ascending: false });
-
-  // TODO filter purchased projects
-  if (owned.length) {
-    query = query.not("id", "in", `(${owned.join(",")})`);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    throw new Error(`Failed to load projects: ${error.message}`);
-  }
-
-  return camelcaseKeys(data);
 }

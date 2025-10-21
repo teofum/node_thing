@@ -2,7 +2,7 @@ import { LuPlus, LuSearch } from "react-icons/lu";
 
 import { Button, LinkButton } from "@/ui/button";
 import { RangeSliderInput } from "@/ui/range-slider";
-import { getCategories, getProjects, getShaders, getTypes } from "./actions";
+import { getCategories, getProjects, getShaders } from "./actions";
 import { getCartItems } from "./cart.actions";
 import { ShaderListClient } from "./components/shaders-sort";
 import { Cart } from "./components/cart";
@@ -25,8 +25,11 @@ export default async function MarketplacePage({ searchParams }: Props) {
   const projects = await getProjects();
   const categories = await getCategories();
   const cartItems = await getCartItems();
-  const types = await getTypes();
-  const cartIds = new Set(cartItems.map((item) => item.shader_id));
+  const cartIds = new Set(
+    cartItems
+      .map((item) => item.shader_id || item.project_id)
+      .filter((id): id is string => id !== null),
+  );
 
   // Filter by category and search from URL params to not use client-side
   const selectedCategories = Array.isArray(params.category)
@@ -92,8 +95,8 @@ export default async function MarketplacePage({ searchParams }: Props) {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white">Marketplace</h1>
-            <p className="text-neutral-400 mt-2">
+            <h1 className="text-3xl font-bold">Marketplace</h1>
+            <p className="text-white/60 mt-2">
               Discover and share amazing shaders
             </p>
           </div>
@@ -126,7 +129,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
             type="submit"
             variant="ghost"
             size="md"
-            className="absolute right-4 top-1.5  text-neutral-400 hover:text-white transition-colors"
+            className="absolute right-4 top-1.5 text-white/60 hover:text-white transition-colors"
             icon
           >
             <LuSearch size={20} />
@@ -230,7 +233,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
           </div>
         ) : filteredShaders.length === 0 && filteredProjects.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-neutral-400">
+            <p className="text-white/60">
               {searchTerm && selectedCategories.length > 0
                 ? `No results found for "${searchTerm}" in ${selectedCategories.join(", ")} categories` // both filters active
                 : searchTerm
