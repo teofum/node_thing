@@ -2,8 +2,7 @@ import Image from "next/image";
 import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 
 import { Button } from "@/ui/button";
-import { addToCart, addToCartProject } from "../../marketplace/cart/actions";
-import { Stars } from "./stars";
+import { addToCart, addToCartProject } from "../../marketplace/cart.actions";
 
 type ProjectCardProps = {
   id: string;
@@ -19,7 +18,6 @@ type ProjectCardProps = {
 export default function ProjectCard({
   id,
   name,
-  description,
   downloads,
   price,
   inCart,

@@ -5,7 +5,7 @@ import {
   NodeType,
   ShaderNode,
 } from "@/schemas/node.schema";
-import { Layer } from "@/store/project.store";
+import { Layer } from "@/store/project.types";
 import { Edge } from "@xyflow/react";
 
 type Buffer = {

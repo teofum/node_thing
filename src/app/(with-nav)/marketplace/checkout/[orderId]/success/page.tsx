@@ -55,9 +55,6 @@ export default async function SuccessPage({ params }: Props) {
                   <h1 className="text-3xl font-bold text-white mb-2">
                     Processing Payment...
                   </h1>
-                  <p className="text-neutral-400">
-                    Please refresh the page in a few moments.
-                  </p>
                 </>
               ) : (
                 <>

@@ -3,16 +3,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 export async function addToCart(formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/marketplace");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
 
   const shaderId = formData.get("shaderId") as string;
 
@@ -71,14 +67,9 @@ export async function addToCart(formData: FormData) {
 }
 
 export async function removeFromCart(formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/marketplace");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
 
   const shaderId = formData.get("shaderId") as string;
 
@@ -130,14 +121,9 @@ export async function getCartItems() {
 }
 
 export async function clearCart() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/marketplace");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
 
   const { error } = await supabase
     .from("cart_items")

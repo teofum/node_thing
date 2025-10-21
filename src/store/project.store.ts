@@ -14,75 +14,27 @@ import { combine, persist } from "zustand/middleware";
 
 import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
-import { NODE_TYPES } from "@/utils/node-type";
 import { createNode } from "@/utils/node";
-
-export type Layer = {
-  nodes: ShaderNode[];
-  edges: Edge[];
-
-  position: { x: number; y: number };
-  size: { width: number; height: number };
-
-  id: string;
-  name: string;
-};
-
-export type ProjectProperties = {
-  canvas: {
-    width: number;
-    height: number;
-  };
-};
-
-export type Project = {
-  layers: Layer[];
-  currentLayer: number;
-  properties: ProjectProperties;
-  nodeTypes: Record<string, NodeType>;
-  projectName: string;
-};
-
-export type HandleDescriptor = {
-  id: string;
-  name: string;
-  display: string;
-  type: "color" | "number";
-};
-
-type NodeTypeDescriptor = {
-  name: string;
-  inputs: HandleDescriptor[];
-  outputs: HandleDescriptor[];
-  code: string;
-};
-
-type Point = {
-  x: number;
-  y: number;
-};
-
-const initialNodes: ShaderNode[] = [
-  {
-    id: "__output",
-    position: { x: 0, y: 0 },
-    data: { type: "__output", defaultValues: {}, parameters: {} },
-    type: "RenderShaderNode",
-    deletable: false,
-  },
-];
-const initialEdges: Edge[] = [];
-const initialSize = { width: 1920, height: 1080 };
-
-function createInitialState(): Project {
-  return {
-    layers: [createLayer("Background")],
-    currentLayer: 0,
-    properties: { canvas: initialSize },
-    nodeTypes: NODE_TYPES,
-    projectName: "Untitled Project",
-  };
-}
+import {
+  saveNewShader,
+  updateShader,
+  deleteShader,
+  getCustomShaders,
+} from "./actions";
+import { Project, Layer, NodeTypeDescriptor, Point } from "./project.types";
+import {
+  createLayer,
+  modifyLayer,
+  getAllNodeTypes,
+  isConnectionValid,
+  modifyNode,
+  newLayerId,
+  prepareProjectForExport,
+  updateNodeType,
+  createInitialState,
+  createHandles,
+  mergeProject,
+} from "./project.actions";
 
 export const useProjectStore = create(
   persist(
@@ -107,7 +59,8 @@ export const useProjectStore = create(
         set(
           modifyLayer((layer) => {
             const { nodeTypes } = get();
-            if (!isConnectionValid(layer, connection, nodeTypes)) return {};
+            const allNodeTypes = getAllNodeTypes(nodeTypes);
+            if (!isConnectionValid(layer, connection, allNodeTypes)) return {};
 
             const edgesWithoutConflictingConnections = layer.edges.filter(
               (e) =>
@@ -216,26 +169,17 @@ export const useProjectStore = create(
 
       exportProject: () => {
         const project = get();
-        return JSON.stringify(project, null, 2);
+        return prepareProjectForExport(project);
       },
 
-      importProject: (jsonOrObj: string | Project) =>
-        set((state) => {
-          const parsedProject: Project =
-            typeof jsonOrObj === "string" ? JSON.parse(jsonOrObj) : jsonOrObj;
-
-          return {
-            layers: parsedProject.layers,
-            currentLayer: parsedProject.currentLayer,
-            properties: parsedProject.properties,
-            nodeTypes: state.nodeTypes,
-            projectName: parsedProject.projectName,
-          };
+      importProject: (project: Project) =>
+        set((current) => {
+          return mergeProject(project, current);
         }),
 
       loadNodeTypes: async () => {
         const purchased = await getPurchasedShaders();
-        const purchasedNodeTypes = Object.fromEntries(
+        const external = Object.fromEntries(
           purchased
             .filter((shader) => shader.node_config)
             .map((shader) => {
@@ -244,32 +188,86 @@ export const useProjectStore = create(
                 shader.id,
                 {
                   ...config,
-                  shader: config.shader,
-                  isPurchased: true,
+                  externalShaderId: shader.id,
                 },
               ];
             }),
         );
 
+        const custom = await getCustomShaders();
+        const customNodeTypes = Object.fromEntries(
+          custom
+            .filter((shader) => shader.node_config)
+            .map((shader) => {
+              const config = shader.node_config as NodeTypeDescriptor;
+              const inputs = createHandles(config.inputs ?? []);
+              const outputs = createHandles(config.outputs ?? []);
+
+              const nodeType = {
+                name: config.name ?? shader.title ?? "Custom",
+                category: "Custom",
+                shader: config.code ?? "",
+                inputs,
+                outputs,
+                parameters: {},
+                externalShaderId: shader.id,
+              };
+              return [`custom_${nodeType.externalShaderId}`, nodeType];
+            }),
+        );
+
         set(({ nodeTypes }) => ({
-          nodeTypes: { ...nodeTypes, ...purchasedNodeTypes },
+          nodeTypes: { ...nodeTypes, external, custom: customNodeTypes },
         }));
       },
 
-      createNodeType: (desc: NodeTypeDescriptor) => {
-        set(updateNodeType(`custom_${nanoid()}`, desc));
+      createNodeType: async (desc: NodeTypeDescriptor) => {
+        const data = await saveNewShader(desc);
+        const id = data ? data.id : nanoid();
+        const key = `custom_${id}`;
+        set(updateNodeType(key, desc));
+        if (data) {
+          set(({ nodeTypes }) => ({
+            nodeTypes: {
+              ...nodeTypes,
+              custom: {
+                ...nodeTypes.custom,
+                [key]: { ...nodeTypes.custom[key], externalShaderId: id },
+              },
+            },
+          }));
+        }
       },
 
-      updateNodeType: (id: string, desc: NodeTypeDescriptor) => {
+      updateNodeType: async (id: string, desc: NodeTypeDescriptor) => {
+        const { nodeTypes } = get();
+        const remoteId = nodeTypes.custom[id].externalShaderId;
         set(updateNodeType(id, desc));
+        if (remoteId) {
+          const data = await updateShader(desc, remoteId);
+          if (!data) return;
+          set(({ nodeTypes }) => ({
+            nodeTypes: {
+              ...nodeTypes,
+              custom: {
+                ...nodeTypes.custom,
+                [id]: { ...nodeTypes.custom[id], externalShaderId: remoteId },
+              },
+            },
+          }));
+        }
       },
 
-      deleteNodeType: (name: string) => {
+      deleteNodeType: async (name: string) => {
+        const { nodeTypes } = get();
+        const remoteId = nodeTypes.custom[name].externalShaderId;
+        if (remoteId) await deleteShader(remoteId);
+
         set(({ nodeTypes, layers }) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { [name]: _, ...rest } = nodeTypes;
+          const { [name]: _, ...rest } = nodeTypes.custom;
           return {
-            nodeTypes: rest,
+            nodeTypes: { ...nodeTypes, custom: rest },
             layers: layers.map((layer) => ({
               ...layer,
               nodes: layer.nodes.filter((n) => n.data.type !== name),
@@ -291,10 +289,11 @@ export const useProjectStore = create(
         set(
           modifyLayer((layer) => {
             const { nodeTypes } = get();
+            const allNodeTypes = getAllNodeTypes(nodeTypes);
             return {
               nodes: [
                 ...layer.nodes.map((node) => ({ ...node, selected: false })),
-                createNode(type, position, nodeTypes, parameters),
+                createNode(type, position, allNodeTypes, parameters),
               ],
             };
           }),
@@ -346,127 +345,9 @@ export const useProjectStore = create(
       name: "main-store",
       merge: (persisted, current) => ({
         ...current,
-        ...(persisted as Project),
-        nodeTypes: {
-          ...current.nodeTypes,
-          // ...(persisted as Project).nodeTypes,
-          ...NODE_TYPES,
-        },
-        properties: {
-          ...current.properties,
-          ...(persisted as Project).properties,
-        },
+        ...mergeProject(persisted, current),
       }),
+      partialize: prepareProjectForExport,
     },
   ),
 );
-
-function isConnectionValid(
-  layer: Layer,
-  connection: Connection,
-  nodeTypes: Record<string, NodeType>,
-) {
-  const targetType = layer.nodes.find((node) => node.id === connection.target)!
-    .data.type;
-  const sourceType = layer.nodes.find((node) => node.id === connection.source)!
-    .data.type;
-
-  const targetHandleType =
-    nodeTypes[targetType].inputs[connection.targetHandle ?? ""].type;
-  const sourceHandleType =
-    nodeTypes[sourceType].outputs[connection.sourceHandle ?? ""].type;
-
-  return targetHandleType === sourceHandleType;
-}
-
-function modifyNode(
-  id: string,
-  updater: (node: ShaderNode) => Partial<ShaderNode>,
-): (state: Project) => Partial<Project> {
-  return modifyLayer(({ nodes }) => {
-    const node = nodes.find((n) => n.id === id);
-    if (!node) return {};
-
-    return {
-      nodes: [
-        ...nodes.filter((n) => n.id !== id),
-        {
-          ...node,
-          ...updater(node),
-          id: node.id,
-        },
-      ],
-    };
-  });
-}
-
-function modifyLayer(
-  updater: (layer: Layer) => Partial<Layer>,
-  idx?: number,
-): (state: Project) => Partial<Project> {
-  return ({ layers, currentLayer }) => {
-    const layerIdx = idx ?? currentLayer;
-    const layerToModify = layers[layerIdx];
-    if (!layerToModify) return {};
-
-    const layersUnder = layers.slice(0, layerIdx);
-    const layersOver = layers.slice(layerIdx + 1);
-
-    return {
-      layers: [
-        ...layersUnder,
-        {
-          ...layerToModify,
-          ...updater(layerToModify),
-        },
-        ...layersOver,
-      ],
-    };
-  };
-}
-
-function updateNodeType(
-  name: string,
-  desc: NodeTypeDescriptor,
-): (state: Project) => Partial<Project> {
-  return ({ nodeTypes }: Project) => {
-    const inputs = createHandles(desc.inputs);
-    const outputs = createHandles(desc.outputs);
-
-    const newNodeType: NodeType = {
-      name: desc.name,
-      category: "Custom",
-      shader: desc.code,
-      inputs,
-      outputs,
-      parameters: {},
-    };
-
-    return {
-      nodeTypes: { ...nodeTypes, [name]: newNodeType },
-    };
-  };
-}
-
-function createHandles(desc: HandleDescriptor[]) {
-  const handles: NodeType["inputs" | "outputs"] = {};
-  for (const { name, display, type } of desc) {
-    handles[name] = { name: display, type };
-  }
-  return handles;
-}
-
-function createLayer(name: string, size = initialSize): Layer {
-  return {
-    nodes: [...initialNodes],
-    edges: [...initialEdges],
-    position: { x: 0, y: 0 },
-    size,
-    id: newLayerId(),
-    name,
-  };
-}
-
-function newLayerId(): string {
-  return `layer_${nanoid()}`;
-}

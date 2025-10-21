@@ -5,10 +5,11 @@ import { ComponentProps, useState } from "react";
 import {
   deleteShaderReview,
   submitShaderReview,
-} from "@/app/(with-nav)/profile/actions";
+} from "@/app/(with-nav)/profile/actions/shaders";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
-import { UserRatingsDisplay } from "./page";
+import { UserRatingsDisplay } from "../page";
+import { useRouter } from "next/navigation";
 
 type RatingEditorProps = {
   id: string;
@@ -29,13 +30,16 @@ export default function RatingEditor({
   const [rating, setRating] = useState(userRating?.rating ?? 0);
   const [comment, setComment] = useState(userRating?.comment ?? "");
   const stars = [1, 2, 3, 4, 5];
+  const router = useRouter();
 
   const handleSubmit = async () => {
     await submitShaderReview(id, rating, comment);
+    router.refresh();
   };
 
   const handleDelete = async () => {
     await deleteShaderReview(id);
+    router.refresh();
   };
 
   return (
