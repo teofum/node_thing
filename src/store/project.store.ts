@@ -217,7 +217,7 @@ export const useProjectStore = create(
         );
 
         set(({ nodeTypes }) => ({
-          nodeTypes: { ...nodeTypes, external },
+          nodeTypes: { ...nodeTypes, external, custom: customNodeTypes },
         }));
       },
 
