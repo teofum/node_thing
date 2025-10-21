@@ -1,5 +1,6 @@
 "use server";
 
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -31,7 +32,8 @@ export async function generateShaderCode(
 }
 
 export async function saveSchema(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase, user } = await getSupabaseUserOrRedirect();
+
   const id = formData.get("id") as string;
   const step = parseInt(formData.get("step") as string);
 
@@ -60,7 +62,8 @@ export async function saveSchema(formData: FormData) {
 }
 
 export async function saveCode(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase, user } = await getSupabaseUserOrRedirect();
+
   const id = formData.get("id") as string;
   const code = formData.get("code") as string;
 
@@ -73,7 +76,8 @@ export async function saveCode(formData: FormData) {
 }
 
 export async function publishShader(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase, user } = await getSupabaseUserOrRedirect();
+
   const id = formData.get("id") as string;
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;

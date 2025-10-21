@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PostgrestError } from "@supabase/supabase-js";
 import camelcaseKeys from "camelcase-keys";
 import { Replace } from "@/utils/replace";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 export async function subscribePremiumAction(formData: FormData) {
   const variantId = formData.get("variant_id") as string;
@@ -28,14 +29,9 @@ export async function subscribePremiumAction(formData: FormData) {
 }
 
 export async function cancelSubscriptionAction() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -59,14 +55,9 @@ export async function cancelSubscriptionAction() {
 }
 
 export async function resumeSubscriptionAction() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -95,13 +86,7 @@ export async function resumeSubscriptionAction() {
 export async function updatePayoutSettingsAction(formData: FormData) {
   // TODO comento para que compile
   // const mpEmail = formData.get("mp_email") as string;
-  // const supabase = await createClient();
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
-  // if (!user) {
-  //   redirect("/auth/login?next=/profile");
-  // }
+  // const {supabase, user } = await getSupabaseUserOrRedirect("/auth/login?next=/profile");
   // await supabase
   //   .from("profiles")
   //   .update({ mp_email: mpEmail })
@@ -109,28 +94,10 @@ export async function updatePayoutSettingsAction(formData: FormData) {
   // redirect("/profile");
 }
 
-export async function getUser() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
-
-  return user;
-}
-
 export async function getUserData() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data, error } = await supabase
     .from("profiles")
@@ -150,14 +117,9 @@ export async function getUserData() {
 }
 
 export async function getPublishedShaders() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data, error } = await supabase.rpc("get_published_shaders", {
     user_uuid: user.id,
@@ -176,14 +138,9 @@ export async function getPublishedShaders() {
 }
 
 export async function getPurchasedShaders() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data, error } = await supabase.rpc("get_purchased_shaders", {
     user_uuid: user.id,
@@ -206,14 +163,9 @@ export async function submitShaderReview(
   rating: number,
   comment: string,
 ) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { error: upsertError } = await supabase.from("ratings").upsert(
     {
@@ -234,14 +186,9 @@ export async function submitShaderReview(
 }
 
 export async function getUserRatings() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data, error } = await supabase
     .from("ratings")
@@ -256,14 +203,9 @@ export async function getUserRatings() {
 }
 
 export async function setUsername(newUsername: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { data, error } = await supabase
     .from("profiles")
@@ -278,14 +220,9 @@ export async function setUsername(newUsername: string) {
 }
 
 export async function deleteShaderReview(shaderId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   const { error } = await supabase
     .from("ratings")
