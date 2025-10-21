@@ -1,35 +1,29 @@
 import Image from "next/image";
-import { LuCircleCheckBig, LuDownload, LuPlus, LuLoader } from "react-icons/lu";
+import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 
 import { Button } from "@/ui/button";
-import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
-import { Stars } from "./stars";
+import { addToCart, addToCartProject } from "../../marketplace/cart.actions";
 
-type ShaderCardProps = {
+type ProjectCardProps = {
   id: string;
-  title: string;
+  name: string;
+  description: string;
   price: number;
   downloads: number;
   inCart: boolean;
   username?: string;
-  category: string;
   createdAt: string;
-  averageRating?: number | null;
-  ratingCount?: number | null;
 };
 
-export default function ShaderCard({
+export default function ProjectCard({
   id,
-  title,
-  price,
+  name,
   downloads,
+  price,
   inCart,
   username,
-  category,
   createdAt,
-  averageRating,
-  ratingCount,
-}: ShaderCardProps) {
+}: ProjectCardProps) {
   const isNew =
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
   return (
@@ -39,20 +33,15 @@ export default function ShaderCard({
           NEW
         </div>
       )}
-      <div className="text-xl font-semibold text-white mb-1">{title}</div>
+      <div className="text-xl font-semibold text-white mb-1">{name}</div>
       {username && (
         <>
           <p className="text-sm text-white/60 mb-2">
             by <span className="font-bold">{username}</span>
           </p>
-          <p className="inline-block text-sm text-blue-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2 py-1 px-2 mr-2">
-            Shader
+          <p className="inline-block text-sm text-fuchsia-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2 py-1 px-2 mr-2">
+            Project
           </p>
-          {category && (
-            <p className="inline-block text-sm text-teal-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
-              {category}
-            </p>
-          )}
         </>
       )}
 
@@ -69,7 +58,6 @@ export default function ShaderCard({
         <div className="flex flex-row items-center gap-1 text-white/60">
           <LuDownload /> {downloads}
         </div>
-        <Stars ratingValue={averageRating} ratingCount={ratingCount} />
       </div>
 
       <div className="mt-2">
@@ -79,11 +67,9 @@ export default function ShaderCard({
             In cart
           </div>
         ) : (
-          <form action={addToCart} className="relative">
-            <input type="hidden" name="shaderId" value={id} />
-
+          <form action={addToCartProject}>
+            <input type="hidden" name="projectId" value={id} />
             <Button
-              type="submit"
               size="lg"
               variant="outline"
               className="flex items-center text-emerald-600 w-full"

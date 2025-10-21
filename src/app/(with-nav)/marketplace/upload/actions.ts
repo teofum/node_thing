@@ -173,6 +173,32 @@ export async function getUserProjects() {
   return projects;
 }
 
+export async function publishProject(
+  projectID: string,
+  price: number,
+  description: string,
+) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  await supabase
+    .from("projects")
+    .update({
+      published: true,
+      price: price,
+      description: description,
+      downloads: 0,
+    })
+    .eq("id", projectID);
+}
+
 export async function getCreatedShaders() {
   const supabase = await createClient();
   const {
