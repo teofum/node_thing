@@ -14,8 +14,8 @@ fn rand(seed: vec2f) -> f32 {
 }
 
 
-fn getPoint(root: vec2f, seed: f32, t: f32, usize: u32) -> vec2u {
-    return vec2u( u32(rand( root + seed ) + t) % usize, u32(rand( root + seed + 1 ) + t) % usize);
+fn getPoint(root: vec2f, seed: f32, size: f32) -> vec2u {
+    return vec2u( u32(rand( root + seed )*size),u32(rand( root + seed )*size));
 }
 
 fn main( @builtin(global_invocation_id) id: vec3u,) {
@@ -25,13 +25,14 @@ fn main( @builtin(global_invocation_id) id: vec3u,) {
     let root: vec2f = vec2f( f32((id.x/usize)*usize) , f32((id.y/usize)*usize) );
 
     // Point wil be the point position inside the cell    
-    let point = vec2f(getPoint(root, seed, t, usize));
+    let point = vec2f(getPoint(root, seed, size));
 
     let pointPos = root + point;
 
+    // de aca pa arriba anda /////////////
 
     var minDistance = 2 * size;
-    var color: f32 = 0.0;
+    var num: f32 = 0.0;
 
     var orderx: array<i32, 8> = array<i32, 8>(-1i,  0i,  1i, -1i, 1i, -1i, 0i, 1i);
     var ordery: array<i32, 8> = array<i32, 8>(-1i, -1i, -1i,  0i, 0i,  1i, 1i, 1i);
@@ -39,17 +40,17 @@ fn main( @builtin(global_invocation_id) id: vec3u,) {
         let displace = vec2f( f32(orderx[i]), f32(ordery[i]));
 
         let kroot = root + displace;
-        let kpoint = vec2f(getPoint(kroot, seed, t, usize));
+        let kpoint = vec2f(getPoint(kroot, seed, size));
         let kpointPos = kroot + kpoint;
 
         let d = distance(pointPos,kpoint);
 
         if( d < minDistance ){
             minDistance = d;
-            color = smoothstep(0.0, d, distance( pointPos, vec2f(id.xy) ));
+            num = smoothstep(0.0, d, distance( pointPos, vec2f(id.xy) ));
         }
 
     }
 
-    output[index] = color;
+    output[index] = num;
 }
