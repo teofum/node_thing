@@ -8,7 +8,7 @@ import {
 } from "@/app/(with-nav)/profile/actions/shaders";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
-import { UserRatingsDisplay } from "./page";
+import { UserRatingsDisplay } from "../page";
 import { useRouter } from "next/navigation";
 
 type RatingEditorProps = {

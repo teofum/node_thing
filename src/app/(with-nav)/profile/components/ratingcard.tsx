@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog } from "@/ui/dialog";
-import RatingEditor from "../rating-editor";
+import RatingEditor from "../dialogs/rating-editor";
 import { UserRatingsDisplay } from "../page";
 import { Button } from "@/ui/button";
 import { Stars } from "@/app/(with-nav)/marketplace/components/stars";
