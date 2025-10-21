@@ -102,7 +102,7 @@ export async function getCustomShaders() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    return [];
   }
 
   const { data, error } = await supabase
