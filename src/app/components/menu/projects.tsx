@@ -1,19 +1,21 @@
 "use client";
 
-import { Menu, MenuItem, MenuSeparator } from "@/ui/menu-bar";
+import cn from "classnames";
+import Link from "next/link";
+import { useState } from "react";
 import {
   LuCloudDownload,
   LuCloudUpload,
   LuFolders,
   LuMedal,
 } from "react-icons/lu";
-import { loadProjectOnline, saveProjectOnline } from "./actions";
-import Link from "next/link";
+
 import { Tables } from "@/lib/supabase/database.types";
+import { Menu, MenuItem, MenuSeparator } from "@/ui/menu-bar";
+import { exportProject, importProject, ImportResult } from "@/utils/project";
+import { loadProjectOnline, saveProjectOnline } from "./actions";
 import { ManageProjects } from "./manage-projects";
-import cn from "classnames";
-import { zipExportProject, zipImportProject } from "@/utils/zip";
-import { useState } from "react";
+import { ConfirmImport } from "./confirm-import";
 
 export interface ProjectsMenuProps {
   userData: {
@@ -25,8 +27,8 @@ export interface ProjectsMenuProps {
 
 export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
   const [projectsManagerOpen, setProjectsManagerOpen] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult>(undefined);
 
-  // caso sin login o sin premium
   if (!userData || !userData.is_premium) {
     return (
       <Menu label="Projects" value="file">
@@ -40,13 +42,22 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
     );
   }
 
-  // caso tiene premium
+  const handleOpen = async (project: Tables<"projects">) => {
+    const blob = await loadProjectOnline(project.user_project);
+
+    const file = new File([blob], project.user_project, {
+      type: blob.type,
+    });
+
+    setImportResult(await importProject(file));
+  };
+
   return (
     <>
       <Menu label="Projects" value="file">
         <MenuItem
           icon={<LuCloudUpload />}
-          onClick={async () => saveProjectOnline(await zipExportProject())}
+          onClick={async () => saveProjectOnline(await exportProject())}
         >
           Save Online
         </MenuItem>
@@ -71,26 +82,17 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
         </div>
 
         {projects.length ? (
-          // muestro los últimos 3 modificados
-          projects.slice(0, 3).map((currProject) => (
+          projects.slice(0, 3).map((project) => (
             <MenuItem
-              key={currProject.id}
+              key={project.id}
               icon={<LuCloudDownload />}
-              onClick={async () => {
-                const blob = await loadProjectOnline(currProject.user_project);
-
-                const file = new File([blob], currProject.user_project, {
-                  type: blob.type,
-                });
-
-                await zipImportProject(file);
-              }}
+              onClick={() => handleOpen(project)}
             >
-              {currProject.name}
+              {project.name}
             </MenuItem>
           ))
         ) : (
-          <MenuItem>No saved projects...</MenuItem>
+          <MenuItem>No saved projects</MenuItem>
         )}
       </Menu>
       <ManageProjects
@@ -98,6 +100,10 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
         open={projectsManagerOpen}
         onOpenChange={setProjectsManagerOpen}
         projects={projects}
+      />
+      <ConfirmImport
+        importResult={importResult}
+        setImportResult={setImportResult}
       />
     </>
   );

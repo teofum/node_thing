@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { HandleDescriptor } from "./project.store";
+import { HandleDescriptor } from "@/store/project.types";
 
 export async function saveNewShader(desc: {
   name: string;
