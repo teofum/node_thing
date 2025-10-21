@@ -152,7 +152,7 @@ export function updateNodeType(
   };
 }
 
-function createHandles(desc: HandleDescriptor[]) {
+export function createHandles(desc: HandleDescriptor[]) {
   const handles: NodeType["inputs" | "outputs"] = {};
   for (const { name, display, type } of desc) {
     handles[name] = { name: display, type };

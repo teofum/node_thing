@@ -15,6 +15,12 @@ import { combine, persist } from "zustand/middleware";
 import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { createNode } from "@/utils/node";
+import {
+  saveNewShader,
+  updateShader,
+  deleteShader,
+  getCustomShaders,
+} from "./actions";
 import { Project, Layer, NodeTypeDescriptor, Point } from "./project.types";
 import {
   createLayer,
@@ -26,6 +32,7 @@ import {
   prepareProjectForExport,
   updateNodeType,
   createInitialState,
+  createHandles,
   mergeProject,
 } from "./project.actions";
 
@@ -187,20 +194,75 @@ export const useProjectStore = create(
             }),
         );
 
+        const custom = await getCustomShaders();
+        const customNodeTypes = Object.fromEntries(
+          custom
+            .filter((shader) => shader.node_config)
+            .map((shader) => {
+              const config = shader.node_config as NodeTypeDescriptor;
+              const inputs = createHandles(config.inputs ?? []);
+              const outputs = createHandles(config.outputs ?? []);
+
+              const nodeType = {
+                name: config.name ?? shader.title ?? "Custom",
+                category: "Custom",
+                shader: config.code ?? "",
+                inputs,
+                outputs,
+                parameters: {},
+                externalShaderId: shader.id,
+              };
+              return [`custom_${nodeType.externalShaderId}`, nodeType];
+            }),
+        );
+
         set(({ nodeTypes }) => ({
-          nodeTypes: { ...nodeTypes, external },
+          nodeTypes: { ...nodeTypes, external, custom: customNodeTypes },
         }));
       },
 
-      createNodeType: (desc: NodeTypeDescriptor) => {
-        set(updateNodeType(`custom_${nanoid()}`, desc));
+      createNodeType: async (desc: NodeTypeDescriptor) => {
+        const data = await saveNewShader(desc);
+        const id = data ? data.id : nanoid();
+        const key = `custom_${id}`;
+        set(updateNodeType(key, desc));
+        if (data) {
+          set(({ nodeTypes }) => ({
+            nodeTypes: {
+              ...nodeTypes,
+              custom: {
+                ...nodeTypes.custom,
+                [key]: { ...nodeTypes.custom[key], externalShaderId: id },
+              },
+            },
+          }));
+        }
       },
 
-      updateNodeType: (id: string, desc: NodeTypeDescriptor) => {
+      updateNodeType: async (id: string, desc: NodeTypeDescriptor) => {
+        const { nodeTypes } = get();
+        const remoteId = nodeTypes.custom[id].externalShaderId;
         set(updateNodeType(id, desc));
+        if (remoteId) {
+          const data = await updateShader(desc, remoteId);
+          if (!data) return;
+          set(({ nodeTypes }) => ({
+            nodeTypes: {
+              ...nodeTypes,
+              custom: {
+                ...nodeTypes.custom,
+                [id]: { ...nodeTypes.custom[id], externalShaderId: remoteId },
+              },
+            },
+          }));
+        }
       },
 
-      deleteNodeType: (name: string) => {
+      deleteNodeType: async (name: string) => {
+        const { nodeTypes } = get();
+        const remoteId = nodeTypes.custom[name].externalShaderId;
+        if (remoteId) await deleteShader(remoteId);
+
         set(({ nodeTypes, layers }) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [name]: _, ...rest } = nodeTypes.custom;
