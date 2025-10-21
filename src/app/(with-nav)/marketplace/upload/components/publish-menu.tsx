@@ -8,9 +8,14 @@ import { PublishDialog } from "./publish-dialog";
 type PublishMenuProps = {
   projects: Tables<"projects">[];
   shaders: Tables<"shaders">[];
+  categories: Tables<"categories">[];
 };
 
-export default function PublishMenu({ projects, shaders }: PublishMenuProps) {
+export default function PublishMenu({
+  projects,
+  shaders,
+  categories,
+}: PublishMenuProps) {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [publishType, setPublishType] = useState<"shader" | "project">(
     "project",
@@ -139,6 +144,7 @@ export default function PublishMenu({ projects, shaders }: PublishMenuProps) {
         onOpenChange={setPublishDialogOpen}
         type={publishType}
         id={publishId}
+        categories={categories}
       />
     </>
   );
