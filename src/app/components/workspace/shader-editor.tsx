@@ -161,7 +161,7 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
     ]);
   };
 
-  const save = () => {
+  const save = async () => {
     if (!nameRef.current || !codeRef.current) return;
 
     const desc = {
@@ -201,7 +201,10 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
             ref={nameRef}
             variant="outline"
             className="w-full"
-            defaultValue={editNodeType?.name ?? "New Shader"}
+            defaultValue={
+              editNodeType?.name ??
+              "New Shader" /*TODO: meter restriccion de longitud de la DB*/
+            }
           />
           <textarea
             ref={codeRef}
