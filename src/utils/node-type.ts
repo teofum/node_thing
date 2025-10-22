@@ -300,8 +300,9 @@ export const NODE_TYPES = {
         name: "Radius",
         type: "number",
         min: 1,
-        max: 25,
+        max: 50,
         step: 1,
+        default: 5,
       },
     },
     outputs: {
@@ -327,6 +328,7 @@ export const NODE_TYPES = {
         min: 0.1,
         max: 50,
         step: 0.1,
+        default: 5,
       },
     },
     outputs: {
@@ -361,6 +363,7 @@ export const NODE_TYPES = {
         min: 0.1,
         max: 50,
         step: 0.1,
+        default: 5,
       },
       tangent: {
         name: "Tangent",
@@ -478,6 +481,7 @@ export const NODE_TYPES = {
         name: "Contrast",
         type: "number",
         min: 0,
+        default: 1,
       },
     },
     outputs: {
@@ -507,6 +511,7 @@ export const NODE_TYPES = {
         name: "Saturation",
         type: "number",
         min: 0,
+        default: 1,
       },
     },
     outputs: {
@@ -532,17 +537,20 @@ export const NODE_TYPES = {
         min: 0,
         max: 360,
         step: 1,
+        default: 0,
       },
       saturation: {
         name: "Saturation",
         type: "number",
         min: 0,
+        default: 1,
       },
       luminance: {
         name: "Luminance",
         type: "number",
         min: -1,
         max: 1,
+        default: 0,
       },
     },
     outputs: {
@@ -680,6 +688,7 @@ export const NODE_TYPES = {
         min: 2,
         max: 16,
         step: 1,
+        default: 4,
       },
     },
     outputs: {
@@ -703,8 +712,9 @@ export const NODE_TYPES = {
         name: "Radius",
         type: "number",
         min: 2,
-        max: 50,
+        max: 64,
         step: 1,
+        default: 8,
       },
     },
     outputs: {
