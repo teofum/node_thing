@@ -643,28 +643,28 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  voronoi: {
-    name: "Voronoi filter",
+  LGG: {
+    name: "Lift gamma gain",
     category: "Color",
-    shader: voronoiShader,
+    shader: LGGShader,
     inputs: {
       input: {
         name: "Input",
         type: "color",
       },
-      size: {
-        name: "size",
-        type: "number",
-        min: 2,
-        step: 1,
-      },
-      t: {
-        name: "t",
+      lift: {
+        name: "lift",
         type: "number",
       },
-      seed: {
-        name: "seed",
+      gamma: {
+        name: "gamma",
         type: "number",
+        min: 0,
+      },
+      gain: {
+        name: "gain",
+        type: "number",
+        min: 0,
       },
     },
     outputs: {
@@ -737,37 +737,6 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
-  LGG: {
-    name: "Lift gamma gain",
-    category: "Tone mapping",
-    shader: LGGShader,
-    inputs: {
-      input: {
-        name: "Input",
-        type: "color",
-      },
-      lift: {
-        name: "lift",
-        type: "number",
-      },
-      gamma: {
-        name: "gamma",
-        type: "number",
-      },
-      gain: {
-        name: "gain",
-        type: "number",
-      },
-    },
-    outputs: {
-      output: {
-        name: "Output",
-        type: "color",
-      },
-    },
-    parameters: {},
-  },
-
   // Effects category ///////////////////////////////
   threshold: {
     name: "Threshold",
@@ -861,6 +830,38 @@ export const NODE_TYPES = {
         name: "y",
         type: "number",
         step: 1,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  voronoi: {
+    name: "Voronoi filter",
+    category: "Effects",
+    shader: voronoiShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      size: {
+        name: "size",
+        type: "number",
+        min: 2,
+        step: 1,
+      },
+      t: {
+        name: "t",
+        type: "number",
+      },
+      seed: {
+        name: "seed",
+        type: "number",
       },
     },
     outputs: {
