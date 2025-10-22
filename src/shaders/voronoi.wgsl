@@ -31,6 +31,7 @@ fn main( @builtin(global_invocation_id) id: vec3u,) {
 
     var minDistance = 2 * size;
     var num: f32 = 0.0;
+    var color: vec3f = vec3f(0.0);
 
     // gets the min distance
     for(var dx: i32 = -1; dx < 2 ; dx += 1){
@@ -44,9 +45,10 @@ fn main( @builtin(global_invocation_id) id: vec3u,) {
             
             if( d < minDistance ){
                 minDistance = d;
+                color = raw_input[u32(kpointPos.x + ( kpointPos.y * f32(u.width) ))];
             }
         }
     }
 
-    output[index] = smoothstep(0.0, ( 2* size ), minDistance);
+    output[index] = color;
 }
