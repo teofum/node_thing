@@ -15,7 +15,7 @@ fn rand(seed: vec2f) -> f32 {
 
 
 fn getPoint(root: vec2f, seed: f32, size: f32) -> vec2u {
-    return vec2u( u32(rand( root + seed )*size),u32(rand( root + seed )*size));
+    return vec2u( u32(rand( root + seed )*size)  , u32(rand( root + seed )*size) );
 }
 
 fn main( @builtin(global_invocation_id) id: vec3u,) {
@@ -29,28 +29,26 @@ fn main( @builtin(global_invocation_id) id: vec3u,) {
 
     let pointPos = root + point;
 
-    // de aca pa arriba anda /////////////
-
     var minDistance = 2 * size;
     var num: f32 = 0.0;
+    var minDistPoint: vec2f = vec2f(0.0);
 
-    var orderx: array<i32, 8> = array<i32, 8>(-1i,  0i,  1i, -1i, 1i, -1i, 0i, 1i);
-    var ordery: array<i32, 8> = array<i32, 8>(-1i, -1i, -1i,  0i, 0i,  1i, 1i, 1i);
-    for (var i: u32 = 0; i < 8; i += 1) {
-        let displace = vec2f( f32(orderx[i]), f32(ordery[i]));
+    // gets the min distance
+    for(var dx: i32 = -1; dx < 2 ; dx += 1){
+        for(var dy: i32 = -1; dy < 2 ; dy += 1){
+            let displace = vec2f( f32(dx), f32(dy) );
+            let kroot = root + (displace*size);
+            let kpoint = vec2f(getPoint(kroot, seed, size));
+            let kpointPos = kroot + kpoint;
 
-        let kroot = root + displace;
-        let kpoint = vec2f(getPoint(kroot, seed, size));
-        let kpointPos = kroot + kpoint;
-
-        let d = distance(pointPos,kpoint);
-
-        if( d < minDistance ){
-            minDistance = d;
-            num = smoothstep(0.0, d, distance( pointPos, vec2f(id.xy) ));
+            let d = distance(vec2f(id.xy), kpointPos);
+            
+            if( d < minDistance ){
+                minDistance = d;
+                minDistPoint = kpointPos;
+            }
         }
-
     }
 
-    output[index] = num;
+    output[index] = smoothstep(0.0, ( 2* size ), minDistance);
 }
