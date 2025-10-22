@@ -9,17 +9,18 @@ import { saveImageToFile } from "@/utils/image";
 import { imageTypeSchema } from "@/schemas/asset.schema";
 import { ExportOptions } from "./export-options";
 import {
-  zipExportProject,
-  zipExportProjectFromFile,
-  zipImportProjectFromFile,
-} from "@/utils/zip";
-import { saveFile } from "@/utils/file";
+  exportProjectFromFile,
+  importProjectFromFile,
+  ImportResult,
+} from "@/utils/project";
+import { ConfirmImport } from "./confirm-import";
 
 export function FileMenu() {
   const canvas = useUtilityStore((s) => s.canvas);
   const onNextRenderFinished = useUtilityStore((s) => s.onNextRenderFinished);
 
   const [exportOpen, setExportOpen] = useState(false);
+  const [importResult, setImportResult] = useState<ImportResult>(undefined);
 
   const exportImage = () => {
     canvas?.toBlob(async (blob) => {
@@ -33,14 +34,18 @@ export function FileMenu() {
     });
   };
 
+  const handleOpen = async () => {
+    setImportResult(await importProjectFromFile());
+  };
+
   return (
     <>
       <Menu label="File" value="file">
-        <MenuItem icon={<LuSave />} onClick={zipExportProjectFromFile}>
-          Export project
+        <MenuItem icon={<LuSave />} onClick={exportProjectFromFile}>
+          Save
         </MenuItem>
-        <MenuItem icon={<LuFolderOpen />} onClick={zipImportProjectFromFile}>
-          Import project
+        <MenuItem icon={<LuFolderOpen />} onClick={handleOpen}>
+          Open
         </MenuItem>
 
         <MenuSeparator />
@@ -57,6 +62,10 @@ export function FileMenu() {
         </MenuItem>
       </Menu>
       <ExportOptions open={exportOpen} onOpenChange={setExportOpen} />
+      <ConfirmImport
+        importResult={importResult}
+        setImportResult={setImportResult}
+      />
     </>
   );
 }

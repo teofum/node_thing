@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { combine, persist } from "zustand/middleware";
 
 import {
   type ImageAsset,
@@ -8,23 +8,12 @@ import {
 } from "@/schemas/asset.schema";
 import { opfsStorage } from "./storage/opfs-storage";
 
-type AssetActions = {
-  addImage: (name: string, data: ImageAsset) => void;
-  removeImage: (name: string) => void;
-};
+const initialState: AssetsState = { images: {} };
 
-export const useAssetStore = create<AssetsState & AssetActions>()(
+export const useAssetStore = create(
   persist(
-    (set) => ({
-      /*
-       * State
-       */
-      images: {},
-
-      /*
-       * Actions
-       */
-      addImage: (name, data) =>
+    combine(initialState, (set) => ({
+      addImage: (name: string, data: ImageAsset) =>
         set(({ images }) => ({
           images: {
             ...images,
@@ -32,10 +21,10 @@ export const useAssetStore = create<AssetsState & AssetActions>()(
           },
         })),
 
-      removeImage: (name) =>
+      removeImage: (name: string) =>
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         set(({ images: { [name]: _, ...rest } }) => ({ images: rest })),
-    }),
+    })),
     {
       name: "asset-storage",
       storage: opfsStorage,

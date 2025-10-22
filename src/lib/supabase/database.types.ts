@@ -17,23 +17,39 @@ export type Database = {
       cart_items: {
         Row: {
           created_at: string | null;
+          id: string | null;
+          item_type: string | null;
           price_at_time: number;
+          project_id: string | null;
           shader_id: string;
           user_id: string;
         };
         Insert: {
           created_at?: string | null;
+          id?: string | null;
+          item_type?: string | null;
           price_at_time: number;
+          project_id?: string | null;
           shader_id: string;
           user_id: string;
         };
         Update: {
           created_at?: string | null;
+          id?: string | null;
+          item_type?: string | null;
           price_at_time?: number;
+          project_id?: string | null;
           shader_id?: string;
           user_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "cart_items_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "cart_items_shader_id_fkey";
             columns: ["shader_id"];
@@ -64,7 +80,6 @@ export type Database = {
           id: string;
           order_id: string;
           price: number;
-          seller_amount: number | null;
           shader_id: string;
         };
         Insert: {
@@ -72,7 +87,6 @@ export type Database = {
           id?: string;
           order_id: string;
           price: number;
-          seller_amount?: number | null;
           shader_id: string;
         };
         Update: {
@@ -80,7 +94,6 @@ export type Database = {
           id?: string;
           order_id?: string;
           price?: number;
-          seller_amount?: number | null;
           shader_id?: string;
         };
         Relationships: [
@@ -127,69 +140,40 @@ export type Database = {
         };
         Relationships: [];
       };
-      payouts: {
-        Row: {
-          amount: number;
-          created_at: string | null;
-          id: string;
-          mp_transaction_id: string | null;
-          paid_at: string | null;
-          seller_id: string;
-          status: string | null;
-        };
-        Insert: {
-          amount: number;
-          created_at?: string | null;
-          id?: string;
-          mp_transaction_id?: string | null;
-          paid_at?: string | null;
-          seller_id: string;
-          status?: string | null;
-        };
-        Update: {
-          amount?: number;
-          created_at?: string | null;
-          id?: string;
-          mp_transaction_id?: string | null;
-          paid_at?: string | null;
-          seller_id?: string;
-          status?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "payouts_seller_id_fkey";
-            columns: ["seller_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       profiles: {
         Row: {
+          avatar_url: string | null;
           cancelled: boolean | null;
+          display_name: string | null;
           id: string;
           is_premium: boolean | null;
-          mp_email: string | null;
-          pending_balance: number | null;
+          mp_access_token: string | null;
+          mp_refresh_token: string | null;
+          mp_user_id: string | null;
           subscription_id: string | null;
           username: string;
         };
         Insert: {
+          avatar_url?: string | null;
           cancelled?: boolean | null;
+          display_name?: string | null;
           id: string;
           is_premium?: boolean | null;
-          mp_email?: string | null;
-          pending_balance?: number | null;
+          mp_access_token?: string | null;
+          mp_refresh_token?: string | null;
+          mp_user_id?: string | null;
           subscription_id?: string | null;
           username: string;
         };
         Update: {
+          avatar_url?: string | null;
           cancelled?: boolean | null;
+          display_name?: string | null;
           id?: string;
           is_premium?: boolean | null;
-          mp_email?: string | null;
-          pending_balance?: number | null;
+          mp_access_token?: string | null;
+          mp_refresh_token?: string | null;
+          mp_user_id?: string | null;
           subscription_id?: string | null;
           username?: string;
         };
@@ -198,24 +182,36 @@ export type Database = {
       projects: {
         Row: {
           created_at: string | null;
+          description: string | null;
+          downloads: number | null;
           id: string;
           name: string | null;
+          price: number | null;
+          published: boolean | null;
           updated_at: string | null;
           user_id: string;
           user_project: string;
         };
         Insert: {
           created_at?: string | null;
+          description?: string | null;
+          downloads?: number | null;
           id?: string;
           name?: string | null;
+          price?: number | null;
+          published?: boolean | null;
           updated_at?: string | null;
           user_id: string;
           user_project: string;
         };
         Update: {
           created_at?: string | null;
+          description?: string | null;
+          downloads?: number | null;
           id?: string;
           name?: string | null;
+          price?: number | null;
+          published?: boolean | null;
           updated_at?: string | null;
           user_id?: string;
           user_project?: string;
@@ -316,7 +312,6 @@ export type Database = {
       };
       shaders: {
         Row: {
-          average_rating: number | null;
           category_id: number;
           code: string;
           created_at: string;
@@ -326,14 +321,12 @@ export type Database = {
           node_config: Json | null;
           price: number;
           published: boolean | null;
-          rating_count: number | null;
           step: number | null;
           title: string;
           updated_at: string;
           user_id: string;
         };
         Insert: {
-          average_rating?: number | null;
           category_id: number;
           code: string;
           created_at?: string;
@@ -343,14 +336,12 @@ export type Database = {
           node_config?: Json | null;
           price: number;
           published?: boolean | null;
-          rating_count?: number | null;
           step?: number | null;
           title: string;
           updated_at?: string;
           user_id: string;
         };
         Update: {
-          average_rating?: number | null;
           category_id?: number;
           code?: string;
           created_at?: string;
@@ -360,7 +351,6 @@ export type Database = {
           node_config?: Json | null;
           price?: number;
           published?: boolean | null;
-          rating_count?: number | null;
           step?: number | null;
           title?: string;
           updated_at?: string;
@@ -396,13 +386,52 @@ export type Database = {
         Args: { order_uuid: string; user_uuid: string };
         Returns: boolean;
       };
+      get_published_shaders: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          category: Json;
+          id: string;
+          rating_count: number;
+          title: string;
+        }[];
+      };
+      get_purchased_shaders: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          category: Json;
+          id: string;
+          rating_count: number;
+          title: string;
+        }[];
+      };
+      get_shaders_with_avg: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          category: Json;
+          created_at: string;
+          description: string;
+          downloads: number;
+          id: string;
+          price: number;
+          profiles: Json;
+          rating_count: number;
+          title: string;
+        }[];
+      };
       get_user_email_by_username: {
         Args: { username_param: string };
         Returns: string;
       };
       increment_shader_downloads: {
         Args: { shader_id: string };
-        Returns: void;
+        Returns: undefined;
+      };
+      verify_user_password: {
+        Args: { password: string };
+        Returns: boolean;
       };
     };
     Enums: {

@@ -5,20 +5,15 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { Tables } from "@/lib/supabase/database.types";
 import camelcaseKeys from "camelcase-keys";
+import { Replace } from "@/utils/replace";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 type Category = Tables<"categories">;
 
 export async function uploadShaderAction(formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Authentication required")}`,
-    );
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    `/marketplace/upload?error=${encodeURIComponent("Authentication required")}`,
+  );
 
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
@@ -86,51 +81,47 @@ export async function getShaders() {
     redirect("/auth/login?next=/marketplace");
   }
 
-  const { data: purchases } = await supabase
-    .from("purchases")
-    .select("shader_id")
-    .eq("user_id", user.id);
-
-  const owned = purchases?.map((p) => p.shader_id) || [];
-
-  let query = supabase
-    .from("shaders")
-    .select(
-      `
-      id,
-      title,
-      description,
-      price,
-      average_rating,
-      rating_count,
-      downloads,
-      created_at,
-      category:categories (
-        id,
-        name
-      ),
-      profiles!fk_shaders_user_id (
-        username
-      )
-    `,
-    )
-    .eq("published", true)
-    .order("created_at", { ascending: false });
-
-  if (owned.length) {
-    query = query.not("id", "in", `(${owned.join(",")})`);
-  }
-
-  const { data, error } = await query;
+  const { data, error } = await supabase.rpc("get_shaders_with_avg", {
+    user_uuid: user.id,
+  });
 
   if (error) {
-    throw new Error(`Failed to load shaders: ${error.message}`);
+    throw new Error(`Failed rpc function: ${error.message}`);
   }
 
-  return camelcaseKeys(data) || [];
+  // TODO we really shouldn't need to do this shit
+  // Look into https://github.com/orgs/supabase/discussions/32925 or stop using
+  // JSON objects in db functions altogether
+  return camelcaseKeys(
+    data as Replace<
+      (typeof data)[number],
+      {
+        category: { id: string; name: string };
+        profiles: { username: string };
+      }
+    >[],
+  );
 }
 
 export async function getCategories(): Promise<Category[]> {
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
+
+  const { data: categories, error } = await supabase
+    .from("categories")
+    .select("id, name")
+    .order("name");
+
+  if (error) {
+    throw new Error(`Failed to load categories: ${error.message}`);
+  }
+
+  return categories || [];
+}
+
+export async function getTypes(): Promise<Category[]> {
+  //TODO
   const supabase = await createClient();
   const {
     data: { user },
@@ -180,4 +171,53 @@ export async function getPurchasedShaders() {
     .eq("user_id", user.id);
 
   return purchases?.map((p) => p.shader).filter(Boolean) || [];
+}
+
+export async function getProjects() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/marketplace");
+  }
+
+  const { data: purchases } = await supabase
+    .from("purchases")
+    .select("shader_id") // TODO reutilizing shader_id for projects too
+    .eq("user_id", user.id);
+
+  const owned = purchases?.map((p) => p.shader_id) || [];
+
+  let query = supabase
+    .from("projects")
+    .select(
+      `
+      id,
+      name,
+      description,
+      price,
+      downloads,
+      created_at,
+      profiles!projects_user_id_fkey (
+        username
+      )
+    `,
+    )
+    .eq("published", true)
+    .order("created_at", { ascending: false });
+
+  // TODO filter purchased projects
+  if (owned.length) {
+    query = query.not("id", "in", `(${owned.join(",")})`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(`Failed to load projects: ${error.message}`);
+  }
+
+  return camelcaseKeys(data);
 }

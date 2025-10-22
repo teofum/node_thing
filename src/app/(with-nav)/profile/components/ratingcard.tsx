@@ -1,8 +1,5 @@
-"use client";
-
-import { ComponentProps } from "react";
 import { Dialog } from "@/ui/dialog";
-import RatingEditor from "../rating-editor";
+import RatingEditor from "../dialogs/rating-editor";
 import { UserRatingsDisplay } from "../page";
 import { Button } from "@/ui/button";
 import { Stars } from "@/app/(with-nav)/marketplace/components/stars";
@@ -14,7 +11,6 @@ type RatingCardProps = {
   averageRating?: number | null;
   userRating: UserRatingsDisplay | null;
   ratingCount: number | null;
-  trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 
 export default function RatingCard({
@@ -27,7 +23,7 @@ export default function RatingCard({
 }: RatingCardProps) {
   return (
     <div className="glass glass-border p-6 rounded-2xl">
-      <h3 className="text-xl font-semibold text-white mb-1">{title}</h3>
+      <h3 className="text-xl font-semibold mb-1">{title}</h3>
       {category && (
         <p className="inline-block text-sm text-teal-400 border border-current/15 mb-4 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
           {category}
@@ -59,8 +55,7 @@ export default function RatingCard({
           id={id}
           title={title}
           category={category}
-          initialRating={userRating?.rating ?? 0}
-          initialComment={userRating?.comment ?? ""}
+          userRating={userRating}
           trigger={
             <Button variant="outline" className="text-xs">
               {userRating ? "Edit review" : "Add review"}

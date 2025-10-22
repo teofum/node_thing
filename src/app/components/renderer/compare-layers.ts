@@ -1,7 +1,7 @@
 import { Edge } from "@xyflow/react";
 
 import { ShaderNode } from "@/schemas/node.schema";
-import { Layer } from "@/store/main.store";
+import { Layer } from "@/store/project.types";
 import { zip } from "@/utils/zip";
 
 function compareNodes(current: ShaderNode, last: ShaderNode) {

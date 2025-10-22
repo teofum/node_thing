@@ -5,7 +5,7 @@ import {
   NodeType,
   ShaderNode,
 } from "@/schemas/node.schema";
-import { Layer } from "@/store/main.store";
+import { Layer } from "@/store/project.types";
 import { Edge } from "@xyflow/react";
 
 type Buffer = {
@@ -30,6 +30,7 @@ export type RenderPass = {
   inputBindings: Record<string, number | null>;
   outputBindings: Record<string, number>;
   defaultInputValues: Record<string, number | number[]>;
+  parameters: Record<string, string>;
 };
 
 const MAX_ITERATIONS = 1000;
@@ -278,6 +279,12 @@ export class RenderPipeline {
 
     const additionalPasses = nodeType.additionalPasses ?? [];
 
+    const parameters: RenderPass["parameters"] = {};
+    for (const [key, { value }] of Object.entries(node.data.parameters)) {
+      if (value && nodeType.parameters[key].type === "select")
+        parameters[key] = value;
+    }
+
     const basePass: RenderPass = {
       nodeType: node.data.type,
       shader: "main",
@@ -286,6 +293,7 @@ export class RenderPipeline {
         ? this.getPassOutputBindings(additionalPasses[0].buffers)
         : outputBindings,
       defaultInputValues: node.data.defaultValues,
+      parameters,
     };
 
     const passes = [basePass];
@@ -302,6 +310,7 @@ export class RenderPipeline {
         inputBindings: lastPassOutputBindings,
         outputBindings: thisPassOutputBindings,
         defaultInputValues: {},
+        parameters,
       });
     }
 

@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import * as MB from "@radix-ui/react-menubar";
 import cn from "classnames";
-import { LuCheck } from "react-icons/lu";
+import { LuCheck, LuChevronRight } from "react-icons/lu";
 
 type MenubarProps = MB.MenubarProps;
 
@@ -150,3 +150,35 @@ export const MenuSeparator = forwardRef<HTMLDivElement, MenuSeparatorProps>(
   },
 );
 MenuSeparator.displayName = "MenuSeparator";
+
+type SubmenuProps = MB.MenubarSubProps &
+  MB.MenubarSubTriggerProps & {
+    label: string;
+    icon?: React.ReactNode;
+  };
+
+export const Submenu = forwardRef<HTMLDivElement, SubmenuProps>(
+  ({ children, className, label, icon, ...props }, forwardedRef) => {
+    return (
+      <MB.Sub>
+        <MB.SubTrigger
+          ref={forwardedRef}
+          className={cn(...menuItemClassNames, className)}
+          {...props}
+        >
+          <div className="w-4 h-4 min-w-4 max-w-4 p-px">{icon}</div>
+          {label}
+          <div className="w-4 h-4 min-w-4 max-w-4 p-px ml-auto -mr-2">
+            <LuChevronRight />
+          </div>
+        </MB.SubTrigger>
+        <MB.Portal>
+          <MB.SubContent className="glass glass-border rounded-xl p-1 select-none">
+            {children}
+          </MB.SubContent>
+        </MB.Portal>
+      </MB.Sub>
+    );
+  },
+);
+Submenu.displayName = "Submenu";

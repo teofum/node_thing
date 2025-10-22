@@ -3,18 +3,19 @@ import { useState } from "react";
 import { LuEllipsisVertical, LuPencilLine, LuTrash2 } from "react-icons/lu";
 
 import { ShaderNode } from "@/schemas/node.schema";
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import { Button } from "@/ui/button";
 import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
 import { PromptDialog } from "@/ui/prompt-dialog";
 import { ShaderEditor } from "../shader-editor";
+import { useNodeTypes } from "@/utils/use-node-types";
 
 export function CustomShaderMenu({
   data,
   mock,
 }: NodeProps<ShaderNode> & { mock?: boolean }) {
-  const nodeTypes = useMainStore((state) => state.nodeTypes);
-  const deleteNodeType = useMainStore((state) => state.deleteNodeType);
+  const nodeTypes = useNodeTypes();
+  const deleteNodeType = useProjectStore((state) => state.deleteNodeType);
 
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);

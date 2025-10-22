@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import cn from "classnames";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
-import { useMainStore } from "@/store/main.store";
+import { useAnimationStore } from "@/store/animation.store";
+import { useProjectStore } from "@/store/project.store";
+import { useUtilityStore } from "@/store/utility.store";
+import { usePropRef } from "@/utils/use-prop-ref";
 import { render } from "./renderer";
 import { useGPU } from "./use-gpu";
-import { useWebGPUContext } from "./use-webgpu-context";
 import { usePipeline } from "./use-pipeline";
 import { useTextureCache } from "./use-texture-cache";
-import { useUtilityStore } from "@/store/utility.store";
+import { useWebGPUContext } from "./use-webgpu-context";
+import { useConfigStore } from "@/store/config.store";
 
 const SAMPLER_DESC: GPUSamplerDescriptor = {
   magFilter: "linear",
@@ -20,13 +23,21 @@ export function Canvas() {
   /*
    * State
    */
-  const { canvas: canvasProperties, view } = useMainStore((s) => s.properties);
+  const { canvas: canvasProperties } = useProjectStore((s) => s.properties);
+
+  const animation = useAnimationStore();
+  const updateAnimation = useAnimationStore((s) => s.update);
+  const setAnimationState = useAnimationStore((s) => s.setState);
+
+  const view = useConfigStore((s) => s.view);
+
   const canvas = useUtilityStore((s) => s.canvas);
   const setCanvas = useUtilityStore((s) => s.setCanvas);
   const nextRenderFinishedCallback = useUtilityStore(
     (s) => s.nextRenderFinishedCallback,
   );
   const onNextRenderFinished = useUtilityStore((s) => s.onNextRenderFinished);
+  const _recorder = useUtilityStore((s) => s.recorder);
 
   const frameRequestHandle = useRef<number | null>(null);
 
@@ -62,32 +73,100 @@ export function Canvas() {
   /*
    * Render a frame
    */
+  const animationState = usePropRef(animation.state);
+  const animationSpeed = usePropRef(animation.options.speed);
+  const framerateLimit = usePropRef(animation.options.framerateLimit);
+  const recordingFramerate = usePropRef(animation.recordingOptions.framerate);
+  const recording = usePropRef(animation.recording);
+  const recorder = usePropRef(_recorder);
+
+  const frameIndex = useRef(0);
+  const elapsedTime = useRef(0);
   useEffect(() => {
-    // Cancel pending renders
-    if (frameRequestHandle.current)
-      cancelAnimationFrame(frameRequestHandle.current);
+    frameIndex.current = animation.frameIndex;
+    elapsedTime.current = animation.time;
+  }, [animation.frameIndex, animation.time]);
+
+  const lastFrameTime = useRef(performance.now());
+  const lastFrameError = useRef(0);
+  useEffect(() => {
+    const cancel = () => {
+      if (frameRequestHandle.current)
+        cancelAnimationFrame(frameRequestHandle.current);
+    };
+
+    const frame = () => {
+      frameRequestHandle.current = requestAnimationFrame(renderFrame);
+    };
+
+    cancel();
 
     if (!canvas || !ctx || !device || !pipeline || !sampler) return;
 
     const renderFrame = async () => {
-      const target = ctx.getCurrentTexture();
+      cancel();
 
-      for (const layerPipeline of pipeline) {
-        if (layerPipeline)
-          render(device, layerPipeline, target, textures, sampler);
+      const minFrametime = 1000 / framerateLimit.current;
+
+      const now = performance.now();
+      const deltaTime = recording.current
+        ? 1000 / recordingFramerate.current
+        : now - lastFrameTime.current;
+      if (
+        animationState.current !== "running" ||
+        recording.current ||
+        deltaTime + lastFrameError.current > minFrametime
+      ) {
+        const target = ctx.getCurrentTexture();
+        for (const layerPipeline of pipeline) {
+          if (layerPipeline)
+            render(
+              device,
+              layerPipeline,
+              target,
+              textures,
+              sampler,
+              frameIndex.current,
+              elapsedTime.current,
+            );
+        }
+
+        if (nextRenderFinishedCallback) {
+          nextRenderFinishedCallback(canvas);
+          onNextRenderFinished(null);
+        }
+
+        if (recorder.current) {
+          if (recording.current) {
+            recorder.current.source.add(
+              elapsedTime.current / 1000,
+              deltaTime / 1000,
+            );
+          } else {
+            recorder.current.onRecordingFinished();
+          }
+        }
+
+        await device.queue.onSubmittedWorkDone();
+
+        if (animationState.current === "running") {
+          updateAnimation(deltaTime * animationSpeed.current);
+
+          lastFrameTime.current = now;
+          lastFrameError.current = deltaTime - minFrametime;
+        }
       }
 
-      if (nextRenderFinishedCallback) {
-        nextRenderFinishedCallback(canvas);
-        onNextRenderFinished(null);
-      }
+      if (animationState.current === "running") frame();
+      if (animationState.current === "frame") setAnimationState("stopped");
     };
 
-    frameRequestHandle.current = requestAnimationFrame(renderFrame);
+    lastFrameTime.current = performance.now();
+    cancel();
+    frame();
 
     return () => {
-      if (frameRequestHandle.current)
-        cancelAnimationFrame(frameRequestHandle.current);
+      cancel();
     };
   }, [
     canvas,
@@ -96,8 +175,17 @@ export function Canvas() {
     pipeline,
     textures,
     sampler,
+    animation.state,
     nextRenderFinishedCallback,
     onNextRenderFinished,
+    framerateLimit,
+    animationState,
+    animationSpeed,
+    setAnimationState,
+    updateAnimation,
+    recording,
+    recordingFramerate,
+    recorder,
   ]);
 
   return (

@@ -1,6 +1,6 @@
 import { RenderPipeline } from "@/app/components/renderer/pipeline";
 import { NODE_TYPES } from "@/utils/node-type";
-import { edge, getNodesForTesting } from "./mock-pipeline";
+import { edge, getNodesForTesting } from "./pipeline.mock";
 
 describe("RenderPipeline", () => {
   const { output, mix, gray, threshold, input } = getNodesForTesting();
@@ -258,7 +258,7 @@ describe("RenderPipeline", () => {
       NODE_TYPES,
     );
 
-    expect(pipeline.passes[0].nodeType).toBe("grayscale");
+    expect(pipeline.passes[0].nodeType).toBe("saturation");
     expect(pipeline.passes[1].nodeType).toBe("threshold");
     expect(pipeline.passes[2].nodeType).toBe("mix");
 

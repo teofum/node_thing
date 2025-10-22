@@ -1,28 +1,38 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
-import { LuGitFork, LuPin, LuLayers, LuImage } from "react-icons/lu";
 import cn from "classnames";
+import { useLayoutEffect, useRef, useState } from "react";
+import { LuGitFork, LuImage, LuLayers, LuPin, LuPlay } from "react-icons/lu";
 
-import useResizeObserver from "@/utils/use-resize-observer";
+import { SidebarPanel, useConfigStore } from "@/store/config.store";
 import { ToggleButton } from "@/ui/button";
 import { Select, SelectItem } from "@/ui/select";
+import useResizeObserver from "@/utils/use-resize-observer";
+import { MenuAnimation } from "./menu-animation";
+import { MenuAssets } from "./menu-assets";
 import { MenuLayers } from "./menu-layers";
 import { MenuLibrary } from "./menu-library";
-import { MenuAssets } from "./menu-assets";
 
 export function Sidebar() {
-  const [pin, setPin] = useState(false);
+  const sidebar = useConfigStore((s) => s.view.sidebar);
+  const updateView = useConfigStore((s) => s.updateView);
+
+  const setPanel = (panel: SidebarPanel) =>
+    updateView({ sidebar: { ...sidebar, panel } });
+  const setPinned = (pinned: boolean) =>
+    updateView({ sidebar: { ...sidebar, pinned } });
+
   const [height, setHeight] = useState(0);
-  const [menu, setMenu] = useState<"library" | "layers" | "assets">("library");
   const dummySizingDiv = useRef<HTMLDivElement | null>(null);
 
   const renderMenu = () => {
-    switch (menu) {
+    switch (sidebar.panel) {
       case "library":
         return <MenuLibrary />;
       case "layers":
         return <MenuLayers />;
       case "assets":
         return <MenuAssets />;
+      case "animation":
+        return <MenuAnimation />;
       default:
         return null;
     }
@@ -45,7 +55,7 @@ export function Sidebar() {
         className={cn(
           "absolute left-1 top-1 z-10 w-56 flex flex-col rounded-xl group p-px",
           "transition-[height] duration-300 overflow-hidden",
-          { "not-hover:!h-[50px]": !pin },
+          { "not-hover:!h-[50px]": !sidebar.pinned },
         )}
         style={{ height }}
       >
@@ -53,10 +63,8 @@ export function Sidebar() {
         <div className="p-0.75 pr-2 flex flex-row gap-2 items-center min-h-12 relative z-10 mb-px">
           <Select
             variant="ghost"
-            value={menu}
-            onValueChange={(value: typeof menu) =>
-              setMenu(value as typeof menu)
-            }
+            value={sidebar.panel}
+            onValueChange={(value: SidebarPanel) => setPanel(value)}
           >
             <SelectItem value="library">
               <div className="flex items-center gap-2">
@@ -78,16 +86,23 @@ export function Sidebar() {
                 <div className="font-semibold">Assets</div>
               </div>
             </SelectItem>
+
+            <SelectItem value="animation">
+              <div className="flex items-center gap-2">
+                <LuPlay className="text-base" />
+                <div className="font-semibold">Animation</div>
+              </div>
+            </SelectItem>
           </Select>
 
           <ToggleButton
             icon
             variant="ghost"
             className={cn("ml-auto", {
-              "opacity-0 group-hover:opacity-100": !pin,
+              "opacity-0 group-hover:opacity-100": !sidebar.pinned,
             })}
-            pressed={pin}
-            onPressedChange={setPin}
+            pressed={sidebar.pinned}
+            onPressedChange={setPinned}
           >
             <LuPin />
           </ToggleButton>

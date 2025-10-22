@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 
-import { useMainStore } from "@/store/main.store";
+import { useProjectStore } from "@/store/project.store";
 import { useAssetStore } from "@/store/asset.store";
 import { Sidebar } from "./sidebar";
 import { Viewport } from "./viewport";
 
 export function Workspace() {
-  const loadNodeTypes = useMainStore((state) => state.loadNodeTypes);
+  const loadNodeTypes = useProjectStore((state) => state.loadNodeTypes);
 
   useEffect(() => {
     loadNodeTypes();

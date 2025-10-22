@@ -2,16 +2,14 @@ import { NodeProps, Position } from "@xyflow/react";
 import cn from "classnames";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
-import { useMainStore } from "@/store/main.store";
-import { HANDLE_HEIGHT, HEADER_HEIGHT } from "./constants";
+import { useProjectStore } from "@/store/project.store";
 import { HandleWithMock } from "./mock-handle";
 
 import { ColorInput } from "@/ui/color-picker";
-import { SliderInput } from "@/ui/slider";
+import { NumberDrag } from "@/ui/number-drag";
 
 type NodeInputProps = NodeProps<ShaderNode> & {
   input: [string, NodeType["inputs"][string]];
-  i: number;
   mock?: boolean;
 };
 
@@ -19,11 +17,10 @@ export function NodeInput({
   data,
   id,
   input: [key, input],
-  i,
   mock = false,
 }: NodeInputProps) {
-  const updateDefaultValue = useMainStore((s) => s.updateNodeDefaultValue);
-  const edges = useMainStore((s) => s.layers[s.currentLayer].edges);
+  const updateDefaultValue = useProjectStore((s) => s.updateNodeDefaultValue);
+  const edges = useProjectStore((s) => s.layers[s.currentLayer].edges);
 
   const renderDefaultValueInput =
     !mock &&
@@ -31,33 +28,35 @@ export function NodeInput({
     !edges.some((edge) => edge.target === id && edge.targetHandle === key);
 
   return (
-    <div className="flex flex-row gap-2 h-6 items-center">
+    <div className="grid grid-cols-subgrid col-span-3 h-6 items-center relative">
       <HandleWithMock
         mock={mock}
         type="target"
         position={Position.Left}
         id={key}
-        style={{ top: i * HANDLE_HEIGHT + HEADER_HEIGHT }}
-        className={cn({
+        className={cn("!-left-2", {
           "!bg-teal-500": input.type === "color",
           "!bg-neutral-100": input.type === "number",
         })}
       />
-      <div className="text-white text-xs/4">{input.name}</div>
+      <div className="text-xs/4 min-w-4">{input.name}</div>
 
       {renderDefaultValueInput ? (
         input.type === "number" ? (
-          <SliderInput
+          <NumberDrag
             value={data.defaultValues[key] as number}
             onChange={(v) => updateDefaultValue(id, key, v)}
-            min={input.min ?? 0}
-            max={input.max ?? 1}
+            min={input.min}
+            max={input.max}
             step={input.step ?? 0.01}
-            className="w-25"
+            size="sm"
+            className="w-20 nodrag"
+            progress
           />
         ) : (
           <ColorInput
             defaultColor={data.defaultValues[key] as number[]}
+            className="w-20 nodrag"
             onChange={(c) => {
               updateDefaultValue(id, key, c);
             }}

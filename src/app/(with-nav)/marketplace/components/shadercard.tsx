@@ -1,8 +1,8 @@
 import Image from "next/image";
-import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
+import { LuCircleCheckBig, LuDownload, LuPlus, LuLoader } from "react-icons/lu";
 
 import { Button } from "@/ui/button";
-import { addToCart } from "../../marketplace/cart/actions";
+import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
 import { Stars } from "./stars";
 
 type ShaderCardProps = {
@@ -45,6 +45,9 @@ export default function ShaderCard({
           <p className="text-sm text-white/60 mb-2">
             by <span className="font-bold">{username}</span>
           </p>
+          <p className="inline-block text-sm text-blue-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2 py-1 px-2 mr-2">
+            Shader
+          </p>
           {category && (
             <p className="inline-block text-sm text-teal-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
               {category}
@@ -76,9 +79,11 @@ export default function ShaderCard({
             In cart
           </div>
         ) : (
-          <form action={addToCart}>
+          <form action={addToCart} className="relative">
             <input type="hidden" name="shaderId" value={id} />
+
             <Button
+              type="submit"
               size="lg"
               variant="outline"
               className="flex items-center text-emerald-600 w-full"

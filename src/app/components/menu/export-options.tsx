@@ -6,7 +6,7 @@ import { useUtilityStore } from "@/store/utility.store";
 import { saveImageToFile } from "@/utils/image";
 import { imageTypeSchema } from "@/schemas/asset.schema";
 import { Select, SelectItem } from "@/ui/select";
-import { SliderInput } from "@/ui/slider";
+import { Slider } from "@/ui/slider";
 
 type ExportOptionsProps = {
   open: ComponentProps<typeof Dialog>["open"];
@@ -55,7 +55,8 @@ export function ExportOptions({ open, onOpenChange }: ExportOptionsProps) {
         {type !== "png" ? (
           <>
             <div className="text-sm/4 font-semibold">Quality</div>
-            <SliderInput
+            <Slider
+              withInput
               className="w-full"
               value={quality}
               onChange={setQuality}

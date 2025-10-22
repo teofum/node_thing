@@ -1,4 +1,11 @@
 import { create } from "zustand";
+import { combine } from "zustand/middleware";
+import {
+  CanvasSource,
+  Output,
+  OutputOptions,
+  VideoEncodingConfig,
+} from "mediabunny";
 
 /*
  * Utility store
@@ -8,28 +15,60 @@ import { create } from "zustand";
  */
 
 type RenderFinishedCallback = (canvas: HTMLCanvasElement) => void;
-
 type UtilityState = {
   canvas: HTMLCanvasElement | null;
   nextRenderFinishedCallback: RenderFinishedCallback | null;
+
+  recorder: {
+    output: Output;
+    source: CanvasSource;
+    onRecordingFinished: () => Promise<void>;
+  } | null;
 };
 
-type UtilityActions = {
-  setCanvas: (canvas: HTMLCanvasElement | null) => void;
-  onNextRenderFinished: (callback: RenderFinishedCallback | null) => void;
-};
-
-export const useUtilityStore = create<UtilityState & UtilityActions>((set) => ({
-  /*
-   * State
-   */
+const initialState: UtilityState = {
   canvas: null,
   nextRenderFinishedCallback: null,
 
-  /*
-   * Actions
-   */
-  setCanvas: (canvas) => set({ canvas }),
-  onNextRenderFinished: (callback) =>
-    set({ nextRenderFinishedCallback: callback }),
-}));
+  recorder: null,
+};
+
+export const useUtilityStore = create(
+  combine(initialState, (set, get) => ({
+    setCanvas: (canvas: HTMLCanvasElement | null) => set({ canvas }),
+
+    onNextRenderFinished: (callback: RenderFinishedCallback | null) =>
+      set({ nextRenderFinishedCallback: callback }),
+
+    createRecorder: async (
+      outputOptions: OutputOptions,
+      encodingOptions: VideoEncodingConfig,
+      finishedCallback?: () => void,
+    ) => {
+      const { recorder, canvas } = get();
+      if (recorder) throw new Error("recorder already exists!");
+      if (!canvas) throw new Error("canvas is null!");
+
+      const output = new Output(outputOptions);
+      const source = new CanvasSource(canvas, encodingOptions);
+      output.addVideoTrack(source);
+
+      output.setMetadataTags({
+        title: "recording",
+        artist: "node-thing",
+      });
+
+      await output.start();
+
+      const onRecordingFinished = async () => {
+        await output.finalize();
+        finishedCallback?.();
+        set({ recorder: null });
+      };
+
+      set({
+        recorder: { output, source, onRecordingFinished },
+      });
+    },
+  })),
+);

@@ -13,8 +13,10 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Select, SelectItem } from "@/ui/select";
-import { HandleDescriptor, useMainStore } from "@/store/main.store";
+import { HandleDescriptor } from "@/store/project.types";
+import { useProjectStore } from "@/store/project.store";
 import { NodeType } from "@/schemas/node.schema";
+import { useNodeTypes } from "@/utils/use-node-types";
 
 type ShaderEditorProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
@@ -120,9 +122,9 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
   const codeRef = useRef<HTMLTextAreaElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
-  const nodeTypes = useMainStore((s) => s.nodeTypes);
-  const createNodeType = useMainStore((s) => s.createNodeType);
-  const updateNodeType = useMainStore((s) => s.updateNodeType);
+  const nodeTypes = useNodeTypes();
+  const createNodeType = useProjectStore((s) => s.createNodeType);
+  const updateNodeType = useProjectStore((s) => s.updateNodeType);
 
   const editNodeType = editNode ? nodeTypes[editNode] : undefined;
 
@@ -159,7 +161,7 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
     ]);
   };
 
-  const save = () => {
+  const save = async () => {
     if (!nameRef.current || !codeRef.current) return;
 
     const desc = {
@@ -177,7 +179,7 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
   };
 
   return (
-    <Dialog title="Shader Editor" description="Write shaders lol" {...props}>
+    <Dialog title="Shader Editor" description="Write custom shaders" {...props}>
       <div className="flex-1 border-b border-white/15 min-h-0 px-3 gap-3 grid grid-cols-[16rem_1fr]">
         <div className="flex flex-col h-full min-h-0 overflow-auto py-3">
           <div className="font-semibold text-sm/4 mb-2">Inputs</div>
@@ -199,7 +201,10 @@ export function ShaderEditor({ editNode, ...props }: ShaderEditorProps) {
             ref={nameRef}
             variant="outline"
             className="w-full"
-            defaultValue={editNodeType?.name ?? "New Shader"}
+            defaultValue={
+              editNodeType?.name ??
+              "New Shader" /*TODO: meter restriccion de longitud de la DB*/
+            }
           />
           <textarea
             ref={codeRef}
