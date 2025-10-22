@@ -130,7 +130,12 @@ export const NODE_TYPES = {
     name: "White Noise",
     category: "Generate",
     shader: whiteNoiseShader,
-    inputs: {},
+    inputs: {
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
     outputs: {
       output: {
         name: "Noise",
