@@ -12,6 +12,7 @@
     "update-types": "pnpx supabase gen types typescript --project-id prxzhaldskupuefqkomv > src/lib/supabase/database.types.ts",
     "electron:build": "tsup",
     "electron:package": "electron-builder --dir",
+    "electron:fix": "rm -rf node_modules && pnpm i --force",
     "test": "jest --silent",
     "test:watch": "jest --silent --watch"
   },
