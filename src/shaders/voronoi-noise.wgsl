@@ -14,8 +14,11 @@ fn rand(seed: vec2f) -> f32 {
 }
 
 
-fn getPoint(root: vec2f, seed: f32, size: f32) -> vec2u {
-    return vec2u( u32(rand( root + seed )*size)  , u32(rand( root + seed )*size) );
+fn getPoint(root: vec2f, seed: f32, size: f32, t: f32) -> vec2u {
+    return vec2u(
+                 u32(  (1 + sin( (rand(root+seed)*size) + (t) ))*size/2  ),
+                 u32(  (1 + sin( (rand(root+seed+1)*size) + (t) ))*size/2  )
+    );
 }
 
 fn main( @builtin(global_invocation_id) id: vec3u,) {
@@ -25,7 +28,7 @@ fn main( @builtin(global_invocation_id) id: vec3u,) {
     let root: vec2f = vec2f( f32((id.x/usize)*usize) , f32((id.y/usize)*usize) );
 
     // Point wil be the point position inside the cell    
-    let point = vec2f(getPoint(root, seed, size));
+    let point = vec2f(getPoint(root, seed, size, t));
 
     let pointPos = root + point;
 
@@ -37,7 +40,7 @@ fn main( @builtin(global_invocation_id) id: vec3u,) {
         for(var dy: i32 = -1; dy < 2 ; dy += 1){
             let displace = vec2f( f32(dx), f32(dy) );
             let kroot = root + (displace*size);
-            let kpoint = vec2f(getPoint(kroot, seed, size));
+            let kpoint = vec2f(getPoint(kroot, seed, size, t));
             let kpointPos = kroot + kpoint;
 
             let d = distance(vec2f(id.xy), kpointPos);
