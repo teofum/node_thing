@@ -1,18 +1,13 @@
 "use server";
 
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import { createClient } from "@/lib/supabase/server";
-import { zipImportProject } from "@/utils/zip";
 import { redirect } from "next/navigation";
 
 export async function saveProjectOnline(blob: Blob) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   // subo proyecto al bucket en Supabase
   const fileName = `${user.id}_${Date.now()}`;
@@ -45,14 +40,9 @@ export async function loadProjectOnline(user_project: string | null) {
     throw new Error("User project name is null");
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/profile");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
 
   // descargo zip del proyecto del bucket
   const { data: fileBlob, error: downloadError } = await supabase.storage
@@ -67,7 +57,8 @@ export async function loadProjectOnline(user_project: string | null) {
 }
 
 export async function updateProjectName(projectId: string, newName: string) {
-  const supabase = await createClient();
+  const { supabase, user } = await getSupabaseUserOrRedirect("");
+
   const { error } = await supabase
     .from("projects")
     .update({
@@ -80,7 +71,8 @@ export async function updateProjectName(projectId: string, newName: string) {
 }
 
 export async function deleteProject(projectId: string) {
-  const supabase = await createClient();
+  const { supabase, user } = await getSupabaseUserOrRedirect("");
+
   const { error } = await supabase
     .from("projects")
     .delete()

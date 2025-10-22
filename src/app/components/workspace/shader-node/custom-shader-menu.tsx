@@ -8,12 +8,13 @@ import { Button } from "@/ui/button";
 import { DropdownMenu, DropdownMenuItem } from "@/ui/dropdown-menu";
 import { PromptDialog } from "@/ui/prompt-dialog";
 import { ShaderEditor } from "../shader-editor";
+import { useNodeTypes } from "@/utils/use-node-types";
 
 export function CustomShaderMenu({
   data,
   mock,
 }: NodeProps<ShaderNode> & { mock?: boolean }) {
-  const nodeTypes = useProjectStore((state) => state.nodeTypes);
+  const nodeTypes = useNodeTypes();
   const deleteNodeType = useProjectStore((state) => state.deleteNodeType);
 
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);

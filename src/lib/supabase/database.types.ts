@@ -17,23 +17,39 @@ export type Database = {
       cart_items: {
         Row: {
           created_at: string | null;
+          id: string | null;
+          item_type: string | null;
           price_at_time: number;
+          project_id: string | null;
           shader_id: string;
           user_id: string;
         };
         Insert: {
           created_at?: string | null;
+          id?: string | null;
+          item_type?: string | null;
           price_at_time: number;
+          project_id?: string | null;
           shader_id: string;
           user_id: string;
         };
         Update: {
           created_at?: string | null;
+          id?: string | null;
+          item_type?: string | null;
           price_at_time?: number;
+          project_id?: string | null;
           shader_id?: string;
           user_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "cart_items_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "cart_items_shader_id_fkey";
             columns: ["shader_id"];
@@ -64,7 +80,6 @@ export type Database = {
           id: string;
           order_id: string;
           price: number;
-          seller_amount: number | null;
           shader_id: string;
         };
         Insert: {
@@ -72,7 +87,6 @@ export type Database = {
           id?: string;
           order_id: string;
           price: number;
-          seller_amount?: number | null;
           shader_id: string;
         };
         Update: {
@@ -80,7 +94,6 @@ export type Database = {
           id?: string;
           order_id?: string;
           price?: number;
-          seller_amount?: number | null;
           shader_id?: string;
         };
         Relationships: [
@@ -129,7 +142,9 @@ export type Database = {
       };
       profiles: {
         Row: {
+          avatar_url: string | null;
           cancelled: boolean | null;
+          display_name: string | null;
           id: string;
           is_premium: boolean | null;
           mp_access_token: string | null;
@@ -139,7 +154,9 @@ export type Database = {
           username: string;
         };
         Insert: {
+          avatar_url?: string | null;
           cancelled?: boolean | null;
+          display_name?: string | null;
           id: string;
           is_premium?: boolean | null;
           mp_access_token?: string | null;
@@ -149,7 +166,9 @@ export type Database = {
           username: string;
         };
         Update: {
+          avatar_url?: string | null;
           cancelled?: boolean | null;
+          display_name?: string | null;
           id?: string;
           is_premium?: boolean | null;
           mp_access_token?: string | null;
@@ -163,24 +182,36 @@ export type Database = {
       projects: {
         Row: {
           created_at: string | null;
+          description: string | null;
+          downloads: number | null;
           id: string;
           name: string | null;
+          price: number | null;
+          published: boolean | null;
           updated_at: string | null;
           user_id: string;
           user_project: string;
         };
         Insert: {
           created_at?: string | null;
+          description?: string | null;
+          downloads?: number | null;
           id?: string;
           name?: string | null;
+          price?: number | null;
+          published?: boolean | null;
           updated_at?: string | null;
           user_id: string;
           user_project: string;
         };
         Update: {
           created_at?: string | null;
+          description?: string | null;
+          downloads?: number | null;
           id?: string;
           name?: string | null;
+          price?: number | null;
+          published?: boolean | null;
           updated_at?: string | null;
           user_id?: string;
           user_project?: string;
@@ -292,7 +323,6 @@ export type Database = {
           published: boolean | null;
           step: number | null;
           title: string;
-          type: string;
           updated_at: string;
           user_id: string;
         };
@@ -308,7 +338,6 @@ export type Database = {
           published?: boolean | null;
           step?: number | null;
           title: string;
-          type?: string;
           updated_at?: string;
           user_id: string;
         };
@@ -324,7 +353,6 @@ export type Database = {
           published?: boolean | null;
           step?: number | null;
           title?: string;
-          type?: string;
           updated_at?: string;
           user_id?: string;
         };

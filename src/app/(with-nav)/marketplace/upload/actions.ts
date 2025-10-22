@@ -1,5 +1,7 @@
 "use server";
 
+import { Tables } from "@/lib/supabase/database.types";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -31,7 +33,8 @@ export async function generateShaderCode(
 }
 
 export async function saveSchema(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase, user } = await getSupabaseUserOrRedirect();
+
   const id = formData.get("id") as string;
   const step = parseInt(formData.get("step") as string);
 
@@ -60,7 +63,8 @@ export async function saveSchema(formData: FormData) {
 }
 
 export async function saveCode(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase, user } = await getSupabaseUserOrRedirect();
+
   const id = formData.get("id") as string;
   const code = formData.get("code") as string;
 
@@ -73,7 +77,8 @@ export async function saveCode(formData: FormData) {
 }
 
 export async function publishShader(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase, user } = await getSupabaseUserOrRedirect();
+
   const id = formData.get("id") as string;
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
@@ -129,4 +134,90 @@ export async function publishShader(formData: FormData) {
   }
 
   redirect("/marketplace");
+}
+
+export async function getUserProjects() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/marketplace/upload");
+  }
+
+  let projects: Tables<"projects">[] = [];
+
+  if (user) {
+    const { data: data, error } = await supabase
+      .from("profiles")
+      .select("username, is_premium")
+      .eq("id", user.id)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to load user data: ${error.message}`);
+    }
+
+    if (data?.is_premium) {
+      const { data: projectData } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("updated_at", { ascending: false });
+      projects = projectData ?? [];
+    }
+  }
+
+  return projects;
+}
+
+export async function publishProject(
+  projectID: string,
+  price: number,
+  description: string,
+) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/profile");
+  }
+
+  await supabase
+    .from("projects")
+    .update({
+      published: true,
+      price: price,
+      description: description,
+      downloads: 0,
+    })
+    .eq("id", projectID);
+}
+
+export async function getCreatedShaders() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login?next=/marketplace/upload");
+  }
+
+  const { data, error } = await supabase
+    .from("shaders")
+    .select("*")
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to load published shaders: ${error.message}`);
+  }
+
+  const shaders: Tables<"shaders">[] = data ?? [];
+  return shaders;
 }
