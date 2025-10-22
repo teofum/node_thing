@@ -658,6 +658,10 @@ export const NODE_TYPES = {
         min: 2,
         step: 1,
       },
+      t: {
+        name: "t",
+        type: "number",
+      },
       seed: {
         name: "seed",
         type: "number",
