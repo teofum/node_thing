@@ -1,5 +1,10 @@
 import { ComponentProps, useState } from "react";
-import { LuCloudDownload, LuPencilLine, LuTrash2 } from "react-icons/lu";
+import {
+  LuCloudDownload,
+  LuPencilLine,
+  LuStar,
+  LuTrash2,
+} from "react-icons/lu";
 import { useRouter } from "next/navigation";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
@@ -52,6 +57,11 @@ export function ManageProjects({
     setImportResult(await importProject(file));
   };
 
+  const allProjects = [
+    ...projects.map((p) => ({ ...p, isPurchased: false })),
+    ...purchasedProjects.map((p) => ({ ...p, isPurchased: true })),
+  ];
+
   return (
     <>
       <Dialog
@@ -64,8 +74,8 @@ export function ManageProjects({
         <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
           <div className="font-semibold text-xl mb-4">Projects</div>
 
-          {projects.length ? (
-            projects.map((project) => (
+          {allProjects.length ? (
+            allProjects.map((project) => (
               <div
                 key={project.id}
                 className="flex items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
@@ -83,6 +93,15 @@ export function ManageProjects({
                 )}
 
                 <div className="flex gap-1">
+                  {project.isPurchased && (
+                    <Button
+                      icon
+                      variant="ghost"
+                      onClick={() => handleOpen(project)}
+                    >
+                      <LuStar className="opacity-70" />
+                    </Button>
+                  )}
                   <Button
                     icon
                     variant="ghost"
@@ -93,6 +112,7 @@ export function ManageProjects({
 
                   <Button
                     icon
+                    disabled={project.isPurchased}
                     variant="ghost"
                     onClick={() => {
                       setEditingId(project.id);
@@ -104,6 +124,7 @@ export function ManageProjects({
 
                   <Button
                     icon
+                    disabled={project.isPurchased}
                     className="text-red-400"
                     variant="ghost"
                     onClick={() => handleDelete(project.id)}
@@ -115,69 +136,6 @@ export function ManageProjects({
             ))
           ) : (
             <p className="text-sm text-white/50 mt-2">No projects yet...</p>
-          )}
-
-          <div className="font-semibold text-xl mb-4 mt-12">
-            Purchased Projects
-          </div>
-
-          {purchasedProjects.length ? (
-            purchasedProjects.map((purchasedProject) => (
-              <div
-                key={purchasedProject.id}
-                className="flex items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
-              >
-                {editingId === purchasedProject.id ? (
-                  <Input
-                    value={nameDraft}
-                    onChange={(e) => setNameDraft(e.target.value)}
-                    onBlur={() => handleRename(purchasedProject.id)}
-                    autoFocus
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="w-full">
-                    {purchasedProject.name ?? "Untitled"}
-                  </div>
-                )}
-
-                <div className="flex gap-1">
-                  <Button
-                    icon
-                    variant="ghost"
-                    onClick={() => handleOpen(purchasedProject)}
-                  >
-                    <LuCloudDownload />
-                  </Button>
-
-                  <Button
-                    icon
-                    disabled
-                    variant="ghost"
-                    onClick={() => {
-                      setEditingId(purchasedProject.id);
-                      setNameDraft(purchasedProject.name ?? "");
-                    }}
-                  >
-                    <LuPencilLine />
-                  </Button>
-
-                  <Button
-                    icon
-                    disabled
-                    className="text-red-400"
-                    variant="ghost"
-                    onClick={() => handleDelete(purchasedProject.id)}
-                  >
-                    <LuTrash2 />
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-white/50 mt-2">
-              No purchased projects yet...
-            </p>
           )}
         </div>
 
