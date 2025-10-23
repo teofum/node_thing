@@ -1,13 +1,19 @@
-import { NodeType } from "@/schemas/node.schema";
+import { HandleType, NodeType } from "@/schemas/node.schema";
 import { RenderPass } from "./pipeline";
 
 export function generateShaderCode(
   pass: RenderPass,
   nodeTypes: Record<string, NodeType>,
+  bufferTypes: HandleType[],
 ) {
   const passIdx = getPassIndex(pass);
   const type = nodeTypes[pass.nodeType];
-  const inputs = getInputsForPass(passIdx, type);
+  const inputs = getInputsForPass(
+    passIdx,
+    type,
+    pass.inputBindings,
+    bufferTypes,
+  );
   const outputs = getOutputsForPass(passIdx, type);
 
   const bindingCode = generateBindingCode(inputs, outputs);
@@ -44,7 +50,7 @@ export function generateShaderCode(
 }
 
 function generateInitializationCode(
-  inputs: { name: string; type: "number" | "color" }[],
+  inputs: { name: string; type: HandleType; receivedType: HandleType }[],
 ) {
   const indexCode = `
     if id.x >= u.width || id.y >= u.height {
@@ -54,13 +60,13 @@ function generateInitializationCode(
     `;
 
   const inputMappings = inputs.map(
-    ({ name, type }) => `
+    ({ name, type, receivedType }) => `
     var ${name}: ${getWgslType(type)};
     if arrayLength(&raw_${name}) <= ${type === "color" ? 1 : 4}u {
         ${name} = raw_${name}[0];
         ${type === "color" ? `${name} = pow(${name}, vec3f(2.2));` : ""}
     } else {
-        ${name} = raw_${name}[index];
+        ${generateSamplingCode(type, receivedType, name)}
     }
     `,
   );
@@ -69,16 +75,35 @@ function generateInitializationCode(
   return initializationCode;
 }
 
+function generateSamplingCode(
+  type: HandleType,
+  receivedType: HandleType,
+  name: string,
+) {
+  if (type === receivedType) return `${name} = raw_${name}[index];`;
+
+  if (type === "color" && receivedType === "number")
+    return `${name} = vec3f(raw_${name}[index]);`;
+
+  if (type === "number" && receivedType === "color")
+    return `${name} = dot(raw_${name}[index], vec3f(0.2126, 0.7152, 0.0722));`;
+
+  throw new Error(
+    `Unsupported type/received combination (${type}/${receivedType})`,
+  );
+}
+
 function generateBindingCode(
-  inputs: { name: string; type: "number" | "color" }[],
-  outputs: { name: string; type: "number" | "color" }[],
+  inputs: { name: string; type: HandleType; receivedType: HandleType }[],
+  outputs: { name: string; type: HandleType }[],
 ) {
   const inputBindings = inputs.map(
-    ({ name, type }, i) => `
+    ({ name, receivedType }, i) => `
 @group(0) @binding(${i})
-var<storage, read> raw_${name}: array<${getWgslType(type)}>;
+var<storage, read> raw_${name}: array<${getWgslType(receivedType)}>;
 `,
   );
+
   const outputBindings = outputs.map(
     ({ name, type }, i) => `
 @group(0) @binding(${i + inputBindings.length})
@@ -122,13 +147,28 @@ function getOutputsForPass(passIdx: number, type: NodeType) {
     : (type.additionalPasses?.[passIdx].buffers ?? []);
 }
 
-function getInputsForPass(passIdx: number, type: NodeType) {
-  return passIdx === 0
-    ? Object.entries(type.inputs).map(([name, input]) => ({
-        name,
-        type: input.type,
-      }))
-    : (type.additionalPasses?.[passIdx - 1].buffers ?? []);
+function getInputsForPass(
+  passIdx: number,
+  type: NodeType,
+  inputBindings: RenderPass["inputBindings"],
+  bufferTypes: HandleType[],
+) {
+  const inputs =
+    passIdx === 0
+      ? Object.entries(type.inputs).map(([name, input]) => ({
+          name,
+          type: input.type,
+        }))
+      : (type.additionalPasses?.[passIdx - 1].buffers ?? []);
+
+  return inputs.map(({ name, type }) => ({
+    name,
+    type,
+    receivedType:
+      inputBindings[name] !== null
+        ? (bufferTypes[inputBindings[name]] ?? type)
+        : type,
+  }));
 }
 
 function getPassIndex(pass: RenderPass) {

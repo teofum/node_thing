@@ -145,7 +145,9 @@ function compileShaders(
   nodeTypes: Record<string, NodeType>,
 ) {
   return desc.passes.map((pass) =>
-    device.createShaderModule({ code: generateShaderCode(pass, nodeTypes) }),
+    device.createShaderModule({
+      code: generateShaderCode(pass, nodeTypes, desc.bufferTypes),
+    }),
   );
 }
 
