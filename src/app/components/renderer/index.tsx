@@ -12,6 +12,7 @@ import { Canvas } from "./canvas";
 import { LayerHandle } from "./layer-handle";
 import { Timeline } from "./timeline";
 import { ZoomControls } from "./zoom-controls";
+import { RadialHandle } from "./radial-handle";
 
 export function Renderer() {
   const canvas = useProjectStore((s) => s.properties.canvas);
@@ -118,6 +119,7 @@ export function Renderer() {
         <div className="relative">
           <Canvas />
           {view.layerHandles ? <LayerHandle /> : null}
+          <RadialHandle />
         </div>
       </div>
 
