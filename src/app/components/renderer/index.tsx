@@ -119,7 +119,6 @@ export function Renderer() {
         <div className="relative">
           <Canvas />
           {view.layerHandles ? <LayerHandle /> : null}
-          <RadialHandle />
         </div>
       </div>
 

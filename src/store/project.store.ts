@@ -15,13 +15,14 @@ import { combine, persist } from "zustand/middleware";
 import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { createNode } from "@/utils/node";
+import { Point } from "@/utils/point";
 import {
   saveNewShader,
   updateShader,
   deleteShader,
   getCustomShaders,
 } from "./actions";
-import { Project, Layer, NodeTypeDescriptor, Point } from "./project.types";
+import { Project, Layer, NodeTypeDescriptor } from "./project.types";
 import {
   createLayer,
   modifyLayer,

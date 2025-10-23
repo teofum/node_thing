@@ -1,54 +1,48 @@
-import { RefObject } from "react";
+import { RefObject, useRef } from "react";
 
 import { useConfigStore } from "@/store/config.store";
 import { useProjectStore } from "@/store/project.store";
 import { clamp } from "@/utils/clamp";
 import { useDrag } from "@/utils/use-drag";
+import { initialHandleState } from "./handles/types";
+import { rectangleFromStyle } from "@/utils/point";
 
 export function useMoveLayer(ref: RefObject<HTMLDivElement | null>) {
   const setLayerBounds = useProjectStore((s) => s.setLayerBounds);
   const view = useConfigStore((s) => s.view);
 
+  const state = useRef(initialHandleState);
+
   const onDragStart = (ev: PointerEvent) => {
     const el = ref.current;
     if (!el) return;
 
-    // Save starting window position and size to DOM data attributes temporarily
-    const { top, left, width, height } = el.style;
-    el.dataset.windowX = left.slice(0, -2);
-    el.dataset.windowY = top.slice(0, -2);
-    el.dataset.windowWidth = width.slice(0, -2);
-    el.dataset.windowHeight = height.slice(0, -2);
-
-    // Save pointer start position to DOM data attributes temporarily
-    el.dataset.initialX = ev.clientX.toString();
-    el.dataset.initialY = ev.clientY.toString();
+    const parentRect = el.parentElement!.getBoundingClientRect();
+    state.current = {
+      current: rectangleFromStyle(el.style),
+      max: { w: parentRect.width, h: parentRect.height },
+      initial: { x: ev.clientX, y: ev.clientY },
+    };
   };
 
   const onDragMove = (ev: PointerEvent) => {
     const el = ref.current;
     if (!el) return;
 
+    const { initial, current, max } = state.current;
+
     // Calculate cursor delta
-    const initialX = Number(el.dataset.initialX || "0");
-    const initialY = Number(el.dataset.initialY || "0");
-    const deltaX = ev.clientX - initialX;
-    const deltaY = ev.clientY - initialY;
+    const deltaX = ev.clientX - initial.x;
+    const deltaY = ev.clientY - initial.y;
 
     // Get dimension limits
-    const parentRect = el.parentElement!.getBoundingClientRect();
-
-    const windowX = Number(el.dataset.windowX || "0");
-    const windowY = Number(el.dataset.windowY || "0");
-    const windowWidth = Number(el.dataset.windowWidth || "0");
-    const windowHeight = Number(el.dataset.windowHeight || "0");
 
     // Horizontal movement
-    const newX = clamp(windowX + deltaX, 0, parentRect.width - windowWidth);
+    const newX = clamp(current.x + deltaX, 0, max.w - current.w);
     el.style.setProperty("left", `${~~newX}px`);
 
     // Vertical movement
-    const newY = clamp(windowY + deltaY, 0, parentRect.height - windowHeight);
+    const newY = clamp(current.y + deltaY, 0, max.h - current.h);
     el.style.setProperty("top", `${~~newY}px`);
 
     const { top, left, width, height } = el.style;
@@ -63,16 +57,7 @@ export function useMoveLayer(ref: RefObject<HTMLDivElement | null>) {
   };
 
   const onDragEnd = () => {
-    const el = ref.current;
-    if (!el) return;
-
-    // Reset offset data attributes
-    delete el.dataset.initialX;
-    delete el.dataset.initialY;
-    delete el.dataset.windowX;
-    delete el.dataset.windowY;
-    delete el.dataset.windowWidth;
-    delete el.dataset.windowHeight;
+    state.current = initialHandleState;
   };
 
   return useDrag({
