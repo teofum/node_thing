@@ -10,14 +10,46 @@ import { ViewMenu } from "./components/menu/view";
 import { Renderer } from "./components/renderer";
 import { Workspace } from "./components/workspace";
 import { getProjects, getPurchasedProjects, getUserData } from "./actions";
-import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const { supabase, user } = await getSupabaseUserOrRedirect("/onboarding");
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const projects: Tables<"projects">[] = await getProjects();
-  const purchasedProjects: Tables<"projects">[] = await getPurchasedProjects();
-  const userData = await getUserData(supabase, user);
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile) {
+      redirect("/onboarding");
+    }
+  }
+
+  let projects: Tables<"projects">[] = [];
+  let purchasedProjects: Tables<"projects">[] = [];
+  let userData = null;
+
+  if (user) {
+    const { data: data, error } = await supabase
+      .from("profiles")
+      .select("username, is_premium")
+      .eq("id", user.id)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to load user data: ${error.message}`);
+    }
+
+    userData = data;
+    projects = await getProjects();
+    purchasedProjects = await getPurchasedProjects();
+  }
 
   return (
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
