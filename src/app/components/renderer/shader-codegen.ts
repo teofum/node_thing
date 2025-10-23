@@ -63,10 +63,10 @@ function generateInitializationCode(
     ({ name, type, receivedType }) => `
     var ${name}: ${getWgslType(type)};
     if arrayLength(&raw_${name}) <= ${type === "color" ? 1 : 4}u {
-        ${name} = raw_${name}[0];
+        ${generateSamplingCode(type, receivedType, name, "0")}
         ${type === "color" ? `${name} = pow(${name}, vec3f(2.2));` : ""}
     } else {
-        ${generateSamplingCode(type, receivedType, name)}
+        ${generateSamplingCode(type, receivedType, name, "index")}
     }
     `,
   );
@@ -79,14 +79,15 @@ function generateSamplingCode(
   type: HandleType,
   receivedType: HandleType,
   name: string,
+  index: string,
 ) {
-  if (type === receivedType) return `${name} = raw_${name}[index];`;
+  if (type === receivedType) return `${name} = raw_${name}[${index}];`;
 
   if (type === "color" && receivedType === "number")
-    return `${name} = vec3f(raw_${name}[index]);`;
+    return `${name} = vec3f(raw_${name}[${index}]);`;
 
   if (type === "number" && receivedType === "color")
-    return `${name} = dot(raw_${name}[index], vec3f(0.2126, 0.7152, 0.0722));`;
+    return `${name} = dot(raw_${name}[${index}], vec3f(0.2126, 0.7152, 0.0722));`;
 
   throw new Error(
     `Unsupported type/received combination (${type}/${receivedType})`,
