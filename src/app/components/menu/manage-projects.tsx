@@ -14,6 +14,7 @@ import { ConfirmImport } from "./confirm-import";
 type ManageProjectsProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
   projects: Tables<"projects">[];
+  purchasedProjects: Tables<"projects">[];
   open?: ComponentProps<typeof Dialog>["open"];
   onOpenChange?: ComponentProps<typeof Dialog>["onOpenChange"];
 };
@@ -21,6 +22,7 @@ type ManageProjectsProps = {
 export function ManageProjects({
   trigger,
   projects,
+  purchasedProjects,
   ...props
 }: ManageProjectsProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -113,6 +115,69 @@ export function ManageProjects({
             ))
           ) : (
             <p className="text-sm text-white/50 mt-2">No projects yet...</p>
+          )}
+
+          <div className="font-semibold text-xl mb-4 mt-12">
+            Purchased Projects
+          </div>
+
+          {purchasedProjects.length ? (
+            purchasedProjects.map((purchasedProject) => (
+              <div
+                key={purchasedProject.id}
+                className="flex items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
+              >
+                {editingId === purchasedProject.id ? (
+                  <Input
+                    value={nameDraft}
+                    onChange={(e) => setNameDraft(e.target.value)}
+                    onBlur={() => handleRename(purchasedProject.id)}
+                    autoFocus
+                    className="w-full"
+                  />
+                ) : (
+                  <div className="w-full">
+                    {purchasedProject.name ?? "Untitled"}
+                  </div>
+                )}
+
+                <div className="flex gap-1">
+                  <Button
+                    icon
+                    variant="ghost"
+                    onClick={() => handleOpen(purchasedProject)}
+                  >
+                    <LuCloudDownload />
+                  </Button>
+
+                  <Button
+                    icon
+                    disabled
+                    variant="ghost"
+                    onClick={() => {
+                      setEditingId(purchasedProject.id);
+                      setNameDraft(purchasedProject.name ?? "");
+                    }}
+                  >
+                    <LuPencilLine />
+                  </Button>
+
+                  <Button
+                    icon
+                    disabled
+                    className="text-red-400"
+                    variant="ghost"
+                    onClick={() => handleDelete(purchasedProject.id)}
+                  >
+                    <LuTrash2 />
+                  </Button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-white/50 mt-2">
+              No purchased projects yet...
+            </p>
           )}
         </div>
 

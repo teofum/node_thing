@@ -32,6 +32,7 @@ export default async function Home() {
   }
 
   let projects: Tables<"projects">[] = [];
+  let purchasedProjects: Tables<"projects">[] = [];
   let userData = null;
 
   if (user) {
@@ -48,12 +49,41 @@ export default async function Home() {
     userData = data;
 
     if (data?.is_premium) {
-      const { data: projectData } = await supabase
+      const { data: projectData, error: projectError } = await supabase
         .from("projects")
         .select("*")
         .eq("user_id", user.id)
         .order("updated_at", { ascending: false });
+
+      if (projectError) {
+        throw new Error(`Failed to load projects: ${projectError.message}`);
+      }
+
       projects = projectData ?? [];
+
+      const { data: purchasedProjectData, error: purchasedProjectError } =
+        await supabase
+          .from("purchases")
+          .select(
+            `
+          project_id,
+          projects(*)
+        `,
+          )
+          .eq("user_id", user.id)
+          .not("project_id", "is", null)
+          .order("purchased_at", { ascending: false });
+
+      if (purchasedProjectError) {
+        throw new Error(
+          `Failed to load purchased projects: ${purchasedProjectError.message}`,
+        );
+      }
+
+      purchasedProjects =
+        (purchasedProjectData
+          ?.map((p) => p.projects)
+          .filter((p) => p !== null) as Tables<"projects">[]) ?? [];
     }
   }
 
@@ -68,7 +98,11 @@ export default async function Home() {
           <ViewMenu />
           <LayerMenu />
           <AnimationMenu />
-          <ProjectsMenu userData={userData} projects={projects} />
+          <ProjectsMenu
+            userData={userData}
+            projects={projects}
+            purchasedProjects={purchasedProjects}
+          />
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">
