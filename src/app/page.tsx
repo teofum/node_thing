@@ -1,7 +1,4 @@
-import { redirect } from "next/navigation";
-
 import { Tables } from "@/lib/supabase/database.types";
-import { createClient } from "@/lib/supabase/server";
 import { LinkButton } from "@/ui/button";
 import { Menubar } from "@/ui/menu-bar";
 import { AuthButton } from "./auth/components/auth-button";
@@ -12,80 +9,15 @@ import { ProjectsMenu } from "./components/menu/projects";
 import { ViewMenu } from "./components/menu/view";
 import { Renderer } from "./components/renderer";
 import { Workspace } from "./components/workspace";
+import { getProjects, getPurchasedProjects, getUserData } from "./actions";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getSupabaseUserOrRedirect("/onboarding");
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("username")
-      .eq("id", user.id)
-      .single();
-
-    if (!profile) {
-      redirect("/onboarding");
-    }
-  }
-
-  let projects: Tables<"projects">[] = [];
-  let purchasedProjects: Tables<"projects">[] = [];
-  let userData = null;
-
-  if (user) {
-    const { data: data, error } = await supabase
-      .from("profiles")
-      .select("username, is_premium")
-      .eq("id", user.id)
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to load user data: ${error.message}`);
-    }
-
-    userData = data;
-
-    if (data?.is_premium) {
-      const { data: projectData, error: projectError } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("updated_at", { ascending: false });
-
-      if (projectError) {
-        throw new Error(`Failed to load projects: ${projectError.message}`);
-      }
-
-      projects = projectData ?? [];
-
-      const { data: purchasedProjectData, error: purchasedProjectError } =
-        await supabase
-          .from("purchases")
-          .select(
-            `
-          project_id,
-          projects(*)
-        `,
-          )
-          .eq("user_id", user.id)
-          .not("project_id", "is", null)
-          .order("purchased_at", { ascending: false });
-
-      if (purchasedProjectError) {
-        throw new Error(
-          `Failed to load purchased projects: ${purchasedProjectError.message}`,
-        );
-      }
-
-      purchasedProjects =
-        (purchasedProjectData
-          ?.map((p) => p.projects)
-          .filter((p) => p !== null) as Tables<"projects">[]) ?? [];
-    }
-  }
+  const projects: Tables<"projects">[] = await getProjects();
+  const purchasedProjects: Tables<"projects">[] = await getPurchasedProjects();
+  const userData = await getUserData(supabase, user);
 
   return (
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
