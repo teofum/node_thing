@@ -62,14 +62,6 @@ export function getAllNodeTypes(nodeTypes: {
   };
 }
 
-export function isConnectionValid(
-  layer: Layer,
-  connection: Connection,
-  nodeTypes: Record<string, NodeType>,
-) {
-  return true;
-}
-
 export function modifyNode(
   id: string,
   updater: (node: ShaderNode) => Partial<ShaderNode>,
