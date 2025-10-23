@@ -49,6 +49,55 @@ export function generateShaderCode(
   return code;
 }
 
+export function generateOutputShaderCode(
+  shaderCode: string,
+  nodeTypes: Record<string, NodeType>,
+  bufferTypes: HandleType[],
+  colorBuffer: number,
+  alphaBuffer: number | null,
+) {
+  const type = nodeTypes["__output"];
+  const inputs = getInputsForPass(
+    0,
+    type,
+    { color: colorBuffer, alpha: alphaBuffer },
+    bufferTypes,
+  );
+
+  const bindingCode = generateBindingCode(inputs, []);
+  const outputBindingCode = `
+@group(0) @binding(${inputs.length})
+var tex: texture_storage_2d<rgba8unorm, write>;
+  `;
+
+  const computeAttributes = `@compute @workgroup_size(16, 16)`;
+  const initializationCode = generateInitializationCode(inputs);
+
+  const shaderMainPosition = shaderCode.indexOf("fn main");
+  const shaderMainBodyPosition = shaderCode.indexOf("{", shaderMainPosition);
+  const shaderMainFirstLinePosition =
+    shaderCode.indexOf("\n", shaderMainBodyPosition) + 1;
+
+  const codeBeforeMain = shaderCode.substring(0, shaderMainPosition);
+  const codeMainPrototype = shaderCode.substring(
+    shaderMainPosition,
+    shaderMainFirstLinePosition,
+  );
+  const codeMainBody = shaderCode.substring(shaderMainFirstLinePosition);
+
+  const code = [
+    bindingCode,
+    outputBindingCode,
+    codeBeforeMain,
+    computeAttributes,
+    codeMainPrototype,
+    initializationCode,
+    codeMainBody,
+  ].join("\n");
+
+  return code;
+}
+
 function generateInitializationCode(
   inputs: { name: string; type: HandleType; receivedType: HandleType }[],
 ) {

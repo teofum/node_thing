@@ -1,7 +1,7 @@
 import { HandleType, NodeType } from "@/schemas/node.schema";
 import { RenderPass, RenderPipeline } from "./pipeline";
 import { createUniform } from "./uniforms";
-import { generateShaderCode } from "./shader-codegen";
+import { generateOutputShaderCode, generateShaderCode } from "./shader-codegen";
 
 import outputShader from "@/shaders/output.wgsl";
 import inputShader from "@/shaders/input.wgsl";
@@ -241,11 +241,19 @@ function createInputStage(
 }
 
 function createOutputStage(
+  desc: RenderPipeline,
   device: GPUDevice,
   uniformBindGroupLayout: GPUBindGroupLayout,
+  nodeTypes: Record<string, NodeType>,
 ) {
   const outputStageShader = device.createShaderModule({
-    code: outputShader,
+    code: generateOutputShaderCode(
+      outputShader,
+      nodeTypes,
+      desc.bufferTypes,
+      desc.outputBuffer,
+      desc.outputAlphaBuffer,
+    ),
   });
 
   const outputStageLayout = device.createBindGroupLayout({
@@ -316,7 +324,12 @@ export function preparePipeline(
   );
 
   const inputStage = createInputStage(device, uniform.bindGroupLayout);
-  const outputStage = createOutputStage(device, uniform.bindGroupLayout);
+  const outputStage = createOutputStage(
+    desc,
+    device,
+    uniform.bindGroupLayout,
+    nodeTypes,
+  );
 
   return {
     desc,
