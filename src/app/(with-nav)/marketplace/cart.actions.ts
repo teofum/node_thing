@@ -10,42 +10,46 @@ export async function addToCart(formData: FormData) {
     "/auth/login?next=/marketplace",
   );
 
-  const shaderId = formData.get("shaderId") as string;
+  const itemId = formData.get("itemId") as string;
+  const itemType = formData.get("itemType") as "shader" | "project";
 
-  const { data: result, error } = await supabase
-    .from("shaders")
+  const table = itemType === "shader" ? "shaders" : "projects";
+  const idType = itemType === "shader" ? "shader_id" : "project_id";
+
+  const { data: item } = await supabase
+    .from(table)
     .select(
       `
       id,
       price,
       user_id,
-      purchases!left(shader_id),
-      cart_items!left(shader_id)
+      purchases!left(${idType}),
+      cart_items!left(${idType})
     `,
     )
-    .eq("id", shaderId)
+    .eq("id", itemId)
     .eq("purchases.user_id", user.id)
     .eq("cart_items.user_id", user.id)
     .single();
 
-  if (error || !result) {
-    throw new Error(
-      `Shader not found: ${error?.message || "Invalid shader ID"}`,
-    );
+  if (!item) {
+    throw new Error(`${itemType} not found`);
   }
 
-  if (result.purchases?.length > 0) {
+  if (item.purchases?.length > 0) {
     redirect(
-      `/marketplace?error=${encodeURIComponent("You already own this shader")}`,
+      `/marketplace?error=${encodeURIComponent(`You already own this ${itemType}`)}`,
     );
   }
 
-  // currently commented to allow adding own shaders to cart for testing
-  // if (result.user_id === user.id) {
-  //   redirect(`/marketplace?error=${encodeURIComponent("Cannot add your own shader to cart")}`);
+  // currently commented to allow adding own items to cart for testing
+  // if (item.user_id === user.id) {
+  //   redirect(
+  //     `/marketplace?error=${encodeURIComponent(`Cannot add your own ${itemType} to cart`)}`,
+  //   );
   // }
 
-  const existing = result.cart_items?.length > 0;
+  const existing = item.cart_items?.length > 0;
 
   if (existing) {
     revalidatePath("/marketplace");
@@ -54,8 +58,10 @@ export async function addToCart(formData: FormData) {
 
   const { error: insertErr } = await supabase.from("cart_items").insert({
     user_id: user.id,
-    shader_id: shaderId,
-    price_at_time: result.price,
+    shader_id: itemType === "shader" ? itemId : null,
+    project_id: itemType === "project" ? itemId : null,
+    item_type: itemType,
+    price_at_time: item.price!,
   });
 
   if (insertErr) {
@@ -71,13 +77,16 @@ export async function removeFromCart(formData: FormData) {
     "/auth/login?next=/marketplace",
   );
 
-  const shaderId = formData.get("shaderId") as string;
+  const itemId = formData.get("itemId") as string;
+  const itemType = formData.get("itemType") as "shader" | "project";
+
+  const column = itemType === "shader" ? "shader_id" : "project_id";
 
   const { error } = await supabase
     .from("cart_items")
     .delete()
     .eq("user_id", user.id)
-    .eq("shader_id", shaderId);
+    .eq(column, itemId);
 
   if (error) {
     throw new Error(`Failed to remove from cart: ${error.message}`);
@@ -101,11 +110,18 @@ export async function getCartItems() {
     .select(
       `
       shader_id,
+      project_id,
+      item_type,
       price_at_time,
       created_at,
       shader:shaders (
         id,
         title,
+        description
+      ),
+      project:projects (
+        id,
+        name,
         description
       )
     `,
@@ -135,68 +151,4 @@ export async function clearCart() {
   }
 
   revalidatePath("/marketplace/cart");
-}
-
-// TODO should generalize code with addToCart (the shader one)
-// TODO should edit DB to standardize purchases (shader_id -> item_id, and add item_type (values: shader, project, group) column)
-export async function addToCartProject(formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/marketplace");
-  }
-
-  // TODO hardcoded, adding to cart directly purchases the project
-
-  const projectId = formData.get("projectId") as string;
-
-  const { data: project, error: projectError } = await supabase
-    .from("projects")
-    .select("user_project, name")
-    .eq("id", projectId)
-    .single();
-
-  if (projectError || !project) {
-    throw new Error("Original project not found");
-  }
-
-  // note: do not use RPC, bc blob is bytecode it gets corrupted when doing it server side
-  const { data: purchasedBlob, error: downloadError } = await supabase.storage
-    .from("user_projects")
-    .download(project.user_project);
-
-  if (downloadError || !purchasedBlob) {
-    throw new Error(
-      `Failed to download purchased project: ${downloadError?.message || downloadError}`,
-    );
-  }
-
-  const newFileName = `${user.id}_${Date.now()}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("user_projects")
-    .upload(newFileName, purchasedBlob, {
-      contentType: "application/zip",
-      upsert: true,
-    });
-
-  if (uploadError) {
-    throw new Error(
-      `Failed to upload purchased project: ${uploadError.message}`,
-    );
-  }
-
-  const { error: insertError } = await supabase.from("projects").insert({
-    user_id: user.id,
-    name: project.name,
-    updated_at: new Date().toISOString(),
-    user_project: newFileName,
-  });
-
-  if (insertError) {
-    throw new Error(`Failed to save purchased project: ${insertError.message}`);
-  }
 }
