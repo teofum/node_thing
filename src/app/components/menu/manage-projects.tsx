@@ -1,5 +1,10 @@
 import { ComponentProps, useState } from "react";
-import { LuCloudDownload, LuPencilLine, LuTrash2 } from "react-icons/lu";
+import {
+  LuCloudDownload,
+  LuPencilLine,
+  LuStar,
+  LuTrash2,
+} from "react-icons/lu";
 import { useRouter } from "next/navigation";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
@@ -14,6 +19,7 @@ import { ConfirmImport } from "./confirm-import";
 type ManageProjectsProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
   projects: Tables<"projects">[];
+  purchasedProjects: Tables<"projects">[];
   open?: ComponentProps<typeof Dialog>["open"];
   onOpenChange?: ComponentProps<typeof Dialog>["onOpenChange"];
 };
@@ -21,6 +27,7 @@ type ManageProjectsProps = {
 export function ManageProjects({
   trigger,
   projects,
+  purchasedProjects,
   ...props
 }: ManageProjectsProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -50,6 +57,11 @@ export function ManageProjects({
     setImportResult(await importProject(file));
   };
 
+  const allProjects = [
+    ...projects.map((p) => ({ ...p, isPurchased: false })),
+    ...purchasedProjects.map((p) => ({ ...p, isPurchased: true })),
+  ];
+
   return (
     <>
       <Dialog
@@ -62,8 +74,8 @@ export function ManageProjects({
         <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
           <div className="font-semibold text-xl mb-4">Projects</div>
 
-          {projects.length ? (
-            projects.map((project) => (
+          {allProjects.length ? (
+            allProjects.map((project) => (
               <div
                 key={project.id}
                 className="flex items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
@@ -81,6 +93,15 @@ export function ManageProjects({
                 )}
 
                 <div className="flex gap-1">
+                  {project.isPurchased && (
+                    <Button
+                      icon
+                      variant="ghost"
+                      onClick={() => handleOpen(project)}
+                    >
+                      <LuStar className="opacity-70" />
+                    </Button>
+                  )}
                   <Button
                     icon
                     variant="ghost"
@@ -91,6 +112,7 @@ export function ManageProjects({
 
                   <Button
                     icon
+                    disabled={project.isPurchased}
                     variant="ghost"
                     onClick={() => {
                       setEditingId(project.id);
@@ -102,6 +124,7 @@ export function ManageProjects({
 
                   <Button
                     icon
+                    disabled={project.isPurchased}
                     className="text-red-400"
                     variant="ghost"
                     onClick={() => handleDelete(project.id)}

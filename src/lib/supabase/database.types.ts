@@ -17,29 +17,29 @@ export type Database = {
       cart_items: {
         Row: {
           created_at: string | null;
-          id: string | null;
+          id: string;
           item_type: string | null;
           price_at_time: number;
           project_id: string | null;
-          shader_id: string;
+          shader_id: string | null;
           user_id: string;
         };
         Insert: {
           created_at?: string | null;
-          id?: string | null;
+          id?: string;
           item_type?: string | null;
           price_at_time: number;
           project_id?: string | null;
-          shader_id: string;
+          shader_id?: string | null;
           user_id: string;
         };
         Update: {
           created_at?: string | null;
-          id?: string | null;
+          id?: string;
           item_type?: string | null;
           price_at_time?: number;
           project_id?: string | null;
-          shader_id?: string;
+          shader_id?: string | null;
           user_id?: string;
         };
         Relationships: [
@@ -78,23 +78,29 @@ export type Database = {
         Row: {
           created_at: string | null;
           id: string;
+          item_type: string | null;
           order_id: string;
           price: number;
-          shader_id: string;
+          project_id: string | null;
+          shader_id: string | null;
         };
         Insert: {
           created_at?: string | null;
           id?: string;
+          item_type?: string | null;
           order_id: string;
           price: number;
-          shader_id: string;
+          project_id?: string | null;
+          shader_id?: string | null;
         };
         Update: {
           created_at?: string | null;
           id?: string;
+          item_type?: string | null;
           order_id?: string;
           price?: number;
-          shader_id?: string;
+          project_id?: string | null;
+          shader_id?: string | null;
         };
         Relationships: [
           {
@@ -102,6 +108,13 @@ export type Database = {
             columns: ["order_id"];
             isOneToOne: false;
             referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "order_items_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
             referencedColumns: ["id"];
           },
           {
@@ -229,23 +242,29 @@ export type Database = {
       purchases: {
         Row: {
           id: string;
+          item_type: string | null;
           order_id: string;
+          project_id: string | null;
           purchased_at: string | null;
-          shader_id: string;
+          shader_id: string | null;
           user_id: string;
         };
         Insert: {
           id?: string;
+          item_type?: string | null;
           order_id: string;
+          project_id?: string | null;
           purchased_at?: string | null;
-          shader_id: string;
+          shader_id?: string | null;
           user_id: string;
         };
         Update: {
           id?: string;
+          item_type?: string | null;
           order_id?: string;
+          project_id?: string | null;
           purchased_at?: string | null;
-          shader_id?: string;
+          shader_id?: string | null;
           user_id?: string;
         };
         Relationships: [
@@ -254,6 +273,13 @@ export type Database = {
             columns: ["order_id"];
             isOneToOne: false;
             referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "purchases_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
             referencedColumns: ["id"];
           },
           {
@@ -385,6 +411,18 @@ export type Database = {
       finish_payment: {
         Args: { order_uuid: string; user_uuid: string };
         Returns: boolean;
+      };
+      get_projects: {
+        Args: { user_uuid: string };
+        Returns: {
+          created_at: string;
+          description: string;
+          downloads: number;
+          id: string;
+          name: string;
+          price: number;
+          profiles: Json;
+        }[];
       };
       get_published_shaders: {
         Args: { user_uuid: string };

@@ -23,9 +23,14 @@ export interface ProjectsMenuProps {
     is_premium: boolean | null;
   } | null;
   projects: Tables<"projects">[];
+  purchasedProjects: Tables<"projects">[];
 }
 
-export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
+export function ProjectsMenu({
+  userData,
+  projects,
+  purchasedProjects,
+}: ProjectsMenuProps) {
   const [projectsManagerOpen, setProjectsManagerOpen] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult>(undefined);
 
@@ -100,6 +105,7 @@ export function ProjectsMenu({ userData, projects }: ProjectsMenuProps) {
         open={projectsManagerOpen}
         onOpenChange={setProjectsManagerOpen}
         projects={projects}
+        purchasedProjects={purchasedProjects}
       />
       <ConfirmImport
         importResult={importResult}
