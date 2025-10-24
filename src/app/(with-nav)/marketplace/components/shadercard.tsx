@@ -4,6 +4,7 @@ import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 import { Button } from "@/ui/button";
 import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
 import { Stars } from "./stars";
+import { CardBadge } from "./card-badge";
 
 type ShaderCardProps = {
   id: string;
@@ -45,14 +46,8 @@ export default function ShaderCard({
           <p className="text-sm text-white/60 mb-2">
             by <span className="font-bold">{username}</span>
           </p>
-          <p className="inline-block text-sm text-blue-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2 py-1 px-2 mr-2">
-            Shader
-          </p>
-          {category && (
-            <p className="inline-block text-sm text-teal-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
-              {category}
-            </p>
-          )}
+          <CardBadge text="Shader" color="blue" />
+          {category && <CardBadge text={category} color="teal" />}
         </>
       )}
 

@@ -2,6 +2,7 @@ import { LinkButton, Button } from "@/ui/button";
 import { LuArrowLeft } from "react-icons/lu";
 import { getOrderDetails, createMercadoPagoCheckout } from "../actions";
 import { redirect } from "next/navigation";
+import { CardBadge } from "../../components/card-badge";
 
 type Props = {
   params: Promise<{ orderId: string }>;
@@ -43,10 +44,21 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
                   key={itemId}
                   className="flex justify-between items-center py-4 border-b border-white/15 last:border-b-0 "
                 >
-                  <h3 className="font-medium">
-                    {title}{" "}
-                    <span className="text-sm text-white/60">({itemType})</span>
-                  </h3>
+                  <div className="flex flex-row items-center gap-2">
+                    <h3 className="font-medium">{title} </h3>
+                    <CardBadge
+                      text={
+                        itemType.charAt(0).toUpperCase() + itemType.slice(1)
+                      }
+                      color={
+                        itemType === "shader"
+                          ? "blue"
+                          : itemType === "project"
+                            ? "fuchsia"
+                            : "black"
+                      }
+                    />
+                  </div>
                   <span className="font-medium">${item.price.toFixed(2)}</span>
                 </div>
               );

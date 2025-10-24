@@ -3,6 +3,7 @@ import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 
 import { Button } from "@/ui/button";
 import { addToCart } from "../../marketplace/cart.actions";
+import { CardBadge } from "./card-badge";
 
 type ProjectCardProps = {
   id: string;
@@ -39,9 +40,7 @@ export default function ProjectCard({
           <p className="text-sm text-white/60 mb-2">
             by <span className="font-bold">{username}</span>
           </p>
-          <p className="inline-block text-sm text-fuchsia-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2 py-1 px-2 mr-2">
-            Project
-          </p>
+          <CardBadge text="Project" color="fuchsia" />
         </>
       )}
 
