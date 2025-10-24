@@ -5,15 +5,15 @@ import { mockNodeTypes } from "./node.mock";
 const mixRenderPass: RenderPass = {
   nodeType: "mix",
   shader: "main",
-  inputBindings: {},
+  inputBindings: { input_a: 0 },
   outputBindings: {},
   defaultInputValues: {},
   parameters: { test: "42" },
 };
 
 describe("Shader code generation", () => {
-  it("should include binding code for all inputs", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("includes binding code for all inputs", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(
       /@group\(0\) @binding\(0\)\nvar<storage, read> raw_input_a: array<(vec3f|vec3<f32>)>;/,
@@ -26,58 +26,66 @@ describe("Shader code generation", () => {
     );
   });
 
-  it("should include binding code for all outputs after inputs", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("uses received buffer type for input bindings", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, ["number"]);
+
+    expect(code).toMatch(
+      /@group\(0\) @binding\(0\)\nvar<storage, read> raw_input_a: array<f32>;/,
+    );
+  });
+
+  it("includes binding code for all outputs after inputs", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(
       /@group\(0\) @binding\(3\)\nvar<storage, read_write> output: array<(vec3f|vec3<f32>)>;/,
     );
   });
 
-  it("should include uniform struct definition", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("includes uniform struct definition", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(/struct Uniforms {/);
   });
 
-  it("should include uniform binding code", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("includes uniform binding code", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(
       /@group\(1\) @binding\(0\)\nvar<uniform> u: Uniforms;/,
     );
   });
 
-  it("should include compute attributes before main", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("includes compute attributes before main", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(/@compute @workgroup_size\(\d+,\s*\d+\)\nfn main/);
   });
 
-  it("should include a valid main declaration", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("includes a valid main declaration", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(
       /fn main\(.*@builtin\(global_invocation_id\) id: vec3(u|<u32>),?.*\) \{/s,
     );
   });
 
-  it("should include a bounds check", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("includes a bounds check", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(
       /if id\.x >= u\.width \|\| id\.y >= u\.height \{.*return;.*}/s,
     );
   });
 
-  it("should include the index variable definition", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("includes the index variable definition", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(/let index = id\.x \+ id\.y \* u\.width;/);
   });
 
-  it("should include initialization code for all inputs", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("includes initialization code for all inputs", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(
       /var input_a: vec3(f|<f32>);.*if arrayLength\(&raw_input_a\) <= 1u\s*\{.*input_a = raw_input_a\[0\];.*input_a = pow\(input_a,\s*vec3(f|<f32>)\(2\.2\)\);.*\}.*else.*\{.*input_a = raw_input_a\[index\];.*\}/s,
@@ -90,14 +98,20 @@ describe("Shader code generation", () => {
     );
   });
 
-  it("should include parameter initialization code", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("correctly adapts types in initialization code", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, ["number"]);
+
+    expect(code).toMatch(/input_a = vec3(f|<f32>)\(raw_input_a\[index\]\);/);
+  });
+
+  it("includes parameter initialization code", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(/const test: u32 = 42u;/);
   });
 
-  it("should include parameter constants", () => {
-    const code = generateShaderCode(mixRenderPass, mockNodeTypes);
+  it("includes parameter constants", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(/const test_foo_bar: u32 = 0u;/);
     expect(code).toMatch(/const test_bob: u32 = 1u;/);

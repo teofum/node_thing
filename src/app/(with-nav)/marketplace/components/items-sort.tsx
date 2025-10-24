@@ -2,8 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { SortMenubar } from "./sort-bar";
-import ShaderCard from "./shadercard";
-import ProjectCard from "./projectcard";
+import ItemCard from "./itemcard";
 
 interface Shader {
   id: string;
@@ -177,7 +176,8 @@ export function ShaderListClient({
       <div className="grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-4">
         {finalList.map((item) =>
           "title" in item ? (
-            <ShaderCard
+            <ItemCard
+              itemType="Shader"
               key={item.id}
               id={item.id}
               title={item.title}
@@ -191,16 +191,18 @@ export function ShaderListClient({
               ratingCount={item.ratingCount}
             />
           ) : (
-            <ProjectCard
+            <ItemCard
+              itemType="Project"
               key={item.id}
               id={item.id}
-              name={item.name ?? "Untilted project"}
-              description={item.description ?? ""}
+              title={item.name ?? "Untilted project"}
               price={item.price ?? 0}
               downloads={item.downloads ?? 0}
               inCart={cartIds.has(item.id)}
               username={item.profiles?.username}
               createdAt={item.createdAt ?? new Date().toISOString()}
+              averageRating={0} // TODO project ratings
+              ratingCount={0} // TODO project ratings
             />
           ),
         )}

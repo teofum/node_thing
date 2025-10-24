@@ -2,28 +2,37 @@ import Image from "next/image";
 import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 
 import { Button } from "@/ui/button";
-import { addToCart } from "../../marketplace/cart.actions";
+import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
+import { Stars } from "./stars";
+import { CardBadge } from "./card-badge";
 
-type ProjectCardProps = {
+type ItemCardProps = {
+  itemType: "Shader" | "Project"; // TODO group in the future
   id: string;
-  name: string;
-  description: string;
+  title: string;
   price: number;
   downloads: number;
   inCart: boolean;
   username?: string;
+  category?: string;
   createdAt: string;
+  averageRating?: number | null;
+  ratingCount?: number | null;
 };
 
-export default function ProjectCard({
+export default function ItemCard({
+  itemType,
   id,
-  name,
-  downloads,
+  title,
   price,
+  downloads,
   inCart,
   username,
+  category,
   createdAt,
-}: ProjectCardProps) {
+  averageRating,
+  ratingCount,
+}: ItemCardProps) {
   const isNew =
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
   return (
@@ -33,15 +42,25 @@ export default function ProjectCard({
           NEW
         </div>
       )}
-      <div className="text-xl font-semibold mb-1">{name}</div>
+      <div className="text-xl font-semibold mb-1">{title}</div>
       {username && (
         <>
           <p className="text-sm text-white/60 mb-2">
             by <span className="font-bold">{username}</span>
           </p>
-          <p className="inline-block text-sm text-fuchsia-400 border border-current/15 font-semibold rounded-lg items-center justify-center gap-2 py-1 px-2 mr-2">
-            Project
-          </p>
+          <CardBadge
+            text={itemType}
+            color={
+              itemType === "Shader"
+                ? "blue"
+                : itemType === "Project"
+                  ? "fuchsia"
+                  : "black"
+            }
+          />
+          {itemType === "Shader" && category && (
+            <CardBadge text={category} color="teal" />
+          )}
         </>
       )}
 
@@ -49,7 +68,7 @@ export default function ProjectCard({
         src="/placeholder.webp"
         width={1000}
         height={667}
-        alt="Shader preview"
+        alt={itemType + " preview"}
         className="w-full aspect-[3/2] object-cover my-5 rounded-lg grayscale-100"
       />
 
@@ -58,6 +77,7 @@ export default function ProjectCard({
         <div className="flex flex-row items-center gap-1 text-white/60">
           <LuDownload /> {downloads}
         </div>
+        <Stars ratingValue={averageRating} ratingCount={ratingCount} />
       </div>
 
       <div className="mt-2">
@@ -69,8 +89,9 @@ export default function ProjectCard({
         ) : (
           <form action={addToCart}>
             <input type="hidden" name="itemId" value={id} />
-            <input type="hidden" name="itemType" value="project" />
+            <input type="hidden" name="itemType" value="shader" />
             <Button
+              type="submit"
               size="lg"
               variant="outline"
               className="flex items-center text-emerald-600 w-full"
