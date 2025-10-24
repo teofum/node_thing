@@ -6,20 +6,22 @@ import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
 import { Stars } from "./stars";
 import { CardBadge } from "./card-badge";
 
-type ShaderCardProps = {
+type ItemCardProps = {
+  itemType: "Shader" | "Project"; // TODO group in the future
   id: string;
   title: string;
   price: number;
   downloads: number;
   inCart: boolean;
   username?: string;
-  category: string;
+  category?: string;
   createdAt: string;
   averageRating?: number | null;
   ratingCount?: number | null;
 };
 
-export default function ShaderCard({
+export default function ItemCard({
+  itemType,
   id,
   title,
   price,
@@ -30,7 +32,7 @@ export default function ShaderCard({
   createdAt,
   averageRating,
   ratingCount,
-}: ShaderCardProps) {
+}: ItemCardProps) {
   const isNew =
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
   return (
@@ -46,8 +48,19 @@ export default function ShaderCard({
           <p className="text-sm text-white/60 mb-2">
             by <span className="font-bold">{username}</span>
           </p>
-          <CardBadge text="Shader" color="blue" />
-          {category && <CardBadge text={category} color="teal" />}
+          <CardBadge
+            text={itemType}
+            color={
+              itemType === "Shader"
+                ? "blue"
+                : itemType === "Project"
+                  ? "fuchsia"
+                  : "black"
+            }
+          />
+          {itemType === "Shader" && category && (
+            <CardBadge text={category} color="teal" />
+          )}
         </>
       )}
 
@@ -55,7 +68,7 @@ export default function ShaderCard({
         src="/placeholder.webp"
         width={1000}
         height={667}
-        alt="Shader preview"
+        alt={itemType + " preview"}
         className="w-full aspect-[3/2] object-cover my-5 rounded-lg grayscale-100"
       />
 

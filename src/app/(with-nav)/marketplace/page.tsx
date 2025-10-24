@@ -4,7 +4,7 @@ import { Button, LinkButton } from "@/ui/button";
 import { RangeSliderInput } from "@/ui/range-slider";
 import { getCategories, getProjects, getShaders } from "./actions";
 import { getCartItems } from "./cart.actions";
-import { ShaderListClient } from "./components/shaders-sort";
+import { ShaderListClient } from "./components/items-sort";
 import { Cart } from "./components/cart";
 import { Input } from "@/ui/input";
 
