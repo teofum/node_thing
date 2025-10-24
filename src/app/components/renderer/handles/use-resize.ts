@@ -70,7 +70,7 @@ export function useResize(
       el.style.setProperty("left", `${newX}px`);
 
       if (square) {
-        const newY = current.y - (centered ? deltaX : 0);
+        const newY = current.y + (centered ? current.h - newWidth : 0) / 2;
 
         el.style.setProperty("height", `${newWidth}px`);
         el.style.setProperty("top", `${newY}px`);
@@ -85,7 +85,7 @@ export function useResize(
       el.style.setProperty("top", `${newY}px`);
 
       if (square) {
-        const newX = current.x - (centered ? deltaY : 0);
+        const newX = current.x + (centered ? current.w - newHeight : 0) / 2;
 
         el.style.setProperty("width", `${newHeight}px`);
         el.style.setProperty("left", `${newX}px`);
