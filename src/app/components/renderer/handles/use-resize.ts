@@ -20,14 +20,19 @@ export type Direction = keyof typeof DIR;
 
 type UseResizeOptions = {
   centered?: boolean;
+  constrainRatio?: boolean | "shift";
+  angle?: number;
 };
-const defaultOptions: UseResizeOptions = {};
 
 export function useResize(
   ref: RefObject<HTMLDivElement | null>,
   setBounds: (bounds: Rectangle) => void,
   direction: Direction,
-  { centered }: UseResizeOptions = defaultOptions,
+  {
+    centered = false,
+    constrainRatio = "shift",
+    angle = 0,
+  }: UseResizeOptions = {},
 ) {
   const view = useConfigStore((s) => s.view);
   const state = useRef(initialHandleState);
@@ -47,19 +52,28 @@ export function useResize(
     if (!el) return;
 
     const { initial, current } = state.current;
+    const square = constrainRatio === "shift" ? ev.shiftKey : constrainRatio;
 
     // Calculate cursor delta
-    const deltaX = ev.clientX - initial.x;
-    const deltaY = ev.clientY - initial.y;
+    const cd = { x: ev.clientX - initial.x, y: ev.clientY - initial.y };
+    let deltaX = Math.cos(angle) * cd.x + Math.sin(angle) * cd.y;
+    let deltaY = Math.cos(angle) * cd.y - Math.sin(angle) * cd.x;
+
+    const minDeltaX = current.w * (centered ? 0.5 : 1);
+    const minDeltaY = current.h * (centered ? 0.5 : 1);
 
     // Horizontal resizing
     if (direction.includes("E")) {
+      deltaX = Math.max(deltaX, -minDeltaX);
+
       const newWidth = current.w + deltaX * (centered ? 2 : 1);
       const newX = current.x - (centered ? deltaX : 0);
 
       el.style.setProperty("width", `${newWidth}px`);
       el.style.setProperty("left", `${newX}px`);
     } else if (direction.includes("W")) {
+      deltaX = Math.min(deltaX, minDeltaX);
+
       const newWidth = current.w - deltaX * (centered ? 2 : 1);
       const newX = current.x + (centered ? deltaX : 0);
 
@@ -69,12 +83,16 @@ export function useResize(
 
     // Vertical resizing
     if (direction.includes("S")) {
+      deltaY = Math.max(deltaY, -minDeltaY);
+
       const newHeight = current.h + deltaY * (centered ? 2 : 1);
       const newY = current.y - (centered ? deltaY : 0);
 
       el.style.setProperty("height", `${newHeight}px`);
       el.style.setProperty("top", `${newY}px`);
     } else if (direction.includes("N")) {
+      deltaY = Math.min(deltaY, minDeltaY);
+
       const newHeight = current.h - deltaY * (centered ? 2 : 1);
       const newY = current.y + (centered ? deltaY : 0);
 

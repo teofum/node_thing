@@ -15,6 +15,7 @@ export function RadialHandle({}: RadialHandleProps) {
   const view = useConfigStore((s) => s.view);
 
   const ref = useRef<HTMLDivElement>(null);
+  const [angle, setAngle] = useState(0);
   const [bounds, setBounds] = useState<Rectangle>({
     x: 0,
     y: 0,
@@ -22,10 +23,10 @@ export function RadialHandle({}: RadialHandleProps) {
     h: 100,
   });
 
-  const resizeN = useResize(ref, setBounds, "N", { centered: true });
-  const resizeE = useResize(ref, setBounds, "E", { centered: true });
+  const resizeN = useResize(ref, setBounds, "N", { centered: true, angle });
+  const resizeE = useResize(ref, setBounds, "E", { centered: true, angle });
   const moveHandler = useMove(ref, setBounds);
-  const rotateHandler = useRotate(ref, setBounds);
+  const rotateHandler = useRotate(ref, setAngle);
 
   const resizeHandlers = {
     N: resizeN,
@@ -40,21 +41,31 @@ export function RadialHandle({}: RadialHandleProps) {
     ref.current?.style.setProperty("height", `${bounds.h * scale}px`);
   }, [bounds, view.zoom]);
 
+  useLayoutEffect(() => {
+    ref.current?.style.setProperty(
+      "transform",
+      `rotate(${angle * (180 / Math.PI)}deg)`,
+    );
+  }, [angle]);
+
   return (
     <div
       ref={ref}
       className="absolute rounded-[50%] border border-teal-300 shadow-[0_0_0_1px,inset_0_0_0_1px] shadow-black cursor-move"
       onPointerDown={moveHandler}
     >
+      <div
+        className={cn(
+          "absolute w-0 h-5 border-l border-teal-300 bg-black outline outline-black",
+        )}
+        style={{ top: "calc(0% - 24px)", left: "calc(50%)" }}
+      />
       {(["N", "E"] as const).map((dir) => (
         <div
           key={dir}
           className={cn(
             "absolute rounded-xs w-1.75 h-1.75 border border-teal-300 bg-black outline outline-black",
-            {
-              "cursor-ns-resize": dir === "N",
-              "cursor-ew-resize": dir === "E",
-            },
+            "cursor-grab",
           )}
           style={{ ...DIR[dir] }}
           onPointerDown={resizeHandlers[dir]}
@@ -65,7 +76,7 @@ export function RadialHandle({}: RadialHandleProps) {
           "absolute rounded-full w-1.75 h-1.75 border border-teal-300 bg-black outline outline-black",
           "cursor-grab",
         )}
-        style={{ top: "calc(0% - 44px)", left: "calc(50% - 3px)" }}
+        style={{ top: "calc(0% - 24px)", left: "calc(50% - 3px)" }}
         onPointerDown={rotateHandler}
       />
     </div>

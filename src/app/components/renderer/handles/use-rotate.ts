@@ -1,6 +1,5 @@
 import { RefObject, useRef } from "react";
 
-import { Rectangle } from "@/utils/point";
 import { useDrag } from "@/utils/use-drag";
 
 const initialState = {
@@ -11,7 +10,7 @@ const initialState = {
 
 export function useRotate(
   ref: RefObject<HTMLDivElement | null>,
-  setBounds: (bounds: Rectangle) => void,
+  setAngle: (angle: number) => void,
 ) {
   const state = useRef(initialState);
 
@@ -41,6 +40,8 @@ export function useRotate(
       "transform",
       `rotate(${newAngle * (180 / Math.PI)}deg)`,
     );
+
+    setAngle(newAngle);
   };
 
   const onDragEnd = () => {
