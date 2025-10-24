@@ -99,7 +99,7 @@ export function RadialHandle({}: RadialHandleProps) {
         className="absolute w-0 border-l border-teal-300 outline outline-black"
         style={{
           bottom: 1,
-          left: "50%",
+          left: "calc(50% - 0.5px)",
           height: `calc(${50 * (1 - innerRadius)}% - 2px)`,
         }}
       />
@@ -107,7 +107,7 @@ export function RadialHandle({}: RadialHandleProps) {
         className="absolute w-0 border-l border-teal-300 outline outline-black"
         style={{
           top: 1,
-          left: "50%",
+          left: "calc(50% - 0.5px)",
           height: `calc(${50 * (1 - innerRadius)}% - 2px)`,
         }}
       />
@@ -115,7 +115,7 @@ export function RadialHandle({}: RadialHandleProps) {
         className="absolute h-0 border-t border-teal-300 outline outline-black"
         style={{
           left: 1,
-          top: "50%",
+          top: "calc(50% - 0.5px)",
           width: `calc(${50 * (1 - innerRadius)}% - 2px)`,
         }}
       />
@@ -123,7 +123,7 @@ export function RadialHandle({}: RadialHandleProps) {
         className="absolute h-0 border-t border-teal-300 outline outline-black"
         style={{
           right: 1,
-          top: "50%",
+          top: "calc(50% - 0.5px)",
           width: `calc(${50 * (1 - innerRadius)}% - 2px)`,
         }}
       />
@@ -145,7 +145,7 @@ export function RadialHandle({}: RadialHandleProps) {
         className={cn(
           "absolute w-0 h-5 border-l border-teal-300 outline outline-black",
         )}
-        style={{ top: "calc(0% - 24px)", left: "50%" }}
+        style={{ top: "calc(0% - 24px)", left: "calc(50% - 0.5px)" }}
       />
       {(["N", "E"] as const).map((dir) => (
         <div
@@ -163,7 +163,7 @@ export function RadialHandle({}: RadialHandleProps) {
           "absolute rounded-full w-1.75 h-1.75 border border-teal-300 bg-black outline outline-black",
           "cursor-grab",
         )}
-        style={{ top: "calc(0% - 24px)", left: "calc(50% - 3px)" }}
+        style={{ top: "calc(0% - 24px)", left: "calc(50% - 3.5px)" }}
         onPointerDown={rotateHandler}
       />
     </div>

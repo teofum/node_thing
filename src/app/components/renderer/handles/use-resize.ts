@@ -6,14 +6,14 @@ import { useDrag } from "@/utils/use-drag";
 import { initialHandleState } from "./types";
 
 export const DIR = {
-  N: { top: "calc(0% - 4px)", left: "calc(50% - 3px)" },
-  NE: { top: "calc(0% - 4px)", left: "calc(100% - 3px)" },
-  E: { top: "calc(50% - 3px)", left: "calc(100% - 3px)" },
-  SE: { top: "calc(100% - 3px)", left: "calc(100% - 3px)" },
-  S: { top: "calc(100% - 3px)", left: "calc(50% - 3px)" },
-  SW: { top: "calc(100% - 3px)", left: "calc(0% - 4px)" },
-  W: { top: "calc(50% - 3px)", left: "calc(0% - 4px)" },
-  NW: { top: "calc(0% - 4px)", left: "calc(0% - 4px)" },
+  N: { top: "calc(0% - 4.5px)", left: "calc(50% - 3.5px)" },
+  NE: { top: "calc(0% - 4.5px)", left: "calc(100% - 3.5px)" },
+  E: { top: "calc(50% - 3.5px)", left: "calc(100% - 3.5px)" },
+  SE: { top: "calc(100% - 3.5px)", left: "calc(100% - 3.5px)" },
+  S: { top: "calc(100% - 3.5px)", left: "calc(50% - 3.5px)" },
+  SW: { top: "calc(100% - 3.5px)", left: "calc(0% - 4.5px)" },
+  W: { top: "calc(50% - 3.5px)", left: "calc(0% - 4.5px)" },
+  NW: { top: "calc(0% - 4.5px)", left: "calc(0% - 4.5px)" },
 };
 
 export type Direction = keyof typeof DIR;
