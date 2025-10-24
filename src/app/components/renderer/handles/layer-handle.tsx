@@ -6,8 +6,8 @@ import { useLayoutEffect, useRef } from "react";
 import { useConfigStore } from "@/store/config.store";
 import { useProjectStore } from "@/store/project.store";
 import { Rectangle } from "@/utils/point";
-import { useMove } from "./handles/use-move";
-import { DIR, useResize, type Direction } from "./handles/use-resize";
+import { useMove } from "./use-move";
+import { DIR, useResize, type Direction } from "./use-resize";
 
 const directions = Object.keys(DIR) as Direction[];
 

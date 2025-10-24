@@ -1,8 +1,7 @@
 import { RefObject, useRef } from "react";
 
 import { useConfigStore } from "@/store/config.store";
-import { clamp } from "@/utils/clamp";
-import { Rectangle, rectangleFromStyle, Size } from "@/utils/point";
+import { Rectangle, rectangleFromStyle } from "@/utils/point";
 import { useDrag } from "@/utils/use-drag";
 import { initialHandleState } from "./types";
 
@@ -19,10 +18,16 @@ export const DIR = {
 
 export type Direction = keyof typeof DIR;
 
+type UseResizeOptions = {
+  centered?: boolean;
+};
+const defaultOptions: UseResizeOptions = {};
+
 export function useResize(
   ref: RefObject<HTMLDivElement | null>,
   setBounds: (bounds: Rectangle) => void,
   direction: Direction,
+  { centered }: UseResizeOptions = defaultOptions,
 ) {
   const view = useConfigStore((s) => s.view);
   const state = useRef(initialHandleState);
@@ -31,10 +36,8 @@ export function useResize(
     const el = ref.current;
     if (!el) return;
 
-    const parentRect = el.parentElement!.getBoundingClientRect();
     state.current = {
       current: rectangleFromStyle(el.style),
-      max: { w: parentRect.width, h: parentRect.height },
       initial: { x: ev.clientX, y: ev.clientY },
     };
   };
@@ -43,26 +46,20 @@ export function useResize(
     const el = ref.current;
     if (!el) return;
 
-    const { initial, current, max } = state.current;
+    const { initial, current } = state.current;
 
     // Calculate cursor delta
     const deltaX = ev.clientX - initial.x;
     const deltaY = ev.clientY - initial.y;
 
-    // Get dimension limits
-    const min: Size = { w: 1, h: 1 };
-
     // Horizontal resizing
     if (direction.includes("E")) {
-      const newWidth = clamp(current.w + deltaX, min.w, max.w - current.x);
+      const newWidth = current.w + deltaX;
 
       el.style.setProperty("width", `${~~newWidth}px`);
     } else if (direction.includes("W")) {
-      const newWidth = clamp(current.w - deltaX, min.w, current.x + current.w);
-
-      const maxDeltaX = current.w - min.w;
-      const minDeltaX = current.w - (max.w ?? Number.MAX_VALUE);
-      const newX = Math.max(current.x + clamp(deltaX, minDeltaX, maxDeltaX), 0);
+      const newWidth = current.w - deltaX;
+      const newX = current.x + deltaX;
 
       el.style.setProperty("width", `${~~newWidth}px`);
       el.style.setProperty("left", `${~~newX}px`);
@@ -70,15 +67,12 @@ export function useResize(
 
     // Vertical resizing
     if (direction.includes("S")) {
-      const newHeight = clamp(current.h + deltaY, min.h, max.h - current.y);
+      const newHeight = current.h + deltaY;
 
       el.style.setProperty("height", `${~~newHeight}px`);
     } else if (direction.includes("N")) {
-      const newHeight = clamp(current.h - deltaY, min.h, current.y + current.h);
-
-      const maxDeltaY = current.h - min.h;
-      const minDeltaY = current.h - (max.h ?? Number.MAX_VALUE);
-      const newY = Math.max(current.y + clamp(deltaY, minDeltaY, maxDeltaY), 0);
+      const newHeight = current.h - deltaY;
+      const newY = current.y + deltaY;
 
       el.style.setProperty("height", `${~~newHeight}px`);
       el.style.setProperty("top", `${~~newY}px`);

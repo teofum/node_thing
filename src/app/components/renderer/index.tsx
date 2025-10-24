@@ -9,10 +9,10 @@ import { useProjectStore } from "@/store/project.store";
 import { ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Canvas } from "./canvas";
-import { LayerHandle } from "./layer-handle";
+import { LayerHandle } from "./handles/layer-handle";
 import { Timeline } from "./timeline";
 import { ZoomControls } from "./zoom-controls";
-import { RadialHandle } from "./radial-handle";
+import { RadialHandle } from "./handles/radial-handle";
 
 export function Renderer() {
   const canvas = useProjectStore((s) => s.properties.canvas);
@@ -119,6 +119,7 @@ export function Renderer() {
         <div className="relative">
           <Canvas />
           {view.layerHandles ? <LayerHandle /> : null}
+          <RadialHandle />
         </div>
       </div>
 

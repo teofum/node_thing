@@ -1,7 +1,6 @@
 import { RefObject, useRef } from "react";
 
 import { useConfigStore } from "@/store/config.store";
-import { clamp } from "@/utils/clamp";
 import { Rectangle, rectangleFromStyle } from "@/utils/point";
 import { useDrag } from "@/utils/use-drag";
 import { initialHandleState } from "./types";
@@ -17,10 +16,8 @@ export function useMove(
     const el = ref.current;
     if (!el) return;
 
-    const parentRect = el.parentElement!.getBoundingClientRect();
     state.current = {
       current: rectangleFromStyle(el.style),
-      max: { w: parentRect.width, h: parentRect.height },
       initial: { x: ev.clientX, y: ev.clientY },
     };
   };
@@ -29,20 +26,18 @@ export function useMove(
     const el = ref.current;
     if (!el) return;
 
-    const { initial, current, max } = state.current;
+    const { initial, current } = state.current;
 
     // Calculate cursor delta
     const deltaX = ev.clientX - initial.x;
     const deltaY = ev.clientY - initial.y;
 
-    // Get dimension limits
-
     // Horizontal movement
-    const newX = clamp(current.x + deltaX, 0, max.w - current.w);
+    const newX = current.x + deltaX;
     el.style.setProperty("left", `${~~newX}px`);
 
     // Vertical movement
-    const newY = clamp(current.y + deltaY, 0, max.h - current.h);
+    const newY = current.y + deltaY;
     el.style.setProperty("top", `${~~newY}px`);
 
     const { top, left, width, height } = el.style;
