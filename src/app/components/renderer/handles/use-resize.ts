@@ -1,11 +1,10 @@
 import { RefObject, useRef } from "react";
 
 import { useConfigStore } from "@/store/config.store";
-import { useProjectStore } from "@/store/project.store";
 import { clamp } from "@/utils/clamp";
+import { Rectangle, rectangleFromStyle, Size } from "@/utils/point";
 import { useDrag } from "@/utils/use-drag";
-import { initialHandleState } from "./handles/types";
-import { rectangleFromStyle, Size } from "@/utils/point";
+import { initialHandleState } from "./types";
 
 export const DIR = {
   N: { top: "calc(0% - 4px)", left: "calc(50% - 3px)" },
@@ -20,13 +19,12 @@ export const DIR = {
 
 export type Direction = keyof typeof DIR;
 
-export function useResizeLayer(
+export function useResize(
   ref: RefObject<HTMLDivElement | null>,
+  setBounds: (bounds: Rectangle) => void,
   direction: Direction,
 ) {
-  const setLayerBounds = useProjectStore((s) => s.setLayerBounds);
   const view = useConfigStore((s) => s.view);
-
   const state = useRef(initialHandleState);
 
   const onDragStart = (ev: PointerEvent) => {
@@ -94,7 +92,7 @@ export function useResizeLayer(
     const w = Math.round(Number(width.slice(0, -2)) * scale);
     const h = Math.round(Number(height.slice(0, -2)) * scale);
 
-    setLayerBounds(x, y, w, h);
+    setBounds({ x, y, w, h });
   };
 
   const onDragEnd = () => {

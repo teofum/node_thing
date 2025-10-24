@@ -1,16 +1,16 @@
 import { RefObject, useRef } from "react";
 
 import { useConfigStore } from "@/store/config.store";
-import { useProjectStore } from "@/store/project.store";
 import { clamp } from "@/utils/clamp";
+import { Rectangle, rectangleFromStyle } from "@/utils/point";
 import { useDrag } from "@/utils/use-drag";
-import { initialHandleState } from "./handles/types";
-import { rectangleFromStyle } from "@/utils/point";
+import { initialHandleState } from "./types";
 
-export function useMoveLayer(ref: RefObject<HTMLDivElement | null>) {
-  const setLayerBounds = useProjectStore((s) => s.setLayerBounds);
+export function useMove(
+  ref: RefObject<HTMLDivElement | null>,
+  setBounds: (bounds: Rectangle) => void,
+) {
   const view = useConfigStore((s) => s.view);
-
   const state = useRef(initialHandleState);
 
   const onDragStart = (ev: PointerEvent) => {
@@ -53,7 +53,7 @@ export function useMoveLayer(ref: RefObject<HTMLDivElement | null>) {
     const w = Math.round(Number(width.slice(0, -2)) * scale);
     const h = Math.round(Number(height.slice(0, -2)) * scale);
 
-    setLayerBounds(x, y, w, h);
+    setBounds({ x, y, w, h });
   };
 
   const onDragEnd = () => {
