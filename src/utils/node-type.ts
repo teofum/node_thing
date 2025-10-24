@@ -180,6 +180,7 @@ export const NODE_TYPES = {
         type: "number",
         min: 2,
         step: 1,
+        default: 30,
       },
       t: {
         name: "t",
@@ -208,6 +209,7 @@ export const NODE_TYPES = {
         type: "number",
         min: 2,
         step: 1,
+        default: 120,
       },
       t: {
         name: "t",
@@ -663,16 +665,19 @@ export const NODE_TYPES = {
       lift: {
         name: "lift",
         type: "number",
+        default: 0.0,
       },
       gamma: {
         name: "gamma",
         type: "number",
         min: 0,
+        default: 1.0,
       },
       gain: {
         name: "gain",
         type: "number",
         min: 0,
+        default: 1.0,
       },
     },
     outputs: {
