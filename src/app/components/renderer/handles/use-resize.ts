@@ -56,48 +56,54 @@ export function useResize(
 
     // Calculate cursor delta
     const cd = { x: ev.clientX - initial.x, y: ev.clientY - initial.y };
-    let deltaX = Math.cos(angle) * cd.x + Math.sin(angle) * cd.y;
-    let deltaY = Math.cos(angle) * cd.y - Math.sin(angle) * cd.x;
+    const deltaX = Math.cos(angle) * cd.x + Math.sin(angle) * cd.y;
+    const deltaY = Math.sin(angle) * cd.x - Math.cos(angle) * cd.y;
 
     const minDeltaX = current.w * (centered ? 0.5 : 1);
     const minDeltaY = current.h * (centered ? 0.5 : 1);
 
-    // Horizontal resizing
-    if (direction.includes("E")) {
-      deltaX = Math.max(deltaX, -minDeltaX);
-
+    const resizeX = (deltaX: number) => {
       const newWidth = current.w + deltaX * (centered ? 2 : 1);
       const newX = current.x - (centered ? deltaX : 0);
 
       el.style.setProperty("width", `${newWidth}px`);
       el.style.setProperty("left", `${newX}px`);
-    } else if (direction.includes("W")) {
-      deltaX = Math.min(deltaX, minDeltaX);
 
-      const newWidth = current.w - deltaX * (centered ? 2 : 1);
-      const newX = current.x + (centered ? deltaX : 0);
+      if (square) {
+        const newY = current.y - (centered ? deltaX : 0);
 
-      el.style.setProperty("width", `${newWidth}px`);
-      el.style.setProperty("left", `${newX}px`);
-    }
+        el.style.setProperty("height", `${newWidth}px`);
+        el.style.setProperty("top", `${newY}px`);
+      }
+    };
 
-    // Vertical resizing
-    if (direction.includes("S")) {
-      deltaY = Math.max(deltaY, -minDeltaY);
-
+    const resizeY = (deltaY: number) => {
       const newHeight = current.h + deltaY * (centered ? 2 : 1);
       const newY = current.y - (centered ? deltaY : 0);
 
       el.style.setProperty("height", `${newHeight}px`);
       el.style.setProperty("top", `${newY}px`);
+
+      if (square) {
+        const newX = current.x - (centered ? deltaY : 0);
+
+        el.style.setProperty("width", `${newHeight}px`);
+        el.style.setProperty("left", `${newX}px`);
+      }
+    };
+
+    // Horizontal resizing
+    if (direction.includes("E")) {
+      resizeX(Math.max(deltaX, -minDeltaX));
+    } else if (direction.includes("W")) {
+      resizeX(Math.min(deltaX, minDeltaX));
+    }
+
+    // Vertical resizing
+    if (direction.includes("S")) {
+      resizeY(Math.min(deltaY, minDeltaY));
     } else if (direction.includes("N")) {
-      deltaY = Math.min(deltaY, minDeltaY);
-
-      const newHeight = current.h - deltaY * (centered ? 2 : 1);
-      const newY = current.y + (centered ? deltaY : 0);
-
-      el.style.setProperty("height", `${newHeight}px`);
-      el.style.setProperty("top", `${newY}px`);
+      resizeY(Math.max(deltaY, -minDeltaY));
     }
 
     const { top, left, width, height } = el.style;
