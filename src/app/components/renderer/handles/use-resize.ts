@@ -54,6 +54,8 @@ export function useResize(
     if (!el) return;
 
     const { initial, current } = state.current;
+    const rect = { ...current };
+
     const square = constrainRatio === "shift" ? ev.shiftKey : constrainRatio;
     if (ev.ctrlKey) constrainedRatio = "preserve";
     const ratio =
@@ -69,61 +71,47 @@ export function useResize(
     const minDeltaX = current.w * (centered ? 0.5 : 1);
     const minDeltaY = current.h * (centered ? 0.5 : 1);
 
-    const resizeX = (deltaX: number) => {
-      const newWidth = current.w + deltaX * (centered ? 2 : 1);
-      const newX = current.x - (centered ? deltaX : 0);
-
-      el.style.setProperty("width", `${newWidth}px`);
-      el.style.setProperty("left", `${newX}px`);
+    const resizeX = (deltaX: number, direction: "E" | "W") => {
+      rect.w = current.w + deltaX * (centered ? 2 : 1);
+      rect.x = current.x - (centered || direction === "W" ? deltaX : 0);
 
       if (square) {
-        const newY =
-          current.y + (centered ? current.h - newWidth / ratio : 0) / 2;
-
-        el.style.setProperty("height", `${newWidth / ratio}px`);
-        el.style.setProperty("top", `${newY}px`);
+        rect.y = current.y + (centered ? current.h - rect.w / ratio : 0) / 2;
+        rect.h = rect.w / ratio;
       }
     };
 
-    const resizeY = (deltaY: number) => {
-      const newHeight = current.h + deltaY * (centered ? 2 : 1);
-      const newY = current.y - (centered ? deltaY : 0);
-
-      el.style.setProperty("height", `${newHeight}px`);
-      el.style.setProperty("top", `${newY}px`);
+    const resizeY = (deltaY: number, direction: "N" | "S") => {
+      rect.h = current.h + deltaY * (centered ? 2 : 1);
+      rect.y = current.y - (centered || direction === "N" ? deltaY : 0);
 
       if (square) {
-        const newX =
-          current.x + (centered ? current.w - newHeight * ratio : 0) / 2;
-
-        el.style.setProperty("width", `${newHeight * ratio}px`);
-        el.style.setProperty("left", `${newX}px`);
+        rect.x = current.x + (centered ? current.w - rect.h * ratio : 0) / 2;
+        rect.w = rect.h * ratio;
       }
     };
 
     // Horizontal resizing
     if (direction.includes("E")) {
-      resizeX(Math.max(deltaX, -minDeltaX));
+      resizeX(Math.max(deltaX, -minDeltaX), "E");
     } else if (direction.includes("W")) {
-      resizeX(Math.min(deltaX, minDeltaX));
+      resizeX(Math.max(-deltaX, -minDeltaX), "W");
     }
 
     // Vertical resizing
     if (direction.includes("S")) {
-      resizeY(Math.min(deltaY, minDeltaY));
+      resizeY(Math.max(-deltaY, -minDeltaY), "S");
     } else if (direction.includes("N")) {
-      resizeY(Math.max(deltaY, -minDeltaY));
+      resizeY(Math.max(deltaY, -minDeltaY), "N");
     }
 
-    const { top, left, width, height } = el.style;
     const scale = window.devicePixelRatio / view.zoom;
+    rect.x *= scale;
+    rect.y *= scale;
+    rect.w *= scale;
+    rect.h *= scale;
 
-    const x = Number(left.slice(0, -2)) * scale;
-    const y = Number(top.slice(0, -2)) * scale;
-    const w = Number(width.slice(0, -2)) * scale;
-    const h = Number(height.slice(0, -2)) * scale;
-
-    setBounds({ x, y, w, h });
+    setBounds(rect);
   };
 
   const onDragEnd = () => {
