@@ -58,11 +58,11 @@ export function RadialHandle({}: RadialHandleProps) {
     const scale = view.zoom / window.devicePixelRatio;
     innerRef.current?.style.setProperty(
       "top",
-      `calc(${50 * (1 - innerRadius)}% - 1px)`,
+      `calc(${1 - innerRadius} * 50% - ${innerRadius} * 1px)`,
     );
     innerRef.current?.style.setProperty(
       "left",
-      `calc(${50 * (1 - innerRadius)}% - 1px)`,
+      `calc(${1 - innerRadius} * 50% - ${innerRadius} * 1px)`,
     );
     innerRef.current?.style.setProperty(
       "width",
@@ -136,7 +136,11 @@ export function RadialHandle({}: RadialHandleProps) {
             "absolute rounded-full w-1.75 h-1.75 border border-teal-300 bg-black outline outline-black",
             "cursor-grab",
           )}
-          style={{ ...DIR.S }}
+          style={{
+            top:
+              innerRadius === 0 ? "calc(100% - 4.5px)" : "calc(100% - 3.5px)",
+            left: innerRadius === 0 ? "calc(50% - 4.5px)" : "calc(50% - 3.5px)",
+          }}
           onPointerDown={resizeInnerHandler}
         />
       </div>
