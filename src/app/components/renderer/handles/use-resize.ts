@@ -54,28 +54,32 @@ export function useResize(
 
     // Horizontal resizing
     if (direction.includes("E")) {
-      const newWidth = current.w + deltaX;
+      const newWidth = current.w + deltaX * (centered ? 2 : 1);
+      const newX = current.x - (centered ? deltaX : 0);
 
-      el.style.setProperty("width", `${~~newWidth}px`);
+      el.style.setProperty("width", `${newWidth}px`);
+      el.style.setProperty("left", `${newX}px`);
     } else if (direction.includes("W")) {
-      const newWidth = current.w - deltaX;
-      const newX = current.x + deltaX;
+      const newWidth = current.w - deltaX * (centered ? 2 : 1);
+      const newX = current.x + (centered ? deltaX : 0);
 
-      el.style.setProperty("width", `${~~newWidth}px`);
-      el.style.setProperty("left", `${~~newX}px`);
+      el.style.setProperty("width", `${newWidth}px`);
+      el.style.setProperty("left", `${newX}px`);
     }
 
     // Vertical resizing
     if (direction.includes("S")) {
-      const newHeight = current.h + deltaY;
+      const newHeight = current.h + deltaY * (centered ? 2 : 1);
+      const newY = current.y - (centered ? deltaY : 0);
 
-      el.style.setProperty("height", `${~~newHeight}px`);
+      el.style.setProperty("height", `${newHeight}px`);
+      el.style.setProperty("top", `${newY}px`);
     } else if (direction.includes("N")) {
-      const newHeight = current.h - deltaY;
-      const newY = current.y + deltaY;
+      const newHeight = current.h - deltaY * (centered ? 2 : 1);
+      const newY = current.y + (centered ? deltaY : 0);
 
-      el.style.setProperty("height", `${~~newHeight}px`);
-      el.style.setProperty("top", `${~~newY}px`);
+      el.style.setProperty("height", `${newHeight}px`);
+      el.style.setProperty("top", `${newY}px`);
     }
 
     const { top, left, width, height } = el.style;

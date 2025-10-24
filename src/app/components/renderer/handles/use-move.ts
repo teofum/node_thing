@@ -34,11 +34,11 @@ export function useMove(
 
     // Horizontal movement
     const newX = current.x + deltaX;
-    el.style.setProperty("left", `${~~newX}px`);
+    el.style.setProperty("left", `${newX}px`);
 
     // Vertical movement
     const newY = current.y + deltaY;
-    el.style.setProperty("top", `${~~newY}px`);
+    el.style.setProperty("top", `${newY}px`);
 
     const { top, left, width, height } = el.style;
     const scale = window.devicePixelRatio / view.zoom;
