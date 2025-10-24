@@ -1,7 +1,4 @@
-import { redirect } from "next/navigation";
-
 import { Tables } from "@/lib/supabase/database.types";
-import { createClient } from "@/lib/supabase/server";
 import { LinkButton } from "@/ui/button";
 import { Menubar } from "@/ui/menu-bar";
 import { AuthButton } from "./auth/components/auth-button";
@@ -12,6 +9,9 @@ import { ProjectsMenu } from "./components/menu/projects";
 import { ViewMenu } from "./components/menu/view";
 import { Renderer } from "./components/renderer";
 import { Workspace } from "./components/workspace";
+import { getProjects, getPurchasedProjects, getUserData } from "./actions";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -32,6 +32,7 @@ export default async function Home() {
   }
 
   let projects: Tables<"projects">[] = [];
+  let purchasedProjects: Tables<"projects">[] = [];
   let userData = null;
 
   if (user) {
@@ -46,15 +47,8 @@ export default async function Home() {
     }
 
     userData = data;
-
-    if (data?.is_premium) {
-      const { data: projectData } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("updated_at", { ascending: false });
-      projects = projectData ?? [];
-    }
+    projects = await getProjects();
+    purchasedProjects = await getPurchasedProjects();
   }
 
   return (
@@ -68,7 +62,11 @@ export default async function Home() {
           <ViewMenu />
           <LayerMenu />
           <AnimationMenu />
-          <ProjectsMenu userData={userData} projects={projects} />
+          <ProjectsMenu
+            userData={userData}
+            projects={projects}
+            purchasedProjects={purchasedProjects}
+          />
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">

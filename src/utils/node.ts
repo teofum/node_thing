@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 
-import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
+import { Handle, NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 
 export function createNode<
   N extends Record<string, NodeType>,
@@ -19,7 +19,7 @@ export function createNode<
     position,
     data: {
       type,
-      defaultValues: getDefaultValues(nodeTypes, type),
+      defaultValues: getDefaultValues(nodeTypes[type]),
       parameters: {
         ...getDefaultParameters(nodeTypes[type]),
         ...parameters,
@@ -38,12 +38,24 @@ function getDefaultParameters(type: NodeType) {
   return parameters;
 }
 
-function getDefaultValues(nodeTypes: Record<string, NodeType>, type: string) {
+function getDefaultValues(type: NodeType) {
   const defaultValues: NodeData["defaultValues"] = {};
-  for (const [key, input] of Object.entries(nodeTypes[type].inputs)) {
-    defaultValues[key] = input.type === "number" ? 0.5 : [0.8, 0.8, 0.8, 1];
+  for (const [key, input] of Object.entries(type.inputs)) {
+    defaultValues[key] = input.default ?? getDefaultDefaultValue(input);
   }
   return defaultValues;
+}
+
+function getDefaultDefaultValue(input: Handle): number | number[] {
+  if (input.type === "color") return [0.8, 0.8, 0.8, 1];
+
+  let value = 0;
+  if (input.min !== undefined && input.max !== undefined)
+    value = (input.min + input.max) / 2;
+  if (input.step !== undefined)
+    value = Math.round(value / input.step) * input.step;
+
+  return value;
 }
 
 function newNodeId(type: string) {

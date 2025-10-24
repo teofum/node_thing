@@ -7,16 +7,21 @@ const handleSchema = z
   })
   .and(
     z.union([
-      z.object({ type: z.literal("color") }),
+      z.object({
+        type: z.literal("color"),
+        default: z.number().array().length(3).optional(),
+      }),
       z.object({
         type: z.literal("number"),
         min: z.number().optional(),
         max: z.number().optional(),
         step: z.number().optional(),
+        default: z.number().optional(),
       }),
     ]),
   );
 
+export type Handle = z.infer<typeof handleSchema>;
 export type HandleType = z.infer<typeof handleSchema>["type"];
 
 const parameterSchema = z

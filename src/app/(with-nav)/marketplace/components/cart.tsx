@@ -37,28 +37,36 @@ export function Cart({ items }: CartProps) {
         </form>
       </div>
       <div className="grid grid-cols-[minmax(12rem,1fr)_auto_auto] gap-x-3">
-        {items.map((item) => (
-          <div
-            key={item.shader_id}
-            className="grid col-start-1 -col-end-1 grid-cols-subgrid items-center text-sm/4 border-b border-white/15 p-2"
-          >
-            <div className="font-medium pl-2">{item.shader.title}</div>
-            <div className="font-semibold text-white/60 text-end">
-              $ {item.price_at_time.toFixed(2)}
+        {items.map((item) => {
+          const title = item.shader?.title || item.project?.name;
+          const itemId = item.shader_id || item.project_id;
+          const itemType =
+            item.item_type || (item.shader_id ? "shader" : "project");
+
+          return (
+            <div
+              key={itemId}
+              className="grid col-start-1 -col-end-1 grid-cols-subgrid items-center text-sm/4 border-b border-white/15 p-2"
+            >
+              <div className="font-medium pl-2">{title}</div>
+              <div className="font-semibold text-white/60 text-end">
+                $ {item.price_at_time.toFixed(2)}
+              </div>
+              <form action={removeFromCart}>
+                <input type="hidden" name="itemId" value={itemId!} />
+                <input type="hidden" name="itemType" value={itemType} />
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  className="text-red-400"
+                  icon
+                >
+                  <LuTrash2 />
+                </Button>
+              </form>
             </div>
-            <form action={removeFromCart}>
-              <input type="hidden" name="shaderId" value={item.shader_id} />
-              <Button
-                type="submit"
-                variant="ghost"
-                className="text-red-400"
-                icon
-              >
-                <LuTrash2 />
-              </Button>
-            </form>
-          </div>
-        ))}
+          );
+        })}
         <div className="p-2 grid col-start-1 -col-end-1 grid-cols-subgrid gap-y-2">
           <div className="font-medium pl-2">Total</div>
           <div className="font-semibold text-green-400 text-end">

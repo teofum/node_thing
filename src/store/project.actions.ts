@@ -62,24 +62,6 @@ export function getAllNodeTypes(nodeTypes: {
   };
 }
 
-export function isConnectionValid(
-  layer: Layer,
-  connection: Connection,
-  nodeTypes: Record<string, NodeType>,
-) {
-  const targetType = layer.nodes.find((node) => node.id === connection.target)!
-    .data.type;
-  const sourceType = layer.nodes.find((node) => node.id === connection.source)!
-    .data.type;
-
-  const targetHandleType =
-    nodeTypes[targetType].inputs[connection.targetHandle ?? ""].type;
-  const sourceHandleType =
-    nodeTypes[sourceType].outputs[connection.sourceHandle ?? ""].type;
-
-  return targetHandleType === sourceHandleType;
-}
-
 export function modifyNode(
   id: string,
   updater: (node: ShaderNode) => Partial<ShaderNode>,
