@@ -52,4 +52,20 @@ describe("createNode", () => {
 
     expect(node.data.parameters.test).toEqual(nodeParameters.test);
   });
+
+  it("uses the type's default values", () => {
+    const node = createNode("gaussBlur", nodePosition, NODE_TYPES, {});
+
+    expect(node.data.defaultValues.std_dev).toEqual(
+      NODE_TYPES.gaussBlur.inputs.std_dev.default,
+    );
+  });
+
+  it("uses an appropriate fallback default value", () => {
+    const node = createNode("mix", nodePosition, NODE_TYPES, {});
+    const node2 = createNode("add", nodePosition, NODE_TYPES, {});
+
+    expect(node.data.defaultValues.factor).toEqual(0.5);
+    expect(node2.data.defaultValues.x).toEqual(0);
+  });
 });
