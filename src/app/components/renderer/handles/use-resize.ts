@@ -21,6 +21,7 @@ export type Direction = keyof typeof DIR;
 type UseResizeOptions = {
   centered?: boolean;
   constrainRatio?: boolean | "shift";
+  ratio?: number | "preserve";
   angle?: number;
 };
 
@@ -31,6 +32,7 @@ export function useResize(
   {
     centered = false,
     constrainRatio = "shift",
+    ratio: constrainedRatio = 1,
     angle = 0,
   }: UseResizeOptions = {},
 ) {
@@ -53,6 +55,11 @@ export function useResize(
 
     const { initial, current } = state.current;
     const square = constrainRatio === "shift" ? ev.shiftKey : constrainRatio;
+    if (ev.ctrlKey) constrainedRatio = "preserve";
+    const ratio =
+      constrainedRatio === "preserve"
+        ? current.w / current.h
+        : constrainedRatio;
 
     // Calculate cursor delta
     const cd = { x: ev.clientX - initial.x, y: ev.clientY - initial.y };
@@ -70,9 +77,10 @@ export function useResize(
       el.style.setProperty("left", `${newX}px`);
 
       if (square) {
-        const newY = current.y + (centered ? current.h - newWidth : 0) / 2;
+        const newY =
+          current.y + (centered ? current.h - newWidth / ratio : 0) / 2;
 
-        el.style.setProperty("height", `${newWidth}px`);
+        el.style.setProperty("height", `${newWidth / ratio}px`);
         el.style.setProperty("top", `${newY}px`);
       }
     };
@@ -85,9 +93,10 @@ export function useResize(
       el.style.setProperty("top", `${newY}px`);
 
       if (square) {
-        const newX = current.x + (centered ? current.w - newHeight : 0) / 2;
+        const newX =
+          current.x + (centered ? current.w - newHeight * ratio : 0) / 2;
 
-        el.style.setProperty("width", `${newHeight}px`);
+        el.style.setProperty("width", `${newHeight * ratio}px`);
         el.style.setProperty("left", `${newX}px`);
       }
     };
@@ -109,10 +118,10 @@ export function useResize(
     const { top, left, width, height } = el.style;
     const scale = window.devicePixelRatio / view.zoom;
 
-    const x = Math.round(Number(left.slice(0, -2)) * scale);
-    const y = Math.round(Number(top.slice(0, -2)) * scale);
-    const w = Math.round(Number(width.slice(0, -2)) * scale);
-    const h = Math.round(Number(height.slice(0, -2)) * scale);
+    const x = Number(left.slice(0, -2)) * scale;
+    const y = Number(top.slice(0, -2)) * scale;
+    const w = Number(width.slice(0, -2)) * scale;
+    const h = Number(height.slice(0, -2)) * scale;
 
     setBounds({ x, y, w, h });
   };

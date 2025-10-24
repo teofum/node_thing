@@ -35,7 +35,10 @@ export function useRotate(
     const theta0 = Math.atan2(initial.y - center.y, initial.x - center.x);
     const theta = Math.atan2(ev.clientY - center.y, ev.clientX - center.x);
 
-    const newAngle = angle + theta - theta0;
+    let newAngle = angle + theta - theta0;
+    if (ev.shiftKey)
+      newAngle = Math.round(newAngle / (Math.PI / 4)) * (Math.PI / 4);
+
     el.style.setProperty(
       "transform",
       `rotate(${newAngle * (180 / Math.PI)}deg)`,
