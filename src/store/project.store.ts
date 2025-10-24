@@ -26,7 +26,6 @@ import {
   createLayer,
   modifyLayer,
   getAllNodeTypes,
-  isConnectionValid,
   modifyNode,
   newLayerId,
   prepareProjectForExport,
@@ -58,10 +57,6 @@ export const useProjectStore = create(
       onConnect: (connection: Connection) =>
         set(
           modifyLayer((layer) => {
-            const { nodeTypes } = get();
-            const allNodeTypes = getAllNodeTypes(nodeTypes);
-            if (!isConnectionValid(layer, connection, allNodeTypes)) return {};
-
             const edgesWithoutConflictingConnections = layer.edges.filter(
               (e) =>
                 e.target !== connection.target ||
