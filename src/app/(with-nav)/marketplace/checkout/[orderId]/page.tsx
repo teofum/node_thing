@@ -2,6 +2,7 @@ import { LinkButton, Button } from "@/ui/button";
 import { LuArrowLeft } from "react-icons/lu";
 import { getOrderDetails, createMercadoPagoCheckout } from "../actions";
 import { redirect } from "next/navigation";
+import { CardBadge } from "../../components/card-badge";
 
 type Props = {
   params: Promise<{ orderId: string }>;
@@ -22,9 +23,9 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
       <div className="max-w-2xl mx-auto">
         <div className="flex flex-row items-center mb-8">
           <h1 className="text-3xl font-bold grow">Checkout</h1>
-          <LinkButton variant="ghost" href="/marketplace/cart">
+          <LinkButton variant="ghost" href="/marketplace">
             <LuArrowLeft />
-            Back to Cart
+            Back to Marketplace
           </LinkButton>
         </div>
 
@@ -32,21 +33,42 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
           <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
 
           <div className="mb-8">
-            {order.order_items.map((item) => (
-              <div
-                key={item.shader.id}
-                className="flex justify-between items-center py-4 border-b border-neutral-700 last:border-b-0 "
-              >
-                <h3 className="font-medium">{item.shader.title}</h3>
-                <span className="font-medium">${item.price.toFixed(2)}</span>
-              </div>
-            ))}
+            {order.order_items.map((item, index) => {
+              const title = item.shader?.title || item.project?.name;
+              const itemId = item.shader?.id || item.project?.id || index;
+              const itemType =
+                item.item_type || (item.shader ? "shader" : "project");
+
+              return (
+                <div
+                  key={itemId}
+                  className="flex justify-between items-center py-4 border-b border-white/15 last:border-b-0 "
+                >
+                  <div className="flex flex-row items-center gap-2">
+                    <h3 className="font-medium">{title} </h3>
+                    <CardBadge
+                      text={
+                        itemType.charAt(0).toUpperCase() + itemType.slice(1)
+                      }
+                      color={
+                        itemType === "shader"
+                          ? "blue"
+                          : itemType === "project"
+                            ? "fuchsia"
+                            : "black"
+                      }
+                    />
+                  </div>
+                  <span className="font-medium">${item.price.toFixed(2)}</span>
+                </div>
+              );
+            })}
           </div>
 
-          <div className="border-t border-neutral-700 pt-6">
+          <div className="border-t border-white/15 pt-6">
             <div className="flex justify-between items-center">
-              <span className="text-lg font-semibold text-white">Total</span>
-              <span className="text-lg font-bold text-white">
+              <span className="text-lg font-semibold">Total</span>
+              <span className="text-lg font-bold">
                 ${order.total_amount.toFixed(2)}
               </span>
             </div>

@@ -33,7 +33,7 @@ export function SortMenubar({ onChange }: SortMenubarProps) {
 
   return (
     <div className="flex items-center gap-3 mb-6">
-      <span className="text-sm text-neutral-400">Sort results by:</span>
+      <span className="text-sm text-white/60">Sort results by:</span>
       <div className="w-32">
         <Select
           placeholder="None"
