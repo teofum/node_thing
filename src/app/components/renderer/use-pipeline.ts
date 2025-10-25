@@ -2,7 +2,7 @@ import { useMemo, useRef } from "react";
 
 import { Layer } from "@/store/project.types";
 import { useProjectStore } from "@/store/project.store";
-import { PreparedPipeline, preparePipeline } from "./renderer";
+import { PreparedPipeline, preparePipeline } from "./implementation/renderer";
 import { RenderPipeline } from "./pipeline";
 import { compareLayerDims, compareLayers } from "./compare-layers";
 import { enumerate } from "@/utils/enumerate";

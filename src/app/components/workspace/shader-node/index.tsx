@@ -72,6 +72,7 @@ export function RenderShaderNode(
             "bg-purple-400/15": data.type === "__output",
             "bg-orange-400/15": nodeTypeInfo.category === "Input",
             "bg-blue-400/15": nodeTypeInfo.category === "Math",
+            "bg-pink-400/15": nodeTypeInfo.category === "Object",
           },
         )}
       >

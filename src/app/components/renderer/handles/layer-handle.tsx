@@ -5,29 +5,32 @@ import { useLayoutEffect, useRef } from "react";
 
 import { useConfigStore } from "@/store/config.store";
 import { useProjectStore } from "@/store/project.store";
-import { useMoveLayer } from "./use-move-layer";
-import { DIR, useResizeLayer, type Direction } from "./use-resize-layer";
+import { Rectangle } from "@/utils/point";
+import { useMove } from "./use-move";
+import { DIR, useResize, type Direction } from "./use-resize";
 
 const directions = Object.keys(DIR) as Direction[];
 
 export function LayerHandle() {
   const layers = useProjectStore((s) => s.layers);
   const currentLayer = useProjectStore((s) => s.currentLayer);
+  const setLayerBounds = useProjectStore((s) => s.setLayerBounds);
   const layer = layers[currentLayer];
 
   const view = useConfigStore((s) => s.view);
 
   const ref = useRef<HTMLDivElement>(null);
 
-  const resizeN = useResizeLayer(ref, "N");
-  const resizeNE = useResizeLayer(ref, "NE");
-  const resizeE = useResizeLayer(ref, "E");
-  const resizeSE = useResizeLayer(ref, "SE");
-  const resizeS = useResizeLayer(ref, "S");
-  const resizeSW = useResizeLayer(ref, "SW");
-  const resizeW = useResizeLayer(ref, "W");
-  const resizeNW = useResizeLayer(ref, "NW");
-  const moveHandler = useMoveLayer(ref);
+  const setBounds = ({ x, y, w, h }: Rectangle) => setLayerBounds(x, y, w, h);
+  const resizeN = useResize(ref, setBounds, "N");
+  const resizeNE = useResize(ref, setBounds, "NE");
+  const resizeE = useResize(ref, setBounds, "E");
+  const resizeSE = useResize(ref, setBounds, "SE");
+  const resizeS = useResize(ref, setBounds, "S");
+  const resizeSW = useResize(ref, setBounds, "SW");
+  const resizeW = useResize(ref, setBounds, "W");
+  const resizeNW = useResize(ref, setBounds, "NW");
+  const moveHandler = useMove(ref, setBounds);
 
   const resizeHandlers = {
     N: resizeN,

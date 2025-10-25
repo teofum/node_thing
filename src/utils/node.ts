@@ -24,9 +24,21 @@ export function createNode<
         ...getDefaultParameters(nodeTypes[type]),
         ...parameters,
       },
+      uniforms: getDefaultUniforms(nodeTypes[type]),
     },
     selected: true,
   };
+}
+
+function getDefaultUniforms(type: NodeType) {
+  if (!type.uniforms) return {};
+
+  const uniforms: NodeData["uniforms"] = {};
+  for (const [key, uniform] of Object.entries(type.uniforms)) {
+    uniforms[key] = uniform.defaultValue;
+  }
+
+  return uniforms;
 }
 
 function getDefaultParameters(type: NodeType) {

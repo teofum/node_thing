@@ -22,6 +22,7 @@ import mixShader from "@/shaders/mix.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
 import pixelateShader from "@/shaders/pixelate.wgsl";
 import posterizeShader from "@/shaders/posterize.wgsl";
+import radialGradientShader from "@/shaders/radial-gradient.wgsl";
 import sharpnessShader from "@/shaders/sharpness.wgsl";
 import sineShader from "@/shaders/sine.wgsl";
 import sobelShader from "@/shaders/sobel.wgsl";
@@ -160,6 +161,26 @@ export const NODE_TYPES = {
       },
     },
     parameters: {},
+  },
+  // Object category ///////////////////////////////
+  radialGradient: {
+    name: "Radial Gradient",
+    category: "Object",
+    shader: radialGradientShader,
+    inputs: {},
+    outputs: {
+      output: {
+        name: "Gradient",
+        type: "number",
+      },
+    },
+    parameters: {},
+    uniforms: {
+      position: { type: "vec2f", defaultValue: [0, 0] },
+      size: { type: "vec2f", defaultValue: [100, 100] },
+      angle: { type: "f32", defaultValue: 0 },
+      innerRadius: { type: "f32", defaultValue: 0 },
+    },
   },
   // Math category ///////////////////////////////
   constant: {

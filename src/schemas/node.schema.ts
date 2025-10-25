@@ -47,6 +47,25 @@ const passBufferSchema = z.object({
 
 export type NodePassBufferDescriptor = z.infer<typeof passBufferSchema>;
 
+const uniformSchema = z.union([
+  z.object({ type: z.literal("f32"), defaultValue: z.number() }),
+  z.object({ type: z.literal("u32"), defaultValue: z.int() }),
+  z.object({
+    type: z.literal("vec2f"),
+    defaultValue: z.number().array().length(2),
+  }),
+  z.object({
+    type: z.literal("vec3f"),
+    defaultValue: z.number().array().length(3),
+  }),
+  z.object({
+    type: z.literal("vec4f"),
+    defaultValue: z.number().array().length(4),
+  }),
+]);
+
+export type UniformDefinition = z.infer<typeof uniformSchema>;
+
 export const nodeTypeSchema = z.object({
   name: z.string(),
   category: z.string(),
@@ -54,6 +73,7 @@ export const nodeTypeSchema = z.object({
   inputs: z.record(z.string(), handleSchema),
   outputs: z.record(z.string(), handleSchema),
   parameters: z.record(z.string(), parameterSchema),
+  uniforms: z.record(z.string(), uniformSchema).optional(),
 
   shader: z.string(),
   additionalPasses: z
@@ -83,6 +103,9 @@ export const nodeDataSchema = z.object({
       value: z.string().nullable(),
     }),
   ),
+  uniforms: z
+    .record(z.string(), z.union([z.number(), z.number().array()]))
+    .optional(),
 });
 
 export type NodeData = z.infer<typeof nodeDataSchema>;
