@@ -36,6 +36,7 @@ import LGGShader from "@/shaders/LGG.wgsl";
 import perlinNoiseShader from "@/shaders/perlin-noise.wgsl";
 import voronoiNoiseShader from "@/shaders/voronoi-noise.wgsl";
 import voronoiShader from "@/shaders/voronoi.wgsl";
+import kuwaharaFilterShader from "@/shaders/kuwahara-filter.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -877,6 +878,32 @@ export const NODE_TYPES = {
       seed: {
         name: "seed",
         type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  kuwahara: {
+    name: "Kuwahara filter",
+    category: "Effects",
+    shader: kuwaharaFilterShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      R: {
+        name: "R",
+        type: "number",
+        min: 0.0,
+        step: 1.0,
+        default: 5.0,
+        max: 20.0,
       },
     },
     outputs: {
