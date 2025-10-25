@@ -31,6 +31,7 @@ export type RenderPass = {
   outputBindings: Record<string, number>;
   defaultInputValues: Record<string, number | number[]>;
   parameters: Record<string, string>;
+  uniforms?: Record<string, number | number[]>;
 };
 
 const MAX_ITERATIONS = 1000;
@@ -294,6 +295,7 @@ export class RenderPipeline {
         : outputBindings,
       defaultInputValues: node.data.defaultValues,
       parameters,
+      uniforms: node.data.uniforms,
     };
 
     const passes = [basePass];
@@ -311,6 +313,7 @@ export class RenderPipeline {
         outputBindings: thisPassOutputBindings,
         defaultInputValues: {},
         parameters,
+        uniforms: node.data.uniforms,
       });
     }
 

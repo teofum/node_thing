@@ -1,29 +1,62 @@
 "uae client";
 
 import cn from "classnames";
-import { CSSProperties, useLayoutEffect, useRef, useState } from "react";
+import {
+  CSSProperties,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useConfigStore } from "@/store/config.store";
 import { Rectangle } from "@/utils/point";
 import { useMove } from "./use-move";
 import { DIR, useResize } from "./use-resize";
 import { useRotate } from "./use-rotate";
+import { NodeData } from "@/schemas/node.schema";
+import { useProjectStore } from "@/store/project.store";
 
-type RadialHandleProps = { a?: string };
+type RadialHandleProps = { nodeId: string; node: NodeData };
 
-export function RadialHandle({}: RadialHandleProps) {
+export function RadialHandle({ nodeId, node }: RadialHandleProps) {
   const view = useConfigStore((s) => s.view);
+  const updateNodeUniform = useProjectStore((s) => s.updateNodeUniform);
 
   const ref = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
-  const [angle, setAngle] = useState(0);
-  const [innerRadius, setInnerRadius] = useState(0.5);
-  const [bounds, setBounds] = useState<Rectangle>({
-    x: 0,
-    y: 0,
-    w: 100,
-    h: 100,
-  });
+
+  const { bounds, angle, innerRadius } = useMemo(() => {
+    const position = node.uniforms!.position as [number, number];
+    const size = node.uniforms!.size as [number, number];
+    const angle = node.uniforms!.angle as number;
+    const innerRadius = node.uniforms!.innerRadius as number;
+
+    const bounds = {
+      x: position[0] - size[0],
+      y: position[1] - size[1],
+      w: size[0] * 2,
+      h: size[1] * 2,
+    };
+
+    return { bounds, angle, innerRadius };
+  }, [node.uniforms]);
+
+  const setBounds = (bounds: Rectangle) => {
+    const position = [bounds.x + bounds.w / 2, bounds.y + bounds.h / 2];
+    const size = [bounds.w / 2, bounds.h / 2];
+
+    updateNodeUniform(nodeId, "position", position);
+    updateNodeUniform(nodeId, "size", size);
+  };
+
+  const setAngle = (angle: number) => {
+    updateNodeUniform(nodeId, "angle", angle);
+  };
+
+  const setInnerRadius = (innerRadius: number) => {
+    updateNodeUniform(nodeId, "innerRadius", innerRadius);
+  };
 
   const resizeN = useResize(ref, setBounds, "N", { centered: true, angle });
   const resizeE = useResize(ref, setBounds, "E", { centered: true, angle });
@@ -86,7 +119,7 @@ export function RadialHandle({}: RadialHandleProps) {
       ref={ref}
       className={cn(
         "absolute rounded-[50%] border border-teal-300 shadow-[0_0_0_1px,inset_0_0_0_1px] shadow-black cursor-move",
-        { "bg-radial from-red-500/40 to-transparent": true },
+        { "bg-radial from-red-500/40 to-transparent": false },
       )}
       style={
         {

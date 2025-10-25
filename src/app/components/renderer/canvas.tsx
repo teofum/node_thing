@@ -7,7 +7,7 @@ import { useAnimationStore } from "@/store/animation.store";
 import { useProjectStore } from "@/store/project.store";
 import { useUtilityStore } from "@/store/utility.store";
 import { usePropRef } from "@/utils/use-prop-ref";
-import { render } from "./renderer";
+import { render } from "./implementation/renderer";
 import { useGPU } from "./use-gpu";
 import { usePipeline } from "./use-pipeline";
 import { useTextureCache } from "./use-texture-cache";

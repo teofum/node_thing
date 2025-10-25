@@ -204,7 +204,7 @@ struct LocalUniforms {
 ${uniforms.map((u) => `  ${u.name}: ${u.type},`).join("\n")}
 };
 
-@group(1) @binding(1)
+@group(2) @binding(0)
 var<uniform> lu: LocalUniforms;
 `;
 

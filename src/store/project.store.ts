@@ -94,6 +94,16 @@ export const useProjectStore = create(
           })),
         ),
 
+      updateNodeUniform: (id: string, name: string, value: number | number[]) =>
+        set(
+          modifyNode(id, (node) => ({
+            data: {
+              ...node.data,
+              uniforms: { ...node.data.uniforms, [name]: value },
+            },
+          })),
+        ),
+
       /*
        * Actions: canvas
        */

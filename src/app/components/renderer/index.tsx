@@ -17,6 +17,7 @@ import { RadialHandle } from "./handles/radial-handle";
 export function Renderer() {
   const canvas = useProjectStore((s) => s.properties.canvas);
   const setCanvasSize = useProjectStore((s) => s.setCanvasSize);
+  const { nodes } = useProjectStore((s) => s.layers[s.currentLayer]);
 
   const view = useConfigStore((s) => s.view);
   const updateView = useConfigStore((s) => s.updateView);
@@ -57,6 +58,8 @@ export function Renderer() {
         <div className="font-semibold text-lg">Loading...</div>
       </div>
     );
+
+  const selectedNodes = nodes.filter((n) => n.selected);
 
   /*
    * Component UI
@@ -119,7 +122,11 @@ export function Renderer() {
         <div className="relative">
           <Canvas />
           {view.layerHandles ? <LayerHandle /> : null}
-          <RadialHandle />
+          {selectedNodes
+            .filter((n) => n.data.type === "radialGradient")
+            .map((n) => (
+              <RadialHandle key={n.id} nodeId={n.id} node={n.data} />
+            ))}
         </div>
       </div>
 

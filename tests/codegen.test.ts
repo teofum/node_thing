@@ -63,7 +63,7 @@ describe("Shader code generation", () => {
     expect(code).toMatch(/bob: f32,/);
     expect(code).toMatch(/mike: vec3(f|<f32>),/);
     expect(code).toMatch(
-      /@group\(1\) @binding\(1\)\nvar<uniform> lu: LocalUniforms;/,
+      /@group\(2\) @binding\(0\)\nvar<uniform> lu: LocalUniforms;/,
     );
   });
 
