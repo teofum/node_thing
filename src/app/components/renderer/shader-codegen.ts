@@ -1,5 +1,21 @@
-import { HandleType, NodeType } from "@/schemas/node.schema";
+import { HandleType, NodeType, UniformDefinition } from "@/schemas/node.schema";
 import { RenderPass } from "./pipeline";
+
+type Input = {
+  name: string;
+  type: HandleType;
+  receivedType: HandleType;
+};
+
+type Output = {
+  name: string;
+  type: HandleType;
+};
+
+type Uniform = {
+  name: string;
+  type: UniformDefinition["type"];
+};
 
 export function generateShaderCode(
   pass: RenderPass,
@@ -15,8 +31,9 @@ export function generateShaderCode(
     bufferTypes,
   );
   const outputs = getOutputsForPass(passIdx, type);
+  const uniforms = getUniformsForPass(type);
 
-  const bindingCode = generateBindingCode(inputs, outputs);
+  const bindingCode = generateBindingCode(inputs, outputs, uniforms);
   const parameterCode = generateParameterCode(pass.parameters, type);
   const computeAttributes = `@compute @workgroup_size(16, 16)`;
   const initializationCode = generateInitializationCode(inputs);
@@ -64,7 +81,7 @@ export function generateOutputShaderCode(
     bufferTypes,
   );
 
-  const bindingCode = generateBindingCode(inputs, []);
+  const bindingCode = generateBindingCode(inputs, [], []);
   const outputBindingCode = `
 @group(0) @binding(${inputs.length})
 var tex: texture_storage_2d<rgba8unorm, write>;
@@ -144,8 +161,9 @@ function generateSamplingCode(
 }
 
 function generateBindingCode(
-  inputs: { name: string; type: HandleType; receivedType: HandleType }[],
-  outputs: { name: string; type: HandleType }[],
+  inputs: Input[],
+  outputs: Output[],
+  uniforms: Uniform[],
 ) {
   const inputBindings = inputs.map(
     ({ name, receivedType }, i) => `
@@ -161,8 +179,8 @@ var<storage, read_write> ${name}: array<${getWgslType(type)}>;
 `,
   );
 
-  const uniformsCode = `
-struct Uniforms {
+  const genericUniformsCode = `
+struct CommonUniforms {
   width: u32,
   height: u32,
   x: u32,
@@ -175,12 +193,27 @@ struct Uniforms {
 };
 
 @group(1) @binding(0)
-var<uniform> u: Uniforms;
+var<uniform> u: CommonUniforms;
 `;
 
-  const bindingCode = [...inputBindings, ...outputBindings, uniformsCode].join(
-    "",
-  );
+  const localUniformsCode =
+    uniforms.length === 0
+      ? ""
+      : `
+struct LocalUniforms {
+${uniforms.map((u) => `  ${u.name}: ${u.type},`).join("\n")}
+};
+
+@group(1) @binding(1)
+var<uniform> lu: LocalUniforms;
+`;
+
+  const bindingCode = [
+    ...inputBindings,
+    ...outputBindings,
+    genericUniformsCode,
+    localUniformsCode,
+  ].join("");
   return bindingCode;
 }
 
@@ -242,4 +275,13 @@ function generateParameterCode(
       ];
     })
     .join("");
+}
+
+function getUniformsForPass(type: NodeType) {
+  if (!type.uniforms) return [];
+
+  return Object.entries(type.uniforms).map(([name, uniform]) => ({
+    name,
+    type: uniform.type,
+  }));
 }

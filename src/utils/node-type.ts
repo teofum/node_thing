@@ -161,6 +161,26 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  // Object category ///////////////////////////////
+  radialGradient: {
+    name: "Radial Gradient",
+    category: "Object",
+    shader: "",
+    inputs: {},
+    outputs: {
+      output: {
+        name: "Gradient",
+        type: "number",
+      },
+    },
+    parameters: {},
+    uniforms: {
+      position: { type: "vec2f", defaultValue: [0, 0] },
+      size: { type: "vec2f", defaultValue: [100, 100] },
+      angle: { type: "f32", defaultValue: 0 },
+      innerRadius: { type: "f32", defaultValue: 0 },
+    },
+  },
   // Math category ///////////////////////////////
   constant: {
     name: "Constant",

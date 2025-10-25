@@ -45,14 +45,25 @@ describe("Shader code generation", () => {
   it("includes uniform struct definition", () => {
     const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
-    expect(code).toMatch(/struct Uniforms {/);
+    expect(code).toMatch(/struct CommonUniforms \{/);
   });
 
   it("includes uniform binding code", () => {
     const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
 
     expect(code).toMatch(
-      /@group\(1\) @binding\(0\)\nvar<uniform> u: Uniforms;/,
+      /@group\(1\) @binding\(0\)\nvar<uniform> u: CommonUniforms;/,
+    );
+  });
+
+  it("includes local uniform binding code", () => {
+    const code = generateShaderCode(mixRenderPass, mockNodeTypes, []);
+
+    expect(code).toMatch(/struct LocalUniforms \{/);
+    expect(code).toMatch(/bob: f32,/);
+    expect(code).toMatch(/mike: vec3(f|<f32>),/);
+    expect(code).toMatch(
+      /@group\(1\) @binding\(1\)\nvar<uniform> lu: LocalUniforms;/,
     );
   });
 
