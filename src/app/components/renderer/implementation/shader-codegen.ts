@@ -1,5 +1,5 @@
 import { HandleType, NodeType, UniformDefinition } from "@/schemas/node.schema";
-import { RenderPass } from "./pipeline";
+import { RenderPass } from "../pipeline";
 
 type Input = {
   name: string;

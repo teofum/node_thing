@@ -1,13 +1,13 @@
 import { RenderPass } from "@/app/components/renderer/pipeline";
-import { generateShaderCode } from "@/app/components/renderer/shader-codegen";
+import { generateShaderCode } from "@/app/components/renderer/implementation/shader-codegen";
 import { mockNodeTypes } from "./node.mock";
 
 const mixRenderPass: RenderPass = {
+  nodeId: "test",
   nodeType: "mix",
   shader: "main",
   inputBindings: { input_a: 0 },
   outputBindings: {},
-  defaultInputValues: {},
   parameters: { test: "42" },
 };
 

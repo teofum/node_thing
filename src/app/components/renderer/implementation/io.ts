@@ -1,6 +1,6 @@
 import { NodeType } from "@/schemas/node.schema";
 import { RenderPipeline } from "../pipeline";
-import { generateOutputShaderCode } from "../shader-codegen";
+import { generateOutputShaderCode } from "./shader-codegen";
 
 import inputShader from "@/shaders/input.wgsl";
 import layerShader from "@/shaders/layer-under.wgsl";

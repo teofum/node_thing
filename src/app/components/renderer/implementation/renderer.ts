@@ -1,6 +1,6 @@
 import { HandleType, NodeType } from "@/schemas/node.schema";
 import { RenderPipeline } from "../pipeline";
-import { generateShaderCode } from "../shader-codegen";
+import { generateShaderCode } from "./shader-codegen";
 import {
   createBindGroupLayouts,
   createBindGroups,
@@ -11,6 +11,7 @@ import {
 import { createUniform } from "./uniforms";
 import { createInputStage, createOutputStage } from "./io";
 import { zip } from "@/utils/zip";
+import { Layer } from "@/store/project.types";
 
 const THREADS_PER_WORKGROUP = 16;
 
@@ -165,6 +166,7 @@ export type PreparedPipeline = ReturnType<typeof preparePipeline>;
 export function render(
   device: GPUDevice,
   pipeline: PreparedPipeline,
+  layer: Layer,
   target: GPUTexture,
   textures: [string, GPUTexture][],
   sampler: GPUSampler,
@@ -242,16 +244,20 @@ export function render(
   /*
    * Update local uniforms
    */
-  for (const [pass, buffer, uniforms] of desc.passes.map(
+  for (const [node, buffer, uniforms] of desc.passes.map(
     (p, i) =>
-      [p, localUniformsBuffers[i], nodeTypes[p.nodeType].uniforms] as const,
+      [
+        layer.nodes.find((n) => n.id === p.nodeId)!.data,
+        localUniformsBuffers[i],
+        nodeTypes[p.nodeType].uniforms,
+      ] as const,
   )) {
-    if (uniforms && pass.uniforms && buffer) {
+    if (uniforms && node.uniforms && buffer) {
       let offset = 0;
 
       for (const [type, value] of zip(
         Object.values(uniforms).map((u) => u.type),
-        Object.values(pass.uniforms),
+        Object.values(node.uniforms),
       )) {
         switch (type) {
           case "u32": {
@@ -281,7 +287,8 @@ export function render(
    * Fill in dummy buffers
    */
   for (const buf of dummyBuffers) {
-    const value = buf.pass.defaultInputValues[buf.input] ?? 0;
+    const node = layer.nodes.find((n) => n.id === buf.pass.nodeId)!.data;
+    const value = node.defaultValues[buf.input] ?? 0;
 
     const values = Float32Array.from(
       typeof value === "number" ? [value, 0, 0, 0] : value,
