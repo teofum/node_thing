@@ -187,7 +187,10 @@ export const useProjectStore = create(
         const purchased = await getPurchasedShaders();
         const external = Object.fromEntries(
           purchased
-            .filter((shader) => shader.node_config)
+            .filter(
+              (shader): shader is NonNullable<typeof shader> =>
+                shader !== null && shader.node_config !== null,
+            )
             .map((shader) => {
               const config = shader.node_config as NodeType;
               return [
@@ -206,8 +209,12 @@ export const useProjectStore = create(
             .filter((shader) => shader.node_config)
             .map((shader) => {
               const config = shader.node_config as NodeTypeDescriptor;
-              const inputs = createHandles(config.inputs ?? []);
-              const outputs = createHandles(config.outputs ?? []);
+              const inputs = createHandles(
+                Array.isArray(config.inputs) ? config.inputs : [],
+              );
+              const outputs = createHandles(
+                Array.isArray(config.outputs) ? config.outputs : [],
+              );
 
               const nodeType = {
                 name: config.name ?? shader.title ?? "Custom",
