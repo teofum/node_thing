@@ -32,6 +32,10 @@ import tonemapHableShader from "@/shaders/tone-map-hable.wgsl";
 import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
 import uvShader from "@/shaders/uv.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
+import LGGShader from "@/shaders/LGG.wgsl";
+import perlinNoiseShader from "@/shaders/perlin-noise.wgsl";
+import voronoiNoiseShader from "@/shaders/voronoi-noise.wgsl";
+import voronoiShader from "@/shaders/voronoi.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -126,7 +130,12 @@ export const NODE_TYPES = {
     name: "White Noise",
     category: "Generate",
     shader: whiteNoiseShader,
-    inputs: {},
+    inputs: {
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
     outputs: {
       output: {
         name: "Noise",
@@ -156,6 +165,64 @@ export const NODE_TYPES = {
     outputs: {
       output: {
         name: "Pattern",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  perlin_noise: {
+    name: "Perlin noise",
+    category: "Generate",
+    shader: perlinNoiseShader,
+    inputs: {
+      size: {
+        name: "size",
+        type: "number",
+        min: 2,
+        step: 1,
+        default: 30,
+      },
+      t: {
+        name: "t",
+        type: "number",
+      },
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Noise",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  voronoi_noise: {
+    name: "Voronoi noise",
+    category: "Generate",
+    shader: voronoiNoiseShader,
+    inputs: {
+      size: {
+        name: "size",
+        type: "number",
+        min: 2,
+        step: 1,
+        default: 120,
+      },
+      t: {
+        name: "t",
+        type: "number",
+      },
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Noise",
         type: "number",
       },
     },
@@ -586,6 +653,41 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  LGG: {
+    name: "Lift gamma gain",
+    category: "Color",
+    shader: LGGShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      lift: {
+        name: "lift",
+        type: "number",
+        default: 0.0,
+      },
+      gamma: {
+        name: "gamma",
+        type: "number",
+        min: 0,
+        default: 1.0,
+      },
+      gain: {
+        name: "gain",
+        type: "number",
+        min: 0,
+        default: 1.0,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
   // Tonemapping category ///////////////////////////////
   tonemapReinhard: {
     name: "Reinhard",
@@ -743,6 +845,38 @@ export const NODE_TYPES = {
         name: "y",
         type: "number",
         step: 1,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  voronoi: {
+    name: "Voronoi filter",
+    category: "Effects",
+    shader: voronoiShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      size: {
+        name: "size",
+        type: "number",
+        min: 2,
+        step: 1,
+      },
+      t: {
+        name: "t",
+        type: "number",
+      },
+      seed: {
+        name: "seed",
+        type: "number",
       },
     },
     outputs: {

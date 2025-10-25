@@ -18,5 +18,5 @@ fn fixedPt2Float(v: u32) -> f32 {
 fn main(
     @builtin(global_invocation_id) id: vec3u,
 ) {
-    output[index] = fixedPt2Float(pcg4d(vec4u(id.x, id.y, 1u, id.x + id.y)).x);
+    output[index] = fixedPt2Float(pcg4d(vec4u(id.x, id.y, 1u, id.x + id.y)+u32(seed)).x);
 }
