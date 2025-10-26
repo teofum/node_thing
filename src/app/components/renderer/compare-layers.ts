@@ -6,7 +6,11 @@ import { zip } from "@/utils/zip";
 
 function compareNodes(current: ShaderNode, last: ShaderNode) {
   if (current.id !== last.id) return true;
-  if (JSON.stringify(current.data) !== JSON.stringify(last.data)) return true;
+  if (
+    JSON.stringify(current.data.parameters) !==
+    JSON.stringify(last.data.parameters)
+  )
+    return true;
 
   return false;
 }

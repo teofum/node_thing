@@ -34,5 +34,9 @@ export const mockNodeTypes = {
         options: ["Foo Bar", "Bob"],
       },
     },
+    uniforms: {
+      bob: { type: "f32", defaultValue: 0 },
+      mike: { type: "vec3f", defaultValue: [0, 0, 0] },
+    },
   },
 } satisfies Record<string, NodeType>;
