@@ -1,11 +1,17 @@
 import { HandleType, NodeType } from "@/schemas/node.schema";
-import { RenderPass, RenderPipeline } from "./pipeline";
+import { RenderPipeline } from "../pipeline";
+import { generateShaderCode } from "./shader-codegen";
+import {
+  createBindGroupLayouts,
+  createBindGroups,
+  createLocalUniformsBuffers,
+  DummyBuffer,
+  PassBindGroupLayouts,
+} from "./bindings";
 import { createUniform } from "./uniforms";
-import { generateOutputShaderCode, generateShaderCode } from "./shader-codegen";
-
-import outputShader from "@/shaders/output.wgsl";
-import inputShader from "@/shaders/input.wgsl";
-import layerShader from "@/shaders/layer-under.wgsl";
+import { createInputStage, createOutputStage } from "./io";
+import { zip } from "@/utils/zip";
+import { Layer } from "@/store/project.types";
 
 const THREADS_PER_WORKGROUP = 16;
 
@@ -21,12 +27,6 @@ export type RenderOptions = {
   height: number;
   globalWidth: number;
   globalHeight: number;
-};
-
-type DummyBuffer = {
-  buffer: GPUBuffer;
-  pass: RenderPass;
-  input: string;
 };
 
 /*
@@ -48,90 +48,6 @@ function createBuffers(
       usage: GPUBufferUsage.STORAGE,
     }),
   );
-}
-
-/*
- * Create a dummy buffer used for fallback values
- */
-function createDummyBuffer(device: GPUDevice) {
-  return device.createBuffer({
-    size: 16,
-    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
-  });
-}
-
-/*
- * Create binding group layout objects for each pipeline stage.
- * Each binding group contains bindings for all inputs and outputs
- * in that stage.
- */
-function createBindGroupLayouts(device: GPUDevice, desc: RenderPipeline) {
-  return desc.passes.map((pass) => {
-    const inputs = Object.entries(pass.inputBindings);
-    const outputs = Object.entries(pass.outputBindings);
-
-    return device.createBindGroupLayout({
-      entries: [
-        ...inputs.map(
-          (_, i): GPUBindGroupLayoutEntry => ({
-            binding: i,
-            visibility: GPUShaderStage.COMPUTE,
-            buffer: { type: "read-only-storage" },
-          }),
-        ),
-        ...outputs.map(
-          (_, i): GPUBindGroupLayoutEntry => ({
-            binding: i + inputs.length,
-            visibility: GPUShaderStage.COMPUTE,
-            buffer: { type: "storage" },
-          }),
-        ),
-      ],
-    });
-  });
-}
-
-/*
- * Create the binding groups to be used when rendering.
- * Binds each pipeline stage to the actual buffers it will use.
- */
-function createBindGroups(
-  device: GPUDevice,
-  desc: RenderPipeline,
-  bindGroupLayouts: GPUBindGroupLayout[],
-  buffers: GPUBuffer[],
-  dummyBuffers: DummyBuffer[],
-) {
-  return desc.passes.map((pass, passIdx) => {
-    const inputs = Object.entries(pass.inputBindings);
-    const outputs = Object.entries(pass.outputBindings);
-
-    return device.createBindGroup({
-      layout: bindGroupLayouts[passIdx],
-      entries: [
-        ...inputs.map(([input, bufferIdx], i): GPUBindGroupEntry => {
-          let buffer: GPUBuffer;
-          if (bufferIdx === null) {
-            buffer = createDummyBuffer(device);
-            dummyBuffers.push({ buffer, input, pass });
-          } else {
-            buffer = buffers[bufferIdx];
-          }
-
-          return {
-            binding: i,
-            resource: { buffer },
-          };
-        }),
-        ...outputs.map(
-          ([, bufferIdx], i): GPUBindGroupEntry => ({
-            binding: i + inputs.length,
-            resource: { buffer: buffers[bufferIdx] },
-          }),
-        ),
-      ],
-    });
-  });
 }
 
 /*
@@ -158,7 +74,7 @@ function compileShaders(
 function createComputePSOs(
   device: GPUDevice,
   desc: RenderPipeline,
-  bindGroupLayouts: GPUBindGroupLayout[],
+  bindGroupLayouts: PassBindGroupLayouts[],
   uniformBindGroupLayout: GPUBindGroupLayout,
   nodeTypes: Record<string, NodeType>,
 ) {
@@ -171,126 +87,14 @@ function createComputePSOs(
         entryPoint: "main",
       },
       layout: device.createPipelineLayout({
-        bindGroupLayouts: [bindGroupLayouts[i], uniformBindGroupLayout],
+        bindGroupLayouts: [
+          bindGroupLayouts[i].io,
+          uniformBindGroupLayout,
+          bindGroupLayouts[i].uniforms,
+        ],
       }),
     }),
   );
-}
-
-function createInputStage(
-  device: GPUDevice,
-  uniformBindGroupLayout: GPUBindGroupLayout,
-) {
-  const inputStageImageShader = device.createShaderModule({
-    code: inputShader,
-  });
-
-  const inputStageLayerShader = device.createShaderModule({
-    code: layerShader,
-  });
-
-  const inputStageLayout = device.createBindGroupLayout({
-    entries: [
-      {
-        binding: 0,
-        visibility: GPUShaderStage.COMPUTE,
-        buffer: {
-          type: "storage",
-        },
-      },
-      {
-        binding: 1,
-        visibility: GPUShaderStage.COMPUTE,
-        buffer: {
-          type: "storage",
-        },
-      },
-      {
-        binding: 2,
-        visibility: GPUShaderStage.COMPUTE,
-        texture: {},
-      },
-      {
-        binding: 3,
-        visibility: GPUShaderStage.COMPUTE,
-        sampler: {},
-      },
-    ],
-  });
-
-  return {
-    __input_image: device.createComputePipeline({
-      compute: {
-        module: inputStageImageShader,
-        entryPoint: "main",
-      },
-      layout: device.createPipelineLayout({
-        bindGroupLayouts: [inputStageLayout, uniformBindGroupLayout],
-      }),
-    }),
-    __input_layer: device.createComputePipeline({
-      compute: {
-        module: inputStageLayerShader,
-        entryPoint: "main",
-      },
-      layout: device.createPipelineLayout({
-        bindGroupLayouts: [inputStageLayout, uniformBindGroupLayout],
-      }),
-    }),
-  };
-}
-
-function createOutputStage(
-  desc: RenderPipeline,
-  device: GPUDevice,
-  uniformBindGroupLayout: GPUBindGroupLayout,
-  nodeTypes: Record<string, NodeType>,
-) {
-  const outputStageShader = device.createShaderModule({
-    code: generateOutputShaderCode(
-      outputShader,
-      nodeTypes,
-      desc.bufferTypes,
-      desc.outputBuffer,
-      desc.outputAlphaBuffer,
-    ),
-  });
-
-  const outputStageLayout = device.createBindGroupLayout({
-    entries: [
-      {
-        binding: 0,
-        visibility: GPUShaderStage.COMPUTE,
-        buffer: {
-          type: "read-only-storage",
-        },
-      },
-      {
-        binding: 1,
-        visibility: GPUShaderStage.COMPUTE,
-        buffer: {
-          type: "read-only-storage",
-        },
-      },
-      {
-        binding: 2,
-        visibility: GPUShaderStage.COMPUTE,
-        storageTexture: {
-          format: "rgba8unorm",
-        },
-      },
-    ],
-  });
-
-  return device.createComputePipeline({
-    compute: {
-      module: outputStageShader,
-      entryPoint: "main",
-    },
-    layout: device.createPipelineLayout({
-      bindGroupLayouts: [outputStageLayout, uniformBindGroupLayout],
-    }),
-  });
 }
 
 /*
@@ -303,15 +107,21 @@ export function preparePipeline(
   opts: RenderOptions,
   nodeTypes: Record<string, NodeType>,
 ) {
-  const bindGroupLayouts = createBindGroupLayouts(device, desc);
+  const bindGroupLayouts = createBindGroupLayouts(device, desc, nodeTypes);
 
   const dummyBuffers: DummyBuffer[] = [];
   const buffers = createBuffers(device, desc, opts);
+  const localUniformsBuffers = createLocalUniformsBuffers(
+    device,
+    desc,
+    nodeTypes,
+  );
   const bindGroups = createBindGroups(
     device,
     desc,
     bindGroupLayouts,
     buffers,
+    localUniformsBuffers,
     dummyBuffers,
   );
   const uniform = createUniform(device);
@@ -335,12 +145,14 @@ export function preparePipeline(
     desc,
     opts,
     buffers,
+    localUniformsBuffers,
     dummyBuffers,
     bindGroups,
     pipelines,
     inputStage,
     outputStage,
     uniform,
+    nodeTypes,
   };
 }
 
@@ -354,6 +166,7 @@ export type PreparedPipeline = ReturnType<typeof preparePipeline>;
 export function render(
   device: GPUDevice,
   pipeline: PreparedPipeline,
+  layer: Layer,
   target: GPUTexture,
   textures: [string, GPUTexture][],
   sampler: GPUSampler,
@@ -364,12 +177,14 @@ export function render(
     desc,
     opts,
     buffers,
+    localUniformsBuffers,
     dummyBuffers,
     bindGroups,
     pipelines,
     inputStage,
     outputStage,
     uniform,
+    nodeTypes,
   } = pipeline;
 
   const renderTarget = device.createTexture({
@@ -427,10 +242,53 @@ export function render(
   );
 
   /*
+   * Update local uniforms
+   */
+  for (const [node, buffer, uniforms] of desc.passes.map(
+    (p, i) =>
+      [
+        layer.nodes.find((n) => n.id === p.nodeId)!.data,
+        localUniformsBuffers[i],
+        nodeTypes[p.nodeType].uniforms,
+      ] as const,
+  )) {
+    if (uniforms && node.uniforms && buffer) {
+      let offset = 0;
+
+      for (const [type, value] of zip(
+        Object.values(uniforms).map((u) => u.type),
+        Object.values(node.uniforms),
+      )) {
+        switch (type) {
+          case "u32": {
+            const v = Uint32Array.from([value as number]);
+            device.queue.writeBuffer(buffer, offset, v, 0, v.length);
+            offset += 4;
+            break;
+          }
+          case "f32": {
+            const v = Float32Array.from([value as number]);
+            device.queue.writeBuffer(buffer, offset, v, 0, v.length);
+            offset += 4;
+            break;
+          }
+          default: {
+            const v = Float32Array.from(value as number[]);
+            device.queue.writeBuffer(buffer, offset, v, 0, v.length);
+            offset += 4 * v.length;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  /*
    * Fill in dummy buffers
    */
   for (const buf of dummyBuffers) {
-    const value = buf.pass.defaultInputValues[buf.input] ?? 0;
+    const node = layer.nodes.find((n) => n.id === buf.pass.nodeId)!.data;
+    const value = node.defaultValues[buf.input] ?? 0;
 
     const values = Float32Array.from(
       typeof value === "number" ? [value, 0, 0, 0] : value,
@@ -507,8 +365,9 @@ export function render(
   )) {
     const pass = enc.beginComputePass();
     pass.setPipeline(pipeline);
-    pass.setBindGroup(0, bindGroup);
+    pass.setBindGroup(0, bindGroup.io);
     pass.setBindGroup(1, uniform.bindGroup);
+    pass.setBindGroup(2, bindGroup.uniforms);
     pass.dispatchWorkgroups(
       Math.ceil(opts.width / THREADS_PER_WORKGROUP),
       Math.ceil(opts.height / THREADS_PER_WORKGROUP),

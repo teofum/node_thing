@@ -25,11 +25,11 @@ type Input = {
 };
 
 export type RenderPass = {
+  nodeId: string;
   nodeType: NodeData["type"];
   shader: string;
   inputBindings: Record<string, number | null>;
   outputBindings: Record<string, number>;
-  defaultInputValues: Record<string, number | number[]>;
   parameters: Record<string, string>;
 };
 
@@ -286,13 +286,13 @@ export class RenderPipeline {
     }
 
     const basePass: RenderPass = {
+      nodeId: node.id,
       nodeType: node.data.type,
       shader: "main",
       inputBindings,
       outputBindings: additionalPasses.length
         ? this.getPassOutputBindings(additionalPasses[0].buffers)
         : outputBindings,
-      defaultInputValues: node.data.defaultValues,
       parameters,
     };
 
@@ -305,11 +305,11 @@ export class RenderPipeline {
           : outputBindings;
 
       passes.push({
+        nodeId: node.id,
         nodeType: node.data.type,
         shader: `pass_${i}`,
         inputBindings: lastPassOutputBindings,
         outputBindings: thisPassOutputBindings,
-        defaultInputValues: {},
         parameters,
       });
     }
