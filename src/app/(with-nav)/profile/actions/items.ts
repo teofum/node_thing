@@ -80,8 +80,9 @@ export async function getPurchasedProjects() {
   return camelcaseKeys(data);
 }
 
-export async function submitShaderReview(
-  shaderId: string,
+export async function submitReview(
+  type: "shader" | "project", // TODO group
+  itemId: string,
   rating: number,
   comment: string,
 ) {
@@ -89,37 +90,45 @@ export async function submitShaderReview(
     "/auth/login?next=/profile",
   );
 
+  const itemType = type === "shader" ? "shader_id" : "project_id";
+
   const { error: upsertError } = await supabase.from("ratings").upsert(
     {
-      shader_id: shaderId,
+      [itemType]: itemId,
       user_id: user.id,
       rating,
       comment,
+      item_type: type,
       updated_at: new Date().toISOString(),
     },
     {
-      onConflict: "user_id, shader_id",
+      onConflict: `user_id, ${itemType}`,
     },
   );
 
   if (upsertError) {
-    throw new Error(`Failed to upsert rating: ${upsertError.message}`);
+    throw new Error(
+      `Failed to upsert ${itemType} rating: ${upsertError.message}`,
+    );
   }
 }
 
-export async function deleteShaderReview(shaderId: string) {
+export async function deleteReview(type: "shader" | "project", itemId: string) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
 
+  const itemType = type === "shader" ? "shader_id" : "project_id";
+
   const { error } = await supabase
     .from("ratings")
     .delete()
-    .eq("shader_id", shaderId)
-    .eq("user_id", user.id);
+    .eq(itemType, itemId)
+    .eq("user_id", user.id)
+    .eq("item_type", type);
 
   if (error) {
-    throw new Error(`Failed to delete rating: ${error.message}`);
+    throw new Error(`Failed to delete ${itemType} rating: ${error.message}`);
   }
 }
 

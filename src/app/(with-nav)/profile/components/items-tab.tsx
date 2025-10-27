@@ -47,6 +47,7 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
           <RatingCard
             key={shader.id}
             id={shader.id}
+            type="shader"
             title={shader.title}
             category={shader.category.name}
             averageRating={shader.averageRating}
@@ -68,6 +69,7 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
           <RatingCard
             key={project.id}
             id={project.id}
+            type="project"
             title={project.name}
             averageRating={project.averageRating}
             userRating={
@@ -85,15 +87,15 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
 
     return (
       <div ref={forwardedRef}>
-        <p className="text-lg p-2 mb-3">Shaders</p>
+        <p className="text-md font-bold p-2 mb-3">Shaders</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {shadersCards}
         </div>
-        <p className="text-lg p-2 mt-5 mb-3">Projects</p>
+        <p className="text-md font-bold p-2 mt-5 mb-3">Projects</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projectsCards}
         </div>
-        <p className="text-lg p-2 mt-5 mb-3">Groups</p>
+        <p className="text-md font-bold p-2 mt-5 mb-3">Groups</p>
         TODO
       </div>
     );

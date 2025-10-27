@@ -6,6 +6,7 @@ import { RatingsDisplay } from "./items-tab";
 
 type RatingCardProps = {
   id: string;
+  type: "shader" | "project";
   title: string;
   category?: string | null;
   averageRating?: number | null;
@@ -15,6 +16,7 @@ type RatingCardProps = {
 
 export default function RatingCard({
   id,
+  type,
   title,
   category,
   averageRating,
@@ -53,6 +55,7 @@ export default function RatingCard({
         <RatingEditor
           key={id}
           id={id}
+          type={type}
           title={title}
           category={category}
           userRating={userRating}
