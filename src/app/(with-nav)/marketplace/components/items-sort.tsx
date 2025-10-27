@@ -18,12 +18,14 @@ interface Shader {
 
 interface Project {
   id: string;
-  name: string | null;
+  title: string;
   description: string | null;
   price: number | null;
   downloads: number | null;
   createdAt: string | null;
   profiles?: { username?: string };
+  averageRating?: number | null;
+  ratingCount?: number | null;
 }
 
 function mixSortedLists(
@@ -127,7 +129,7 @@ export function ShaderListClient({
   const sortedProjects = useMemo(() => {
     const mapped = projects.map((p) => ({
       ...p,
-      name: p.name ?? "Untitled Project",
+      name: p.title ?? "Untitled Project",
       description: p.description ?? "",
       price: p.price ?? 0,
       createdAt: p.createdAt ?? new Date().toISOString(),
@@ -175,7 +177,7 @@ export function ShaderListClient({
       />
       <div className="grid grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-4">
         {finalList.map((item) =>
-          "title" in item ? (
+          "category" in item ? (
             <ItemCard
               itemType="Shader"
               key={item.id}
@@ -195,14 +197,14 @@ export function ShaderListClient({
               itemType="Project"
               key={item.id}
               id={item.id}
-              title={item.name ?? "Untilted project"}
+              title={item.title ?? "Untilted project"}
               price={item.price ?? 0}
               downloads={item.downloads ?? 0}
               inCart={cartIds.has(item.id)}
               username={item.profiles?.username}
               createdAt={item.createdAt ?? new Date().toISOString()}
-              averageRating={0} // TODO project ratings
-              ratingCount={0} // TODO project ratings
+              averageRating={item.averageRating}
+              ratingCount={item.ratingCount}
             />
           ),
         )}
