@@ -68,9 +68,9 @@ export default async function ProfilePage() {
           >
             <ItemsTab
               shadersList={publishedShaders}
-              projectsList={publishedProjects} // TODO
+              projectsList={publishedProjects}
               shadersRatingsList={userShaderRatings}
-              projectsRatingsList={userProjectRatings} // TODO
+              projectsRatingsList={userProjectRatings}
             />
           </Tabs.Content>
 
@@ -80,9 +80,9 @@ export default async function ProfilePage() {
           >
             <ItemsTab
               shadersList={purchasedShaders}
-              projectsList={purchasedProjects} // TODO
+              projectsList={purchasedProjects}
               shadersRatingsList={userShaderRatings}
-              projectsRatingsList={userProjectRatings} // TODO
+              projectsRatingsList={userProjectRatings}
             />
           </Tabs.Content>
           <Tabs.Content

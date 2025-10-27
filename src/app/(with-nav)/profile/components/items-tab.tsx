@@ -41,29 +41,6 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
     { shadersList, projectsList, shadersRatingsList, projectsRatingsList },
     forwardedRef,
   ) => {
-    // TODO subir filtro de componentes
-
-    // const purchasedCards =
-    //   shadersList.length > 0 ? (
-    //     shadersList.map((shader) => (
-    //       <RatingCard
-    //         key={shader.id}
-    //         id={shader.id}
-    //         title={shader.title}
-    //         category={shader.category.name}
-    //         averageRating={shader.averageRating}
-    //         userRating={
-    //           shadersRatingsList.find((r) => r.shaderId === shader.id) ?? null
-    //         }
-    //         ratingCount={shader.ratingCount ?? 0}
-    //       />
-    //     ))
-    //   ) : (
-    //     <p className="text-white/40">
-    //       {"You haven't purchased any shaders yet"}
-    //     </p>
-    //   );
-
     const shadersCards =
       shadersList.length > 0 ? (
         shadersList.map((shader) => (
@@ -85,7 +62,6 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
         </p>
       );
 
-    // TODO para projects
     const projectsCards =
       projectsList.length > 0 ? (
         projectsList.map((project) => (
