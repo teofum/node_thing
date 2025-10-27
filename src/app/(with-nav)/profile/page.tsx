@@ -7,7 +7,7 @@ import {
   getPublishedShaders,
   getPurchasedShaders,
   getUserRatings,
-} from "./actions/shaders";
+} from "./actions/items";
 import { getUserData } from "./actions/user";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 

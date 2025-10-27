@@ -5,7 +5,7 @@ import { ComponentProps, useState } from "react";
 import {
   deleteShaderReview,
   submitShaderReview,
-} from "@/app/(with-nav)/profile/actions/shaders";
+} from "@/app/(with-nav)/profile/actions/items";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 import { UserRatingsDisplay } from "../page";
