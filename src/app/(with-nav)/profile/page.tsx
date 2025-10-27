@@ -1,6 +1,6 @@
 import * as Tabs from "@radix-ui/react-tabs";
 import ProfileHeader from "./components/profile-header";
-import ShadersTab from "./components/shaders-tab";
+import ItemsTab from "./components/items-tab";
 import PremiumTab from "./components/premium-tab";
 import SettingsTab from "./components/settings-tab";
 import {
@@ -53,12 +53,15 @@ export default async function ProfilePage() {
         >
           <Tabs.List className="flex shrink-0">
             <Tabs.Trigger className={triggerStyle} value="tab1">
-              Shaders
+              Published
             </Tabs.Trigger>
             <Tabs.Trigger className={triggerStyle} value="tab2">
-              Premium
+              Purchased
             </Tabs.Trigger>
             <Tabs.Trigger className={triggerStyle} value="tab3">
+              Premium
+            </Tabs.Trigger>
+            <Tabs.Trigger className={triggerStyle} value="tab4">
               Settings
             </Tabs.Trigger>
           </Tabs.List>
@@ -66,16 +69,28 @@ export default async function ProfilePage() {
             className="grow rounded-b-md p-5 outline-none"
             value="tab1"
           >
-            <ShadersTab
-              className="rounded-2xl p-4 min-h-[300px] mb-3"
-              shaderList={purchasedShaders}
-              publishList={publishedShaders}
-              ratingsList={userRatings}
+            <ItemsTab
+              shadersList={publishedShaders}
+              projectsList={publishedShaders} // TODO
+              shadersRatingsList={userRatings}
+              projectsRatingsList={userRatings} // TODO
+            />
+          </Tabs.Content>
+
+          <Tabs.Content
+            className="grow rounded-b-md p-5 outline-none"
+            value="tab2"
+          >
+            <ItemsTab
+              shadersList={purchasedShaders}
+              projectsList={purchasedShaders} // TODO
+              shadersRatingsList={userRatings}
+              projectsRatingsList={userRatings} // TODO
             />
           </Tabs.Content>
           <Tabs.Content
             className="grow rounded-b-md p-5 outline-none"
-            value="tab2"
+            value="tab3"
           >
             <PremiumTab
               className="rounded-2xl p-4 min-h-[300px] mb-3"
@@ -85,7 +100,7 @@ export default async function ProfilePage() {
           </Tabs.Content>
           <Tabs.Content
             className="grow rounded-b-md p-5 outline-none"
-            value="tab3"
+            value="tab4"
           >
             <SettingsTab
               className="rounded-2xl p-4 min-h-[300px] mb-3"
