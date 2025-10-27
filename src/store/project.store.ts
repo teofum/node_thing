@@ -362,9 +362,34 @@ export const useProjectStore = create(
           };
         }),
 
+      /**
+       * TODO:
+       * todos los actions tienen que hacer adjustHistory
+       *
+       * podria haber una acccion inicial en el history de crear leyer¿
+       * o el done arranca en -1
+       *
+       * indexing: "done" seria la cant de redoables o el indice del ultimo action "vivo"
+       */
+
+      adjustHistory: () => {
+        const { history, done } = get();
+
+        const slicedHist = history.slice(done); // solo agarra los qu estan hechos
+
+        set((state) => ({
+          history: slicedHist,
+          historySize: slicedHist.length,
+          done: 0,
+        }));
+      },
+
       undo: () => {
-        const { history } = get();
-        const lastCommand = history[0];
+        const { history, historySize, done } = get();
+
+        if (historySize - done <= 1) return; // si es la primera accion no se puede undo
+
+        const lastCommand = history[done]; // el ultimo action done
 
         switch (lastCommand.command) {
           case "createNode": {
@@ -375,13 +400,18 @@ export const useProjectStore = create(
             console.warn("not implemented");
           }
         }
+
+        set((state) => ({ done: state.done + 1 }));
       },
 
       redo: () => {
-        const { history } = get();
-        const lastCommand = history[0];
+        const { history, done } = get();
 
-        switch (lastCommand.command) {
+        if (done <= 0) return; // no hay cosas para redoear
+
+        const commandToRedo = history[done - 1]; // el primer redoable
+
+        switch (commandToRedo.command) {
           case "createNode": {
             //...
             break;
@@ -390,6 +420,8 @@ export const useProjectStore = create(
             console.warn("not implemented");
           }
         }
+
+        set((state) => ({ done: state.done - 1 }));
       },
     })),
     {

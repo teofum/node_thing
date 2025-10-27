@@ -173,6 +173,8 @@ export function createInitialState(): Project {
     },
     projectName: "Untitled Project",
     history: [],
+    historySize: 0,
+    done: -1, // todo, deberia haber un action inicial y arrancar en 0
   };
 }
 

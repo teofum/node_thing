@@ -35,6 +35,8 @@ export type Project = {
   };
   projectName: string;
   history: Command[];
+  historySize: number;
+  done: number;
 };
 
 export type NodeTypeDependency = {
