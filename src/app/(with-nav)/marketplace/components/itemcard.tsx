@@ -89,7 +89,11 @@ export default function ItemCard({
         ) : (
           <form action={addToCart}>
             <input type="hidden" name="itemId" value={id} />
-            <input type="hidden" name="itemType" value="shader" />
+            <input
+              type="hidden"
+              name="itemType"
+              value={itemType.toLocaleLowerCase()}
+            />
             <Button
               type="submit"
               size="lg"
