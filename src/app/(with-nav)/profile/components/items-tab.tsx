@@ -22,10 +22,7 @@ type ItemTabsProps = {
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
-  (
-    { shadersList, projectsList, shadersRatingsList, ...props },
-    forwardedRef,
-  ) => {
+  ({ shadersList, projectsList, shadersRatingsList }, forwardedRef) => {
     // TODO subir filtro de componentes
 
     // const purchasedCards =
@@ -93,16 +90,17 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
       );
 
     return (
-      <div className="" {...props} ref={forwardedRef}>
-        Shaders
+      <div ref={forwardedRef}>
+        <p className="text-lg p-2 mb-3">Shaders</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {shadersCards}
         </div>
-        Projects
+        <p className="text-lg p-2 mt-5 mb-3">Projects</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projectsCards}
         </div>
-        Groups TODO
+        <p className="text-lg p-2 mt-5 mb-3">Groups</p>
+        TODO
       </div>
     );
   },
