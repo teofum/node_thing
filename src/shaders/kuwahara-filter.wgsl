@@ -35,21 +35,34 @@ fn kuwaharaFilter( coord: vec2i, radius: i32, imageSize: vec2i ) -> vec3f {
         }
     }
 
-    // Find sector with lowest variance
-    var bestVariance = 1e9;
-    var bestColor = vec3f(0.0);
+    // Find sector with lowest sector_variance
+    //var bestVariance = 1e9;
+    //var bestColor = vec3f(0.0);
+
+    var color_sum = vec3f(0.0);
+    var weight_sum = f32(0);
+
     for (var i = 0; i < NUM_SECTORS; i++) {
         if (count[i] == 0) { continue; }
-        let mean = sum[i] / f32(count[i]);
+        let mean_color = sum[i] / f32(count[i]);
         let meanSq = sumSq[i] / f32(count[i]);
-        let variance = dot(meanSq - mean * mean, vec3f(0.3333)); // average across RGB
-        if (variance < bestVariance) {
-            bestVariance = variance;
-            bestColor = mean;
-        }
+        let sector_variance = dot(meanSq - mean_color * mean_color, vec3f(0.3333)); // average across RGB
+        
+        //if (sector_variance < bestVariance) {
+        //    bestVariance = sector_variance;
+        //    bestColor = mean_color;
+        //}
+
+        let sector_weight = ( 1 / (1 + sector_variance) );
+
+        color_sum += mean_color * sector_weight;
+        weight_sum += sector_weight;
+
     }
 
-    return bestColor;
+    //return bestColor;
+    return color_sum / weight_sum;
+
 }
 
 fn main( @builtin(global_invocation_id) id: vec3<u32>) {
