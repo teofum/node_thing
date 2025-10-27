@@ -2,6 +2,7 @@ import { Edge } from "@xyflow/react";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
 import { DeepPartial } from "@/utils/deep-partial";
+import { Command } from "./types/command";
 
 export type Layer = {
   nodes: ShaderNode[];
@@ -33,6 +34,7 @@ export type Project = {
     external: NodeTypes;
   };
   projectName: string;
+  history: Command[];
 };
 
 export type NodeTypeDependency = {

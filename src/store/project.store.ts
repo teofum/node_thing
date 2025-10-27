@@ -34,6 +34,7 @@ import {
   createInitialState,
   createHandles,
   mergeProject,
+  historyPush,
 } from "./project.actions";
 
 export const useProjectStore = create(
@@ -298,19 +299,26 @@ export const useProjectStore = create(
         type: string,
         position: Point,
         parameters: NodeData["parameters"] = {},
-      ) =>
-        set(
-          modifyLayer((layer) => {
-            const { nodeTypes } = get();
-            const allNodeTypes = getAllNodeTypes(nodeTypes);
-            return {
-              nodes: [
-                ...layer.nodes.map((node) => ({ ...node, selected: false })),
-                createNode(type, position, allNodeTypes, parameters),
-              ],
-            };
-          }),
-        ),
+      ) => {
+        const { nodeTypes, history } = get();
+        const allNodeTypes = getAllNodeTypes(nodeTypes);
+
+        const node = createNode(type, position, allNodeTypes, parameters);
+
+        const newState = modifyLayer((layer) => {
+          return {
+            nodes: [
+              ...layer.nodes.map((node) => ({ ...node, selected: false })),
+              node,
+            ],
+          };
+        });
+
+        set({
+          ...newState,
+          history: historyPush(history, { command: "createNode", data: node }),
+        });
+      },
 
       removeNode: (id: string) =>
         set(
@@ -353,6 +361,36 @@ export const useProjectStore = create(
             currentLayer: newLayerIdx,
           };
         }),
+
+      undo: () => {
+        const { history } = get();
+        const lastCommand = history[0];
+
+        switch (lastCommand.command) {
+          case "createNode": {
+            //...
+            break;
+          }
+          default: {
+            console.warn("not implemented");
+          }
+        }
+      },
+
+      redo: () => {
+        const { history } = get();
+        const lastCommand = history[0];
+
+        switch (lastCommand.command) {
+          case "createNode": {
+            //...
+            break;
+          }
+          default: {
+            console.warn("not implemented");
+          }
+        }
+      },
     })),
     {
       name: "main-store",
