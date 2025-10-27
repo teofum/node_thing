@@ -48,6 +48,38 @@ export async function getPurchasedShaders() {
   );
 }
 
+export async function getPublishedProjects() {
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
+
+  const { data, error } = await supabase.rpc("get_published_projects", {
+    user_uuid: user.id,
+  });
+
+  if (error) {
+    throw new Error(`Failed to load published shaders: ${error.message}`);
+  }
+
+  return camelcaseKeys(data);
+}
+
+export async function getPurchasedProjects() {
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/profile",
+  );
+
+  const { data, error } = await supabase.rpc("get_purchased_projects", {
+    user_uuid: user.id,
+  });
+
+  if (error) {
+    throw new Error(`Failed to load purchased shaders: ${error.message}`);
+  }
+
+  return camelcaseKeys(data);
+}
+
 export async function submitShaderReview(
   shaderId: string,
   rating: number,
@@ -91,14 +123,14 @@ export async function deleteShaderReview(shaderId: string) {
   }
 }
 
-export async function getUserRatings() {
+export async function getUserRatings(item: "shader_id" | "project_id") {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
 
   const { data, error } = await supabase
     .from("ratings")
-    .select("id, shader_id, rating, comment, updated_at")
+    .select(`id, ${item}, rating, comment, updated_at`)
     .eq("user_id", user.id);
 
   if (error) {

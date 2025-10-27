@@ -2,9 +2,8 @@ import * as Tabs from "@radix-ui/react-tabs";
 import { forwardRef } from "react";
 import { Button } from "@/ui/button";
 import RatingCard from "./ratingcard";
-import type { UserRatingsDisplay } from "../page";
 
-type UserShaderDisplay = {
+type ShaderDisplay = {
   id: string;
   title: string;
   averageRating: number | null;
@@ -14,15 +13,34 @@ type UserShaderDisplay = {
   };
 };
 
+type ProjectDisplay = {
+  id: string;
+  name: string;
+  averageRating: number | null;
+  ratingCount: number | null;
+};
+
+export type RatingsDisplay = {
+  id: string;
+  shaderId?: string | null;
+  projectId?: string | null;
+  rating: number | null;
+  comment: string | null;
+  updatedAt: string | null;
+};
+
 type ItemTabsProps = {
-  shadersList: UserShaderDisplay[];
-  projectsList: UserShaderDisplay[];
-  shadersRatingsList: UserRatingsDisplay[];
-  projectsRatingsList: UserRatingsDisplay[];
+  shadersList: ShaderDisplay[];
+  projectsList: ProjectDisplay[];
+  shadersRatingsList: RatingsDisplay[];
+  projectsRatingsList: RatingsDisplay[];
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
-  ({ shadersList, projectsList, shadersRatingsList }, forwardedRef) => {
+  (
+    { shadersList, projectsList, shadersRatingsList, projectsRatingsList },
+    forwardedRef,
+  ) => {
     // TODO subir filtro de componentes
 
     // const purchasedCards =
@@ -70,17 +88,17 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
     // TODO para projects
     const projectsCards =
       projectsList.length > 0 ? (
-        projectsList.map((shader) => (
+        projectsList.map((project) => (
           <RatingCard
-            key={shader.id}
-            id={shader.id}
-            title={shader.title}
-            category={shader.category.name}
-            averageRating={shader.averageRating}
+            key={project.id}
+            id={project.id}
+            title={project.name}
+            averageRating={project.averageRating}
             userRating={
-              shadersRatingsList.find((r) => r.shaderId === shader.id) ?? null
+              projectsRatingsList.find((r) => r.projectId === project.id) ??
+              null
             }
-            ratingCount={shader.ratingCount ?? 0}
+            ratingCount={project.ratingCount ?? 0}
           />
         ))
       ) : (

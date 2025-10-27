@@ -4,7 +4,9 @@ import ItemsTab from "./components/items-tab";
 import PremiumTab from "./components/premium-tab";
 import SettingsTab from "./components/settings-tab";
 import {
+  getPublishedProjects,
   getPublishedShaders,
+  getPurchasedProjects,
   getPurchasedShaders,
   getUserRatings,
 } from "./actions/items";
@@ -20,18 +22,13 @@ export type UserData = {
   subscriptionId?: string | null;
 };
 
-export type UserRatingsDisplay = {
-  id: string;
-  shaderId: string | null;
-  rating: number | null;
-  comment: string | null;
-  updatedAt: string | null;
-};
-
 export default async function ProfilePage() {
   const purchasedShaders = await getPurchasedShaders();
   const publishedShaders = await getPublishedShaders();
-  const userRatings = await getUserRatings();
+  const purchasedProjects = await getPurchasedProjects();
+  const publishedProjects = await getPublishedProjects();
+  const userShaderRatings = await getUserRatings("shader_id");
+  const userProjectRatings = await getUserRatings("project_id");
   const userData = await getUserData();
   const { supabase, user } = await getSupabaseUserOrRedirect();
 
@@ -71,9 +68,9 @@ export default async function ProfilePage() {
           >
             <ItemsTab
               shadersList={publishedShaders}
-              projectsList={publishedShaders} // TODO
-              shadersRatingsList={userRatings}
-              projectsRatingsList={userRatings} // TODO
+              projectsList={publishedProjects} // TODO
+              shadersRatingsList={userShaderRatings}
+              projectsRatingsList={userProjectRatings} // TODO
             />
           </Tabs.Content>
 
@@ -83,9 +80,9 @@ export default async function ProfilePage() {
           >
             <ItemsTab
               shadersList={purchasedShaders}
-              projectsList={purchasedShaders} // TODO
-              shadersRatingsList={userRatings}
-              projectsRatingsList={userRatings} // TODO
+              projectsList={purchasedProjects} // TODO
+              shadersRatingsList={userShaderRatings}
+              projectsRatingsList={userProjectRatings} // TODO
             />
           </Tabs.Content>
           <Tabs.Content

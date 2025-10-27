@@ -8,14 +8,14 @@ import {
 } from "@/app/(with-nav)/profile/actions/items";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
-import { UserRatingsDisplay } from "../page";
 import { useRouter } from "next/navigation";
+import { RatingsDisplay } from "../components/items-tab";
 
 type RatingEditorProps = {
   id: string;
   title: string;
-  category: string;
-  userRating: UserRatingsDisplay | null;
+  category?: string | null;
+  userRating: RatingsDisplay | null;
   trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 

@@ -296,6 +296,8 @@ export type Database = {
           comment: string | null;
           created_at: string | null;
           id: string;
+          item_type: string | null;
+          project_id: string | null;
           rating: number | null;
           shader_id: string | null;
           updated_at: string | null;
@@ -305,6 +307,8 @@ export type Database = {
           comment?: string | null;
           created_at?: string | null;
           id?: string;
+          item_type?: string | null;
+          project_id?: string | null;
           rating?: number | null;
           shader_id?: string | null;
           updated_at?: string | null;
@@ -314,12 +318,21 @@ export type Database = {
           comment?: string | null;
           created_at?: string | null;
           id?: string;
+          item_type?: string | null;
+          project_id?: string | null;
           rating?: number | null;
           shader_id?: string | null;
           updated_at?: string | null;
           user_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "ratings_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "ratings_shader_id_fkey";
             columns: ["shader_id"];
@@ -404,10 +417,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      checkout_cart: {
-        Args: { user_uuid: string };
-        Returns: string;
-      };
+      checkout_cart: { Args: { user_uuid: string }; Returns: string };
       finish_payment: {
         Args: { order_uuid: string; user_uuid: string };
         Returns: boolean;
@@ -424,6 +434,15 @@ export type Database = {
           profiles: Json;
         }[];
       };
+      get_published_projects: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          id: string;
+          name: string;
+          rating_count: number;
+        }[];
+      };
       get_published_shaders: {
         Args: { user_uuid: string };
         Returns: {
@@ -432,6 +451,15 @@ export type Database = {
           id: string;
           rating_count: number;
           title: string;
+        }[];
+      };
+      get_purchased_projects: {
+        Args: { user_uuid: string };
+        Returns: {
+          average_rating: number;
+          id: string;
+          name: string;
+          rating_count: number;
         }[];
       };
       get_purchased_shaders: {
@@ -467,10 +495,7 @@ export type Database = {
         Args: { shader_id: string };
         Returns: undefined;
       };
-      verify_user_password: {
-        Args: { password: string };
-        Returns: boolean;
-      };
+      verify_user_password: { Args: { password: string }; Returns: boolean };
     };
     Enums: {
       [_ in never]: never;

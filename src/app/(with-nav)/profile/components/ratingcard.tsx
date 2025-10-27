@@ -1,15 +1,15 @@
 import { Dialog } from "@/ui/dialog";
 import RatingEditor from "../dialogs/rating-editor";
-import { UserRatingsDisplay } from "../page";
 import { Button } from "@/ui/button";
 import { Stars } from "@/app/(with-nav)/marketplace/components/stars";
+import { RatingsDisplay } from "./items-tab";
 
 type RatingCardProps = {
   id: string;
   title: string;
-  category: string;
+  category?: string | null;
   averageRating?: number | null;
-  userRating: UserRatingsDisplay | null;
+  userRating: RatingsDisplay | null;
   ratingCount: number | null;
 };
 
