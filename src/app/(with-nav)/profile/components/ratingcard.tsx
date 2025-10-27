@@ -3,6 +3,7 @@ import RatingEditor from "../dialogs/rating-editor";
 import { Button } from "@/ui/button";
 import { Stars } from "@/app/(with-nav)/marketplace/components/stars";
 import { RatingsDisplay } from "./items-tab";
+import { CardBadge } from "../../marketplace/components/card-badge";
 
 type RatingCardProps = {
   id: string;
@@ -24,13 +25,24 @@ export default function RatingCard({
   ratingCount,
 }: RatingCardProps) {
   return (
-    <div className="glass glass-border p-6 rounded-2xl">
-      <h3 className="text-xl font-semibold mb-1">{title}</h3>
-      {category && (
-        <p className="inline-block text-sm text-teal-400 border border-current/15 mb-4 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
-          {category}
-        </p>
-      )}
+    <div className="glass glass-border p-4 rounded-2xl">
+      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+
+      <div className="mb-7">
+        <CardBadge
+          text={type.charAt(0).toUpperCase() + type.slice(1)}
+          color={
+            type === "shader"
+              ? "blue"
+              : type === "project"
+                ? "fuchsia"
+                : "black"
+          }
+        />
+        {type === "shader" && category && (
+          <CardBadge text={category} color="teal" />
+        )}
+      </div>
 
       <Stars ratingValue={averageRating} ratingCount={ratingCount} />
 
