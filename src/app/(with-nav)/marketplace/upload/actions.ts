@@ -4,6 +4,7 @@ import { Tables } from "@/lib/supabase/database.types";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function getUserProjects() {
   const supabase = await createClient();
@@ -67,6 +68,9 @@ export async function publishShader(
       category_id: categoryId,
     })
     .eq("id", shaderId);
+
+  revalidatePath("/marketplace/upload");
+  revalidatePath("/marketplace");
 }
 
 export async function publishProject(
@@ -93,6 +97,9 @@ export async function publishProject(
       downloads: 0,
     })
     .eq("id", projectID);
+
+  revalidatePath("/marketplace/upload");
+  revalidatePath("/marketplace");
 }
 
 export async function getCreatedShaders() {

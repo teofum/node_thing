@@ -1,4 +1,4 @@
-import { ComponentProps, useState } from "react";
+import { ComponentProps } from "react";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
@@ -7,7 +7,6 @@ import { Select, SelectItem } from "@/ui/select";
 
 import { Tables } from "@/lib/supabase/database.types";
 import { publishProject, publishShader } from "../actions";
-import { useRouter } from "next/navigation";
 
 type PublishDialogProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
@@ -25,25 +24,19 @@ export function PublishDialog({
   categories = [],
   ...props
 }: PublishDialogProps) {
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState<number>(categories[0]?.id || 1);
-
-  const router = useRouter();
-
-  async function handlePublish(
-    id: string,
-    priceStr: string,
-    description: string,
-  ) {
+  async function handlePublish(formData: FormData) {
+    const priceStr = formData.get("price") as string;
+    const description = formData.get("description") as string;
     const price = Number(priceStr) || 0;
+
     if (type === "shader") {
+      const categoryId = Number(formData.get("categoryId"));
       await publishShader(id, price, description, categoryId);
     } else {
       await publishProject(id, price, description);
     }
 
-    router.refresh();
+    props.onOpenChange?.(false);
   }
 
   return (
@@ -54,56 +47,47 @@ export function PublishDialog({
       className="w-2/5"
       {...props}
     >
-      <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
-        <div className="font-semibold text-3x1 mt-3">Price</div>
+      <form action={handlePublish}>
+        <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
+          <div className="font-semibold text-3x1 mt-3">Price</div>
 
-        <Input
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          type="number"
-          autoFocus
-          className="w-full"
-        />
+          <Input
+            name="price"
+            type="number"
+            defaultValue=""
+            autoFocus
+            className="w-full"
+            required
+          />
 
-        <div className="font-semibold text-3x1 mt-4">Description</div>
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          type=""
-          className="w-full"
-        />
+          <div className="font-semibold text-3x1 mt-4">Description</div>
+          <Input name="description" defaultValue="" className="w-full" />
 
-        {type === "shader" && (
-          <>
-            <div className="font-semibold text-3x1 mt-4">Category</div>
-            <Select
-              value={categoryId.toString()}
-              onValueChange={(value) => setCategoryId(Number(value))}
-            >
-              {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id.toString()}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </Select>
-          </>
-        )}
-      </div>
-      <div className="flex justify-between p-4 mt-15">
-        <DialogClose asChild>
-          <Button variant="outline">Close</Button>
-        </DialogClose>
+          {type === "shader" && (
+            <>
+              <div className="font-semibold text-3x1 mt-4">Category</div>
+              <Select name="categoryId" defaultValue="0">
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id.toString()}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </Select>
+            </>
+          )}
+        </div>
+        <div className="flex justify-between p-4 mt-15">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Close
+            </Button>
+          </DialogClose>
 
-        <DialogClose asChild>
-          <Button
-            icon
-            variant="outline"
-            onClick={() => handlePublish(id, price, description)}
-          >
+          <Button type="submit" icon variant="outline">
             Publish
           </Button>
-        </DialogClose>
-      </div>
+        </div>
+      </form>
     </Dialog>
   );
 }
