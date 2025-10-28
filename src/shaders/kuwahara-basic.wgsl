@@ -4,7 +4,7 @@ const PI: f32 = 3.14159265359;
 fn kuwaharaFilter( coord: vec2i, radius: i32, imageSize: vec2i ) -> vec3f {
     var sum: array<vec3f, NUM_SECTORS>;
     var sumSq: array<vec3f, NUM_SECTORS>;
-    var count: array<i32, NUM_SECTORS>;
+    var count: array<f32, NUM_SECTORS>;
 
     // Initialize accumulators
     for (var i = 0; i < NUM_SECTORS; i++) {
@@ -13,6 +13,7 @@ fn kuwaharaFilter( coord: vec2i, radius: i32, imageSize: vec2i ) -> vec3f {
         count[i] = 0;
     }
 
+    // TODO: make gaussian or polynomial weighting
     // Iterate over circular neighborhood
     for (var dy = -radius; dy <= radius; dy++) {
         for (var dx = -radius; dx <= radius; dx++) {
@@ -29,18 +30,20 @@ fn kuwaharaFilter( coord: vec2i, radius: i32, imageSize: vec2i ) -> vec3f {
             let angle = atan2(f32(dy), f32(dx));
             var sector = i32(floor((angle + PI) / (2.0 * PI / f32(NUM_SECTORS)))) % NUM_SECTORS;
 
-            sum[sector] += color;
-            sumSq[sector] += color * color;
-            count[sector] += 1;
+            let radius_p = f32(dx*dx + dy*dy) / f32(radius*radius);
+
+            let sigma = 0.2;  // controls sharpness
+            let weight = exp(- ((radius_p-0.25)*(radius_p-0.25)) / (2.0 * sigma * sigma));
+
+            sum[sector] += weight * color;
+            sumSq[sector] += weight * color * color;
+            count[sector] += weight * 1;
         }
     }
 
     // Find sector with lowest sector_variance
-    //var bestVariance = 1e9;
-    //var bestColor = vec3f(0.0);
-
-    var color_sum = vec3f(0.0);
-    var weight_sum = f32(0);
+    var bestVariance = 1e9;
+    var bestColor = vec3f(0.0);
 
     for (var i = 0; i < NUM_SECTORS; i++) {
         if (count[i] == 0) { continue; }
@@ -48,20 +51,13 @@ fn kuwaharaFilter( coord: vec2i, radius: i32, imageSize: vec2i ) -> vec3f {
         let meanSq = sumSq[i] / f32(count[i]);
         let sector_variance = dot(meanSq - mean_color * mean_color, vec3f(0.3333)); // average across RGB
         
-        //if (sector_variance < bestVariance) {
-        //    bestVariance = sector_variance;
-        //    bestColor = mean_color;
-        //}
-
-        let sector_weight = ( 1 / (1 + sector_variance) );
-
-        color_sum += mean_color * sector_weight;
-        weight_sum += sector_weight;
-
+        if (sector_variance < bestVariance) {
+            bestVariance = sector_variance;
+            bestColor = mean_color;
+        }
     }
 
-    //return bestColor;
-    return color_sum / weight_sum;
+    return bestColor;
 
 }
 
