@@ -3,24 +3,26 @@
 import { LuStar } from "react-icons/lu";
 import { ComponentProps, useState } from "react";
 import {
-  deleteShaderReview,
-  submitShaderReview,
-} from "@/app/(with-nav)/profile/actions/shaders";
+  deleteReview,
+  submitReview,
+} from "@/app/(with-nav)/profile/actions/items";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
-import { UserRatingsDisplay } from "../page";
 import { useRouter } from "next/navigation";
+import { RatingsDisplay } from "../components/items-tab";
 
 type RatingEditorProps = {
   id: string;
+  type: "shader" | "project";
   title: string;
-  category: string;
-  userRating: UserRatingsDisplay | null;
+  category?: string | null;
+  userRating: RatingsDisplay | null;
   trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 
 export default function RatingEditor({
   id,
+  type,
   title,
   category,
   userRating,
@@ -33,12 +35,12 @@ export default function RatingEditor({
   const router = useRouter();
 
   const handleSubmit = async () => {
-    await submitShaderReview(id, rating, comment);
+    await submitReview(type, id, rating, comment);
     router.refresh();
   };
 
   const handleDelete = async () => {
-    await deleteShaderReview(id);
+    await deleteReview(type, id);
     router.refresh();
   };
 

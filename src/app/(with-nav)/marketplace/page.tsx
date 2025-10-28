@@ -76,7 +76,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
     const searchLower = searchTerm.toLowerCase().trim();
     filteredProjects = filteredProjects.filter(
       (project) =>
-        (project.name && project.name.toLowerCase().includes(searchLower)) ||
+        (project.title && project.title.toLowerCase().includes(searchLower)) ||
         (project.description &&
           project.description.toLowerCase().includes(searchLower)),
     );
