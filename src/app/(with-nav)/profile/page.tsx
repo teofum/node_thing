@@ -1,13 +1,15 @@
 import * as Tabs from "@radix-ui/react-tabs";
 import ProfileHeader from "./components/profile-header";
-import ShadersTab from "./components/shaders-tab";
+import ItemsTab from "./components/items-tab";
 import PremiumTab from "./components/premium-tab";
 import SettingsTab from "./components/settings-tab";
 import {
+  getPublishedProjects,
   getPublishedShaders,
+  getPurchasedProjects,
   getPurchasedShaders,
   getUserRatings,
-} from "./actions/shaders";
+} from "./actions/items";
 import { getUserData } from "./actions/user";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
@@ -20,18 +22,13 @@ export type UserData = {
   subscriptionId?: string | null;
 };
 
-export type UserRatingsDisplay = {
-  id: string;
-  shaderId: string | null;
-  rating: number | null;
-  comment: string | null;
-  updatedAt: string | null;
-};
-
 export default async function ProfilePage() {
   const purchasedShaders = await getPurchasedShaders();
   const publishedShaders = await getPublishedShaders();
-  const userRatings = await getUserRatings();
+  const purchasedProjects = await getPurchasedProjects();
+  const publishedProjects = await getPublishedProjects();
+  const userShaderRatings = await getUserRatings("shader_id");
+  const userProjectRatings = await getUserRatings("project_id");
   const userData = await getUserData();
   const { supabase, user } = await getSupabaseUserOrRedirect();
 
@@ -53,12 +50,15 @@ export default async function ProfilePage() {
         >
           <Tabs.List className="flex shrink-0">
             <Tabs.Trigger className={triggerStyle} value="tab1">
-              Shaders
+              Published
             </Tabs.Trigger>
             <Tabs.Trigger className={triggerStyle} value="tab2">
-              Premium
+              Purchased
             </Tabs.Trigger>
             <Tabs.Trigger className={triggerStyle} value="tab3">
+              Premium
+            </Tabs.Trigger>
+            <Tabs.Trigger className={triggerStyle} value="tab4">
               Settings
             </Tabs.Trigger>
           </Tabs.List>
@@ -66,16 +66,28 @@ export default async function ProfilePage() {
             className="grow rounded-b-md p-5 outline-none"
             value="tab1"
           >
-            <ShadersTab
-              className="rounded-2xl p-4 min-h-[300px] mb-3"
-              shaderList={purchasedShaders}
-              publishList={publishedShaders}
-              ratingsList={userRatings}
+            <ItemsTab
+              shadersList={publishedShaders}
+              projectsList={publishedProjects}
+              shadersRatingsList={userShaderRatings}
+              projectsRatingsList={userProjectRatings}
+            />
+          </Tabs.Content>
+
+          <Tabs.Content
+            className="grow rounded-b-md p-5 outline-none"
+            value="tab2"
+          >
+            <ItemsTab
+              shadersList={purchasedShaders}
+              projectsList={purchasedProjects}
+              shadersRatingsList={userShaderRatings}
+              projectsRatingsList={userProjectRatings}
             />
           </Tabs.Content>
           <Tabs.Content
             className="grow rounded-b-md p-5 outline-none"
-            value="tab2"
+            value="tab3"
           >
             <PremiumTab
               className="rounded-2xl p-4 min-h-[300px] mb-3"
@@ -85,7 +97,7 @@ export default async function ProfilePage() {
           </Tabs.Content>
           <Tabs.Content
             className="grow rounded-b-md p-5 outline-none"
-            value="tab3"
+            value="tab4"
           >
             <SettingsTab
               className="rounded-2xl p-4 min-h-[300px] mb-3"

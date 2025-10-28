@@ -115,7 +115,7 @@ export async function getProjects() {
     redirect("/auth/login?next=/marketplace");
   }
 
-  const { data, error } = await supabase.rpc("get_projects", {
+  const { data, error } = await supabase.rpc("get_projects_with_avg", {
     user_uuid: user.id,
   });
 
