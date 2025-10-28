@@ -2,6 +2,7 @@ import { NodeType } from "@/schemas/node.schema";
 
 import absShader from "@/shaders/abs.wgsl";
 import addShader from "@/shaders/add.wgsl";
+import subtractShader from "@/shaders/subtract.wgsl";
 import bayerPatternShader from "@/shaders/bayer-pattern-8x8.wgsl";
 import boxBlurShader from "@/shaders/box-blur.wgsl";
 import checkersPatternShader from "@/shaders/checker-pattern.wgsl";
@@ -287,6 +288,28 @@ export const NODE_TYPES = {
     outputs: {
       output: {
         name: "x + y",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  subtract: {
+    name: "Subtract",
+    category: "Math",
+    shader: subtractShader,
+    inputs: {
+      x: {
+        name: "x",
+        type: "number",
+      },
+      y: {
+        name: "y",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "x - y",
         type: "number",
       },
     },
