@@ -74,7 +74,7 @@ export async function getPurchasedProjects() {
   });
 
   if (error) {
-    throw new Error(`Failed to load purchased shaders: ${error.message}`);
+    throw new Error(`Failed to load purchased projects: ${error.message}`);
   }
 
   return camelcaseKeys(data);
