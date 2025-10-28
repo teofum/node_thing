@@ -8,9 +8,14 @@ import { PublishDialog } from "./publish-dialog";
 type PublishMenuProps = {
   projects: Tables<"projects">[];
   shaders: Tables<"shaders">[];
+  categories: Tables<"categories">[];
 };
 
-export default function PublishMenu({ projects, shaders }: PublishMenuProps) {
+export default function PublishMenu({
+  projects,
+  shaders,
+  categories,
+}: PublishMenuProps) {
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [publishType, setPublishType] = useState<"shader" | "project">(
     "project",
@@ -34,12 +39,10 @@ export default function PublishMenu({ projects, shaders }: PublishMenuProps) {
       <div className="min-h-screen bg-neutral-900 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white">Publish shader</h1>
+            <h1 className="text-3xl font-bold">Publish shader</h1>
           </div>
           <div className="glass glass-border rounded-xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">
-              Your shaders
-            </h2>
+            <h2 className="text-xl font-semibold mb-4">Your shaders</h2>
             <div className="space-y-6 glass glass-border p-6 rounded-xl ">
               <div className="space-y-1 ">
                 {shaders.length ? (
@@ -83,12 +86,10 @@ export default function PublishMenu({ projects, shaders }: PublishMenuProps) {
           </div>
 
           <div className="mt-8 mb-8">
-            <h1 className="text-3xl font-bold text-white">Publish project</h1>
+            <h1 className="text-3xl font-bold">Publish project</h1>
           </div>
           <div className="glass glass-border rounded-xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-4">
-              Your projects
-            </h2>
+            <h2 className="text-xl font-semibold mb-4">Your projects</h2>
             <div className="space-y-6 glass glass-border p-6 rounded-xl ">
               <div className="space-y-1 ">
                 {/* TODO Juani mejor diseño */}
@@ -139,6 +140,7 @@ export default function PublishMenu({ projects, shaders }: PublishMenuProps) {
         onOpenChange={setPublishDialogOpen}
         type={publishType}
         id={publishId}
+        categories={categories}
       />
     </>
   );
