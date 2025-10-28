@@ -62,8 +62,3 @@ export type NodeTypeDescriptor = {
   outputs: HandleDescriptor[];
   code: string;
 };
-
-export type Point = {
-  x: number;
-  y: number;
-};

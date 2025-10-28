@@ -22,6 +22,7 @@ import mixShader from "@/shaders/mix.wgsl";
 import multiplyShader from "@/shaders/multiply.wgsl";
 import pixelateShader from "@/shaders/pixelate.wgsl";
 import posterizeShader from "@/shaders/posterize.wgsl";
+import radialGradientShader from "@/shaders/radial-gradient.wgsl";
 import sharpnessShader from "@/shaders/sharpness.wgsl";
 import sineShader from "@/shaders/sine.wgsl";
 import sobelShader from "@/shaders/sobel.wgsl";
@@ -32,6 +33,11 @@ import tonemapHableShader from "@/shaders/tone-map-hable.wgsl";
 import tonemapReinhardShader from "@/shaders/tone_map-reinhard.wgsl";
 import uvShader from "@/shaders/uv.wgsl";
 import whiteNoiseShader from "@/shaders/white-noise.wgsl";
+import LGGShader from "@/shaders/LGG.wgsl";
+import perlinNoiseShader from "@/shaders/perlin-noise.wgsl";
+import voronoiNoiseShader from "@/shaders/voronoi-noise.wgsl";
+import voronoiShader from "@/shaders/voronoi.wgsl";
+import kuwaharaFilterShader from "@/shaders/kuwahara-filter.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -126,7 +132,12 @@ export const NODE_TYPES = {
     name: "White Noise",
     category: "Generate",
     shader: whiteNoiseShader,
-    inputs: {},
+    inputs: {
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
     outputs: {
       output: {
         name: "Noise",
@@ -156,6 +167,84 @@ export const NODE_TYPES = {
     outputs: {
       output: {
         name: "Pattern",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  perlin_noise: {
+    name: "Perlin noise",
+    category: "Generate",
+    shader: perlinNoiseShader,
+    inputs: {
+      size: {
+        name: "size",
+        type: "number",
+        min: 2,
+        step: 1,
+        default: 30,
+      },
+      t: {
+        name: "t",
+        type: "number",
+      },
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Noise",
+        type: "number",
+      },
+    },
+    parameters: {},
+  },
+  // Object category ///////////////////////////////
+  radialGradient: {
+    name: "Radial Gradient",
+    category: "Object",
+    shader: radialGradientShader,
+    inputs: {},
+    outputs: {
+      output: {
+        name: "Gradient",
+        type: "number",
+      },
+    },
+    parameters: {},
+    uniforms: {
+      position: { type: "vec2f", defaultValue: [0, 0] },
+      size: { type: "vec2f", defaultValue: [100, 100] },
+      angle: { type: "f32", defaultValue: 0 },
+      innerRadius: { type: "f32", defaultValue: 0 },
+    },
+  },
+  voronoi_noise: {
+    name: "Voronoi noise",
+    category: "Generate",
+    shader: voronoiNoiseShader,
+    inputs: {
+      size: {
+        name: "size",
+        type: "number",
+        min: 2,
+        step: 1,
+        default: 120,
+      },
+      t: {
+        name: "t",
+        type: "number",
+      },
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Noise",
         type: "number",
       },
     },
@@ -586,6 +675,41 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  LGG: {
+    name: "Lift gamma gain",
+    category: "Color",
+    shader: LGGShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      lift: {
+        name: "lift",
+        type: "number",
+        default: 0.0,
+      },
+      gamma: {
+        name: "gamma",
+        type: "number",
+        min: 0,
+        default: 1.0,
+      },
+      gain: {
+        name: "gain",
+        type: "number",
+        min: 0,
+        default: 1.0,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
   // Tonemapping category ///////////////////////////////
   tonemapReinhard: {
     name: "Reinhard",
@@ -743,6 +867,64 @@ export const NODE_TYPES = {
         name: "y",
         type: "number",
         step: 1,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  voronoi: {
+    name: "Voronoi filter",
+    category: "Effects",
+    shader: voronoiShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      size: {
+        name: "size",
+        type: "number",
+        min: 2,
+        step: 1,
+      },
+      t: {
+        name: "t",
+        type: "number",
+      },
+      seed: {
+        name: "seed",
+        type: "number",
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+  kuwahara: {
+    name: "Kuwahara filter",
+    category: "Effects",
+    shader: kuwaharaFilterShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      R: {
+        name: "R",
+        type: "number",
+        min: 0.0,
+        step: 1.0,
+        default: 5.0,
+        max: 20.0,
       },
     },
     outputs: {

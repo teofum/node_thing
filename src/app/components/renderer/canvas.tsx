@@ -7,12 +7,13 @@ import { useAnimationStore } from "@/store/animation.store";
 import { useProjectStore } from "@/store/project.store";
 import { useUtilityStore } from "@/store/utility.store";
 import { usePropRef } from "@/utils/use-prop-ref";
-import { render } from "./renderer";
+import { render } from "./implementation/renderer";
 import { useGPU } from "./use-gpu";
 import { usePipeline } from "./use-pipeline";
 import { useTextureCache } from "./use-texture-cache";
 import { useWebGPUContext } from "./use-webgpu-context";
 import { useConfigStore } from "@/store/config.store";
+import { zip } from "@/utils/zip";
 
 const SAMPLER_DESC: GPUSamplerDescriptor = {
   magFilter: "linear",
@@ -24,6 +25,7 @@ export function Canvas() {
    * State
    */
   const { canvas: canvasProperties } = useProjectStore((s) => s.properties);
+  const layers = useProjectStore((s) => s.layers);
 
   const animation = useAnimationStore();
   const updateAnimation = useAnimationStore((s) => s.update);
@@ -118,11 +120,12 @@ export function Canvas() {
         deltaTime + lastFrameError.current > minFrametime
       ) {
         const target = ctx.getCurrentTexture();
-        for (const layerPipeline of pipeline) {
+        for (const [layerPipeline, layer] of zip(pipeline, layers)) {
           if (layerPipeline)
             render(
               device,
               layerPipeline,
+              layer,
               target,
               textures,
               sampler,
@@ -186,6 +189,7 @@ export function Canvas() {
     recording,
     recordingFramerate,
     recorder,
+    layers,
   ]);
 
   return (
