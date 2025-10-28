@@ -12,9 +12,9 @@ fn kuwaharaFilter( coord: vec2i, radius: i32, imageSize: vec2i ) -> vec3f {
     let gy = raw_input[coord.x + (coord.y + 1) * i32(width)] - raw_input[coord.x + (coord.y - 1) * i32(width)];
 
     let grad = vec2f(dot(gx, vec3f(0.3333)), dot(gy, vec3f(0.3333)));
-    let orientation = atan2(grad.y, grad.x); // radians, [-PI, PI]
+    let orientation = atan2(grad.y, grad.x);
 
-    let anisotropy = 2.0; // elongation factor (2x longer along edge)
+    let anisotropy = 2.0; 
     let c = cos(orientation);
     let s = sin(orientation);
 
