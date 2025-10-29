@@ -385,7 +385,8 @@ export const useProjectStore = create(
       },
 
       undo: () => {
-        const { history, done } = get();
+        const state = get();
+        const { history, done } = state;
 
         if (history.length - done <= 1) return; // si es la primera accion no se puede undo
 
@@ -403,9 +404,22 @@ export const useProjectStore = create(
             break;
           }
           case "removeNode": {
+            const newState = modifyLayer((layer) => {
+              return {
+                nodes: [
+                  ...layer.nodes.map((node) => ({ ...node, selected: false })),
+                  lastCommand.data,
+                ],
+              };
+            });
+            set({
+              ...newState(state),
+            });
+            break;
           }
           default: {
             console.warn("not implemented");
+            set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
           }
         }
 
@@ -432,16 +446,26 @@ export const useProjectStore = create(
             });
             set({
               ...newState(state),
-              done: state.done - 1, // TODO : esto noc si funciona
             });
             break;
           }
           case "removeNode": {
+            set(
+              modifyLayer((layer) => ({
+                nodes: layer.nodes.filter(
+                  (node) => node.id !== commandToRedo.data.id,
+                ),
+              })),
+            );
+            break;
           }
           default: {
             console.warn("not implemented");
+            set((state) => ({ done: state.done + 1 })); // TODO: parche por caso not impl
           }
         }
+
+        set((state) => ({ done: state.done - 1 }));
       },
     })),
     {
