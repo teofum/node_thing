@@ -301,7 +301,7 @@ export const useProjectStore = create(
         parameters: NodeData["parameters"] = {},
       ) => {
         const state = get();
-        const { nodeTypes, history } = state;
+        const { nodeTypes, history, done } = state;
         const allNodeTypes = getAllNodeTypes(nodeTypes);
 
         const node = createNode(type, position, allNodeTypes, parameters);
@@ -315,7 +315,6 @@ export const useProjectStore = create(
           };
         });
 
-        const { done } = get();
         const slicedHist = history.slice(done);
         set({
           ...newState(state),
@@ -328,11 +327,25 @@ export const useProjectStore = create(
       },
 
       removeNode: (id: string) => {
-        set(
-          modifyLayer((layer) => ({
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
+        const slicedHist = history.slice(done);
+
+        const node = layers[currentLayer].nodes.find((node) => {
+          node.id == id;
+        });
+        if (!node) return;
+
+        set({
+          ...modifyLayer((layer) => ({
             nodes: layer.nodes.filter((node) => node.id !== id),
           })),
-        );
+          history: historyPush(slicedHist, {
+            command: "removeNode",
+            data: node,
+          }),
+          done: 0,
+        });
       },
 
       changeLayerName: (name: string, idx: number) =>
