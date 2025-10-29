@@ -23,6 +23,8 @@ export function Viewport() {
   const onEdgesChange = useProjectStore((s) => s.onEdgesChange);
   const onConnect = useProjectStore((s) => s.onConnect);
   const addNode = useProjectStore((s) => s.addNode);
+  const undo = useProjectStore((s) => s.undo);
+  const redo = useProjectStore((s) => s.redo);
 
   const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
   const { screenToFlowPosition } = useReactFlow();
@@ -84,52 +86,60 @@ export function Viewport() {
   const mac = navigator.platform.startsWith("Mac");
 
   return (
-    <ContextMenu
-      trigger={
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          nodeTypes={nodeTypes}
-          colorMode="dark"
-          fitView
-          panOnScroll={mac}
-          panOnDrag={!mac}
-          selectionOnDrag={mac}
-          onContextMenu={onContextMenu}
-          style={
-            {
-              "--xy-edge-stroke":
-                "rgb(from var(--color-neutral-300) r g b / 0.4)",
-              "--xy-edge-stroke-selected":
-                "rgb(from var(--color-teal-400) r g b / 0.6)",
-              "--xy-handle-background-color": "var(--color-neutral-100)",
-              "--xy-handle-border-color": "var(--color-neutral-600)",
-            } as Record<string, string>
-          }
-        >
-          <Background />{" "}
-        </ReactFlow>
-      }
-    >
-      <ContextSubmenu icon={<LuPlus />} label="Add node">
-        {nodeCategories.map(([name, types]) => (
-          <ContextSubmenu key={name} label={name}>
-            {types.map(([key, type]) => (
-              <ContextMenuItem
-                key={key}
-                onClick={() => addNode(key, ctxMenuPosition, {})}
-              >
-                {type.name}
-              </ContextMenuItem>
-            ))}
-          </ContextSubmenu>
-        ))}
-      </ContextSubmenu>
-    </ContextMenu>
+    <>
+      <button onClick={() => redo()} className="px-80">
+        redo
+      </button>
+      <button onClick={() => undo()} className="px-70">
+        undo
+      </button>
+      <ContextMenu
+        trigger={
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            nodeTypes={nodeTypes}
+            colorMode="dark"
+            fitView
+            panOnScroll={mac}
+            panOnDrag={!mac}
+            selectionOnDrag={mac}
+            onContextMenu={onContextMenu}
+            style={
+              {
+                "--xy-edge-stroke":
+                  "rgb(from var(--color-neutral-300) r g b / 0.4)",
+                "--xy-edge-stroke-selected":
+                  "rgb(from var(--color-teal-400) r g b / 0.6)",
+                "--xy-handle-background-color": "var(--color-neutral-100)",
+                "--xy-handle-border-color": "var(--color-neutral-600)",
+              } as Record<string, string>
+            }
+          >
+            <Background />{" "}
+          </ReactFlow>
+        }
+      >
+        <ContextSubmenu icon={<LuPlus />} label="Add node">
+          {nodeCategories.map(([name, types]) => (
+            <ContextSubmenu key={name} label={name}>
+              {types.map(([key, type]) => (
+                <ContextMenuItem
+                  key={key}
+                  onClick={() => addNode(key, ctxMenuPosition, {})}
+                >
+                  {type.name}
+                </ContextMenuItem>
+              ))}
+            </ContextSubmenu>
+          ))}
+        </ContextSubmenu>
+      </ContextMenu>
+    </>
   );
 }
