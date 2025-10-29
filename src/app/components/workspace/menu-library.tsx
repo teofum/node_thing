@@ -12,40 +12,48 @@ import { Button } from "@/ui/button";
 import { useNodeTypes } from "@/utils/use-node-types";
 import { ShaderEditor } from "./shader-editor";
 import { RenderShaderNode } from "./shader-node";
-import * as Tooltip from "@radix-ui/react-tooltip";
+import { Tooltip } from "@/ui/tooltip";
 
 type ShaderListProps = {
   nodeKey: string;
+  nodeTypes: Record<string, NodeType>;
   onDragStart: (event: React.DragEvent, nodeType: string) => void;
 };
 
-const ShaderList = ({ nodeKey, onDragStart }: ShaderListProps) => {
+const ShaderList = ({ nodeKey, nodeTypes, onDragStart }: ShaderListProps) => {
   return (
-    <div
-      className="cursor-grab"
-      onDragStart={(event) => onDragStart(event, nodeKey)}
-      draggable
+    <Tooltip
+      className="text-[15px] w-50 h-30"
+      content={nodeTypes[nodeKey].tooltip}
+      side="right"
+      delay={600}
     >
-      <RenderShaderNode
-        mock
-        id={nodeKey}
-        data={{
-          type: nodeKey,
-          defaultValues: {},
-          parameters: {},
-        }}
-        selected={false}
-        type={""}
-        dragging={false}
-        zIndex={0}
-        selectable={false}
-        deletable={false}
-        draggable={false}
-        isConnectable={false}
-        positionAbsoluteX={0}
-        positionAbsoluteY={0}
-      />
-    </div>
+      <div
+        className="cursor-grab"
+        onDragStart={(event) => onDragStart(event, nodeKey)}
+        draggable
+      >
+        <RenderShaderNode
+          mock
+          id={nodeKey}
+          data={{
+            type: nodeKey,
+            defaultValues: {},
+            parameters: {},
+          }}
+          selected={false}
+          type={""}
+          dragging={false}
+          zIndex={0}
+          selectable={false}
+          deletable={false}
+          draggable={false}
+          isConnectable={false}
+          positionAbsoluteX={0}
+          positionAbsoluteY={0}
+        />
+      </div>
+    </Tooltip>
   );
 };
 
@@ -81,6 +89,7 @@ export function MenuLibrary() {
                       <ShaderList
                         key={key}
                         nodeKey={key}
+                        nodeTypes={nodeTypes}
                         onDragStart={onDragStart}
                       />
                     ))}
