@@ -23,8 +23,8 @@ type ShaderListProps = {
 const ShaderList = ({ nodeKey, nodeTypes, onDragStart }: ShaderListProps) => {
   return (
     <Tooltip
-      className="text-[15px] w-50 h-30"
-      content={nodeTypes[nodeKey].tooltip}
+      className="text-[15px] max-w-70 max-h-70"
+      content={nodeTypes[nodeKey].tooltip ?? "(Missing description)"}
       side="right"
       delay={600}
     >
