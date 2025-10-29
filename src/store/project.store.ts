@@ -301,7 +301,8 @@ export const useProjectStore = create(
         position: Point,
         parameters: NodeData["parameters"] = {},
       ) => {
-        const { nodeTypes, history } = get();
+        const state = get();
+        const { nodeTypes, history } = state;
         const allNodeTypes = getAllNodeTypes(nodeTypes);
 
         const node = createNode(type, position, allNodeTypes, parameters);
@@ -316,7 +317,7 @@ export const useProjectStore = create(
         });
 
         set({
-          ...newState,
+          ...newState(state),
           history: historyPush(history, { command: "createNode", data: node }),
         });
       },
@@ -400,6 +401,8 @@ export const useProjectStore = create(
               })),
             );
             break;
+          }
+          case "removeNode": {
           }
           default: {
             console.warn("not implemented");
