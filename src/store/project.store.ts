@@ -379,15 +379,14 @@ export const useProjectStore = create(
 
         set((state) => ({
           history: slicedHist,
-          historySize: slicedHist.length,
           done: 0,
         }));
       },
 
       undo: () => {
-        const { history, historySize, done } = get();
+        const { history, done } = get();
 
-        if (historySize - done <= 1) return; // si es la primera accion no se puede undo
+        if (history.length - done <= 1) return; // si es la primera accion no se puede undo
 
         const lastCommand = history[done]; // el ultimo action done
 
