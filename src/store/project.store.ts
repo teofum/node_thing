@@ -413,7 +413,8 @@ export const useProjectStore = create(
       },
 
       redo: () => {
-        const { history, done } = get();
+        const state = get();
+        const { history, done } = state;
 
         if (done <= 0) return; // no hay cosas para redoear
 
@@ -429,11 +430,13 @@ export const useProjectStore = create(
                 ],
               };
             });
-            set((state) => ({
-              ...newState,
-              done: state.done - 1,
-            }));
+            set({
+              ...newState(state),
+              done: state.done - 1, // TODO : esto noc si funciona
+            });
             break;
+          }
+          case "removeNode": {
           }
           default: {
             console.warn("not implemented");
