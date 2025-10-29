@@ -69,6 +69,7 @@ export type UniformDefinition = z.infer<typeof uniformSchema>;
 export const nodeTypeSchema = z.object({
   name: z.string(),
   category: z.string(),
+  tooltip: z.string().optional(),
 
   inputs: z.record(z.string(), handleSchema),
   outputs: z.record(z.string(), handleSchema),

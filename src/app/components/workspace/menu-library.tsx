@@ -12,6 +12,50 @@ import { Button } from "@/ui/button";
 import { useNodeTypes } from "@/utils/use-node-types";
 import { ShaderEditor } from "./shader-editor";
 import { RenderShaderNode } from "./shader-node";
+import { Tooltip } from "@/ui/tooltip";
+
+type ShaderListProps = {
+  nodeKey: string;
+  nodeTypes: Record<string, NodeType>;
+  onDragStart: (event: React.DragEvent, nodeType: string) => void;
+};
+
+const ShaderList = ({ nodeKey, nodeTypes, onDragStart }: ShaderListProps) => {
+  return (
+    <Tooltip
+      className="text-[15px] max-w-70 max-h-70"
+      content={nodeTypes[nodeKey].tooltip ?? "(Missing description)"}
+      side="right"
+      delay={600}
+    >
+      <div
+        className="cursor-grab"
+        onDragStart={(event) => onDragStart(event, nodeKey)}
+        draggable
+      >
+        <RenderShaderNode
+          mock
+          id={nodeKey}
+          data={{
+            type: nodeKey,
+            defaultValues: {},
+            parameters: {},
+          }}
+          selected={false}
+          type={""}
+          dragging={false}
+          zIndex={0}
+          selectable={false}
+          deletable={false}
+          draggable={false}
+          isConnectable={false}
+          positionAbsoluteX={0}
+          positionAbsoluteY={0}
+        />
+      </div>
+    </Tooltip>
+  );
+};
 
 export function MenuLibrary() {
   const nodeTypes = useNodeTypes();
@@ -42,32 +86,12 @@ export function MenuLibrary() {
                 <AccordionContent className="border-b border-white/15">
                   <div className="flex flex-col gap-3 p-1">
                     {Object.entries(types).map(([key]) => (
-                      <div
+                      <ShaderList
                         key={key}
-                        className="cursor-grab"
-                        onDragStart={(event) => onDragStart(event, key)}
-                        draggable
-                      >
-                        <RenderShaderNode
-                          mock
-                          id={key}
-                          data={{
-                            type: key,
-                            defaultValues: {},
-                            parameters: {},
-                          }}
-                          selected={false}
-                          type={""}
-                          dragging={false}
-                          zIndex={0}
-                          selectable={false}
-                          deletable={false}
-                          draggable={false}
-                          isConnectable={false}
-                          positionAbsoluteX={0}
-                          positionAbsoluteY={0}
-                        />
-                      </div>
+                        nodeKey={key}
+                        nodeTypes={nodeTypes}
+                        onDragStart={onDragStart}
+                      />
                     ))}
                   </div>
                 </AccordionContent>
