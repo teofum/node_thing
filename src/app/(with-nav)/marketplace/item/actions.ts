@@ -3,17 +3,15 @@
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 export async function getItem(id: string, type: "shader" | "project") {
-  const { supabase } = await getSupabaseUserOrRedirect(
+  const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/marketplace",
   );
 
-  const dbType = type === "shader" ? "shaders" : "projects";
+  const { data, error } = await supabase
+    .rpc("get_item", { item_type: type, item_id: id, user_uuid: user.id })
+    .single();
 
-  const { data, error } = await supabase.from(dbType).select("*").eq("id", id);
-
-  if (error) {
-    throw new Error(`Failted to retrieve shader: ${error.message}`);
-  }
+  if (error) throw new Error(`Failed to retrieve ${type}: ${error.message}`);
 
   return data;
 }

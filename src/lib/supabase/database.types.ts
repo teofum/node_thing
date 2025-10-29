@@ -422,6 +422,22 @@ export type Database = {
         Args: { order_uuid: string; user_uuid: string };
         Returns: boolean;
       };
+      get_item: {
+        Args: { item_id: string; item_type: string; user_uuid?: string };
+        Returns: {
+          averagerating: number;
+          category: string;
+          createdat: string;
+          downloads: number;
+          id: string;
+          incart: boolean;
+          itemtype: string;
+          price: number;
+          ratingcount: number;
+          title: string;
+          username: string;
+        }[];
+      };
       get_projects_with_avg: {
         Args: { user_uuid: string };
         Returns: {
