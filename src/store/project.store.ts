@@ -36,7 +36,6 @@ import {
   mergeProject,
   historyPush,
 } from "./project.actions";
-import { Underdog } from "next/font/google";
 
 export const useProjectStore = create(
   persist(
@@ -316,18 +315,25 @@ export const useProjectStore = create(
           };
         });
 
+        const { done } = get();
+        const slicedHist = history.slice(done);
         set({
           ...newState(state),
-          history: historyPush(history, { command: "createNode", data: node }),
+          history: historyPush(slicedHist, {
+            command: "createNode",
+            data: node,
+          }),
+          done: 0,
         });
       },
 
-      removeNode: (id: string) =>
+      removeNode: (id: string) => {
         set(
           modifyLayer((layer) => ({
             nodes: layer.nodes.filter((node) => node.id !== id),
           })),
-        ),
+        );
+      },
 
       changeLayerName: (name: string, idx: number) =>
         set(modifyLayer(() => ({ name }), idx)),
