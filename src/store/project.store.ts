@@ -36,6 +36,7 @@ import {
   mergeProject,
   historyPush,
 } from "./project.actions";
+import { Underdog } from "next/font/google";
 
 export const useProjectStore = create(
   persist(
@@ -371,7 +372,6 @@ export const useProjectStore = create(
        *
        * indexing: "done" seria la cant de redoables o el indice del ultimo action "vivo"
        */
-
       adjustHistory: () => {
         const { history, done } = get();
 
@@ -393,6 +393,7 @@ export const useProjectStore = create(
         switch (lastCommand.command) {
           case "createNode": {
             //...
+            // borrar el nodo
             break;
           }
           default: {
@@ -412,15 +413,24 @@ export const useProjectStore = create(
 
         switch (commandToRedo.command) {
           case "createNode": {
-            //...
+            const newState = modifyLayer((layer) => {
+              return {
+                nodes: [
+                  ...layer.nodes.map((node) => ({ ...node, selected: false })),
+                  commandToRedo.data,
+                ],
+              };
+            });
+            set((state) => ({
+              ...newState,
+              done: state.done - 1,
+            }));
             break;
           }
           default: {
             console.warn("not implemented");
           }
         }
-
-        set((state) => ({ done: state.done - 1 }));
       },
     })),
     {
