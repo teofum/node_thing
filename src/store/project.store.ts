@@ -34,6 +34,7 @@ import {
   createInitialState,
   createHandles,
   mergeProject,
+  historyPush,
 } from "./project.actions";
 
 export const useProjectStore = create(
@@ -298,19 +299,26 @@ export const useProjectStore = create(
         type: string,
         position: Point,
         parameters: NodeData["parameters"] = {},
-      ) =>
-        set(
-          modifyLayer((layer) => {
-            const { nodeTypes } = get();
-            const allNodeTypes = getAllNodeTypes(nodeTypes);
-            return {
-              nodes: [
-                ...layer.nodes.map((node) => ({ ...node, selected: false })),
-                createNode(type, position, allNodeTypes, parameters),
-              ],
-            };
-          }),
-        ),
+      ) => {
+        const { nodeTypes, history } = get();
+        const allNodeTypes = getAllNodeTypes(nodeTypes);
+
+        const node = createNode(type, position, allNodeTypes, parameters);
+
+        const newState = modifyLayer((layer) => {
+          return {
+            nodes: [
+              ...layer.nodes.map((node) => ({ ...node, selected: false })),
+              node,
+            ],
+          };
+        });
+
+        set({
+          ...newState,
+          history: historyPush(history, { command: "createNode", data: node }),
+        });
+      },
 
       removeNode: (id: string) =>
         set(
@@ -353,6 +361,68 @@ export const useProjectStore = create(
             currentLayer: newLayerIdx,
           };
         }),
+
+      /**
+       * TODO:
+       * todos los actions tienen que hacer adjustHistory
+       *
+       * podria haber una acccion inicial en el history de crear leyer¿
+       * o el done arranca en -1
+       *
+       * indexing: "done" seria la cant de redoables o el indice del ultimo action "vivo"
+       */
+
+      adjustHistory: () => {
+        const { history, done } = get();
+
+        const slicedHist = history.slice(done); // solo agarra los qu estan hechos
+
+        set((state) => ({
+          history: slicedHist,
+          historySize: slicedHist.length,
+          done: 0,
+        }));
+      },
+
+      undo: () => {
+        const { history, historySize, done } = get();
+
+        if (historySize - done <= 1) return; // si es la primera accion no se puede undo
+
+        const lastCommand = history[done]; // el ultimo action done
+
+        switch (lastCommand.command) {
+          case "createNode": {
+            //...
+            break;
+          }
+          default: {
+            console.warn("not implemented");
+          }
+        }
+
+        set((state) => ({ done: state.done + 1 }));
+      },
+
+      redo: () => {
+        const { history, done } = get();
+
+        if (done <= 0) return; // no hay cosas para redoear
+
+        const commandToRedo = history[done - 1]; // el primer redoable
+
+        switch (commandToRedo.command) {
+          case "createNode": {
+            //...
+            break;
+          }
+          default: {
+            console.warn("not implemented");
+          }
+        }
+
+        set((state) => ({ done: state.done - 1 }));
+      },
     })),
     {
       name: "main-store",
