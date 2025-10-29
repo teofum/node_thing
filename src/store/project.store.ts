@@ -392,8 +392,13 @@ export const useProjectStore = create(
 
         switch (lastCommand.command) {
           case "createNode": {
-            //...
-            // borrar el nodo
+            set(
+              modifyLayer((layer) => ({
+                nodes: layer.nodes.filter(
+                  (node) => node.id !== lastCommand.data.id,
+                ),
+              })),
+            );
             break;
           }
           default: {
