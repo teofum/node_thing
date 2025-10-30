@@ -85,15 +85,44 @@ export const useProjectStore = create(
           })),
         ),
 
-      updateNodeParameter: (id: string, param: string, value: string | null) =>
-        set(
-          modifyNode(id, (node) => ({
-            data: {
-              ...node.data,
-              parameters: { ...node.data.parameters, [param]: { value } },
-            },
-          })),
-        ),
+      updateNodeParameter: (
+        id: string,
+        param: string,
+        value: string | null,
+      ) => {
+        console.log("updateNodeParameter ccall");
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
+
+        const beforeNode = layers[currentLayer].nodes.find(
+          (node) => node.id === id,
+        );
+        if (!beforeNode) return;
+
+        const newState = modifyNode(id, (node) => ({
+          data: {
+            ...node.data,
+            parameters: { ...node.data.parameters, [param]: { value } },
+          },
+        }))(state);
+        if (!newState.layers) return; // H
+
+        const afterNode = newState.layers[currentLayer].nodes.find(
+          (node) => node.id === id,
+        );
+        if (!afterNode) return;
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "modifyNode",
+            data: { before: beforeNode, after: afterNode },
+          }),
+          done: 0,
+        });
+        console.log("Flag");
+      },
 
       updateNodeUniform: (id: string, name: string, value: number | number[]) =>
         set(
@@ -326,7 +355,7 @@ export const useProjectStore = create(
         });
       },
 
-      //esto no funciona, tipo el delete
+      // TODO: Falta el delete con backspace
       removeNode: (id: string) => {
         const state = get();
         const { history, done, layers, currentLayer } = state;
@@ -397,7 +426,6 @@ export const useProjectStore = create(
         const { history, done } = get();
 
         const slicedHist = history.slice(done); // solo agarra los qu estan hechos
-
         set((state) => ({
           history: slicedHist,
           done: 0,
@@ -412,7 +440,7 @@ export const useProjectStore = create(
 
         const lastCommand = history[done]; // el ultimo action done
 
-        console.log(lastCommand.command);
+        console.log(lastCommand.command); // TODO: borrar testing
         switch (lastCommand.command) {
           case "createNode": {
             set(
@@ -438,9 +466,9 @@ export const useProjectStore = create(
             });
             break;
           }
-          //case "": {
-          //  break;
-          //}
+          case "modifyNode": {
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -483,9 +511,9 @@ export const useProjectStore = create(
             );
             break;
           }
-          //case "": {
-          //  break;
-          //}
+          case "modifyNode": {
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done + 1 })); // TODO: parche por caso not impl

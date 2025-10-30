@@ -7,5 +7,9 @@ type GenericCommand<K extends string, T extends object> = {
 
 export type CreateNodeCommand = GenericCommand<"createNode", ShaderNode>;
 export type RemoveNodeCommand = GenericCommand<"removeNode", ShaderNode>;
+export type ModifyNodeCommand = GenericCommand<
+  "modifyNode",
+  { before: ShaderNode; after: ShaderNode }
+>;
 
-export type Command = CreateNodeCommand | RemoveNodeCommand;
+export type Command = CreateNodeCommand | RemoveNodeCommand | ModifyNodeCommand;
