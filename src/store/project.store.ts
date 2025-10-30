@@ -90,7 +90,6 @@ export const useProjectStore = create(
         param: string,
         value: string | null,
       ) => {
-        console.log("updateNodeParameter ccall");
         const state = get();
         const { history, done, layers, currentLayer } = state;
 
@@ -121,7 +120,6 @@ export const useProjectStore = create(
           }),
           done: 0,
         });
-        console.log("Flag");
       },
 
       updateNodeUniform: (id: string, name: string, value: number | number[]) =>
@@ -467,6 +465,15 @@ export const useProjectStore = create(
             break;
           }
           case "modifyNode": {
+            const { before } = lastCommand.data;
+            const newState = modifyLayer((layer) => ({
+              nodes: layer.nodes.map((node) =>
+                node.id === before.id ? before : node,
+              ),
+            }));
+            set({
+              ...newState(state),
+            });
             break;
           }
           default: {
@@ -512,6 +519,15 @@ export const useProjectStore = create(
             break;
           }
           case "modifyNode": {
+            const { after } = commandToRedo.data;
+            const newState = modifyLayer((layer) => ({
+              nodes: layer.nodes.map((node) =>
+                node.id === after.id ? after : node,
+              ),
+            }));
+            set({
+              ...newState(state),
+            });
             break;
           }
           default: {
