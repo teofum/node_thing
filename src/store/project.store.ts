@@ -326,20 +326,21 @@ export const useProjectStore = create(
         });
       },
 
+      //esto no funciona, tipo el delete
       removeNode: (id: string) => {
         const state = get();
         const { history, done, layers, currentLayer } = state;
         const slicedHist = history.slice(done);
 
-        const node = layers[currentLayer].nodes.find((node) => {
-          node.id == id;
-        });
+        const node = layers[currentLayer].nodes.find((node) => node.id === id);
         if (!node) return;
 
+        const newState = modifyLayer((layer) => ({
+          nodes: layer.nodes.filter((node) => node.id !== id),
+        }));
+
         set({
-          ...modifyLayer((layer) => ({
-            nodes: layer.nodes.filter((node) => node.id !== id),
-          })),
+          ...newState(state),
           history: historyPush(slicedHist, {
             command: "removeNode",
             data: node,
@@ -411,6 +412,7 @@ export const useProjectStore = create(
 
         const lastCommand = history[done]; // el ultimo action done
 
+        console.log(lastCommand.command);
         switch (lastCommand.command) {
           case "createNode": {
             set(
@@ -436,6 +438,9 @@ export const useProjectStore = create(
             });
             break;
           }
+          //case "": {
+          //  break;
+          //}
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -478,6 +483,9 @@ export const useProjectStore = create(
             );
             break;
           }
+          //case "": {
+          //  break;
+          //}
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done + 1 })); // TODO: parche por caso not impl
