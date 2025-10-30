@@ -116,7 +116,7 @@ export const useProjectStore = create(
           ...newState,
           history: historyPush(slicedHist, {
             command: "modifyNode",
-            data: { before: beforeNode, after: afterNode },
+            data: { before: beforeNode, after: afterNode, layer: currentLayer },
           }),
           done: 0,
         });
@@ -328,7 +328,7 @@ export const useProjectStore = create(
         parameters: NodeData["parameters"] = {},
       ) => {
         const state = get();
-        const { nodeTypes, history, done } = state;
+        const { nodeTypes, history, done, currentLayer } = state;
         const allNodeTypes = getAllNodeTypes(nodeTypes);
 
         const node = createNode(type, position, allNodeTypes, parameters);
@@ -347,7 +347,7 @@ export const useProjectStore = create(
           ...newState(state),
           history: historyPush(slicedHist, {
             command: "createNode",
-            data: node,
+            data: { node: node, layer: currentLayer },
           }),
           done: 0,
         });
@@ -370,7 +370,7 @@ export const useProjectStore = create(
           ...newState(state),
           history: historyPush(slicedHist, {
             command: "removeNode",
-            data: node,
+            data: { node: node, layer: currentLayer },
           }),
           done: 0,
         });
@@ -448,7 +448,7 @@ export const useProjectStore = create(
             set(
               modifyLayer((layer) => ({
                 nodes: layer.nodes.filter(
-                  (node) => node.id !== lastCommand.data.id,
+                  (node) => node.id !== lastCommand.data.node.id,
                 ),
               })),
             );
@@ -459,7 +459,7 @@ export const useProjectStore = create(
               return {
                 nodes: [
                   ...layer.nodes.map((node) => ({ ...node, selected: false })),
-                  lastCommand.data,
+                  lastCommand.data.node,
                 ],
               };
             });
@@ -505,7 +505,7 @@ export const useProjectStore = create(
               return {
                 nodes: [
                   ...layer.nodes.map((node) => ({ ...node, selected: false })),
-                  commandToRedo.data,
+                  commandToRedo.data.node,
                 ],
               };
             });
@@ -518,7 +518,7 @@ export const useProjectStore = create(
             set(
               modifyLayer((layer) => ({
                 nodes: layer.nodes.filter(
-                  (node) => node.id !== commandToRedo.data.id,
+                  (node) => node.id !== commandToRedo.data.node.id,
                 ),
               })),
             );
