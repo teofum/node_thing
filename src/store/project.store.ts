@@ -418,12 +418,14 @@ export const useProjectStore = create(
        * podria haber una acccion inicial en el history de crear leyer¿
        * o el done arranca en -1
        *
-       * indexing: "done" seria la cant de redoables o el indice del ultimo action "vivo"
+       * indexing: "done" seria la cant de redoables
+       * o el indice del ultimo action "vivo"
        */
       adjustHistory: () => {
         const { history, done } = get();
 
-        const slicedHist = history.slice(done); // solo agarra los qu estan hechos
+        // solo agarra los qu estan hechos
+        const slicedHist = history.slice(done);
         set((state) => ({
           history: slicedHist,
           done: 0,
@@ -434,9 +436,11 @@ export const useProjectStore = create(
         const state = get();
         const { history, done } = state;
 
-        if (history.length - done <= 1) return; // si es la primera accion no se puede undo
+        // si es la primera accion no se puede undo
+        if (history.length - done <= 1) return;
 
-        const lastCommand = history[done]; // el ultimo action done
+        // el ultimo action done
+        const lastCommand = history[done];
 
         console.log(lastCommand.command); // TODO: borrar testing
         switch (lastCommand.command) {
@@ -489,9 +493,11 @@ export const useProjectStore = create(
         const state = get();
         const { history, done } = state;
 
-        if (done <= 0) return; // no hay cosas para redoear
+        // no hay cosas para redoear
+        if (done <= 0) return;
 
-        const commandToRedo = history[done - 1]; // el primer redoable
+        // el primer redoable
+        const commandToRedo = history[done - 1];
 
         switch (commandToRedo.command) {
           case "createNode": {
