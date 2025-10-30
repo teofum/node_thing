@@ -446,11 +446,14 @@ export const useProjectStore = create(
         switch (lastCommand.command) {
           case "createNode": {
             set(
-              modifyLayer((layer) => ({
-                nodes: layer.nodes.filter(
-                  (node) => node.id !== lastCommand.data.node.id,
-                ),
-              })),
+              modifyLayer(
+                (layer) => ({
+                  nodes: layer.nodes.filter(
+                    (node) => node.id !== lastCommand.data.node.id,
+                  ),
+                }),
+                lastCommand.data.layer,
+              ),
             );
             break;
           }
@@ -462,7 +465,7 @@ export const useProjectStore = create(
                   lastCommand.data.node,
                 ],
               };
-            });
+            }, lastCommand.data.layer);
             set({
               ...newState(state),
             });
@@ -470,11 +473,14 @@ export const useProjectStore = create(
           }
           case "modifyNode": {
             const { before } = lastCommand.data;
-            const newState = modifyLayer((layer) => ({
-              nodes: layer.nodes.map((node) =>
-                node.id === before.id ? before : node,
-              ),
-            }));
+            const newState = modifyLayer(
+              (layer) => ({
+                nodes: layer.nodes.map((node) =>
+                  node.id === before.id ? before : node,
+                ),
+              }),
+              lastCommand.data.layer,
+            );
             set({
               ...newState(state),
             });
@@ -508,7 +514,7 @@ export const useProjectStore = create(
                   commandToRedo.data.node,
                 ],
               };
-            });
+            }, commandToRedo.data.layer);
             set({
               ...newState(state),
             });
@@ -516,21 +522,27 @@ export const useProjectStore = create(
           }
           case "removeNode": {
             set(
-              modifyLayer((layer) => ({
-                nodes: layer.nodes.filter(
-                  (node) => node.id !== commandToRedo.data.node.id,
-                ),
-              })),
+              modifyLayer(
+                (layer) => ({
+                  nodes: layer.nodes.filter(
+                    (node) => node.id !== commandToRedo.data.node.id,
+                  ),
+                }),
+                commandToRedo.data.layer,
+              ),
             );
             break;
           }
           case "modifyNode": {
             const { after } = commandToRedo.data;
-            const newState = modifyLayer((layer) => ({
-              nodes: layer.nodes.map((node) =>
-                node.id === after.id ? after : node,
-              ),
-            }));
+            const newState = modifyLayer(
+              (layer) => ({
+                nodes: layer.nodes.map((node) =>
+                  node.id === after.id ? after : node,
+                ),
+              }),
+              commandToRedo.data.layer,
+            );
             set({
               ...newState(state),
             });
