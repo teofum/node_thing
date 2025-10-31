@@ -4,6 +4,7 @@ import { Tables } from "@/lib/supabase/database.types";
 import { Button } from "@/ui/button";
 import { useState } from "react";
 import { PublishDialog } from "./publish-dialog";
+import { useRouter } from "next/navigation";
 
 type PublishMenuProps = {
   projects: Tables<"projects">[];
@@ -34,6 +35,12 @@ export default function PublishMenu({
     setPublishDialogOpen(true);
   }
 
+  const router = useRouter();
+
+  function handleViewPost(type: "shader" | "project", id: string) {
+    router.push(`/marketplace/item/${type}/${id}`);
+  }
+
   return (
     <>
       <div className="min-h-screen bg-neutral-900 p-6">
@@ -55,13 +62,13 @@ export default function PublishMenu({
 
                     {shader.published ? (
                       <Button
+                        onClick={() => handleViewPost("shader", shader.id)}
                         type="submit"
                         variant="ghost"
                         size="sm"
                         icon
-                        disabled
                       >
-                        Publish
+                        View post
                       </Button>
                     ) : (
                       <Button
@@ -88,7 +95,6 @@ export default function PublishMenu({
           <div className="glass glass-border rounded-xl p-6">
             <h2 className="text-xl font-semibold mb-4">Your projects</h2>
             <div className="space-y-1 ">
-              {/* TODO Juani mejor diseño */}
               {projects.length ? (
                 projects.map((currProject) => (
                   <div
@@ -99,13 +105,15 @@ export default function PublishMenu({
 
                     {currProject.published ? (
                       <Button
+                        onClick={() =>
+                          handleViewPost("project", currProject.id)
+                        }
                         type="submit"
                         variant="ghost"
                         size="sm"
                         icon
-                        disabled
                       >
-                        Publish
+                        View post
                       </Button>
                     ) : (
                       <Button
