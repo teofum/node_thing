@@ -49,14 +49,38 @@ export const useProjectStore = create(
           })),
         ),
 
-      onEdgesChange: (changes: EdgeChange<Edge>[]) =>
-        set(
-          modifyLayer((layer) => ({
-            edges: applyEdgeChanges(changes, layer.edges),
-          })),
-        ),
+      onEdgesChange: (changes: EdgeChange<Edge>[]) => {
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
 
-      onConnect: (connection: Connection) =>
+        // TODO: podria guardar los changes invertidos
+        const beforeEdges = layers[currentLayer].edges;
+        if (!beforeEdges) return;
+
+        const newState = modifyLayer((layer) => ({
+          edges: applyEdgeChanges(changes, layer.edges),
+        }))(state);
+        if (!newState.layers) return;
+
+        const afterEdges = newState.layers[currentLayer].edges;
+        if (!afterEdges) return;
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "edgeChanges",
+            data: {
+              before: beforeEdges,
+              after: afterEdges,
+              layer: currentLayer,
+            },
+          }),
+          done: 0,
+        });
+      },
+
+      onConnect: (connection: Connection) => {
         set(
           modifyLayer((layer) => {
             const edgesWithoutConflictingConnections = layer.edges.filter(
@@ -69,7 +93,8 @@ export const useProjectStore = create(
               edges: addEdge(connection, edgesWithoutConflictingConnections),
             };
           }),
-        ),
+        );
+      },
 
       updateNodeDefaultValue: (
         id: string,
