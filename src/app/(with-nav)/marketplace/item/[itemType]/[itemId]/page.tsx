@@ -2,7 +2,7 @@ import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 import { CardBadge } from "../../../components/card-badge";
 
 import Image from "next/image";
-import { getItem } from "../../actions";
+import { getItem, getReviews } from "../../actions";
 import { Button } from "@/ui/button";
 import { Stars } from "../../../components/stars";
 import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
@@ -19,16 +19,11 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
 
   const item = await getItem(itemId, itemType);
 
-  const isNew =
-    Date.now() - new Date(item.createdat).getTime() < 7 * 24 * 60 * 60 * 1000;
+  const reviews = await getReviews(itemId, itemType);
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      {/*<p>TODO</p>*/}
-      {/*<p>{itemType}</p>*/}
-      {/*<p>{itemId}</p>*/}
-
-      {/*Grid parte superior*/}
+      {/*Top grid*/}
       <div className="grid md:grid-cols-2 gap-8 items-center">
         {/*Columna izq*/}
         <div>
@@ -39,7 +34,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             </p>
           )}
 
-          <div className="mt-6">
+          <div className="mt-2">
             <CardBadge
               text={itemType}
               color={
@@ -55,17 +50,17 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             )}
           </div>
 
-          <div className="mt-6">
+          <div className="mt-8 italic">
             {item.description ? (
               <p className="text-sm mb-2">{item.description}</p>
             ) : (
               <p className="text-sm mb-2">
-                User did not upload any description
+                User did not upload any description...
               </p>
             )}
           </div>
 
-          {/* TODO preview de shader o proyecto (preguntar cómo hacer con renderer) */}
+          {/* TODO preview de shader o proyecto (subir foto) */}
 
           <div className="flex flex-row gap-3 mt-30">
             <div className="grow text-2xl font-bold text-teal-400">
@@ -114,7 +109,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           </div>
         </div>
 
-        {/*Columna izq*/}
+        {/*Left column*/}
         <div className="flex flex-col items-center">
           <div className="w-full rounded-2xl overflow-hidden">
             <Image
@@ -128,8 +123,41 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
         </div>
       </div>
 
+      {/*Reviews*/}
       <div>
-        <div className="text-3xl font-semibold mb-1 mt-8">User Reviews:</div>
+        <div className="text-lg font-semibold mb-1 mt-10">User Reviews:</div>
+
+        {reviews.length === 0 ? (
+          <p className="text-white/60 mt-2">No reviews yet</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {reviews.map((review) => (
+              <div
+                key={review.id}
+                className="border border-white/10 rounded-xl p-4 bg-white/5"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-semibold">
+                    {review.profiles?.username}
+                  </span>
+                  <Stars ratingValue={review.rating} ratingCount={null} />
+                </div>
+                {review.comment ? (
+                  <p className="text-sm text-white/80 italic">
+                    {review.comment}
+                  </p>
+                ) : (
+                  <p className="text-sm text-white/40 italic">
+                    No comment provided...
+                  </p>
+                )}
+                <p className="text-xs text-white/40 mt-2">
+                  {new Date(review.createdAt ?? "").toLocaleDateString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
