@@ -428,6 +428,7 @@ export type Database = {
           averagerating: number;
           category: string;
           createdat: string;
+          description: string;
           downloads: number;
           id: string;
           incart: boolean;

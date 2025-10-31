@@ -39,13 +39,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             </p>
           )}
 
-          {/* TODO descripcion de item */}
           <div className="mt-6">
-            <p className="text-sm mb-2">User did not upload any description</p>
-          </div>
-
-          <div className="mt-20">
-            <p className="text-2x1 mb-2"> Categories:</p>
             <CardBadge
               text={itemType}
               color={
@@ -61,9 +55,19 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             )}
           </div>
 
+          <div className="mt-6">
+            {item.description ? (
+              <p className="text-sm mb-2">{item.description}</p>
+            ) : (
+              <p className="text-sm mb-2">
+                User did not upload any description
+              </p>
+            )}
+          </div>
+
           {/* TODO preview de shader o proyecto (preguntar cómo hacer con renderer) */}
 
-          <div className="flex flex-row gap-3 mt-4">
+          <div className="flex flex-row gap-3 mt-30">
             <div className="grow text-2xl font-bold text-teal-400">
               Price: ${item.price}
             </div>
