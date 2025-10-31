@@ -532,6 +532,17 @@ export const useProjectStore = create(
             });
             break;
           }
+          case "edgeChanges": {
+            const { before, layer } = lastCommand.data;
+            const newState = modifyLayer(
+              (l) => ({ ...l, edges: before }),
+              layer,
+            );
+            set({
+              ...newState(state),
+            });
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -588,6 +599,17 @@ export const useProjectStore = create(
                 ),
               }),
               commandToRedo.data.layer,
+            );
+            set({
+              ...newState(state),
+            });
+            break;
+          }
+          case "edgeChanges": {
+            const { after, layer } = commandToRedo.data;
+            const newState = modifyLayer(
+              (l) => ({ ...l, edges: after }),
+              layer,
             );
             set({
               ...newState(state),
