@@ -43,45 +43,42 @@ export default function PublishMenu({
           </div>
           <div className="glass glass-border rounded-xl p-6">
             <h2 className="text-xl font-semibold mb-4">Your shaders</h2>
-            <div className="space-y-6 glass glass-border p-6 rounded-xl ">
-              <div className="space-y-1 ">
-                {shaders.length ? (
-                  shaders.map((shader) => (
-                    <div
-                      key={shader.id}
-                      className="flex flex-row items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
-                    >
-                      {shader.title}
 
-                      {shader.published ? (
-                        <Button
-                          type="submit"
-                          variant="ghost"
-                          size="sm"
-                          icon
-                          disabled
-                        >
-                          Publish
-                        </Button>
-                      ) : (
-                        <Button
-                          type="submit"
-                          variant="ghost"
-                          size="sm"
-                          icon
-                          onClick={() => publishShader(shader.id)}
-                        >
-                          Publish
-                        </Button>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-white/50 mt-2">
-                    No shaders yet...
-                  </p>
-                )}
-              </div>
+            <div className="space-y-1 ">
+              {shaders.length ? (
+                shaders.map((shader) => (
+                  <div
+                    key={shader.id}
+                    className="flex flex-row items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
+                  >
+                    {shader.title}
+
+                    {shader.published ? (
+                      <Button
+                        type="submit"
+                        variant="ghost"
+                        size="sm"
+                        icon
+                        disabled
+                      >
+                        Publish
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        variant="ghost"
+                        size="sm"
+                        icon
+                        onClick={() => publishShader(shader.id)}
+                      >
+                        Publish
+                      </Button>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-white/50 mt-2">No shaders yet...</p>
+              )}
             </div>
           </div>
 
@@ -90,46 +87,42 @@ export default function PublishMenu({
           </div>
           <div className="glass glass-border rounded-xl p-6">
             <h2 className="text-xl font-semibold mb-4">Your projects</h2>
-            <div className="space-y-6 glass glass-border p-6 rounded-xl ">
-              <div className="space-y-1 ">
-                {/* TODO Juani mejor diseño */}
-                {projects.length ? (
-                  projects.map((currProject) => (
-                    <div
-                      key={currProject.id}
-                      className="flex flex-row items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
-                    >
-                      {currProject.name}
+            <div className="space-y-1 ">
+              {/* TODO Juani mejor diseño */}
+              {projects.length ? (
+                projects.map((currProject) => (
+                  <div
+                    key={currProject.id}
+                    className="flex flex-row items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
+                  >
+                    {currProject.name}
 
-                      {currProject.published ? (
-                        <Button
-                          type="submit"
-                          variant="ghost"
-                          size="sm"
-                          icon
-                          disabled
-                        >
-                          Publish
-                        </Button>
-                      ) : (
-                        <Button
-                          type="submit"
-                          variant="ghost"
-                          size="sm"
-                          icon
-                          onClick={() => publishProject(currProject.id)}
-                        >
-                          Publish
-                        </Button>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-white/50 mt-2">
-                    No projects yet...
-                  </p>
-                )}
-              </div>
+                    {currProject.published ? (
+                      <Button
+                        type="submit"
+                        variant="ghost"
+                        size="sm"
+                        icon
+                        disabled
+                      >
+                        Publish
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        variant="ghost"
+                        size="sm"
+                        icon
+                        onClick={() => publishProject(currProject.id)}
+                      >
+                        Publish
+                      </Button>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-white/50 mt-2">No projects yet...</p>
+              )}
             </div>
           </div>
         </div>
