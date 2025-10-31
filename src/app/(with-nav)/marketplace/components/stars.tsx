@@ -38,9 +38,11 @@ export function Stars({ ratingValue, ratingCount }: StarRatingProps) {
         .map((_, idx) => (
           <LuStar key={`empty-${idx}`} className="text-white/60 text-base/4" />
         ))}
-      <p className="text-center text-xs/3 text-white/60 ml-1 mt-px">
-        ({ratingCount} ratings)
-      </p>
+      {ratingCount != null && (
+        <p className="text-center text-xs/3 text-white/60 ml-1 mt-px">
+          ({ratingCount} ratings)
+        </p>
+      )}
     </div>
   );
 }
