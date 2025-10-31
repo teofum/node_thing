@@ -40,6 +40,7 @@ import voronoiNoiseShader from "@/shaders/voronoi-noise.wgsl";
 import voronoiShader from "@/shaders/voronoi.wgsl";
 import kuwaharaFilterShader from "@/shaders/kuwahara-anisotropic.wgsl";
 import kuwaharaBasicFilterShader from "@/shaders/kuwahara-basic.wgsl";
+import bilateralFilterShader from "@/shaders/bilateral-filter.wgsl";
 
 export const NODE_TYPES = {
   // Input & output ///////////////////////////////
@@ -527,6 +528,41 @@ export const NODE_TYPES = {
     },
     parameters: {},
   },
+  bilateralFilter: {
+    name: "Bilateral filetr",
+    category: "Filter",
+    shader: bilateralFilterShader,
+    inputs: {
+      input: {
+        name: "Input",
+        type: "color",
+      },
+      std_dev: {
+        name: "Std. dev",
+        type: "number",
+        min: 0.1,
+        max: 50,
+        step: 0.1,
+        default: 5,
+      },
+      range_std_dev: {
+        name: "range Std. dev",
+        type: "number",
+        min: 0.01,
+        max: 1.0,
+        step: 0.01,
+        default: 0.05,
+      },
+    },
+    outputs: {
+      output: {
+        name: "Output",
+        type: "color",
+      },
+    },
+    parameters: {},
+  },
+
   // Blend category ///////////////////////////////
   mix: {
     name: "Mix",
