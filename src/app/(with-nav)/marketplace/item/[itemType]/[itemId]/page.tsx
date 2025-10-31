@@ -36,7 +36,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
 
           <div className="mt-2">
             <CardBadge
-              text={itemType}
+              text={itemType.charAt(0).toUpperCase() + itemType.slice(1)}
               color={
                 itemType === "shader"
                   ? "blue"
