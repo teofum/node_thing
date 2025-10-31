@@ -23,9 +23,21 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      {/*Top grid*/}
       <div className="grid md:grid-cols-2 gap-8 items-center">
-        {/*Columna izq*/}
+        {/*Left column*/}
+        <div className="flex flex-col items-center">
+          <div className="w-full rounded-2xl overflow-hidden">
+            <Image
+              src="/placeholder.webp"
+              width={1000}
+              height={667}
+              alt={"${item.title} preview"}
+              className="w-full aspect-[3/2] object-cover my-5 rounded-lg grayscale-100"
+            />
+          </div>
+        </div>
+
+        {/*Right column*/}
         <div>
           <div className="text-3xl font-semibold mb-1">{item.title}</div>
           {item.username && (
@@ -106,19 +118,6 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
                 </Button>
               </form>
             )}
-          </div>
-        </div>
-
-        {/*Left column*/}
-        <div className="flex flex-col items-center">
-          <div className="w-full rounded-2xl overflow-hidden">
-            <Image
-              src="/placeholder.webp"
-              width={1000}
-              height={667}
-              alt={"${item.title} preview"}
-              className="w-full aspect-[3/2] object-cover my-5 rounded-lg grayscale-100"
-            />
           </div>
         </div>
       </div>
