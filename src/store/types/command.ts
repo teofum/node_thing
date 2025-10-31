@@ -1,5 +1,6 @@
 import { ShaderNode } from "@/schemas/node.schema";
 import { Edge } from "@xyflow/react";
+import { Layer } from "../project.types";
 
 type GenericCommand<K extends string, T extends object> = {
   command: K;
@@ -22,9 +23,14 @@ export type EdgeChangesCommand = GenericCommand<
   "edgeChanges",
   { before: Edge[]; after: Edge[]; layer: number }
 >;
+export type SwitchLayerCommand = GenericCommand<
+  "switchLayer",
+  { before: number; after: number; layer: 0 }
+>;
 
 export type Command =
   | CreateNodeCommand
   | RemoveNodeCommand
   | ModifyNodeCommand
-  | EdgeChangesCommand;
+  | EdgeChangesCommand
+  | SwitchLayerCommand;

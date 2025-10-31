@@ -40,7 +40,22 @@ import {
 export const useProjectStore = create(
   persist(
     combine(createInitialState(), (set, get) => ({
-      setActiveLayer: (idx: number) => set({ currentLayer: idx }),
+      setActiveLayer: (idx: number) => {
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
+
+        const before = state.currentLayer;
+
+        const slicedHist = history.slice(done);
+        set({
+          currentLayer: idx,
+          history: historyPush(slicedHist, {
+            command: "switchLayer",
+            data: { before: before, after: idx, layer: 0 },
+          }),
+          done: 0,
+        });
+      },
 
       onNodesChange: (changes: NodeChange<Node>[]) =>
         set(
@@ -543,6 +558,10 @@ export const useProjectStore = create(
             });
             break;
           }
+          case "switchLayer": {
+            set({ currentLayer: lastCommand.data.before });
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -614,6 +633,10 @@ export const useProjectStore = create(
             set({
               ...newState(state),
             });
+            break;
+          }
+          case "switchLayer": {
+            set({ currentLayer: commandToRedo.data.after });
             break;
           }
           default: {
