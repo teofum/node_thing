@@ -25,12 +25,14 @@ export type EdgeChangesCommand = GenericCommand<
 >;
 export type SwitchLayerCommand = GenericCommand<
   "switchLayer",
-  { before: number; after: number; layer: 0 }
+  { before: number; after: number }
 >;
+export type AddLayerCommand = GenericCommand<"addLayer", { layer: Layer }>;
 
 export type Command =
   | CreateNodeCommand
   | RemoveNodeCommand
   | ModifyNodeCommand
   | EdgeChangesCommand
-  | SwitchLayerCommand;
+  | SwitchLayerCommand
+  | AddLayerCommand;

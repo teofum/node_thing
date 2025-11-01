@@ -51,7 +51,7 @@ export const useProjectStore = create(
           currentLayer: idx,
           history: historyPush(slicedHist, {
             command: "switchLayer",
-            data: { before: before, after: idx, layer: 0 },
+            data: { before: before, after: idx },
           }),
           done: 0,
         });
@@ -204,16 +204,30 @@ export const useProjectStore = create(
           },
         })),
 
-      addLayer: () =>
-        set(({ layers, properties }) => {
-          return {
-            layers: [
-              ...layers,
-              createLayer(`Layer ${layers.length}`, properties.canvas),
-            ],
-            currentLayer: layers.length,
-          };
-        }),
+      addLayer: () => {
+        const state = get();
+        const { layers, properties, history, done } = state;
+
+        const newLayer = createLayer(
+          `Layer ${layers.length}`,
+          properties.canvas,
+        );
+        const newLayers = [...layers, newLayer];
+        const newCurrentLayer = newLayers.length - 1;
+
+        const slicedHist = history.slice(done);
+        set({
+          layers: newLayers,
+          currentLayer: newCurrentLayer,
+          history: historyPush(slicedHist, {
+            command: "addLayer",
+            data: {
+              layer: newLayer,
+            },
+          }),
+          done: 0,
+        });
+      },
 
       setLayerBounds: (x: number, y: number, width: number, height: number) =>
         set(
@@ -562,6 +576,18 @@ export const useProjectStore = create(
             set({ currentLayer: lastCommand.data.before });
             break;
           }
+          case "addLayer": {
+            set(({ layers }) => {
+              const newLayers = layers.slice(0, -1);
+              const newCurrent = Math.max(0, newLayers.length - 1);
+
+              return {
+                layers: newLayers,
+                currentLayer: newCurrent,
+              };
+            });
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -637,6 +663,18 @@ export const useProjectStore = create(
           }
           case "switchLayer": {
             set({ currentLayer: commandToRedo.data.after });
+            break;
+          }
+          case "addLayer": {
+            const { layers } = get();
+
+            const newLayers = [...layers, commandToRedo.data.layer];
+            const newCurrentLayer = newLayers.length - 1;
+
+            set({
+              layers: newLayers,
+              currentLayer: newCurrentLayer,
+            });
             break;
           }
           default: {
