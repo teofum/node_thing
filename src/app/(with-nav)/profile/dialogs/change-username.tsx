@@ -2,7 +2,7 @@
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { ReactNode, useState } from "react";
-import { UserData } from "../page";
+import { UserData } from "../actions/user";
 import { Button } from "@/ui/button";
 import { setUsername, checkUsernameAvailable } from "../actions/settings";
 import { useRouter } from "next/navigation";

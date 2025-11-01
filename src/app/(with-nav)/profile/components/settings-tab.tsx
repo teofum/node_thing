@@ -4,7 +4,7 @@ import type { User } from "@supabase/supabase-js";
 import AccountEditor from "../dialogs/change-username";
 import DisplayNameEditor from "../dialogs/change-displayname";
 import PasswordEditor from "../dialogs/change-password";
-import type { UserData } from "../page";
+import type { UserData } from "../actions/user";
 
 type SettingsTabProps = {
   userData: UserData;

@@ -17,7 +17,7 @@ export async function checkUsernameAvailable(username: string) {
   const { data } = await supabase
     .from("profiles")
     .select("username")
-    .eq("username", username)
+    .ilike("username", username)
     .neq("id", user.id)
     .single();
 
@@ -29,14 +29,16 @@ export async function setUsername(newUsername: string) {
     "/auth/login?next=/profile",
   );
 
-  const isAvailable = await checkUsernameAvailable(newUsername);
+  const lowercaseUsername = newUsername.toLowerCase();
+
+  const isAvailable = await checkUsernameAvailable(lowercaseUsername);
   if (!isAvailable) {
     redirect("/profile?error=username_taken");
   }
 
   const { data, error } = await supabase
     .from("profiles")
-    .update({ username: newUsername })
+    .update({ username: lowercaseUsername })
     .eq("id", user.id);
 
   if (error) {
