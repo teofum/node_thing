@@ -266,15 +266,28 @@ export const useProjectStore = create(
         return JSON.stringify(layer, null, 2);
       },
 
-      importLayer: (json: string) =>
-        set(({ layers }) => {
-          const parsedLayer: Layer = JSON.parse(json);
-          parsedLayer.id = newLayerId();
+      importLayer: (json: string) => {
+        const state = get();
+        const { layers, history, done } = state;
 
-          return {
-            layers: [...layers, parsedLayer],
-          };
-        }),
+        const parsedLayer: Layer = JSON.parse(json);
+        parsedLayer.id = newLayerId();
+        const newLayers = [...layers, parsedLayer];
+        const newCurrentLayer = newLayers.length - 1;
+
+        const slicedHist = history.slice(done);
+        set({
+          layers: newLayers,
+          currentLayer: newCurrentLayer,
+          history: historyPush(slicedHist, {
+            command: "importLayer",
+            data: {
+              layer: parsedLayer,
+            },
+          }),
+          done: 0,
+        });
+      },
 
       exportProject: () => {
         const project = get();
@@ -451,17 +464,51 @@ export const useProjectStore = create(
         });
       },
 
-      changeLayerName: (name: string, idx: number) =>
-        set(modifyLayer(() => ({ name }), idx)),
+      changeLayerName: (name: string, idx: number) => {
+        const state = get();
+        const { history, done } = state;
+
+        const before = state.layers[idx].name;
+
+        const newState = modifyLayer(() => ({ name }), idx)(state);
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "renameLayer",
+            data: {
+              before: before,
+              after: name,
+              index: idx,
+            },
+          }),
+          done: 0,
+        });
+      },
 
       removeLayer: (i: number) => {
-        set(({ layers, currentLayer }) => {
-          if (layers.length <= 1) return {};
+        const state = get();
+        const { layers, currentLayer, history, done } = state;
 
-          return {
-            layers: [...layers.slice(0, i), ...layers.slice(i + 1)],
-            currentLayer: i <= currentLayer ? currentLayer - 1 : currentLayer,
-          };
+        if (layers.length <= 1) return; // don't remove the last layer
+
+        const layerToRemove = layers[i];
+        const newLayers = [...layers.slice(0, i), ...layers.slice(i + 1)];
+        const newCurrentLayer =
+          i <= currentLayer ? Math.max(0, currentLayer - 1) : currentLayer;
+
+        const slicedHist = history.slice(done);
+        set({
+          layers: newLayers,
+          currentLayer: newCurrentLayer,
+          history: historyPush(slicedHist, {
+            command: "removeLayer",
+            data: {
+              layer: layerToRemove,
+            },
+          }),
+          done: 0,
         });
       },
 
@@ -517,7 +564,8 @@ export const useProjectStore = create(
         // el ultimo action done
         const lastCommand = history[done];
 
-        console.log(lastCommand.command); // TODO: borrar testing
+        console.log("undo " + lastCommand.command); // TODO: borrar testing
+
         switch (lastCommand.command) {
           case "createNode": {
             set(
@@ -576,7 +624,8 @@ export const useProjectStore = create(
             set({ currentLayer: lastCommand.data.before });
             break;
           }
-          case "addLayer": {
+          case "addLayer":
+          case "importLayer": {
             set(({ layers }) => {
               const newLayers = layers.slice(0, -1);
               const newCurrent = Math.max(0, newLayers.length - 1);
@@ -586,6 +635,27 @@ export const useProjectStore = create(
                 currentLayer: newCurrent,
               };
             });
+            break;
+          }
+          case "removeLayer": {
+            const { layers } = get();
+
+            const newLayers = [...layers, lastCommand.data.layer];
+            const newCurrentLayer = newLayers.length - 1;
+
+            set({
+              layers: newLayers,
+              currentLayer: newCurrentLayer,
+            });
+            break;
+          }
+          case "renameLayer": {
+            const newState = modifyLayer(
+              (layer) => ({ name: lastCommand.data.after }),
+              lastCommand.data.index,
+            )(state);
+
+            set(newState);
             break;
           }
           default: {
@@ -606,6 +676,8 @@ export const useProjectStore = create(
 
         // el primer redoable
         const commandToRedo = history[done - 1];
+
+        console.log("reoo " + commandToRedo.command); // TODO: borrar testing
 
         switch (commandToRedo.command) {
           case "createNode": {
@@ -665,7 +737,8 @@ export const useProjectStore = create(
             set({ currentLayer: commandToRedo.data.after });
             break;
           }
-          case "addLayer": {
+          case "addLayer":
+          case "importLayer": {
             const { layers } = get();
 
             const newLayers = [...layers, commandToRedo.data.layer];
@@ -675,6 +748,24 @@ export const useProjectStore = create(
               layers: newLayers,
               currentLayer: newCurrentLayer,
             });
+            break;
+          }
+          case "renameLayer": {
+            const newState = modifyLayer(
+              (layer) => ({ name: commandToRedo.data.after }),
+              commandToRedo.data.index,
+            )(state);
+
+            set(newState);
+            break;
+          }
+          case "renameLayer": {
+            const newState = modifyLayer(
+              (l) => ({ name: commandToRedo.data.before }),
+              commandToRedo.data.index,
+            )(state);
+
+            set({ ...newState });
             break;
           }
           default: {

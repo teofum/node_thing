@@ -28,6 +28,18 @@ export type SwitchLayerCommand = GenericCommand<
   { before: number; after: number }
 >;
 export type AddLayerCommand = GenericCommand<"addLayer", { layer: Layer }>;
+export type ImportLayerCommand = GenericCommand<
+  "importLayer",
+  { layer: Layer }
+>;
+export type RemoveLayerCommand = GenericCommand<
+  "removeLayer",
+  { layer: Layer }
+>;
+export type RenameLayerCommand = GenericCommand<
+  "renameLayer",
+  { before: string; after: string; index: number }
+>;
 
 export type Command =
   | CreateNodeCommand
@@ -35,4 +47,7 @@ export type Command =
   | ModifyNodeCommand
   | EdgeChangesCommand
   | SwitchLayerCommand
-  | AddLayerCommand;
+  | AddLayerCommand
+  | ImportLayerCommand
+  | RemoveLayerCommand
+  | RenameLayerCommand;
