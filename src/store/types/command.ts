@@ -32,6 +32,10 @@ export type ImportLayerCommand = GenericCommand<
   "importLayer",
   { layer: Layer }
 >;
+export type DuplicateLayerCommand = GenericCommand<
+  "duplicateLayer",
+  { layer: Layer; index: number }
+>;
 export type RemoveLayerCommand = GenericCommand<
   "removeLayer",
   { layer: Layer }
@@ -50,4 +54,5 @@ export type Command =
   | AddLayerCommand
   | ImportLayerCommand
   | RemoveLayerCommand
-  | RenameLayerCommand;
+  | RenameLayerCommand
+  | DuplicateLayerCommand;

@@ -512,26 +512,39 @@ export const useProjectStore = create(
         });
       },
 
-      duplicateLayer: (i: number) =>
-        set(({ layers }) => {
-          const sourceLayer = layers[i];
-          const newLayerIdx = i + 1;
+      duplicateLayer: (i: number) => {
+        const state = get();
+        const { layers, history, done } = state;
 
-          const newLayer: Layer = {
-            ...sourceLayer,
-            name: sourceLayer.name + " copy",
-            id: newLayerId(),
-          };
+        const sourceLayer = layers[i];
+        const newLayerIdx = i + 1;
 
-          return {
-            layers: [
-              ...layers.slice(0, newLayerIdx),
-              newLayer,
-              ...layers.slice(newLayerIdx),
-            ],
-            currentLayer: newLayerIdx,
-          };
-        }),
+        const newLayer: Layer = {
+          ...sourceLayer,
+          name: sourceLayer.name + " copy",
+          id: newLayerId(),
+        };
+
+        const newLayers = [
+          ...layers.slice(0, newLayerIdx),
+          newLayer,
+          ...layers.slice(newLayerIdx),
+        ];
+
+        const slicedHist = history.slice(done);
+        set({
+          layers: newLayers,
+          currentLayer: newLayerIdx,
+          history: historyPush(slicedHist, {
+            command: "duplicateLayer",
+            data: {
+              layer: newLayer,
+              index: newLayerIdx,
+            },
+          }),
+          done: 0,
+        });
+      },
 
       /**
        * TODO:
@@ -628,6 +641,19 @@ export const useProjectStore = create(
           case "importLayer": {
             set(({ layers }) => {
               const newLayers = layers.slice(0, -1);
+              const newCurrent = Math.max(0, newLayers.length - 1);
+
+              return {
+                layers: newLayers,
+                currentLayer: newCurrent,
+              };
+            });
+            break;
+          }
+          case "duplicateLayer": {
+            set(({ layers }) => {
+              const idx = lastCommand.data.index;
+              const newLayers = layers.filter((_, i) => i !== idx);
               const newCurrent = Math.max(0, newLayers.length - 1);
 
               return {
@@ -747,6 +773,23 @@ export const useProjectStore = create(
             set({
               layers: newLayers,
               currentLayer: newCurrentLayer,
+            });
+            break;
+          }
+          case "duplicateLayer": {
+            const { layer, index } = commandToRedo.data;
+
+            set(({ layers }) => {
+              const newLayers = [
+                ...layers.slice(0, index),
+                layer,
+                ...layers.slice(index),
+              ];
+
+              return {
+                layers: newLayers,
+                currentLayer: index,
+              };
             });
             break;
           }
