@@ -1,52 +1,59 @@
 "use client";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { UserData } from "../actions/user";
 import { Button } from "@/ui/button";
-import { setUsername, checkUsernameAvailable } from "../actions/settings";
-import { useRouter } from "next/navigation";
+import { setUsername } from "../actions/settings";
+import { ErrorBoundary } from "react-error-boundary";
 
 type AccountEditorProps = {
   trigger: ReactNode;
-  title: string;
   userData: UserData;
 };
 
+function UsernameForm({ userData }: { userData: UserData }) {
+  return (
+    <form action={setUsername} className="flex flex-col p-4 text-lg gap-4">
+      <h1 className="mb-2">Username</h1>
+      <input
+        name="username"
+        type="text"
+        className="text-sm max-w-full w-full outline-none p-2 rounded-lg border border-white/15"
+        placeholder="Your username"
+        defaultValue={userData.username ?? ""}
+        required
+      />
+
+      <div className="flex justify-end gap-2">
+        <DialogClose asChild>
+          <Button type="button" variant="outline">
+            Cancel
+          </Button>
+        </DialogClose>
+        <Button type="submit">Apply</Button>
+      </div>
+    </form>
+  );
+}
+
+function ErrorFallback({ error }: { error: Error }) {
+  return (
+    <div className="p-4 text-red-400">
+      <p>{error.message}</p>
+    </div>
+  );
+}
+
 export default function AccountEditor({
   trigger,
-  title,
   userData,
 }: AccountEditorProps) {
-  const [name, setName] = useState(userData.username ?? "");
-  const router = useRouter();
-
-  const accountNameChangeHandler = async () => {
-    await setUsername(name);
-    router.refresh();
-  };
-
   return (
     <Dialog trigger={trigger} title="Edit Username" description="">
-      <div className="flex flex-col p-4 text-lg gap-4">
-        <h1 className="mb-2">Username</h1>
-        <textarea
-          className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15"
-          placeholder="Your username"
-          value={name}
-          rows={1}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <div className="flex justify-end gap-2">
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-          <DialogClose asChild>
-            <Button onClick={() => accountNameChangeHandler()}>Apply</Button>
-          </DialogClose>
-        </div>
-      </div>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <UsernameForm userData={userData} />
+      </ErrorBoundary>
     </Dialog>
   );
 }

@@ -35,7 +35,6 @@ const SettingsTab = forwardRef<HTMLDivElement, SettingsTabProps>(
                         Edit
                       </Button>
                     }
-                    title="Edit Username"
                     userData={userData}
                   />
                 </div>

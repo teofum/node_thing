@@ -24,19 +24,20 @@ export async function checkUsernameAvailable(username: string) {
   return !data;
 }
 
-export async function setUsername(newUsername: string) {
+export async function setUsername(formData: FormData) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
 
+  const newUsername = formData.get("username") as string;
   const lowercaseUsername = newUsername.toLowerCase();
 
   const isAvailable = await checkUsernameAvailable(lowercaseUsername);
   if (!isAvailable) {
-    redirect("/profile?error=username_taken");
+    throw new Error("Username already taken");
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("profiles")
     .update({ username: lowercaseUsername })
     .eq("id", user.id);
@@ -44,6 +45,8 @@ export async function setUsername(newUsername: string) {
   if (error) {
     throw new Error(`Failed to update username: ${error.message}`);
   }
+
+  redirect(`/profile/${lowercaseUsername}`);
 }
 
 export async function setDisplayName(newDisplayName: string) {
