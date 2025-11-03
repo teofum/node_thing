@@ -77,6 +77,15 @@ export type SpdateNodeDefaultValueCommand = GenericCommand<
     after: number | number[];
   }
 >;
+export type UpdateNodeUniformsCommand = GenericCommand<
+  "updateNodeUniforms",
+  {
+    name: string;
+    id: string;
+    before: number | number[];
+    after: number | number[];
+  }
+>;
 
 export type Command =
   | CreateNodeCommand
@@ -92,4 +101,5 @@ export type Command =
   | ReorderLayerCommand
   | SetCanvasSizeCommand
   | SetLayerBoundsCommand
-  | SpdateNodeDefaultValueCommand;
+  | SpdateNodeDefaultValueCommand
+  | UpdateNodeUniformsCommand;

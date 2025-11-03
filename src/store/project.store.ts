@@ -208,15 +208,51 @@ export const useProjectStore = create(
         });
       },
 
-      updateNodeUniform: (id: string, name: string, value: number | number[]) =>
-        set(
-          modifyNode(id, (node) => ({
+      updateNodeUniform: (
+        id: string,
+        name: string,
+        value: number | number[],
+      ) => {
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
+
+        const node = layers[currentLayer].nodes.find((node) => node.id === id);
+        if (!node) return;
+        const before = node.data.defaultValues[name as string] as
+          | number
+          | number[]
+          | undefined;
+        if (before === undefined) return;
+        const newState = modifyNode(id, (node) => ({
+          data: {
+            ...node.data,
+            defaultValues: { ...node.data.uniforms, [name]: value },
+          },
+        }))(state);
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "updateNodeUniforms",
             data: {
-              ...node.data,
-              uniforms: { ...node.data.uniforms, [name]: value },
+              name: name,
+              id: id,
+              before: before,
+              after: value,
             },
-          })),
-        ),
+          }),
+          done: 0,
+        });
+      },
+      //  set(
+      //    modifyNode(id, (node) => ({
+      //      data: {
+      //        ...node.data,
+      //        uniforms: { ...node.data.uniforms, [name]: value },
+      //      },
+      //    })),
+      //  ),
 
       /*
        * Actions: canvas
@@ -832,6 +868,21 @@ export const useProjectStore = create(
             );
             break;
           }
+          case "updateNodeUniforms": {
+            const { name, id, before } = lastCommand.data;
+            set(
+              modifyNode(id, (node) => ({
+                data: {
+                  ...node.data,
+                  defaultValues: {
+                    ...node.data.defaultValues,
+                    [name]: before,
+                  },
+                },
+              })),
+            );
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -1030,6 +1081,21 @@ export const useProjectStore = create(
                 data: {
                   ...node.data,
                   defaultValues: { ...node.data.defaultValues, [input]: after },
+                },
+              })),
+            );
+            break;
+          }
+          case "updateNodeUniforms": {
+            const { name, id, after } = commandToRedo.data;
+            set(
+              modifyNode(id, (node) => ({
+                data: {
+                  ...node.data,
+                  defaultValues: {
+                    ...node.data.defaultValues,
+                    [name]: after,
+                  },
                 },
               })),
             );
