@@ -137,6 +137,7 @@ export const useProjectStore = create(
         input: string,
         value: number | number[],
       ) => {
+        console.log("Flaglolocall");
         const state = get();
         const { history, done, layers, currentLayer } = state;
 
@@ -161,6 +162,7 @@ export const useProjectStore = create(
             command: "updateNodeDefaultValue",
             data: {
               input: input,
+              id: id,
               before: before,
               after: value,
             },
@@ -815,6 +817,21 @@ export const useProjectStore = create(
             );
             break;
           }
+          case "updateNodeDefaultValue": {
+            const { input, id, before } = lastCommand.data;
+            set(
+              modifyNode(id, (node) => ({
+                data: {
+                  ...node.data,
+                  defaultValues: {
+                    ...node.data.defaultValues,
+                    [input]: before,
+                  },
+                },
+              })),
+            );
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -1002,6 +1019,18 @@ export const useProjectStore = create(
                 ...layer,
                 position: position,
                 size: size,
+              })),
+            );
+            break;
+          }
+          case "updateNodeDefaultValue": {
+            const { input, id, after } = commandToRedo.data;
+            set(
+              modifyNode(id, (node) => ({
+                data: {
+                  ...node.data,
+                  defaultValues: { ...node.data.defaultValues, [input]: after },
+                },
               })),
             );
             break;

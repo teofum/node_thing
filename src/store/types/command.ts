@@ -72,6 +72,7 @@ export type SpdateNodeDefaultValueCommand = GenericCommand<
   "updateNodeDefaultValue",
   {
     input: string;
+    id: string;
     before: number | number[];
     after: number | number[];
   }
