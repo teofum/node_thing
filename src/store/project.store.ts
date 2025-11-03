@@ -137,7 +137,6 @@ export const useProjectStore = create(
         input: string,
         value: number | number[],
       ) => {
-        console.log("Flaglolocall");
         const state = get();
         const { history, done, layers, currentLayer } = state;
 
@@ -154,6 +153,10 @@ export const useProjectStore = create(
             defaultValues: { ...node.data.defaultValues, [input]: value },
           },
         }))(state);
+
+        if (JSON.stringify(before) === JSON.stringify(value)) {
+          return;
+        }
 
         const slicedHist = history.slice(done);
         set({
