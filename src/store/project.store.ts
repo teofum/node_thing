@@ -136,15 +136,38 @@ export const useProjectStore = create(
         id: string,
         input: string,
         value: number | number[],
-      ) =>
-        set(
-          modifyNode(id, (node) => ({
+      ) => {
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
+
+        const node = layers[currentLayer].nodes.find((node) => node.id === id);
+        if (!node) return;
+        const before = node.data.defaultValues[input as string] as
+          | number
+          | number[]
+          | undefined;
+        if (before === undefined) return;
+        const newState = modifyNode(id, (node) => ({
+          data: {
+            ...node.data,
+            defaultValues: { ...node.data.defaultValues, [input]: value },
+          },
+        }))(state);
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "updateNodeDefaultValue",
             data: {
-              ...node.data,
-              defaultValues: { ...node.data.defaultValues, [input]: value },
+              input: input,
+              before: before,
+              after: value,
             },
-          })),
-        ),
+          }),
+          done: 0,
+        });
+      },
 
       updateNodeParameter: (
         id: string,
@@ -196,13 +219,32 @@ export const useProjectStore = create(
       /*
        * Actions: canvas
        */
-      setCanvasSize: (width: number, height: number) =>
-        set(({ properties }) => ({
+      setCanvasSize: (width: number, height: number) => {
+        const state = get();
+        const { properties, history, done } = state;
+
+        const slicedHist = history.slice(done);
+        set({
           properties: {
             ...properties,
             canvas: { ...properties.canvas, width, height },
           },
-        })),
+          history: historyPush(slicedHist, {
+            command: "setCanvasSize",
+            data: {
+              before: {
+                width: properties.canvas.width,
+                height: properties.canvas.height,
+              },
+              after: {
+                width: width,
+                height: height,
+              },
+            },
+          }),
+          done: 0,
+        });
+      },
 
       addLayer: () => {
         const state = get();
@@ -229,14 +271,37 @@ export const useProjectStore = create(
         });
       },
 
-      setLayerBounds: (x: number, y: number, width: number, height: number) =>
-        set(
-          modifyLayer((layer) => ({
-            ...layer,
-            position: { x, y },
-            size: { width, height },
-          })),
-        ),
+      setLayerBounds: (x: number, y: number, width: number, height: number) => {
+        const state = get();
+        const { layers, currentLayer, history, done } = state;
+        const beforePos = layers[currentLayer].position;
+        const beforeSize = layers[currentLayer].size;
+
+        const newState = modifyLayer((layer) => ({
+          ...layer,
+          position: { x, y },
+          size: { width, height },
+        }))(state);
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "setLayerBounds",
+            data: {
+              before: {
+                position: { x: beforePos.x, y: beforePos.y },
+                size: { width: beforeSize.width, height: beforeSize.height },
+              },
+              after: {
+                position: { x: x, y: y },
+                size: { width: width, height: height },
+              },
+            },
+          }),
+          done: 0,
+        });
+      },
 
       reorderLayers: (from: number, to: number) => {
         set((state) => {
@@ -729,6 +794,27 @@ export const useProjectStore = create(
             });
             break;
           }
+          case "setCanvasSize": {
+            const { width, height } = lastCommand.data.before;
+            set(({ properties }) => ({
+              properties: {
+                ...properties,
+                canvas: { ...properties.canvas, width, height },
+              },
+            }));
+            break;
+          }
+          case "setLayerBounds": {
+            const { position, size } = lastCommand.data.before;
+            set(
+              modifyLayer((layer) => ({
+                ...layer,
+                position: position,
+                size: size,
+              })),
+            );
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -897,6 +983,27 @@ export const useProjectStore = create(
               layers: newLayers,
               currentLayer: newCurrent,
             });
+            break;
+          }
+          case "setCanvasSize": {
+            const { width, height } = commandToRedo.data.after;
+            set(({ properties }) => ({
+              properties: {
+                ...properties,
+                canvas: { ...properties.canvas, width, height },
+              },
+            }));
+            break;
+          }
+          case "setLayerBounds": {
+            const { position, size } = commandToRedo.data.after;
+            set(
+              modifyLayer((layer) => ({
+                ...layer,
+                position: position,
+                size: size,
+              })),
+            );
             break;
           }
           default: {

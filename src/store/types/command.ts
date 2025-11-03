@@ -48,6 +48,34 @@ export type ReorderLayerCommand = GenericCommand<
   "reorderLayer",
   { from: number; to: number }
 >;
+export type SetCanvasSizeCommand = GenericCommand<
+  "setCanvasSize",
+  {
+    before: { width: number; height: number };
+    after: { width: number; height: number };
+  }
+>;
+export type SetLayerBoundsCommand = GenericCommand<
+  "setLayerBounds",
+  {
+    before: {
+      position: { x: number; y: number };
+      size: { width: number; height: number };
+    };
+    after: {
+      position: { x: number; y: number };
+      size: { width: number; height: number };
+    };
+  }
+>;
+export type SpdateNodeDefaultValueCommand = GenericCommand<
+  "updateNodeDefaultValue",
+  {
+    input: string;
+    before: number | number[];
+    after: number | number[];
+  }
+>;
 
 export type Command =
   | CreateNodeCommand
@@ -60,4 +88,7 @@ export type Command =
   | RemoveLayerCommand
   | RenameLayerCommand
   | DuplicateLayerCommand
-  | ReorderLayerCommand;
+  | ReorderLayerCommand
+  | SetCanvasSizeCommand
+  | SetLayerBoundsCommand
+  | SpdateNodeDefaultValueCommand;
