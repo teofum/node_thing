@@ -238,14 +238,33 @@ export const useProjectStore = create(
           })),
         ),
 
-      reorderLayers: (from: number, to: number) =>
-        set(({ layers, currentLayer }) => {
-          const newLayers = [...layers];
+      reorderLayers: (from: number, to: number) => {
+        set((state) => {
+          const { history, done, layers, currentLayer } = state;
+          const slicedHist = history.slice(done);
+          const nextHistory = historyPush(slicedHist, {
+            command: "reorderLayer",
+            data: { from, to },
+          });
+
+          if (
+            from === to ||
+            from < 0 ||
+            to < 0 ||
+            from >= layers.length ||
+            to >= layers.length
+          ) {
+            return {
+              history: nextHistory,
+              done: 0,
+            };
+          }
+
+          const newLayers = layers.slice();
           const [moved] = newLayers.splice(from, 1);
           newLayers.splice(to, 0, moved);
 
           let newCurrent = currentLayer;
-
           if (currentLayer === from) {
             newCurrent = to;
           } else if (from < currentLayer && to >= currentLayer) {
@@ -255,10 +274,13 @@ export const useProjectStore = create(
           }
 
           return {
+            history: nextHistory,
+            done: 0,
             layers: newLayers,
             currentLayer: newCurrent,
           };
-        }),
+        });
+      },
 
       exportLayer: (i: number) => {
         const layers = get().layers;
@@ -684,6 +706,29 @@ export const useProjectStore = create(
             set(newState);
             break;
           }
+          case "reorderLayer": {
+            const { currentLayer, layers } = get();
+            const { from, to } = lastCommand.data;
+
+            const newLayers = layers.slice();
+            const [moved] = newLayers.splice(to, 1);
+            newLayers.splice(from, 0, moved);
+
+            let newCurrent = currentLayer;
+            if (currentLayer === to) {
+              newCurrent = from;
+            } else if (to < currentLayer && from >= currentLayer) {
+              newCurrent = currentLayer - 1;
+            } else if (to > currentLayer && from <= currentLayer) {
+              newCurrent = currentLayer + 1;
+            }
+
+            set({
+              layers: newLayers,
+              currentLayer: newCurrent,
+            });
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -802,6 +847,26 @@ export const useProjectStore = create(
             set(newState);
             break;
           }
+          case "removeLayer": {
+            const idToRemove = commandToRedo.data.layer.id;
+
+            set(({ layers, currentLayer }) => {
+              const newLayers = layers.filter(
+                (layer) => layer.id !== idToRemove,
+              );
+              let newCurrent = currentLayer;
+
+              if (layers[currentLayer]?.id === idToRemove) {
+                newCurrent = Math.max(0, currentLayer - 1);
+              }
+
+              return {
+                layers: newLayers,
+                currentLayer: newCurrent,
+              };
+            });
+            break;
+          }
           case "renameLayer": {
             const newState = modifyLayer(
               (l) => ({ name: commandToRedo.data.before }),
@@ -809,6 +874,29 @@ export const useProjectStore = create(
             )(state);
 
             set({ ...newState });
+            break;
+          }
+          case "reorderLayer": {
+            const { currentLayer, layers } = get();
+            const { from, to } = commandToRedo.data;
+
+            const newLayers = layers.slice();
+            const [moved] = newLayers.splice(from, 1);
+            newLayers.splice(to, 0, moved);
+
+            let newCurrent = currentLayer;
+            if (currentLayer === from) {
+              newCurrent = to;
+            } else if (from < currentLayer && to >= currentLayer) {
+              newCurrent = currentLayer - 1;
+            } else if (from > currentLayer && to <= currentLayer) {
+              newCurrent = currentLayer + 1;
+            }
+
+            set({
+              layers: newLayers,
+              currentLayer: newCurrent,
+            });
             break;
           }
           default: {

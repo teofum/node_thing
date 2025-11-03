@@ -44,6 +44,10 @@ export type RenameLayerCommand = GenericCommand<
   "renameLayer",
   { before: string; after: string; index: number }
 >;
+export type ReorderLayerCommand = GenericCommand<
+  "reorderLayer",
+  { from: number; to: number }
+>;
 
 export type Command =
   | CreateNodeCommand
@@ -55,4 +59,5 @@ export type Command =
   | ImportLayerCommand
   | RemoveLayerCommand
   | RenameLayerCommand
-  | DuplicateLayerCommand;
+  | DuplicateLayerCommand
+  | ReorderLayerCommand;
