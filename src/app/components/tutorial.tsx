@@ -322,10 +322,17 @@ const testTutorial: TutorialType = {
       content: (
         <div className="flex flex-col gap-3 text-sm/4">
           <p>
-            Finally, let&apos;s add another gradient by blending the result with
-            a third color. Add a new Mix node, and connect the output from the
-            first one to its <strong className="font-bold">A</strong> input.
-            Make the color in the second input a bright orange.
+            Let&apos;s add another gradient by blending the result with a third
+            color. Add a new Mix node, and connect the output from the first one
+            to its <strong className="font-bold">A</strong> input. Make the
+            color in the second input a bright orange.
+          </p>
+
+          <p>
+            Finally, connect the <strong className="font-bold">V</strong> output
+            from the UV node to the new Mix node&apos;s{" "}
+            <strong className="font-bold">Factor</strong> input, and this
+            node&apos;s output to the output node.
           </p>
 
           <p className="text-xs/4 text-white/60">
@@ -350,6 +357,8 @@ const testTutorial: TutorialType = {
           return !firstIsRed && secondIsOrange;
         }),
         edgeExistsBetween("mix:output", "mix:input_a"),
+        edgeExistsBetween("mix:output", "__output:color"),
+        edgeExistsBetween("uv:out_v", "mix:factor"),
       ),
     },
     {
