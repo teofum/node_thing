@@ -118,6 +118,9 @@ export default async function ProfilePage({
               projectsList={publishedProjects}
               shadersRatingsList={userShaderRatings}
               projectsRatingsList={userProjectRatings}
+              isOwnProfile={isOwnProfile}
+              isPurchasedTab={false}
+              username={username}
             />
           </Tabs.Content>
           {isOwnProfile && (
@@ -131,6 +134,8 @@ export default async function ProfilePage({
                   projectsList={purchasedProjects}
                   shadersRatingsList={userShaderRatings}
                   projectsRatingsList={userProjectRatings}
+                  isOwnProfile={isOwnProfile}
+                  isPurchasedTab={true}
                 />
               </Tabs.Content>
               <Tabs.Content

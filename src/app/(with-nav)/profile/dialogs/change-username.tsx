@@ -15,6 +15,11 @@ type AccountEditorProps = {
 function UsernameForm({ userData }: { userData: UserData }) {
   return (
     <form action={setUsername} className="flex flex-col p-4 text-lg gap-4">
+      <input
+        type="hidden"
+        name="currentUsername"
+        value={userData.username ?? ""}
+      />
       <h1 className="mb-2">Username</h1>
       <input
         name="username"
