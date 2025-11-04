@@ -39,11 +39,7 @@ export function AssetManager({ trigger, onSelect }: AssetManagerProps) {
       </div>
 
       <div className="p-3 flex flex-row gap-2 justify-end items-end">
-        <Button
-          variant="outline"
-          className="col-start-1 col-span-2"
-          onClick={uploadImageAsset}
-        >
+        <Button variant="outline" onClick={uploadImageAsset}>
           Upload image
         </Button>
       </div>

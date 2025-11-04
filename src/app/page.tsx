@@ -9,9 +9,10 @@ import { ProjectsMenu } from "./components/menu/projects";
 import { ViewMenu } from "./components/menu/view";
 import { Renderer } from "./components/renderer";
 import { Workspace } from "./components/workspace";
-import { getProjects, getPurchasedProjects, getUserData } from "./actions";
+import { getProjects, getPurchasedProjects } from "./actions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { Tutorial } from "./components/tutorial";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -79,6 +80,7 @@ export default async function Home() {
       {/* Main panel */}
       <main className="flex flex-row min-h-0 max-w-full select-none p-2">
         <Workspace />
+        <Tutorial />
 
         {/* Output panel */}
         <div className="relative min-h-0">
