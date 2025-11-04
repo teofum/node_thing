@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
@@ -29,8 +30,13 @@ export async function setUsername(formData: FormData) {
     "/auth/login?next=/profile",
   );
 
+  const currentUsername = formData.get("currentUsername") as string;
   const newUsername = formData.get("username") as string;
   const lowercaseUsername = newUsername.toLowerCase();
+
+  if (currentUsername === lowercaseUsername) {
+    throw new Error("Username is the same as current");
+  }
 
   const isAvailable = await checkUsernameAvailable(lowercaseUsername);
   if (!isAvailable) {
@@ -49,10 +55,12 @@ export async function setUsername(formData: FormData) {
   redirect(`/profile/${lowercaseUsername}`);
 }
 
-export async function setDisplayName(newDisplayName: string) {
+export async function setDisplayName(formData: FormData) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
+
+  const newDisplayName = formData.get("displayName") as string;
 
   const { error } = await supabase.auth.updateUser({
     data: { full_name: newDisplayName },
@@ -61,6 +69,14 @@ export async function setDisplayName(newDisplayName: string) {
   if (error) {
     throw new Error(`Failed to update display name: ${error.message}`);
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  revalidatePath(`/profile/${profile?.username}`);
 }
 
 export async function changePassword(
