@@ -7,6 +7,29 @@ type GenericCommand<K extends string, T extends object> = {
   data: T;
 };
 
+export type NodesChangePatch =
+  | {
+      type: "position";
+      id: string;
+      before: { x: number; y: number };
+      after: { x: number; y: number };
+    }
+  | {
+      type: "dimensions";
+      id: string;
+      before: { width?: number; height?: number };
+      after: { width?: number; height?: number };
+    }
+  | {
+      type: "selection";
+      id: string;
+      before: { selected: boolean };
+      after: { selected: boolean };
+    }
+  | { type: "add"; id: string; index: number; node: ShaderNode }
+  | { type: "remove"; id: string; index: number; node: ShaderNode }
+  | { type: "replace"; id: string; before: ShaderNode; after: ShaderNode };
+
 export type CreateNodeCommand = GenericCommand<
   "createNode",
   { node: ShaderNode; layer: number }
@@ -18,6 +41,10 @@ export type RemoveNodeCommand = GenericCommand<
 export type ModifyNodeCommand = GenericCommand<
   "modifyNode",
   { before: ShaderNode; after: ShaderNode; layer: number }
+>;
+export type NodesChangeCommand = GenericCommand<
+  "nodesChange",
+  { layer: number; patches: NodesChangePatch[] }
 >;
 export type EdgeChangesCommand = GenericCommand<
   "edgeChanges",
@@ -102,4 +129,5 @@ export type Command =
   | SetCanvasSizeCommand
   | SetLayerBoundsCommand
   | SpdateNodeDefaultValueCommand
-  | UpdateNodeUniformsCommand;
+  | UpdateNodeUniformsCommand
+  | NodesChangeCommand;

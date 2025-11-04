@@ -36,15 +36,16 @@ import {
   mergeProject,
   historyPush,
 } from "./project.actions";
+import type { NodesChangePatch } from "@/store/types/command";
 
 export const useProjectStore = create(
   persist(
     combine(createInitialState(), (set, get) => ({
       setActiveLayer: (idx: number) => {
         const state = get();
-        const { history, done, layers, currentLayer } = state;
+        const { history, done, currentLayer } = state;
 
-        const before = state.currentLayer;
+        const before = currentLayer;
 
         const slicedHist = history.slice(done);
         set({
@@ -57,12 +58,90 @@ export const useProjectStore = create(
         });
       },
 
-      onNodesChange: (changes: NodeChange<Node>[]) =>
-        set(
-          modifyLayer((layer) => ({
-            nodes: applyNodeChanges(changes, layer.nodes) as ShaderNode[],
-          })),
-        ),
+      onNodesChange: (changes: NodeChange<Node>[]) => {
+        set((state) => {
+          const { layers, currentLayer, history, done } = state;
+          const layer = layers[currentLayer];
+          if (!layer) return state;
+
+          const byId = new Map(
+            layer.nodes.map((n, i) => [
+              n.id,
+              { node: n as ShaderNode, index: i },
+            ]),
+          );
+          const patches: NodesChangePatch[] = [];
+
+          for (const ch of changes) {
+            switch (ch.type) {
+              case "position": {
+                const rec = byId.get(ch.id);
+                if (!rec) break;
+                const { node } = rec;
+                const before = { x: node.position.x, y: node.position.y };
+                const after = {
+                  x: ch.position?.x ?? before.x,
+                  y: ch.position?.y ?? before.y,
+                };
+                if (before.x !== after.x || before.y !== after.y) {
+                  patches.push({ type: "position", id: ch.id, before, after });
+                }
+                break;
+              }
+              case "add": {
+                const newNode = ch.item as ShaderNode;
+                const index = layer.nodes.length;
+                patches.push({
+                  type: "add",
+                  id: newNode.id,
+                  index,
+                  node: newNode,
+                });
+                break;
+              }
+              case "remove": {
+                const rec = byId.get(ch.id);
+                if (!rec) break;
+                patches.push({
+                  type: "remove",
+                  id: ch.id,
+                  index: rec.index,
+                  node: rec.node,
+                });
+                break;
+              }
+              case "replace": {
+                const rec = byId.get(ch.id);
+                if (!rec) break;
+                const afterNode = ch.item as ShaderNode;
+                patches.push({
+                  type: "replace",
+                  id: ch.id,
+                  before: rec.node,
+                  after: afterNode,
+                });
+                break;
+              }
+            }
+          }
+
+          const newState = modifyLayer((l) => ({
+            nodes: applyNodeChanges(changes, l.nodes) as ShaderNode[],
+          }))(state);
+
+          if (!patches.length) return newState;
+
+          const slicedHist = history.slice(done);
+          return {
+            ...newState,
+            history: historyPush(slicedHist, {
+              command: "nodesChange",
+              data: { layer: currentLayer, patches },
+            }),
+            done: 0,
+          };
+        });
+      },
 
       onEdgesChange: (changes: EdgeChange<Edge>[]) => {
         const state = get();
@@ -248,14 +327,6 @@ export const useProjectStore = create(
           done: 0,
         });
       },
-      //  set(
-      //    modifyNode(id, (node) => ({
-      //      data: {
-      //        ...node.data,
-      //        uniforms: { ...node.data.uniforms, [name]: value },
-      //      },
-      //    })),
-      //  ),
 
       /*
        * Actions: canvas
@@ -689,7 +760,7 @@ export const useProjectStore = create(
 
         // solo agarra los qu estan hechos
         const slicedHist = history.slice(done);
-        set((state) => ({
+        set(() => ({
           history: slicedHist,
           done: 0,
         }));
@@ -805,7 +876,7 @@ export const useProjectStore = create(
           }
           case "renameLayer": {
             const newState = modifyLayer(
-              (layer) => ({ name: lastCommand.data.after }),
+              () => ({ name: lastCommand.data.after }),
               lastCommand.data.index,
             )(state);
 
@@ -884,6 +955,49 @@ export const useProjectStore = create(
                 },
               })),
             );
+            break;
+          }
+          case "nodesChange": {
+            const { layer, patches } = lastCommand.data as {
+              layer: number;
+              patches: NodesChangePatch[];
+            };
+            const inverse = [...patches].reverse();
+            const newState = modifyLayer((l) => {
+              let nodes = l.nodes.slice() as ShaderNode[];
+              for (const p of inverse) {
+                switch (p.type) {
+                  case "position": {
+                    const i = nodes.findIndex((n) => n.id === p.id);
+                    if (i >= 0)
+                      nodes[i] = {
+                        ...nodes[i],
+                        position: { x: p.before.x, y: p.before.y },
+                      };
+                    break;
+                  }
+                  case "add": {
+                    nodes = nodes.filter((n) => n.id !== p.id);
+                    break;
+                  }
+                  case "remove": {
+                    nodes = [
+                      ...nodes.slice(0, p.index),
+                      p.node,
+                      ...nodes.slice(p.index),
+                    ];
+                    break;
+                  }
+                  case "replace": {
+                    const i = nodes.findIndex((n) => n.id === p.id);
+                    if (i >= 0) nodes[i] = p.before;
+                    break;
+                  }
+                }
+              }
+              return { nodes };
+            }, layer)(get());
+            set(newState);
             break;
           }
           default: {
@@ -997,7 +1111,7 @@ export const useProjectStore = create(
           }
           case "renameLayer": {
             const newState = modifyLayer(
-              (layer) => ({ name: commandToRedo.data.after }),
+              () => ({ name: commandToRedo.data.after }),
               commandToRedo.data.index,
             )(state);
 
@@ -1026,7 +1140,7 @@ export const useProjectStore = create(
           }
           case "renameLayer": {
             const newState = modifyLayer(
-              (l) => ({ name: commandToRedo.data.before }),
+              () => ({ name: commandToRedo.data.before }),
               commandToRedo.data.index,
             )(state);
 
@@ -1102,6 +1216,48 @@ export const useProjectStore = create(
                 },
               })),
             );
+            break;
+          }
+          case "nodesChange": {
+            const { layer, patches } = commandToRedo.data as {
+              layer: number;
+              patches: NodesChangePatch[];
+            };
+            const newState = modifyLayer((l) => {
+              let nodes = l.nodes.slice() as ShaderNode[];
+              for (const p of patches) {
+                switch (p.type) {
+                  case "position": {
+                    const i = nodes.findIndex((n) => n.id === p.id);
+                    if (i >= 0)
+                      nodes[i] = {
+                        ...nodes[i],
+                        position: { x: p.after.x, y: p.after.y },
+                      };
+                    break;
+                  }
+                  case "add": {
+                    nodes = [
+                      ...nodes.slice(0, p.index),
+                      p.node,
+                      ...nodes.slice(p.index),
+                    ];
+                    break;
+                  }
+                  case "remove": {
+                    nodes = nodes.filter((n) => n.id !== p.id);
+                    break;
+                  }
+                  case "replace": {
+                    const i = nodes.findIndex((n) => n.id === p.id);
+                    if (i >= 0) nodes[i] = p.after;
+                    break;
+                  }
+                }
+              }
+              return { nodes };
+            }, layer)(get());
+            set(newState);
             break;
           }
           default: {
