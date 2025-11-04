@@ -796,23 +796,13 @@ export const useProjectStore = create(
        * indexing: "done" seria la cant de redoables
        * o el indice del ultimo action "vivo"
        */
-      adjustHistory: () => {
-        const { history, done } = get();
-
-        // solo agarra los qu estan hechos
-        const slicedHist = history.slice(done);
-        set(() => ({
-          history: slicedHist,
-          done: 0,
-        }));
-      },
 
       undo: () => {
         const state = get();
         const { history, done } = state;
 
         // si es la primera accion no se puede undo
-        if (history.length - done <= 1) return;
+        if (history.length - done <= 0) return;
 
         // el ultimo action done
         const lastCommand = history[done];
