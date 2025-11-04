@@ -62,7 +62,7 @@ export type ModifyNodeCommand = GenericCommand<
 export type NodesChangeCommand = GenericCommand<
   // react flow
   "nodesChange",
-  { layer: number; patches: NodesChangePatch[] }
+  { layer: number; patch: NodesChangePatch }
 >;
 export type EdgeChangesCommand = GenericCommand<
   "edgeChanges",
