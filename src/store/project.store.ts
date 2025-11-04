@@ -395,20 +395,29 @@ export const useProjectStore = create(
           size: { width, height },
         }))(state);
 
-        const slicedHist = history.slice(done);
+        let before = {
+          position: { x: beforePos.x, y: beforePos.y },
+          size: { width: beforeSize.width, height: beforeSize.height },
+        };
+        const after = {
+          position: { x: x, y: y },
+          size: { width: width, height: height },
+        };
+
+        let slicedHist;
+        if (history[done].command === "setLayerBounds") {
+          before = history[done].data.before;
+          slicedHist = history.slice(done + 1);
+        } else {
+          slicedHist = history.slice(done);
+        }
         set({
           ...newState,
           history: historyPush(slicedHist, {
             command: "setLayerBounds",
             data: {
-              before: {
-                position: { x: beforePos.x, y: beforePos.y },
-                size: { width: beforeSize.width, height: beforeSize.height },
-              },
-              after: {
-                position: { x: x, y: y },
-                size: { width: width, height: height },
-              },
+              before: before,
+              after: after,
             },
           }),
           done: 0,
