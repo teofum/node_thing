@@ -79,13 +79,18 @@ export async function setDisplayName(formData: FormData) {
   revalidatePath(`/profile/${profile?.username}`);
 }
 
-export async function changePassword(
-  currentPassword: string,
-  newPassword: string,
-) {
+export async function changePassword(formData: FormData) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
+
+  const currentPassword = formData.get("currentPassword") as string;
+  const newPassword = formData.get("newPassword") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (newPassword !== confirmPassword) {
+    throw new Error("Passwords do not match");
+  }
 
   const { data: isValid, error: verifyError } = await supabase.rpc(
     "verify_user_password",
@@ -107,6 +112,14 @@ export async function changePassword(
   if (error) {
     throw new Error(`Failed to change password: ${error.message}`);
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  revalidatePath(`/profile/${profile?.username}`);
 }
 
 export async function uploadAvatar(formData: FormData) {
