@@ -30,6 +30,23 @@ export type NodesChangePatch =
   | { type: "remove"; id: string; index: number; node: ShaderNode }
   | { type: "replace"; id: string; before: ShaderNode; after: ShaderNode };
 
+export type EdgesChangePatch =
+  | {
+      type: "add";
+      edge: Edge;
+      index: number;
+    }
+  | {
+      type: "remove";
+      edge: Edge;
+      index: number;
+    }
+  | {
+      type: "replace";
+      before: Edge;
+      after: Edge;
+    };
+
 export type CreateNodeCommand = GenericCommand<
   "createNode",
   { node: ShaderNode; layer: number }
@@ -43,12 +60,18 @@ export type ModifyNodeCommand = GenericCommand<
   { before: ShaderNode; after: ShaderNode; layer: number }
 >;
 export type NodesChangeCommand = GenericCommand<
+  // react flow
   "nodesChange",
   { layer: number; patches: NodesChangePatch[] }
 >;
 export type EdgeChangesCommand = GenericCommand<
   "edgeChanges",
   { before: Edge[]; after: Edge[]; layer: number }
+>;
+export type EdgesChangeCommand = GenericCommand<
+  // react flow
+  "edgesChange",
+  { layer: number; patches: EdgesChangePatch[] }
 >;
 export type SwitchLayerCommand = GenericCommand<
   "switchLayer",
@@ -119,6 +142,7 @@ export type Command =
   | RemoveNodeCommand
   | ModifyNodeCommand
   | EdgeChangesCommand
+  | EdgesChangeCommand
   | SwitchLayerCommand
   | AddLayerCommand
   | ImportLayerCommand

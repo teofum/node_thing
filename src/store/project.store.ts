@@ -36,7 +36,7 @@ import {
   mergeProject,
   historyPush,
 } from "./project.actions";
-import type { NodesChangePatch } from "@/store/types/command";
+import type { NodesChangePatch, EdgesChangePatch } from "@/store/types/command";
 
 export const useProjectStore = create(
   persist(
@@ -58,6 +58,7 @@ export const useProjectStore = create(
         });
       },
 
+      /// react flow
       onNodesChange: (changes: NodeChange<Node>[]) => {
         set((state) => {
           const { layers, currentLayer, history, done } = state;
@@ -143,34 +144,65 @@ export const useProjectStore = create(
         });
       },
 
+      /// react flow
       onEdgesChange: (changes: EdgeChange<Edge>[]) => {
-        const state = get();
-        const { history, done, layers, currentLayer } = state;
+        set((state) => {
+          const { layers, currentLayer, history, done } = state;
+          const layer = layers[currentLayer];
+          if (!layer) return state;
 
-        // TODO: podria guardar los changes invertidos
-        const beforeEdges = layers[currentLayer].edges;
-        if (!beforeEdges) return;
+          const byId = new Map(
+            layer.edges.map((e, i) => [e.id, { edge: e, index: i }]),
+          );
 
-        const newState = modifyLayer((layer) => ({
-          edges: applyEdgeChanges(changes, layer.edges),
-        }))(state);
-        if (!newState.layers) return;
+          const patches: EdgesChangePatch[] = [];
 
-        const afterEdges = newState.layers[currentLayer].edges;
-        if (!afterEdges) return;
+          for (const ch of changes) {
+            switch (ch.type) {
+              case "add": {
+                const edge = ch.item as Edge;
+                patches.push({ type: "add", edge, index: layer.edges.length });
+                break;
+              }
+              case "remove": {
+                const rec = byId.get(ch.id);
+                if (rec) {
+                  patches.push({
+                    type: "remove",
+                    edge: rec.edge,
+                    index: rec.index,
+                  });
+                }
+                break;
+              }
+              case "replace": {
+                const before = byId.get(ch.id)?.edge;
+                const after = ch.item as Edge | undefined;
+                if (before && after) {
+                  patches.push({ type: "replace", before, after });
+                }
+                break;
+              }
+              case "select":
+              default:
+                break;
+            }
+          }
 
-        const slicedHist = history.slice(done);
-        set({
-          ...newState,
-          history: historyPush(slicedHist, {
-            command: "edgeChanges",
-            data: {
-              before: beforeEdges,
-              after: afterEdges,
-              layer: currentLayer,
-            },
-          }),
-          done: 0,
+          const nextState = modifyLayer((l) => ({
+            edges: applyEdgeChanges(changes, l.edges),
+          }))(state);
+
+          if (!patches.length) return nextState;
+
+          return {
+            ...nextState,
+            history: historyPush(history.slice(done), {
+              command: "edgesChange",
+              data: { layer: currentLayer, patches },
+            }),
+            done: 0,
+          };
         });
       },
 
@@ -1009,6 +1041,43 @@ export const useProjectStore = create(
             set(newState);
             break;
           }
+          case "edgesChange": {
+            const { layer, patches } = lastCommand.data as {
+              layer: number;
+              patches: EdgesChangePatch[];
+            };
+
+            const newState = modifyLayer((l) => {
+              let edges = l.edges.slice();
+
+              for (const p of [...patches].reverse()) {
+                switch (p.type) {
+                  case "add": {
+                    edges = edges.filter((e) => e.id !== p.edge.id);
+                    break;
+                  }
+                  case "remove": {
+                    edges = [
+                      ...edges.slice(0, p.index),
+                      p.edge,
+                      ...edges.slice(p.index),
+                    ];
+                    break;
+                  }
+                  case "replace": {
+                    const idx = edges.findIndex((e) => e.id === p.after.id);
+                    if (idx >= 0) edges[idx] = p.before;
+                    break;
+                  }
+                }
+              }
+
+              return { edges };
+            }, layer)(get());
+
+            set(newState);
+            break;
+          }
           default: {
             console.warn("not implemented");
             set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
@@ -1266,6 +1335,43 @@ export const useProjectStore = create(
               }
               return { nodes };
             }, layer)(get());
+            set(newState);
+            break;
+          }
+          case "edgesChange": {
+            const { layer, patches } = commandToRedo.data as {
+              layer: number;
+              patches: EdgesChangePatch[];
+            };
+
+            const newState = modifyLayer((l) => {
+              let edges = l.edges.slice();
+
+              for (const p of patches) {
+                switch (p.type) {
+                  case "add": {
+                    edges = [
+                      ...edges.slice(0, p.index),
+                      p.edge,
+                      ...edges.slice(p.index),
+                    ];
+                    break;
+                  }
+                  case "remove": {
+                    edges = edges.filter((e) => e.id !== p.edge.id);
+                    break;
+                  }
+                  case "replace": {
+                    const idx = edges.findIndex((e) => e.id === p.before.id);
+                    if (idx >= 0) edges[idx] = p.after;
+                    break;
+                  }
+                }
+              }
+
+              return { edges };
+            }, layer)(get());
+
             set(newState);
             break;
           }
