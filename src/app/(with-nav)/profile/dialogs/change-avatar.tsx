@@ -6,6 +6,11 @@ import { Button } from "@/ui/button";
 import { uploadAvatar, removeAvatar } from "../actions/settings";
 import Image from "next/image";
 import Cropper, { type Area } from "react-easy-crop";
+import { ErrorBoundary } from "react-error-boundary";
+
+function ErrorFallback({ error }: { error: Error }) {
+  return <div className="text-red-400 text-sm p-2">{error.message}</div>;
+}
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
@@ -29,9 +34,6 @@ export default function AvatarEditor({
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
     setCroppedAreaPixels(croppedPixels);
@@ -74,135 +76,112 @@ export default function AvatarEditor({
 
   return (
     <Dialog trigger={trigger} title="Change Avatar" description="">
-      <div className="flex flex-col p-4 text-lg">
-        {!imageSrc ? (
-          <>
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-[120px] h-[120px] rounded-full overflow-hidden">
-                <Image
-                  src={currentAvatarUrl}
-                  alt="Avatar preview"
-                  width={120}
-                  height={120}
-                  unoptimized
-                  className="w-full h-full object-cover"
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <div className="flex flex-col p-4 text-lg">
+          {!imageSrc ? (
+            <>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-[120px] h-[120px] rounded-full overflow-hidden">
+                  <Image
+                    src={currentAvatarUrl}
+                    alt="Avatar preview"
+                    width={120}
+                    height={120}
+                    unoptimized
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setImageSrc(reader.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
                 />
               </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setImageSrc(reader.result as string);
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-              />
+              <div className="flex justify-between items-center mt-4">
+                <form
+                  action={async () => {
+                    await removeAvatar();
+                    window.location.reload();
+                  }}
+                >
+                  <Button type="submit" variant="outline">
+                    Remove
+                  </Button>
+                </form>
+                <Button onClick={() => fileInputRef.current?.click()}>
+                  Choose Image
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="relative w-full h-[300px] bg-black">
+                <Cropper
+                  image={imageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  cropShape="round"
+                  showGrid={false}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm">Zoom:</span>
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="flex-1"
+                />
+              </div>
             </div>
+          )}
+
+          {imageSrc && (
             <div className="flex justify-between items-center mt-4">
               <Button
                 variant="outline"
-                onClick={async () => {
-                  setIsPending(true);
-                  try {
-                    await removeAvatar();
-                    setIsPending(false);
-                    setSuccess(true);
-                    window.location.reload();
-                  } catch (err) {
-                    setError(
-                      err instanceof Error
-                        ? err.message
-                        : "Failed to remove avatar",
-                    );
-                    setIsPending(false);
-                  }
+                onClick={() => {
+                  setImageSrc(null);
+                  setCrop({ x: 0, y: 0 });
+                  setZoom(1);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
-                disabled={isPending || success}
               >
-                {isPending ? "Removing..." : success ? "✓ Removed!" : "Remove"}
+                Back
               </Button>
-              <Button onClick={() => fileInputRef.current?.click()}>
-                Choose Image
-              </Button>
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col gap-4">
-            <div className="relative w-full h-[300px] bg-black">
-              <Cropper
-                image={imageSrc}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                cropShape="round"
-                showGrid={false}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={onCropComplete}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Zoom:</span>
-              <input
-                type="range"
-                min={1}
-                max={3}
-                step={0.1}
-                value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
-                className="flex-1"
-              />
-            </div>
-          </div>
-        )}
-        {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
-        {imageSrc && (
-          <div className="flex justify-between items-center mt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setImageSrc(null);
-                setCrop({ x: 0, y: 0 });
-                setZoom(1);
-                if (fileInputRef.current) fileInputRef.current.value = "";
-              }}
-            >
-              Back
-            </Button>
-            <Button
-              onClick={async () => {
-                setIsPending(true);
-                try {
+              <Button
+                onClick={async () => {
                   const croppedBlob = await createCroppedImage();
                   const formData = new FormData();
                   formData.append("avatar", croppedBlob, "avatar.jpg");
                   await uploadAvatar(formData);
-                  setIsPending(false);
-                  setSuccess(true);
                   window.location.reload();
-                } catch (err) {
-                  setError(
-                    err instanceof Error
-                      ? err.message
-                      : "Failed to upload avatar",
-                  );
-                  setIsPending(false);
-                }
-              }}
-              disabled={isPending || success}
-            >
-              {isPending ? "Saving..." : success ? "Saved!" : "Save"}
-            </Button>
-          </div>
-        )}
-      </div>
+                }}
+              >
+                Save
+              </Button>
+            </div>
+          )}
+        </div>
+      </ErrorBoundary>
     </Dialog>
   );
 }

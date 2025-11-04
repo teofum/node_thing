@@ -154,6 +154,14 @@ export async function uploadAvatar(formData: FormData) {
   if (updateError) {
     throw new Error(`Failed to update avatar URL: ${updateError.message}`);
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  revalidatePath(`/profile/${profile?.username}`);
 }
 
 export async function removeAvatar() {
@@ -173,4 +181,12 @@ export async function removeAvatar() {
   if (error) {
     throw new Error(`Failed to remove avatar: ${error.message}`);
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  revalidatePath(`/profile/${profile?.username}`);
 }
