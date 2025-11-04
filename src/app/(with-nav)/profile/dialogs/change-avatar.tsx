@@ -109,12 +109,7 @@ export default function AvatarEditor({
                 />
               </div>
               <div className="flex justify-between items-center mt-4">
-                <form
-                  action={async () => {
-                    await removeAvatar();
-                    window.location.reload();
-                  }}
-                >
+                <form action={removeAvatar}>
                   <Button type="submit" variant="outline">
                     Remove
                   </Button>
@@ -173,7 +168,6 @@ export default function AvatarEditor({
                   const formData = new FormData();
                   formData.append("avatar", croppedBlob, "avatar.jpg");
                   await uploadAvatar(formData);
-                  window.location.reload();
                 }}
               >
                 Save
