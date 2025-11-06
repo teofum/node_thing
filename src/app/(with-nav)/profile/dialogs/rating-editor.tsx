@@ -8,7 +8,6 @@ import {
 } from "@/app/(with-nav)/profile/actions/items";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
-import { useRouter } from "next/navigation";
 import { RatingsDisplay } from "../components/items-tab";
 
 type RatingEditorProps = {
@@ -32,16 +31,13 @@ export default function RatingEditor({
   const [rating, setRating] = useState(userRating?.rating ?? 0);
   const [comment, setComment] = useState(userRating?.comment ?? "");
   const stars = [1, 2, 3, 4, 5];
-  const router = useRouter();
 
   const handleSubmit = async () => {
     await submitReview(type, id, rating, comment);
-    router.refresh();
   };
 
   const handleDelete = async () => {
     await deleteReview(type, id);
-    router.refresh();
   };
 
   return (
