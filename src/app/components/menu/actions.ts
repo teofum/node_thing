@@ -1,8 +1,7 @@
 "use server";
 
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function saveProjectOnline(blob: Blob) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
@@ -40,7 +39,7 @@ export async function loadProjectOnline(user_project: string | null) {
     throw new Error("User project name is null");
   }
 
-  const { supabase, user } = await getSupabaseUserOrRedirect(
+  const { supabase } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
 
@@ -57,7 +56,7 @@ export async function loadProjectOnline(user_project: string | null) {
 }
 
 export async function updateProjectName(projectId: string, newName: string) {
-  const { supabase, user } = await getSupabaseUserOrRedirect("");
+  const { supabase } = await getSupabaseUserOrRedirect("/");
 
   const { error } = await supabase
     .from("projects")
@@ -68,10 +67,12 @@ export async function updateProjectName(projectId: string, newName: string) {
     .eq("id", projectId);
 
   if (error) throw new Error(`Rename failed: ${error.message}`);
+
+  revalidatePath("/");
 }
 
 export async function deleteProject(projectId: string) {
-  const { supabase, user } = await getSupabaseUserOrRedirect("");
+  const { supabase } = await getSupabaseUserOrRedirect("/");
 
   const { error } = await supabase
     .from("projects")
@@ -79,4 +80,6 @@ export async function deleteProject(projectId: string) {
     .eq("id", projectId);
 
   if (error) throw new Error(`Delete failed: ${error.message}`);
+
+  revalidatePath("/");
 }

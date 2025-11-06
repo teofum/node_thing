@@ -5,7 +5,6 @@ import {
   LuStar,
   LuTrash2,
 } from "react-icons/lu";
-import { useRouter } from "next/navigation";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
@@ -34,17 +33,13 @@ export function ManageProjects({
   const [nameDraft, setNameDraft] = useState<string>("");
   const [importResult, setImportResult] = useState<ImportResult>(undefined);
 
-  const router = useRouter();
-
   async function handleRename(projectId: string) {
     await updateProjectName(projectId, nameDraft);
     setEditingId(null);
-    router.refresh();
   }
 
   async function handleDelete(projectId: string) {
     await deleteProject(projectId);
-    router.refresh();
   }
 
   const handleOpen = async (project: Tables<"projects">) => {
