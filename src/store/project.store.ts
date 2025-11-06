@@ -178,8 +178,7 @@ export const useProjectStore = create(
                 break;
               }
               default: {
-                commit(ch);
-                break;
+                return state;
               }
             }
           }
