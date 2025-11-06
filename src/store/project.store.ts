@@ -108,6 +108,7 @@ export const useProjectStore = create(
                   const lastCommand = hist[done];
                   if (
                     lastCommand?.command === "nodesChange" &&
+                    lastCommand?.data?.patch.id === ch.id &&
                     lastCommand.data?.patch?.type === "position" &&
                     patch.type === "position"
                   ) {
