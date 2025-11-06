@@ -180,3 +180,17 @@ export async function getPurchasedShaders() {
 
   return purchases?.map((p) => p.shader).filter(Boolean) || [];
 }
+
+export async function getImage(itemType: "shader" | "project", itemId: string) {
+  const { supabase } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
+
+  const fileName = `${itemType}_${itemId}`;
+
+  const { data } = supabase.storage
+    .from("marketplace_images")
+    .getPublicUrl(fileName);
+
+  return data.publicUrl ?? null;
+}

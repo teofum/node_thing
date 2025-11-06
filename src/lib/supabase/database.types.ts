@@ -198,6 +198,7 @@ export type Database = {
           description: string | null;
           downloads: number | null;
           id: string;
+          image_name: string | null;
           name: string | null;
           price: number | null;
           published: boolean | null;
@@ -210,6 +211,7 @@ export type Database = {
           description?: string | null;
           downloads?: number | null;
           id?: string;
+          image_name?: string | null;
           name?: string | null;
           price?: number | null;
           published?: boolean | null;
@@ -222,6 +224,7 @@ export type Database = {
           description?: string | null;
           downloads?: number | null;
           id?: string;
+          image_name?: string | null;
           name?: string | null;
           price?: number | null;
           published?: boolean | null;
@@ -357,6 +360,7 @@ export type Database = {
           description: string | null;
           downloads: number;
           id: string;
+          image_name: string | null;
           node_config: Json | null;
           price: number;
           published: boolean | null;
@@ -372,6 +376,7 @@ export type Database = {
           description?: string | null;
           downloads?: number;
           id?: string;
+          image_name?: string | null;
           node_config?: Json | null;
           price: number;
           published?: boolean | null;
@@ -387,6 +392,7 @@ export type Database = {
           description?: string | null;
           downloads?: number;
           id?: string;
+          image_name?: string | null;
           node_config?: Json | null;
           price?: number;
           published?: boolean | null;
@@ -447,6 +453,7 @@ export type Database = {
           description: string;
           downloads: number;
           id: string;
+          image_name: string;
           price: number;
           profiles: Json;
           rating_count: number;
@@ -500,6 +507,7 @@ export type Database = {
           description: string;
           downloads: number;
           id: string;
+          image_name: string;
           price: number;
           profiles: Json;
           rating_count: number;

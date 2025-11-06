@@ -19,6 +19,7 @@ type ItemCardProps = {
   createdAt: string;
   averageRating?: number | null;
   ratingCount?: number | null;
+  imageUrl?: string | null;
 };
 
 export default function ItemCard({
@@ -33,6 +34,7 @@ export default function ItemCard({
   createdAt,
   averageRating,
   ratingCount,
+  imageUrl,
 }: ItemCardProps) {
   const isNew =
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
@@ -67,7 +69,7 @@ export default function ItemCard({
         )}
 
         <Image
-          src="/placeholder.webp"
+          src={imageUrl ?? "/placeholder.webp"}
           width={1000}
           height={667}
           alt={itemType + " preview"}
