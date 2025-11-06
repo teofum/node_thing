@@ -69,7 +69,7 @@ export default function ItemCard({
         )}
 
         <Image
-          src={imageUrl ?? "/placeholder.webp"}
+          src={imageUrl ? `${imageUrl}?t=${Date.now()}` : "/placeholder.webp"}
           width={1000}
           height={667}
           alt={itemType + " preview"}

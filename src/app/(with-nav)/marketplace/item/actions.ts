@@ -53,6 +53,8 @@ export async function uploadImageToBucket(
 
   const fileName = `${itemType}_${itemId}`;
 
+  await supabase.storage.from("marketplace_images").remove([fileName]);
+
   // bucket
   const { error } = await supabase.storage
     .from("marketplace_images")

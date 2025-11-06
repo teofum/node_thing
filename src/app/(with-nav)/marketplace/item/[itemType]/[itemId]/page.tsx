@@ -38,7 +38,9 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
         <div className="flex flex-col items-center">
           <div className="w-full rounded-2xl overflow-hidden relative group">
             <Image
-              src={imageUrl ? imageUrl : "/placeholder.webp"}
+              src={
+                imageUrl ? `${imageUrl}?t=${Date.now()}` : "/placeholder.webp"
+              }
               width={1000}
               height={667}
               alt={`${item.title} preview`}
