@@ -37,6 +37,7 @@ import {
   historyPush,
 } from "./project.actions";
 import type { NodesChangePatch, EdgesChangePatch } from "@/store/types/command";
+import { getCartItems } from "@/app/(with-nav)/marketplace/cart.actions";
 
 export const useProjectStore = create(
   persist(
@@ -66,6 +67,7 @@ export const useProjectStore = create(
           if (!layer) return state;
 
           let hist = history.slice(done);
+          const startLen = hist.length;
           let nodes = layer.nodes as ShaderNode[];
           let nextState = state;
 
@@ -190,7 +192,7 @@ export const useProjectStore = create(
               }
             }
           }
-
+          if (hist.length === startLen) return nextState;
           return { ...nextState, history: hist, done: 0 };
         });
       },
