@@ -2,6 +2,7 @@
 
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import camelcaseKeys from "camelcase-keys";
+import { revalidatePath } from "next/cache";
 
 export async function getItem(id: string, type: "shader" | "project") {
   const { supabase, user } = await getSupabaseUserOrRedirect(
@@ -76,6 +77,8 @@ export async function uploadImageToBucket(
   if (tableError) {
     throw new Error(`Failed to save image: ${tableError.message}`);
   }
+
+  revalidatePath(`/marketplace/${itemType}/${itemId}`);
 }
 
 export async function isOwner(itemType: "shader" | "project", itemId: string) {
