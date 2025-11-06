@@ -5,7 +5,6 @@ import { ReactNode, useState } from "react";
 import { UserData } from "../page";
 import { Button } from "@/ui/button";
 import { setUsername, checkUsernameAvailable } from "../actions/settings";
-import { useRouter } from "next/navigation";
 
 type AccountEditorProps = {
   trigger: ReactNode;
@@ -19,11 +18,9 @@ export default function AccountEditor({
   userData,
 }: AccountEditorProps) {
   const [name, setName] = useState(userData.username ?? "");
-  const router = useRouter();
 
   const accountNameChangeHandler = async () => {
     await setUsername(name);
-    router.refresh();
   };
 
   return (

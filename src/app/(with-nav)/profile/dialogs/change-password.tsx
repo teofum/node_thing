@@ -4,7 +4,6 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { ReactNode, useState } from "react";
 import { Button } from "@/ui/button";
 import { changePassword } from "../actions/settings";
-import { useRouter } from "next/navigation";
 
 type PasswordEditorProps = {
   trigger: ReactNode;
@@ -14,11 +13,9 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const router = useRouter();
 
   const passwordChangeHandler = async () => {
     await changePassword(currentPassword, newPassword);
-    router.refresh();
   };
 
   const passwordsMatch =

@@ -4,7 +4,6 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { ReactNode, useState } from "react";
 import { Button } from "@/ui/button";
 import { setDisplayName } from "../actions/settings";
-import { useRouter } from "next/navigation";
 
 type DisplayNameEditorProps = {
   trigger: ReactNode;
@@ -16,11 +15,9 @@ export default function DisplayNameEditor({
   currentDisplayName,
 }: DisplayNameEditorProps) {
   const [name, setName] = useState(currentDisplayName ?? "");
-  const router = useRouter();
 
   const displayNameChangeHandler = async () => {
     await setDisplayName(name);
-    router.refresh();
   };
 
   return (
