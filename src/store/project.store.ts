@@ -841,9 +841,6 @@ export const useProjectStore = create(
        * TODO:
        * todos los actions tienen que hacer adjustHistory
        *
-       * podria haber una acccion inicial en el history de crear leyer¿
-       * o el done arranca en -1
-       *
        * indexing: "done" seria la cant de redoables
        * o el indice del ultimo action "vivo"
        */
