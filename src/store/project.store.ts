@@ -100,7 +100,6 @@ export const useProjectStore = create(
                   y: ch.position?.y ?? before.y,
                 };
                 if (before.x !== after.x || before.y !== after.y) {
-                  //                  console.log("from: " + before.x +"::"+ before.y + " to: " + after.x +"::"+ after.y );
                   patch = { type: "position", id: ch.id, before, after };
                 }
                 commit(ch);
@@ -116,8 +115,6 @@ export const useProjectStore = create(
                     hist = hist.slice(1);
                     patch.before = lastCommand.data.patch.before;
                   }
-                  console.log("push:");
-                  console.log(patch);
 
                   hist = historyPush(hist, {
                     command: "nodesChange",
@@ -186,7 +183,6 @@ export const useProjectStore = create(
               }
             }
           }
-          if (hist.length === startLen) return nextState;
           return { ...nextState, history: hist, done: 0 };
         });
       },
@@ -1357,17 +1353,6 @@ export const useProjectStore = create(
               for (const p of patches) {
                 switch (p.type) {
                   case "position": {
-                    console.log(history);
-                    console.log(
-                      " Redo from: " +
-                        p.before.x +
-                        "::" +
-                        p.before.y +
-                        " to: " +
-                        p.after.x +
-                        "::" +
-                        p.after.y,
-                    );
                     const i = nodes.findIndex((n) => n.id === p.id);
                     if (i >= 0) {
                       nodes[i] = {
