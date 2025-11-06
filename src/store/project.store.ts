@@ -34,115 +34,506 @@ import {
   createInitialState,
   createHandles,
   mergeProject,
+  historyPush,
 } from "./project.actions";
+import type { NodesChangePatch, EdgesChangePatch } from "@/store/types/command";
 
 export const useProjectStore = create(
   persist(
     combine(createInitialState(), (set, get) => ({
-      setActiveLayer: (idx: number) => set({ currentLayer: idx }),
+      setActiveLayer: (idx: number) => {
+        const state = get();
+        const { history, done, currentLayer } = state;
 
-      onNodesChange: (changes: NodeChange<Node>[]) =>
-        set(
-          modifyLayer((layer) => ({
-            nodes: applyNodeChanges(changes, layer.nodes) as ShaderNode[],
-          })),
-        ),
+        const before = currentLayer;
 
-      onEdgesChange: (changes: EdgeChange<Edge>[]) =>
-        set(
-          modifyLayer((layer) => ({
-            edges: applyEdgeChanges(changes, layer.edges),
-          })),
-        ),
+        const slicedHist = history.slice(done);
+        set({
+          currentLayer: idx,
+          history: historyPush(slicedHist, {
+            command: "switchLayer",
+            data: { before: before, after: idx },
+          }),
+          done: 0,
+        });
+      },
 
-      onConnect: (connection: Connection) =>
-        set(
-          modifyLayer((layer) => {
-            const edgesWithoutConflictingConnections = layer.edges.filter(
-              (e) =>
-                e.target !== connection.target ||
-                e.targetHandle !== connection.targetHandle,
+      /// react flow
+      onNodesChange: (changes: NodeChange<Node>[]) => {
+        set((state) => {
+          const { layers, currentLayer, history, done } = state;
+          const layer = layers[currentLayer];
+          if (!layer) return state;
+
+          let hist = history.slice(done);
+          let nodes = layer.nodes as ShaderNode[];
+          let nextState = state;
+
+          const commit = (ch: NodeChange<Node>) => {
+            nodes = applyNodeChanges([ch], nodes) as ShaderNode[];
+            const patch = modifyLayer((l) => ({ ...l, nodes }))(nextState);
+            nextState = { ...nextState, ...patch };
+          };
+
+          for (const ch of changes) {
+            const byId = new Map(
+              nodes.map((n, i) => [n.id, { node: n as ShaderNode, index: i }]),
             );
 
-            return {
-              edges: addEdge(connection, edgesWithoutConflictingConnections),
-            };
+            let patch: NodesChangePatch | undefined;
+
+            switch (ch.type) {
+              case "position": {
+                const rec = byId.get(ch.id);
+                if (!rec) {
+                  commit(ch);
+                  break;
+                }
+                const before = {
+                  x: rec.node.position.x,
+                  y: rec.node.position.y,
+                };
+                const after = {
+                  x: ch.position?.x ?? before.x,
+                  y: ch.position?.y ?? before.y,
+                };
+                if (before.x !== after.x || before.y !== after.y) {
+                  patch = { type: "position", id: ch.id, before, after };
+                }
+                commit(ch);
+
+                if (patch) {
+                  const lastCommand = hist[done];
+                  if (
+                    lastCommand?.command === "nodesChange" &&
+                    lastCommand.data?.patch?.type === "position" &&
+                    patch.type === "position"
+                  ) {
+                    hist = hist.slice(1);
+                    const lastPos = lastCommand.data.patch as Extract<
+                      NodesChangePatch,
+                      { type: "position" }
+                    >;
+                    patch = {
+                      ...(patch as Extract<
+                        NodesChangePatch,
+                        { type: "position" }
+                      >),
+                      before: lastPos.before,
+                    };
+                  }
+
+                  hist = historyPush(hist, {
+                    command: "nodesChange",
+                    data: { layer: currentLayer, patch },
+                  });
+                }
+                break;
+              }
+              case "add": {
+                const newNode = ch.item as ShaderNode;
+                patch = {
+                  type: "add",
+                  id: newNode.id,
+                  index: nodes.length,
+                  node: newNode,
+                };
+                commit(ch);
+                hist = historyPush(hist, {
+                  command: "nodesChange",
+                  data: { layer: currentLayer, patch: patch },
+                });
+                break;
+              }
+              case "remove": {
+                const rec = byId.get(ch.id);
+                commit(ch);
+                if (rec) {
+                  patch = {
+                    type: "remove",
+                    id: ch.id,
+                    index: rec.index,
+                    node: rec.node,
+                  };
+                  hist = historyPush(hist, {
+                    command: "nodesChange",
+                    data: { layer: currentLayer, patch: patch },
+                  });
+                }
+                break;
+              }
+              case "replace": {
+                const rec = byId.get(ch.id);
+                const afterNode = ch.item as ShaderNode;
+                const changed =
+                  !!rec &&
+                  rec.node !== afterNode &&
+                  JSON.stringify(rec.node) !== JSON.stringify(afterNode);
+                commit(ch);
+                if (changed && rec) {
+                  patch = {
+                    type: "replace",
+                    id: ch.id,
+                    before: rec.node,
+                    after: afterNode,
+                  };
+                  hist = historyPush(hist, {
+                    command: "nodesChange",
+                    data: { layer: currentLayer, patch: patch },
+                  });
+                }
+                break;
+              }
+              default: {
+                commit(ch);
+                break;
+              }
+            }
+          }
+
+          return { ...nextState, history: hist, done: 0 };
+        });
+      },
+
+      /// react flow
+      onEdgesChange: (changes: EdgeChange<Edge>[]) => {
+        set((state) => {
+          const { layers, currentLayer, history, done } = state;
+          const layer = layers[currentLayer];
+          if (!layer) return state;
+
+          const byId = new Map(
+            layer.edges.map((e, i) => [e.id, { edge: e, index: i }]),
+          );
+
+          const patches: EdgesChangePatch[] = [];
+
+          for (const ch of changes) {
+            switch (ch.type) {
+              case "add": {
+                const edge = ch.item as Edge;
+                patches.push({ type: "add", edge, index: layer.edges.length });
+                break;
+              }
+              case "remove": {
+                const rec = byId.get(ch.id);
+                if (rec) {
+                  patches.push({
+                    type: "remove",
+                    edge: rec.edge,
+                    index: rec.index,
+                  });
+                }
+                break;
+              }
+              case "replace": {
+                const before = byId.get(ch.id)?.edge;
+                const after = ch.item as Edge | undefined;
+                if (before && after) {
+                  patches.push({ type: "replace", before, after });
+                }
+                break;
+              }
+              case "select":
+              default:
+                break;
+            }
+          }
+
+          const nextState = modifyLayer((l) => ({
+            edges: applyEdgeChanges(changes, l.edges),
+          }))(state);
+
+          if (!patches.length) return nextState;
+
+          return {
+            ...nextState,
+            history: historyPush(history.slice(done), {
+              command: "edgesChange",
+              data: { layer: currentLayer, patches },
+            }),
+            done: 0,
+          };
+        });
+      },
+
+      onConnect: (connection: Connection) => {
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
+
+        const beforeEdges = layers[currentLayer].edges;
+        if (!beforeEdges) return;
+
+        const newState = modifyLayer((layer) => {
+          const edgesWithoutConflictingConnections = layer.edges.filter(
+            (e) =>
+              e.target !== connection.target ||
+              e.targetHandle !== connection.targetHandle,
+          );
+          return {
+            edges: addEdge(connection, edgesWithoutConflictingConnections),
+          };
+        })(state);
+        if (!newState.layers) return;
+
+        const afterEdges = newState.layers[currentLayer].edges;
+        if (!afterEdges) return;
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "edgeChanges",
+            data: {
+              before: beforeEdges,
+              after: afterEdges,
+              layer: currentLayer,
+            },
           }),
-        ),
+          done: 0,
+        });
+      },
 
       updateNodeDefaultValue: (
         id: string,
         input: string,
         value: number | number[],
-      ) =>
-        set(
-          modifyNode(id, (node) => ({
-            data: {
-              ...node.data,
-              defaultValues: { ...node.data.defaultValues, [input]: value },
-            },
-          })),
-        ),
+      ) => {
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
 
-      updateNodeParameter: (id: string, param: string, value: string | null) =>
-        set(
-          modifyNode(id, (node) => ({
-            data: {
-              ...node.data,
-              parameters: { ...node.data.parameters, [param]: { value } },
-            },
-          })),
-        ),
+        const node = layers[currentLayer].nodes.find((node) => node.id === id);
+        if (!node) return;
+        const before = node.data.defaultValues[input as string] as
+          | number
+          | number[]
+          | undefined;
+        if (before === undefined) return;
+        const newState = modifyNode(id, (node) => ({
+          data: {
+            ...node.data,
+            defaultValues: { ...node.data.defaultValues, [input]: value },
+          },
+        }))(state);
 
-      updateNodeUniform: (id: string, name: string, value: number | number[]) =>
-        set(
-          modifyNode(id, (node) => ({
+        if (JSON.stringify(before) === JSON.stringify(value)) {
+          return;
+        }
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "updateNodeDefaultValue",
             data: {
-              ...node.data,
-              uniforms: { ...node.data.uniforms, [name]: value },
+              input: input,
+              id: id,
+              before: before,
+              after: value,
             },
-          })),
-        ),
+          }),
+          done: 0,
+        });
+      },
+
+      updateNodeParameter: (
+        id: string,
+        param: string,
+        value: string | null,
+      ) => {
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
+
+        const beforeNode = layers[currentLayer].nodes.find(
+          (node) => node.id === id,
+        );
+        if (!beforeNode) return;
+
+        const newState = modifyNode(id, (node) => ({
+          data: {
+            ...node.data,
+            parameters: { ...node.data.parameters, [param]: { value } },
+          },
+        }))(state);
+        if (!newState.layers) return; // H
+
+        const afterNode = newState.layers[currentLayer].nodes.find(
+          (node) => node.id === id,
+        );
+        if (!afterNode) return;
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "modifyNode",
+            data: { before: beforeNode, after: afterNode, layer: currentLayer },
+          }),
+          done: 0,
+        });
+      },
+
+      updateNodeUniform: (
+        id: string,
+        name: string,
+        value: number | number[],
+      ) => {
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
+
+        const node = layers[currentLayer].nodes.find((node) => node.id === id);
+        if (!node) return;
+        const before = node.data.defaultValues[name as string] as
+          | number
+          | number[]
+          | undefined;
+        if (before === undefined) return;
+        const newState = modifyNode(id, (node) => ({
+          data: {
+            ...node.data,
+            defaultValues: { ...node.data.uniforms, [name]: value },
+          },
+        }))(state);
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "updateNodeUniforms",
+            data: {
+              name: name,
+              id: id,
+              before: before,
+              after: value,
+            },
+          }),
+          done: 0,
+        });
+      },
 
       /*
        * Actions: canvas
        */
-      setCanvasSize: (width: number, height: number) =>
-        set(({ properties }) => ({
+      setCanvasSize: (width: number, height: number) => {
+        const state = get();
+        const { properties, history, done } = state;
+
+        const slicedHist = history.slice(done);
+        set({
           properties: {
             ...properties,
             canvas: { ...properties.canvas, width, height },
           },
-        })),
+          history: historyPush(slicedHist, {
+            command: "setCanvasSize",
+            data: {
+              before: {
+                width: properties.canvas.width,
+                height: properties.canvas.height,
+              },
+              after: {
+                width: width,
+                height: height,
+              },
+            },
+          }),
+          done: 0,
+        });
+      },
 
-      addLayer: () =>
-        set(({ layers, properties }) => {
-          return {
-            layers: [
-              ...layers,
-              createLayer(`Layer ${layers.length}`, properties.canvas),
-            ],
-            currentLayer: layers.length,
-          };
-        }),
+      addLayer: () => {
+        const state = get();
+        const { layers, properties, history, done } = state;
 
-      setLayerBounds: (x: number, y: number, width: number, height: number) =>
-        set(
-          modifyLayer((layer) => ({
-            ...layer,
-            position: { x, y },
-            size: { width, height },
-          })),
-        ),
+        const newLayer = createLayer(
+          `Layer ${layers.length}`,
+          properties.canvas,
+        );
+        const newLayers = [...layers, newLayer];
+        const newCurrentLayer = newLayers.length - 1;
 
-      reorderLayers: (from: number, to: number) =>
-        set(({ layers, currentLayer }) => {
-          const newLayers = [...layers];
+        const slicedHist = history.slice(done);
+        set({
+          layers: newLayers,
+          currentLayer: newCurrentLayer,
+          history: historyPush(slicedHist, {
+            command: "addLayer",
+            data: {
+              layer: newLayer,
+            },
+          }),
+          done: 0,
+        });
+      },
+
+      setLayerBounds: (x: number, y: number, width: number, height: number) => {
+        const state = get();
+        const { layers, currentLayer, history, done } = state;
+        const beforePos = layers[currentLayer].position;
+        const beforeSize = layers[currentLayer].size;
+
+        const newState = modifyLayer((layer) => ({
+          ...layer,
+          position: { x, y },
+          size: { width, height },
+        }))(state);
+
+        let before = {
+          position: { x: beforePos.x, y: beforePos.y },
+          size: { width: beforeSize.width, height: beforeSize.height },
+        };
+        const after = {
+          position: { x: x, y: y },
+          size: { width: width, height: height },
+        };
+
+        let slicedHist;
+        if (history[done].command === "setLayerBounds") {
+          before = history[done].data.before;
+          slicedHist = history.slice(done + 1);
+        } else {
+          slicedHist = history.slice(done);
+        }
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "setLayerBounds",
+            data: {
+              before: before,
+              after: after,
+            },
+          }),
+          done: 0,
+        });
+      },
+
+      reorderLayers: (from: number, to: number) => {
+        set((state) => {
+          const { history, done, layers, currentLayer } = state;
+          const slicedHist = history.slice(done);
+          const nextHistory = historyPush(slicedHist, {
+            command: "reorderLayer",
+            data: { from, to },
+          });
+
+          if (
+            from === to ||
+            from < 0 ||
+            to < 0 ||
+            from >= layers.length ||
+            to >= layers.length
+          ) {
+            return {
+              history: nextHistory,
+              done: 0,
+            };
+          }
+
+          const newLayers = layers.slice();
           const [moved] = newLayers.splice(from, 1);
           newLayers.splice(to, 0, moved);
 
           let newCurrent = currentLayer;
-
           if (currentLayer === from) {
             newCurrent = to;
           } else if (from < currentLayer && to >= currentLayer) {
@@ -152,10 +543,13 @@ export const useProjectStore = create(
           }
 
           return {
+            history: nextHistory,
+            done: 0,
             layers: newLayers,
             currentLayer: newCurrent,
           };
-        }),
+        });
+      },
 
       exportLayer: (i: number) => {
         const layers = get().layers;
@@ -163,15 +557,28 @@ export const useProjectStore = create(
         return JSON.stringify(layer, null, 2);
       },
 
-      importLayer: (json: string) =>
-        set(({ layers }) => {
-          const parsedLayer: Layer = JSON.parse(json);
-          parsedLayer.id = newLayerId();
+      importLayer: (json: string) => {
+        const state = get();
+        const { layers, history, done } = state;
 
-          return {
-            layers: [...layers, parsedLayer],
-          };
-        }),
+        const parsedLayer: Layer = JSON.parse(json);
+        parsedLayer.id = newLayerId();
+        const newLayers = [...layers, parsedLayer];
+        const newCurrentLayer = newLayers.length - 1;
+
+        const slicedHist = history.slice(done);
+        set({
+          layers: newLayers,
+          currentLayer: newCurrentLayer,
+          history: historyPush(slicedHist, {
+            command: "importLayer",
+            data: {
+              layer: parsedLayer,
+            },
+          }),
+          done: 0,
+        });
+      },
 
       exportProject: () => {
         const project = get();
@@ -298,61 +705,747 @@ export const useProjectStore = create(
         type: string,
         position: Point,
         parameters: NodeData["parameters"] = {},
-      ) =>
-        set(
-          modifyLayer((layer) => {
-            const { nodeTypes } = get();
-            const allNodeTypes = getAllNodeTypes(nodeTypes);
-            return {
-              nodes: [
-                ...layer.nodes.map((node) => ({ ...node, selected: false })),
-                createNode(type, position, allNodeTypes, parameters),
-              ],
-            };
-          }),
-        ),
+      ) => {
+        const state = get();
+        const { nodeTypes, history, done, currentLayer } = state;
+        const allNodeTypes = getAllNodeTypes(nodeTypes);
 
-      removeNode: (id: string) =>
-        set(
-          modifyLayer((layer) => ({
-            nodes: layer.nodes.filter((node) => node.id !== id),
-          })),
-        ),
+        const node = createNode(type, position, allNodeTypes, parameters);
 
-      changeLayerName: (name: string, idx: number) =>
-        set(modifyLayer(() => ({ name }), idx)),
-
-      removeLayer: (i: number) => {
-        set(({ layers, currentLayer }) => {
-          if (layers.length <= 1) return {};
-
+        const newState = modifyLayer((layer) => {
           return {
-            layers: [...layers.slice(0, i), ...layers.slice(i + 1)],
-            currentLayer: i <= currentLayer ? currentLayer - 1 : currentLayer,
+            nodes: [
+              ...layer.nodes.map((node) => ({ ...node, selected: false })),
+              node,
+            ],
           };
+        });
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState(state),
+          history: historyPush(slicedHist, {
+            command: "createNode",
+            data: { node: node, layer: currentLayer },
+          }),
+          done: 0,
         });
       },
 
-      duplicateLayer: (i: number) =>
-        set(({ layers }) => {
-          const sourceLayer = layers[i];
-          const newLayerIdx = i + 1;
+      // TODO: Falta el delete con backspace
+      removeNode: (id: string) => {
+        const state = get();
+        const { history, done, layers, currentLayer } = state;
+        const slicedHist = history.slice(done);
 
-          const newLayer: Layer = {
-            ...sourceLayer,
-            name: sourceLayer.name + " copy",
-            id: newLayerId(),
-          };
+        const node = layers[currentLayer].nodes.find((node) => node.id === id);
+        if (!node) return;
 
-          return {
-            layers: [
-              ...layers.slice(0, newLayerIdx),
-              newLayer,
-              ...layers.slice(newLayerIdx),
-            ],
-            currentLayer: newLayerIdx,
-          };
-        }),
+        const newState = modifyLayer((layer) => ({
+          nodes: layer.nodes.filter((node) => node.id !== id),
+        }));
+
+        set({
+          ...newState(state),
+          history: historyPush(slicedHist, {
+            command: "removeNode",
+            data: { node: node, layer: currentLayer },
+          }),
+          done: 0,
+        });
+      },
+
+      changeLayerName: (name: string, idx: number) => {
+        const state = get();
+        const { history, done } = state;
+
+        const before = state.layers[idx].name;
+
+        const newState = modifyLayer(() => ({ name }), idx)(state);
+
+        const slicedHist = history.slice(done);
+        set({
+          ...newState,
+          history: historyPush(slicedHist, {
+            command: "renameLayer",
+            data: {
+              before: before,
+              after: name,
+              index: idx,
+            },
+          }),
+          done: 0,
+        });
+      },
+
+      removeLayer: (i: number) => {
+        const state = get();
+        const { layers, currentLayer, history, done } = state;
+
+        if (layers.length <= 1) return; // don't remove the last layer
+
+        const layerToRemove = layers[i];
+        const newLayers = [...layers.slice(0, i), ...layers.slice(i + 1)];
+        const newCurrentLayer =
+          i <= currentLayer ? Math.max(0, currentLayer - 1) : currentLayer;
+
+        const slicedHist = history.slice(done);
+        set({
+          layers: newLayers,
+          currentLayer: newCurrentLayer,
+          history: historyPush(slicedHist, {
+            command: "removeLayer",
+            data: {
+              layer: layerToRemove,
+            },
+          }),
+          done: 0,
+        });
+      },
+
+      duplicateLayer: (i: number) => {
+        const state = get();
+        const { layers, history, done } = state;
+
+        const sourceLayer = layers[i];
+        const newLayerIdx = i + 1;
+
+        const newLayer: Layer = {
+          ...sourceLayer,
+          name: sourceLayer.name + " copy",
+          id: newLayerId(),
+        };
+
+        const newLayers = [
+          ...layers.slice(0, newLayerIdx),
+          newLayer,
+          ...layers.slice(newLayerIdx),
+        ];
+
+        const slicedHist = history.slice(done);
+        set({
+          layers: newLayers,
+          currentLayer: newLayerIdx,
+          history: historyPush(slicedHist, {
+            command: "duplicateLayer",
+            data: {
+              layer: newLayer,
+              index: newLayerIdx,
+            },
+          }),
+          done: 0,
+        });
+      },
+
+      /**
+       * TODO:
+       * todos los actions tienen que hacer adjustHistory
+       *
+       * podria haber una acccion inicial en el history de crear leyer¿
+       * o el done arranca en -1
+       *
+       * indexing: "done" seria la cant de redoables
+       * o el indice del ultimo action "vivo"
+       */
+
+      undo: () => {
+        const state = get();
+        const { history, done } = state;
+
+        // si es la primera accion no se puede undo
+        if (history.length - done <= 0) return;
+
+        // el ultimo action done
+        const lastCommand = history[done];
+
+        console.log("undo " + lastCommand.command); // TODO: borrar testing
+
+        switch (lastCommand.command) {
+          case "createNode": {
+            set(
+              modifyLayer(
+                (layer) => ({
+                  nodes: layer.nodes.filter(
+                    (node) => node.id !== lastCommand.data.node.id,
+                  ),
+                }),
+                lastCommand.data.layer,
+              ),
+            );
+            break;
+          }
+          case "removeNode": {
+            const newState = modifyLayer((layer) => {
+              return {
+                nodes: [
+                  ...layer.nodes.map((node) => ({ ...node, selected: false })),
+                  lastCommand.data.node,
+                ],
+              };
+            }, lastCommand.data.layer);
+            set({
+              ...newState(state),
+            });
+            break;
+          }
+          case "modifyNode": {
+            const { before } = lastCommand.data;
+            const newState = modifyLayer(
+              (layer) => ({
+                nodes: layer.nodes.map((node) =>
+                  node.id === before.id ? before : node,
+                ),
+              }),
+              lastCommand.data.layer,
+            );
+            set({
+              ...newState(state),
+            });
+            break;
+          }
+          case "edgeChanges": {
+            const { before, layer } = lastCommand.data;
+            const newState = modifyLayer(
+              (l) => ({ ...l, edges: before }),
+              layer,
+            );
+            set({
+              ...newState(state),
+            });
+            break;
+          }
+          case "switchLayer": {
+            set({ currentLayer: lastCommand.data.before });
+            break;
+          }
+          case "addLayer":
+          case "importLayer": {
+            set(({ layers }) => {
+              const newLayers = layers.slice(0, -1);
+              const newCurrent = Math.max(0, newLayers.length - 1);
+
+              return {
+                layers: newLayers,
+                currentLayer: newCurrent,
+              };
+            });
+            break;
+          }
+          case "duplicateLayer": {
+            set(({ layers }) => {
+              const idx = lastCommand.data.index;
+              const newLayers = layers.filter((_, i) => i !== idx);
+              const newCurrent = Math.max(0, newLayers.length - 1);
+
+              return {
+                layers: newLayers,
+                currentLayer: newCurrent,
+              };
+            });
+            break;
+          }
+          case "removeLayer": {
+            const { layers } = get();
+
+            const newLayers = [...layers, lastCommand.data.layer];
+            const newCurrentLayer = newLayers.length - 1;
+
+            set({
+              layers: newLayers,
+              currentLayer: newCurrentLayer,
+            });
+            break;
+          }
+          case "renameLayer": {
+            const newState = modifyLayer(
+              () => ({ name: lastCommand.data.after }),
+              lastCommand.data.index,
+            )(state);
+
+            set(newState);
+            break;
+          }
+          case "reorderLayer": {
+            const { currentLayer, layers } = get();
+            const { from, to } = lastCommand.data;
+
+            const newLayers = layers.slice();
+            const [moved] = newLayers.splice(to, 1);
+            newLayers.splice(from, 0, moved);
+
+            let newCurrent = currentLayer;
+            if (currentLayer === to) {
+              newCurrent = from;
+            } else if (to < currentLayer && from >= currentLayer) {
+              newCurrent = currentLayer - 1;
+            } else if (to > currentLayer && from <= currentLayer) {
+              newCurrent = currentLayer + 1;
+            }
+
+            set({
+              layers: newLayers,
+              currentLayer: newCurrent,
+            });
+            break;
+          }
+          case "setCanvasSize": {
+            const { width, height } = lastCommand.data.before;
+            set(({ properties }) => ({
+              properties: {
+                ...properties,
+                canvas: { ...properties.canvas, width, height },
+              },
+            }));
+            break;
+          }
+          case "setLayerBounds": {
+            const { position, size } = lastCommand.data.before;
+            set(
+              modifyLayer((layer) => ({
+                ...layer,
+                position: position,
+                size: size,
+              })),
+            );
+            break;
+          }
+          case "updateNodeDefaultValue": {
+            const { input, id, before } = lastCommand.data;
+            set(
+              modifyNode(id, (node) => ({
+                data: {
+                  ...node.data,
+                  defaultValues: {
+                    ...node.data.defaultValues,
+                    [input]: before,
+                  },
+                },
+              })),
+            );
+            break;
+          }
+          case "updateNodeUniforms": {
+            const { name, id, before } = lastCommand.data;
+            set(
+              modifyNode(id, (node) => ({
+                data: {
+                  ...node.data,
+                  defaultValues: {
+                    ...node.data.defaultValues,
+                    [name]: before,
+                  },
+                },
+              })),
+            );
+            break;
+          }
+          case "nodesChange": {
+            const { layer } = lastCommand.data as {
+              layer: number;
+              patch?: NodesChangePatch;
+              patches?: NodesChangePatch[];
+            };
+
+            const patches: NodesChangePatch[] = lastCommand.data.patch
+              ? [lastCommand.data.patch]
+              : [];
+
+            const newState = modifyLayer((l) => {
+              let nodes = l.nodes.slice() as ShaderNode[];
+
+              for (const p of [...patches].reverse()) {
+                switch (p.type) {
+                  case "position": {
+                    const i = nodes.findIndex((n) => n.id === p.id);
+                    if (i >= 0) {
+                      nodes[i] = {
+                        ...nodes[i],
+                        position: { x: p.before.x, y: p.before.y },
+                      };
+                    }
+                    break;
+                  }
+                  case "add": {
+                    nodes = nodes.filter((n) => n.id !== p.id);
+                    break;
+                  }
+                  case "remove": {
+                    nodes = [
+                      ...nodes.slice(0, p.index),
+                      p.node,
+                      ...nodes.slice(p.index),
+                    ];
+                    break;
+                  }
+                  case "replace": {
+                    const i = nodes.findIndex((n) => n.id === p.id);
+                    if (i >= 0) nodes[i] = p.before;
+                    break;
+                  }
+                }
+              }
+
+              return { nodes };
+            }, layer)(get());
+
+            set(newState);
+            break;
+          }
+          case "edgesChange": {
+            const { layer, patches } = lastCommand.data as {
+              layer: number;
+              patches: EdgesChangePatch[];
+            };
+
+            const newState = modifyLayer((l) => {
+              let edges = l.edges.slice();
+
+              for (const p of [...patches].reverse()) {
+                switch (p.type) {
+                  case "add": {
+                    edges = edges.filter((e) => e.id !== p.edge.id);
+                    break;
+                  }
+                  case "remove": {
+                    edges = [
+                      ...edges.slice(0, p.index),
+                      p.edge,
+                      ...edges.slice(p.index),
+                    ];
+                    break;
+                  }
+                  case "replace": {
+                    const idx = edges.findIndex((e) => e.id === p.after.id);
+                    if (idx >= 0) edges[idx] = p.before;
+                    break;
+                  }
+                }
+              }
+
+              return { edges };
+            }, layer)(get());
+
+            set(newState);
+            break;
+          }
+          default: {
+            console.warn("not implemented");
+            set((state) => ({ done: state.done - 1 })); // TODO: parche por caso not impl
+          }
+        }
+
+        set((state) => ({ done: state.done + 1 }));
+      },
+
+      redo: () => {
+        const state = get();
+        const { history, done } = state;
+
+        // no hay cosas para redoear
+        if (done <= 0) return;
+
+        // el primer redoable
+        const commandToRedo = history[done - 1];
+
+        console.log("reoo " + commandToRedo.command); // TODO: borrar testing
+
+        switch (commandToRedo.command) {
+          case "createNode": {
+            const newState = modifyLayer((layer) => {
+              return {
+                nodes: [
+                  ...layer.nodes.map((node) => ({ ...node, selected: false })),
+                  commandToRedo.data.node,
+                ],
+              };
+            }, commandToRedo.data.layer);
+            set({
+              ...newState(state),
+            });
+            break;
+          }
+          case "removeNode": {
+            set(
+              modifyLayer(
+                (layer) => ({
+                  nodes: layer.nodes.filter(
+                    (node) => node.id !== commandToRedo.data.node.id,
+                  ),
+                }),
+                commandToRedo.data.layer,
+              ),
+            );
+            break;
+          }
+          case "modifyNode": {
+            const { after } = commandToRedo.data;
+            const newState = modifyLayer(
+              (layer) => ({
+                nodes: layer.nodes.map((node) =>
+                  node.id === after.id ? after : node,
+                ),
+              }),
+              commandToRedo.data.layer,
+            );
+            set({
+              ...newState(state),
+            });
+            break;
+          }
+          case "edgeChanges": {
+            const { after, layer } = commandToRedo.data;
+            const newState = modifyLayer(
+              (l) => ({ ...l, edges: after }),
+              layer,
+            );
+            set({
+              ...newState(state),
+            });
+            break;
+          }
+          case "switchLayer": {
+            set({ currentLayer: commandToRedo.data.after });
+            break;
+          }
+          case "addLayer":
+          case "importLayer": {
+            const { layers } = get();
+
+            const newLayers = [...layers, commandToRedo.data.layer];
+            const newCurrentLayer = newLayers.length - 1;
+
+            set({
+              layers: newLayers,
+              currentLayer: newCurrentLayer,
+            });
+            break;
+          }
+          case "duplicateLayer": {
+            const { layer, index } = commandToRedo.data;
+
+            set(({ layers }) => {
+              const newLayers = [
+                ...layers.slice(0, index),
+                layer,
+                ...layers.slice(index),
+              ];
+
+              return {
+                layers: newLayers,
+                currentLayer: index,
+              };
+            });
+            break;
+          }
+          case "renameLayer": {
+            const newState = modifyLayer(
+              () => ({ name: commandToRedo.data.after }),
+              commandToRedo.data.index,
+            )(state);
+
+            set(newState);
+            break;
+          }
+          case "removeLayer": {
+            const idToRemove = commandToRedo.data.layer.id;
+
+            set(({ layers, currentLayer }) => {
+              const newLayers = layers.filter(
+                (layer) => layer.id !== idToRemove,
+              );
+              let newCurrent = currentLayer;
+
+              if (layers[currentLayer]?.id === idToRemove) {
+                newCurrent = Math.max(0, currentLayer - 1);
+              }
+
+              return {
+                layers: newLayers,
+                currentLayer: newCurrent,
+              };
+            });
+            break;
+          }
+          case "renameLayer": {
+            const newState = modifyLayer(
+              () => ({ name: commandToRedo.data.before }),
+              commandToRedo.data.index,
+            )(state);
+
+            set({ ...newState });
+            break;
+          }
+          case "reorderLayer": {
+            const { currentLayer, layers } = get();
+            const { from, to } = commandToRedo.data;
+
+            const newLayers = layers.slice();
+            const [moved] = newLayers.splice(from, 1);
+            newLayers.splice(to, 0, moved);
+
+            let newCurrent = currentLayer;
+            if (currentLayer === from) {
+              newCurrent = to;
+            } else if (from < currentLayer && to >= currentLayer) {
+              newCurrent = currentLayer - 1;
+            } else if (from > currentLayer && to <= currentLayer) {
+              newCurrent = currentLayer + 1;
+            }
+
+            set({
+              layers: newLayers,
+              currentLayer: newCurrent,
+            });
+            break;
+          }
+          case "setCanvasSize": {
+            const { width, height } = commandToRedo.data.after;
+            set(({ properties }) => ({
+              properties: {
+                ...properties,
+                canvas: { ...properties.canvas, width, height },
+              },
+            }));
+            break;
+          }
+          case "setLayerBounds": {
+            const { position, size } = commandToRedo.data.after;
+            set(
+              modifyLayer((layer) => ({
+                ...layer,
+                position: position,
+                size: size,
+              })),
+            );
+            break;
+          }
+          case "updateNodeDefaultValue": {
+            const { input, id, after } = commandToRedo.data;
+            set(
+              modifyNode(id, (node) => ({
+                data: {
+                  ...node.data,
+                  defaultValues: { ...node.data.defaultValues, [input]: after },
+                },
+              })),
+            );
+            break;
+          }
+          case "updateNodeUniforms": {
+            const { name, id, after } = commandToRedo.data;
+            set(
+              modifyNode(id, (node) => ({
+                data: {
+                  ...node.data,
+                  defaultValues: {
+                    ...node.data.defaultValues,
+                    [name]: after,
+                  },
+                },
+              })),
+            );
+            break;
+          }
+          case "nodesChange": {
+            const { layer } = commandToRedo.data as {
+              layer: number;
+              patch?: NodesChangePatch;
+            };
+
+            // normalize single or multiple patches
+            const patches: NodesChangePatch[] = commandToRedo.data.patch
+              ? [commandToRedo.data.patch]
+              : [];
+
+            // apply forward in recorded order
+            const newState = modifyLayer((l) => {
+              let nodes = l.nodes.slice() as ShaderNode[];
+
+              for (const p of patches) {
+                switch (p.type) {
+                  case "position": {
+                    const i = nodes.findIndex((n) => n.id === p.id);
+                    if (i >= 0) {
+                      nodes[i] = {
+                        ...nodes[i],
+                        position: { x: p.after.x, y: p.after.y },
+                      };
+                    }
+                    break;
+                  }
+                  case "add": {
+                    const idx =
+                      typeof p.index === "number" ? p.index : nodes.length;
+                    nodes = [
+                      ...nodes.slice(0, idx),
+                      p.node,
+                      ...nodes.slice(idx),
+                    ];
+                    break;
+                  }
+                  case "remove": {
+                    nodes = nodes.filter((n) => n.id !== p.id);
+                    break;
+                  }
+                  case "replace": {
+                    const i = nodes.findIndex((n) => n.id === p.id);
+                    if (i >= 0) nodes[i] = p.after;
+                    break;
+                  }
+                }
+              }
+
+              return { nodes };
+            }, layer)(get());
+
+            set(newState);
+            break;
+          }
+          case "edgesChange": {
+            const { layer, patches } = commandToRedo.data as {
+              layer: number;
+              patches: EdgesChangePatch[];
+            };
+
+            const newState = modifyLayer((l) => {
+              let edges = l.edges.slice();
+
+              for (const p of patches) {
+                switch (p.type) {
+                  case "add": {
+                    edges = [
+                      ...edges.slice(0, p.index),
+                      p.edge,
+                      ...edges.slice(p.index),
+                    ];
+                    break;
+                  }
+                  case "remove": {
+                    edges = edges.filter((e) => e.id !== p.edge.id);
+                    break;
+                  }
+                  case "replace": {
+                    const idx = edges.findIndex((e) => e.id === p.before.id);
+                    if (idx >= 0) edges[idx] = p.after;
+                    break;
+                  }
+                }
+              }
+
+              return { edges };
+            }, layer)(get());
+
+            set(newState);
+            break;
+          }
+          default: {
+            console.warn("not implemented");
+            set((state) => ({ done: state.done + 1 })); // TODO: parche por caso not impl
+          }
+        }
+
+        set((state) => ({ done: state.done - 1 }));
+      },
     })),
     {
       name: "main-store",

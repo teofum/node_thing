@@ -1,4 +1,4 @@
-import { Connection, Edge } from "@xyflow/react";
+import { Edge } from "@xyflow/react";
 import { nanoid } from "nanoid";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
@@ -12,6 +12,7 @@ import {
   NodeTypeDependency,
 } from "./project.types";
 import { NODE_TYPES } from "@/utils/node-type";
+import { Command } from "./types/command";
 
 const initialNodes: ShaderNode[] = [
   {
@@ -171,6 +172,8 @@ export function createInitialState(): Project {
       external: {},
     },
     projectName: "Untitled Project",
+    history: [],
+    done: -1, // todo, deberia haber un action inicial y arrancar en 0
   };
 }
 
@@ -187,4 +190,8 @@ export function mergeProject(imported: unknown, current: Project): Project {
       ...(imported as Project).properties,
     },
   };
+}
+
+export function historyPush(h: Project["history"], cmd: Command) {
+  return [cmd, ...h];
 }
