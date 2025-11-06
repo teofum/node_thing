@@ -186,11 +186,23 @@ export async function getImage(itemType: "shader" | "project", itemId: string) {
     "/auth/login?next=/marketplace",
   );
 
-  const fileName = `${itemType}_${itemId}`;
+  const { data: imageName, error } = await supabase
+    .from(`${itemType}s`)
+    .select("image_name")
+    .eq("id", itemId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to load image name: ${error.message}`);
+  }
+
+  if (imageName.image_name == null) {
+    return null;
+  }
 
   const { data } = supabase.storage
     .from("marketplace_images")
-    .getPublicUrl(fileName);
+    .getPublicUrl(imageName.image_name);
 
-  return data.publicUrl ?? null;
+  return data.publicUrl;
 }

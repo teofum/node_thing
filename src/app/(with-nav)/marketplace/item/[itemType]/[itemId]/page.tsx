@@ -2,13 +2,19 @@ import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
 import { CardBadge } from "../../../components/card-badge";
 
 import Image from "next/image";
-import { getItem, getReviews, uploadImageToBucket } from "../../actions";
+import {
+  getItem,
+  getReviews,
+  isOwner,
+  uploadImageToBucket,
+} from "../../actions";
 import { Button } from "@/ui/button";
 import { Stars } from "../../../components/stars";
 import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
 import { loadImageFromFile } from "@/utils/image";
 import { UploadImage } from "./components/upload-image";
 import { getImage } from "../../../actions";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 type ItemDetailPageProps = {
   params: {
@@ -21,10 +27,9 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
   const { itemType, itemId } = await params;
 
   const item = await getItem(itemId, itemType);
-
   const reviews = await getReviews(itemId, itemType);
-
   const imageUrl = await getImage(itemType, itemId);
+  const owner = await isOwner(itemType, itemId);
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -33,15 +38,14 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
         <div className="flex flex-col items-center">
           <div className="w-full rounded-2xl overflow-hidden">
             <Image
-              src={imageUrl ?? "/placeholder.webp"}
+              src={imageUrl ? imageUrl : "/placeholder.webp"}
               width={1000}
               height={667}
               alt={`${item.title} preview`}
               className="w-full aspect-[3/2] object-cover my-5 rounded-lg grayscale-100"
             />
 
-            {/* TODO debug, better ui */}
-            <UploadImage itemType={itemType} itemId={itemId} />
+            {owner && <UploadImage itemType={itemType} itemId={itemId} />}
           </div>
         </div>
 

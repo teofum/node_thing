@@ -75,3 +75,25 @@ export async function uploadImageToBucket(
     throw new Error(`Failed to save image: ${tableError.message}`);
   }
 }
+
+export async function isOwner(itemType: "shader" | "project", itemId: string) {
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
+
+  const { data, error } = await supabase
+    .from(`${itemType}s`)
+    .select("user_id")
+    .eq("id", itemId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to load user id: ${error.message}`);
+  }
+
+  if (!data) {
+    return false;
+  }
+
+  return data.user_id === user.id;
+}
