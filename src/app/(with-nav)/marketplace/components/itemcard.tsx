@@ -73,7 +73,7 @@ export default function ItemCard({
           width={1000}
           height={667}
           alt={itemType + " preview"}
-          className="w-full aspect-[3/2] object-cover my-5 rounded-lg grayscale-100"
+          className="w-full aspect-[3/2] object-cover my-5 rounded-lg"
         />
 
         <div className="flex flex-row gap-3">

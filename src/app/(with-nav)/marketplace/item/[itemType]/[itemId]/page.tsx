@@ -36,16 +36,20 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
       <div className="grid md:grid-cols-2 gap-8 items-center">
         {/*Left column*/}
         <div className="flex flex-col items-center">
-          <div className="w-full rounded-2xl overflow-hidden">
+          <div className="w-full rounded-2xl overflow-hidden relative group">
             <Image
               src={imageUrl ? imageUrl : "/placeholder.webp"}
               width={1000}
               height={667}
               alt={`${item.title} preview`}
-              className="w-full aspect-[3/2] object-cover my-5 rounded-lg grayscale-100"
+              className="w-full aspect-[3/2] object-cover my-5 rounded-lg"
             />
 
-            {owner && <UploadImage itemType={itemType} itemId={itemId} />}
+            {owner && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100">
+                <UploadImage itemType={itemType} itemId={itemId} />
+              </div>
+            )}
           </div>
         </div>
 
