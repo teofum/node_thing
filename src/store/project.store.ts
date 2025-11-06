@@ -100,12 +100,13 @@ export const useProjectStore = create(
                   y: ch.position?.y ?? before.y,
                 };
                 if (before.x !== after.x || before.y !== after.y) {
+                  //                  console.log("from: " + before.x +"::"+ before.y + " to: " + after.x +"::"+ after.y );
                   patch = { type: "position", id: ch.id, before, after };
                 }
                 commit(ch);
 
                 if (patch) {
-                  const lastCommand = hist[done];
+                  const lastCommand = hist[0];
                   if (
                     lastCommand?.command === "nodesChange" &&
                     lastCommand?.data?.patch.id === ch.id &&
@@ -113,18 +114,10 @@ export const useProjectStore = create(
                     patch.type === "position"
                   ) {
                     hist = hist.slice(1);
-                    const lastPos = lastCommand.data.patch as Extract<
-                      NodesChangePatch,
-                      { type: "position" }
-                    >;
-                    patch = {
-                      ...(patch as Extract<
-                        NodesChangePatch,
-                        { type: "position" }
-                      >),
-                      before: lastPos.before,
-                    };
+                    patch.before = lastCommand.data.patch.before;
                   }
+                  console.log("push:");
+                  console.log(patch);
 
                   hist = historyPush(hist, {
                     command: "nodesChange",
@@ -1359,11 +1352,22 @@ export const useProjectStore = create(
 
             // apply forward in recorded order
             const newState = modifyLayer((l) => {
-              let nodes = l.nodes.slice() as ShaderNode[];
+              let nodes = l.nodes.slice();
 
               for (const p of patches) {
                 switch (p.type) {
                   case "position": {
+                    console.log(history);
+                    console.log(
+                      " Redo from: " +
+                        p.before.x +
+                        "::" +
+                        p.before.y +
+                        " to: " +
+                        p.after.x +
+                        "::" +
+                        p.after.y,
+                    );
                     const i = nodes.findIndex((n) => n.id === p.id);
                     if (i >= 0) {
                       nodes[i] = {
