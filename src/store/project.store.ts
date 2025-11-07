@@ -38,6 +38,7 @@ import {
 } from "./project.actions";
 import type { NodesChangePatch, EdgesChangePatch } from "@/store/types/command";
 import { getCartItems } from "@/app/(with-nav)/marketplace/cart.actions";
+import { constants } from "buffer";
 
 export const useProjectStore = create(
   persist(
@@ -66,8 +67,8 @@ export const useProjectStore = create(
           const layer = layers[currentLayer];
           if (!layer) return state;
 
-          let hist = history.slice(done);
-          const startLen = hist.length;
+          let slicedHist = history.slice(done);
+          const startLen = slicedHist.length;
           let nodes = layer.nodes as ShaderNode[];
           let nextState = state;
 
@@ -105,18 +106,18 @@ export const useProjectStore = create(
                 commit(ch);
 
                 if (patch) {
-                  const lastCommand = hist[0];
+                  const lastCommand = slicedHist[0];
                   if (
                     lastCommand?.command === "nodesChange" &&
                     lastCommand?.data?.patch.id === ch.id &&
                     lastCommand.data?.patch?.type === "position" &&
                     patch.type === "position"
                   ) {
-                    hist = hist.slice(1);
+                    slicedHist = slicedHist.slice(1);
                     patch.before = lastCommand.data.patch.before;
                   }
 
-                  hist = historyPush(hist, {
+                  slicedHist = historyPush(slicedHist, {
                     command: "nodesChange",
                     data: { layer: currentLayer, patch },
                   });
@@ -132,7 +133,7 @@ export const useProjectStore = create(
                   node: newNode,
                 };
                 commit(ch);
-                hist = historyPush(hist, {
+                slicedHist = historyPush(slicedHist, {
                   command: "nodesChange",
                   data: { layer: currentLayer, patch: patch },
                 });
@@ -148,7 +149,7 @@ export const useProjectStore = create(
                     index: rec.index,
                     node: rec.node,
                   };
-                  hist = historyPush(hist, {
+                  slicedHist = historyPush(slicedHist, {
                     command: "nodesChange",
                     data: { layer: currentLayer, patch: patch },
                   });
@@ -170,7 +171,7 @@ export const useProjectStore = create(
                     before: rec.node,
                     after: afterNode,
                   };
-                  hist = historyPush(hist, {
+                  slicedHist = historyPush(slicedHist, {
                     command: "nodesChange",
                     data: { layer: currentLayer, patch: patch },
                   });
@@ -182,7 +183,7 @@ export const useProjectStore = create(
               }
             }
           }
-          return { ...nextState, history: hist, done: 0 };
+          return { ...nextState, history: slicedHist, done: 0 };
         });
       },
 
@@ -295,11 +296,8 @@ export const useProjectStore = create(
 
         const node = layers[currentLayer].nodes.find((node) => node.id === id);
         if (!node) return;
-        const before = node.data.defaultValues[input as string] as
-          | number
-          | number[]
-          | undefined;
-        if (before === undefined) return;
+        let before = node.data.defaultValues[input];
+
         const newState = modifyNode(id, (node) => ({
           data: {
             ...node.data,
@@ -311,7 +309,17 @@ export const useProjectStore = create(
           return;
         }
 
-        const slicedHist = history.slice(done);
+        let slicedHist = history.slice(done);
+        const lastCommand = slicedHist[0];
+        if (
+          lastCommand.command === "updateNodeDefaultValue" &&
+          lastCommand.data.id === id &&
+          lastCommand.data.input === input
+        ) {
+          slicedHist = slicedHist.slice(1);
+          before = lastCommand.data.before;
+        }
+
         set({
           ...newState,
           history: historyPush(slicedHist, {
