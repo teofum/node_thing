@@ -43,7 +43,6 @@ export async function loadImageAssetFromFile(
 
 export async function loadImageFromFile() {
   const file = await openFile(["image/png", "image/jpeg", "image/webp"]);
-  if (file) {
-    return file;
-  }
+
+  return file;
 }
