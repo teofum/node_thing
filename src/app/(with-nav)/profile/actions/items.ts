@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import camelcaseKeys from "camelcase-keys";
 import { Replace } from "@/utils/replace";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
+import { revalidatePath } from "next/cache";
 
 export async function getPublishedShaders() {
   const { supabase, user } = await getSupabaseUserOrRedirect(
@@ -111,6 +112,8 @@ export async function submitReview(
       `Failed to upsert ${itemType} rating: ${upsertError.message}`,
     );
   }
+
+  revalidatePath("/profile");
 }
 
 export async function deleteReview(type: "shader" | "project", itemId: string) {
@@ -130,6 +133,8 @@ export async function deleteReview(type: "shader" | "project", itemId: string) {
   if (error) {
     throw new Error(`Failed to delete ${itemType} rating: ${error.message}`);
   }
+
+  revalidatePath("/profile");
 }
 
 export async function getUserRatings(item: "shader_id" | "project_id") {

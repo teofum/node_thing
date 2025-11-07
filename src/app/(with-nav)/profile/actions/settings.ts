@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
+import { revalidatePath } from "next/cache";
 
 export async function checkUsernameAvailable(username: string) {
   const supabase = await createClient();
@@ -42,6 +43,8 @@ export async function setUsername(newUsername: string) {
   if (error) {
     throw new Error(`Failed to update username: ${error.message}`);
   }
+
+  revalidatePath("/profile");
 }
 
 export async function setDisplayName(newDisplayName: string) {
@@ -56,6 +59,8 @@ export async function setDisplayName(newDisplayName: string) {
   if (error) {
     throw new Error(`Failed to update display name: ${error.message}`);
   }
+
+  revalidatePath("/profile");
 }
 
 export async function changePassword(
@@ -86,6 +91,8 @@ export async function changePassword(
   if (error) {
     throw new Error(`Failed to change password: ${error.message}`);
   }
+
+  revalidatePath("/profile");
 }
 
 export async function uploadAvatar(formData: FormData) {
