@@ -40,34 +40,34 @@ export default function ItemCard({
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
   return (
     <div className="glass glass-border p-4 rounded-2xl relative">
-      <Link href={`/marketplace/item/${itemType.toLocaleLowerCase()}/${id}`}>
-        {isNew && (
-          <div className="absolute top-4 right-4 bg-red-800 text-white text-xs font-bold px-2 py-1 rounded-md shadow-lg">
-            NEW
-          </div>
-        )}
-        <div className="text-xl font-semibold mb-1">{title}</div>
-        {username && (
-          <>
-            <p className="text-sm text-white/60 mb-2">
-              by <span className="font-bold">{username}</span>
-            </p>
-            <CardBadge
-              text={itemType}
-              color={
-                itemType === "Shader"
-                  ? "blue"
-                  : itemType === "Project"
-                    ? "fuchsia"
-                    : "black"
-              }
-            />
-            {itemType === "Shader" && category && (
-              <CardBadge text={category} color="teal" />
-            )}
-          </>
-        )}
+      {isNew && (
+        <div className="absolute top-4 right-4 bg-red-800 text-white text-xs font-bold px-2 py-1 rounded-md shadow-lg">
+          NEW
+        </div>
+      )}
+      <div className="text-xl font-semibold mb-1">{title}</div>
+      {username && (
+        <>
+          <p className="text-sm text-white/60 mb-2">
+            by <span className="font-bold">{username}</span>
+          </p>
+          <CardBadge
+            text={itemType}
+            color={
+              itemType === "Shader"
+                ? "blue"
+                : itemType === "Project"
+                  ? "fuchsia"
+                  : "black"
+            }
+          />
+          {itemType === "Shader" && category && (
+            <CardBadge text={category} color="teal" />
+          )}
+        </>
+      )}
 
+      <Link href={`/marketplace/item/${itemType.toLocaleLowerCase()}/${id}`}>
         <Image
           src={imageUrl ? `${imageUrl}?t=${Date.now()}` : "/placeholder.webp"}
           width={1000}
@@ -75,15 +75,16 @@ export default function ItemCard({
           alt={itemType + " preview"}
           className="w-full aspect-[3/2] object-cover my-5 rounded-lg"
         />
-
-        <div className="flex flex-row gap-3">
-          <div className="grow text-2xl font-bold text-teal-400">${price}</div>
-          <div className="flex flex-row items-center gap-1 text-white/60">
-            <LuDownload /> {downloads}
-          </div>
-          <Stars ratingValue={averageRating} ratingCount={ratingCount} />
-        </div>
       </Link>
+
+      <div className="flex flex-row gap-3">
+        <div className="grow text-2xl font-bold text-teal-400">${price}</div>
+        <div className="flex flex-row items-center gap-1 text-white/60">
+          <LuDownload /> {downloads}
+        </div>
+        <Stars ratingValue={averageRating} ratingCount={ratingCount} />
+      </div>
+
       <div className="mt-2">
         {inCart ? (
           <div className="flex justify-center items-center h-13.5 text-base/5 font-semibold rounded-lg border border-current/15 select-none">
