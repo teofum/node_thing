@@ -2,7 +2,7 @@
 
 import cn from "classnames";
 import Link from "next/link";
-import { useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import {
   LuCloudDownload,
   LuCloudUpload,
@@ -34,6 +34,19 @@ export function ProjectsMenu({
   const [projectsManagerOpen, setProjectsManagerOpen] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult>(undefined);
 
+  const [handleOpenState, handleOpenAction, handleOpenPending] = useActionState(
+    async (_1: null, project: Tables<"projects">) => {
+      const blob = await loadProjectOnline(project.user_project);
+      const file = new File([blob], project.user_project, {
+        type: blob.type,
+      });
+
+      setImportResult(await importProject(file));
+      return null;
+    },
+    null,
+  );
+
   if (!userData || !userData.is_premium) {
     return (
       <Menu label="Projects" value="file">
@@ -46,16 +59,6 @@ export function ProjectsMenu({
       </Menu>
     );
   }
-
-  const handleOpen = async (project: Tables<"projects">) => {
-    const blob = await loadProjectOnline(project.user_project);
-
-    const file = new File([blob], project.user_project, {
-      type: blob.type,
-    });
-
-    setImportResult(await importProject(file));
-  };
 
   return (
     <>
@@ -91,7 +94,7 @@ export function ProjectsMenu({
             <MenuItem
               key={project.id}
               icon={<LuCloudDownload />}
-              onClick={() => handleOpen(project)}
+              onClick={() => startTransition(() => handleOpenAction(project))}
             >
               {project.name}
             </MenuItem>
