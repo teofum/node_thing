@@ -1,10 +1,10 @@
 "use client";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
-import { ReactNode, useState } from "react";
+import { ReactNode, startTransition, useActionState, useState } from "react";
 import { UserData } from "../page";
 import { Button } from "@/ui/button";
-import { setUsername, checkUsernameAvailable } from "../actions/settings";
+import { setUsername } from "../actions/settings";
 
 type AccountEditorProps = {
   trigger: ReactNode;
@@ -19,9 +19,8 @@ export default function AccountEditor({
 }: AccountEditorProps) {
   const [name, setName] = useState(userData.username ?? "");
 
-  const accountNameChangeHandler = async () => {
-    await setUsername(name);
-  };
+  const [setUsernameState, setUsernameAction, setUsernamePending] =
+    useActionState(async () => await setUsername(name), null);
 
   return (
     <Dialog trigger={trigger} title="Edit Username" description="">
@@ -39,9 +38,12 @@ export default function AccountEditor({
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <DialogClose asChild>
-            <Button onClick={() => accountNameChangeHandler()}>Apply</Button>
-          </DialogClose>
+          <Button
+            onClick={() => startTransition(() => setUsernameAction())}
+            disabled={setUsernamePending}
+          >
+            {setUsernamePending ? "Applying..." : "Apply"}
+          </Button>
         </div>
       </div>
     </Dialog>

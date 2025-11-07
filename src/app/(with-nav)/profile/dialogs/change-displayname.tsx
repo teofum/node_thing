@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
-import { ReactNode, useState } from "react";
+import { ReactNode, startTransition, useActionState, useState } from "react";
 import { Button } from "@/ui/button";
 import { setDisplayName } from "../actions/settings";
 
@@ -16,9 +16,8 @@ export default function DisplayNameEditor({
 }: DisplayNameEditorProps) {
   const [name, setName] = useState(currentDisplayName ?? "");
 
-  const displayNameChangeHandler = async () => {
-    await setDisplayName(name);
-  };
+  const [setDisplayNameState, setDisplayNameAction, setDisplayNamePending] =
+    useActionState(async () => await setDisplayName(name), null);
 
   return (
     <Dialog trigger={trigger} title="Edit Display Name" description="">
@@ -36,9 +35,12 @@ export default function DisplayNameEditor({
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <DialogClose asChild>
-            <Button onClick={() => displayNameChangeHandler()}>Apply</Button>
-          </DialogClose>
+          <Button
+            onClick={() => startTransition(() => setDisplayNameAction())}
+            disabled={setDisplayNamePending}
+          >
+            {setDisplayNamePending ? "Applying..." : "Apply"}
+          </Button>
         </div>
       </div>
     </Dialog>
