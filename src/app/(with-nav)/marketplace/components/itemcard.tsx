@@ -5,6 +5,7 @@ import { Button } from "@/ui/button";
 import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
 import { Stars } from "./stars";
 import { CardBadge } from "./card-badge";
+import { startTransition, useActionState } from "react";
 
 type ItemCardProps = {
   itemType: "Shader" | "Project"; // TODO group in the future
@@ -35,6 +36,15 @@ export default function ItemCard({
 }: ItemCardProps) {
   const isNew =
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
+
+  const [addToCartState, addToCartAction, addToCartPending] = useActionState(
+    async (_prev: null, formData: FormData) => {
+      await addToCart(formData);
+      return null;
+    },
+    null,
+  );
+
   return (
     <div className="glass glass-border p-4 rounded-2xl relative">
       {isNew && (
@@ -87,7 +97,11 @@ export default function ItemCard({
             In cart
           </div>
         ) : (
-          <form action={addToCart}>
+          <form
+            action={(formData) =>
+              startTransition(() => addToCartAction(formData))
+            }
+          >
             <input type="hidden" name="itemId" value={id} />
             <input
               type="hidden"
