@@ -32,6 +32,8 @@ export async function saveProjectOnline(blob: Blob) {
   if (tableError) {
     throw new Error(`Failed to save project: ${tableError.message}`);
   }
+
+  revalidatePath("/");
 }
 
 export async function loadProjectOnline(user_project: string | null) {

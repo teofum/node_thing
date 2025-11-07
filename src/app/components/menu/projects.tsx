@@ -47,6 +47,15 @@ export function ProjectsMenu({
     null,
   );
 
+  const [
+    saveProjectOnlineState,
+    saveProjectOnlineAction,
+    saveProjectOnlinePending,
+  ] = useActionState(async () => {
+    await saveProjectOnline(await exportProject());
+    return null;
+  }, null);
+
   if (!userData || !userData.is_premium) {
     return (
       <Menu label="Projects" value="file">
@@ -65,7 +74,7 @@ export function ProjectsMenu({
       <Menu label="Projects" value="file">
         <MenuItem
           icon={<LuCloudUpload />}
-          onClick={async () => saveProjectOnline(await exportProject())}
+          onClick={() => startTransition(() => saveProjectOnlineAction())}
         >
           Save Online
         </MenuItem>
