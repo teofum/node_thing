@@ -33,7 +33,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      <div className="grid md:grid-cols-2 gap-8 items-center">
+      <div className="grid md:grid-cols-2 gap-8 items-start">
         {/*Left column*/}
         <div className="flex flex-col items-center">
           <div className="w-full rounded-2xl overflow-hidden relative group">
@@ -44,7 +44,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
               width={1000}
               height={667}
               alt={`${item.title} preview`}
-              className="w-full aspect-[3/2] object-cover my-5 rounded-lg"
+              className="w-full aspect-[3/2] object-cover rounded-lg"
             />
 
             {owner && (
