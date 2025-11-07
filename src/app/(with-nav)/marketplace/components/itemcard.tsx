@@ -39,7 +39,7 @@ export default function ItemCard({
   const isNew =
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
   return (
-    <div className="glass glass-border p-4 rounded-2xl relative">
+    <div className="glass glass-border p-4 rounded-2xl relative hover:bg-current/1">
       {isNew && (
         <div className="absolute top-4 right-4 bg-red-800 text-white text-xs font-bold px-2 py-1 rounded-md shadow-lg">
           NEW
