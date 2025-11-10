@@ -18,7 +18,7 @@ type ShaderListProps = {
   onDragStart: (event: React.DragEvent, nodeType: string) => void;
 };
 
-const ShaderList = ({ nodeKey, onDragStart }: ShaderListProps) => {
+const SidebarShader = ({ nodeKey, onDragStart }: ShaderListProps) => {
   return (
     <div
       className="cursor-grab"
@@ -77,7 +77,7 @@ export function MenuLibrary() {
                 <AccordionContent className="border-b border-white/15">
                   <div className="flex flex-col gap-3 p-1">
                     {Object.entries(types).map(([key]) => (
-                      <ShaderList
+                      <SidebarShader
                         key={key}
                         nodeKey={key}
                         onDragStart={onDragStart}

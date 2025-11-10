@@ -11,6 +11,7 @@ export type Config = {
       panel: SidebarPanel;
       pinned: boolean;
     };
+    tooltipsEnabled: boolean;
   };
 };
 
@@ -23,6 +24,7 @@ const initialState: Config = {
       panel: "library",
       pinned: false,
     },
+    tooltipsEnabled: true,
   },
 };
 

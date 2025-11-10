@@ -7,7 +7,7 @@ import {
   LuCloudDownload,
   LuCloudUpload,
   LuFolders,
-  LuMedal,
+  LuGem,
 } from "react-icons/lu";
 
 import { Tables } from "@/lib/supabase/database.types";
@@ -37,7 +37,7 @@ export function ProjectsMenu({
   if (!userData || !userData.is_premium) {
     return (
       <Menu label="Projects" value="file">
-        <MenuItem icon={<LuMedal />}>
+        <MenuItem icon={<LuGem />}>
           {/* TODO acá redirigir a premium */}
           <Link href="/profile" className="w-full h-full">
             Premium
