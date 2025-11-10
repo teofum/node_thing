@@ -44,6 +44,7 @@ export const NODE_TYPES = {
   __input_image: {
     name: "Image",
     category: "Input",
+    tooltip: "Upload an image to be used as input.",
     shader: "",
     inputs: {},
     outputs: {
@@ -66,6 +67,7 @@ export const NODE_TYPES = {
   __input_layer: {
     name: "Underlying layer",
     category: "Input",
+    tooltip: "Takes the output of the layer directly below.",
     shader: "",
     inputs: {},
     outputs: {
@@ -83,6 +85,8 @@ export const NODE_TYPES = {
   uv: {
     name: "UV",
     category: "Input",
+    tooltip:
+      "Outputs the relative position of a pixel with respect to the canvas size. U is horizontal and V is vertical. 0 means left/top and 1 means right/bottom.",
     shader: uvShader,
     inputs: {},
     outputs: {
@@ -100,6 +104,8 @@ export const NODE_TYPES = {
   time: {
     name: "Time",
     category: "Input",
+    tooltip:
+      "Outputs the seconds since the start of the animation. Use the Animation tab for related options.",
     shader: timeShader,
     inputs: {},
     outputs: {
@@ -113,6 +119,8 @@ export const NODE_TYPES = {
   __output: {
     name: "Output",
     category: "Special",
+    tooltip:
+      "This is the output node. Whatever you connect here will be seen on the canvas.",
     shader: "",
     inputs: {
       color: {
@@ -131,6 +139,7 @@ export const NODE_TYPES = {
   white_noise: {
     name: "White Noise",
     category: "Generate",
+    tooltip: "Outputs a random number between 0 and 1 for every pixel.",
     shader: whiteNoiseShader,
     inputs: {
       seed: {
@@ -205,6 +214,8 @@ export const NODE_TYPES = {
   radialGradient: {
     name: "Radial Gradient",
     category: "Object",
+    tooltip:
+      "Generates an elliptical gradient. You can customize its shape and position on the canvas.",
     shader: radialGradientShader,
     inputs: {},
     outputs: {
@@ -224,6 +235,8 @@ export const NODE_TYPES = {
   voronoi_noise: {
     name: "Voronoi noise",
     category: "Generate",
+    tooltip:
+      "Produces a random pattern of Voronoi cells, outputting a 0 near their centers and 1 along their edges.",
     shader: voronoiNoiseShader,
     inputs: {
       size: {
@@ -254,6 +267,8 @@ export const NODE_TYPES = {
   constant: {
     name: "Constant",
     category: "Math",
+    tooltip:
+      "Outputs the same number as the input, perfect for organizing nodes that all need the same value for something.",
     shader: constantShader,
     inputs: {
       value: {
@@ -272,6 +287,7 @@ export const NODE_TYPES = {
   add: {
     name: "Add",
     category: "Math",
+    tooltip: "Takes two numbers, outputs their sum.",
     shader: addShader,
     inputs: {
       x: {
@@ -294,6 +310,7 @@ export const NODE_TYPES = {
   multiply: {
     name: "Multiply",
     category: "Math",
+    tooltip: "Takes two numbers, outputs their product.",
     shader: multiplyShader,
     inputs: {
       x: {
@@ -316,6 +333,7 @@ export const NODE_TYPES = {
   abs: {
     name: "Absolute value",
     category: "Math",
+    tooltip: "Outputs the absolute value of x.",
     shader: absShader,
     inputs: {
       x: {
@@ -334,6 +352,8 @@ export const NODE_TYPES = {
   sine: {
     name: "Sine wave",
     category: "Math",
+    tooltip:
+      "Outputs the sine of t in radians, phase shifted by the given fraction of 2π.",
     shader: sineShader,
     inputs: {
       t: {
@@ -356,6 +376,7 @@ export const NODE_TYPES = {
   fract: {
     name: "Floor/Fract",
     category: "Math",
+    tooltip: "Separates the integer and fractional part of x.",
     shader: fractShader,
     inputs: {
       x: {
@@ -379,6 +400,8 @@ export const NODE_TYPES = {
   boxBlur: {
     name: "Box Blur",
     category: "Filter",
+    tooltip:
+      "On each pixel, outputs the average color of the 9 neighboring pixels.",
     shader: boxBlurShader,
     inputs: {
       input: {
@@ -405,6 +428,8 @@ export const NODE_TYPES = {
   gaussBlur: {
     name: "Gaussian blur",
     category: "Filter",
+    tooltip:
+      "On each pixel, outputs a weighted average of the colors of nearby pixels, following a Gaussian distribution with the given standard deviation.",
     shader: gaussianBlurXShader,
     inputs: {
       input: {
@@ -440,6 +465,8 @@ export const NODE_TYPES = {
   gaussBlurEdge: {
     name: "Directional blur",
     category: "Filter",
+    tooltip:
+      "Produces a directional gaussian blur. Uses the input tangent as the direction for each pixel.",
     shader: gaussianBlurEdgeShader,
     inputs: {
       input: {
@@ -507,6 +534,8 @@ export const NODE_TYPES = {
   mix: {
     name: "Mix",
     category: "Blend",
+    tooltip:
+      "Combines the two inputs with a weighted operation. A factor of 0 favors input A, while a factor of 1 favors input B.",
     shader: mixShader,
     inputs: {
       input_a: {
@@ -560,6 +589,8 @@ export const NODE_TYPES = {
   contrast: {
     name: "Contrast",
     category: "Color",
+    tooltip:
+      "Increases/decreases the difference in brightness between the different colors in the input.",
     shader: contrastShader,
     inputs: {
       input: {
@@ -590,6 +621,7 @@ export const NODE_TYPES = {
   saturation: {
     name: "Saturation",
     category: "Color",
+    tooltip: "Modifies the saturation value of the colors of the input.",
     shader: saturationShader,
     inputs: {
       input: {
@@ -614,6 +646,7 @@ export const NODE_TYPES = {
   hsl: {
     name: "HSL",
     category: "Color",
+    tooltip: "Modifies Hue, Saturation and Luminance.",
     shader: hslShader,
     inputs: {
       input: {
@@ -776,6 +809,8 @@ export const NODE_TYPES = {
   threshold: {
     name: "Threshold",
     category: "Effects",
+    tooltip:
+      "On each pixel, if the perceived brightness exceeds the threshold, outputs white, otherwise outputs black.",
     shader: thresholdShader,
     inputs: {
       input: {
@@ -800,6 +835,7 @@ export const NODE_TYPES = {
   posterize: {
     name: "Posterize",
     category: "Effects",
+    tooltip: "Limits the range of colors that are outputted.",
     shader: posterizeShader,
     inputs: {
       input: {
@@ -826,6 +862,7 @@ export const NODE_TYPES = {
   pixelate: {
     name: "Pixelate",
     category: "Effects",
+    tooltip: "Through down-sampling, reduces the resolution of the input.",
     shader: pixelateShader,
     inputs: {
       input: {
@@ -852,6 +889,7 @@ export const NODE_TYPES = {
   displace: {
     name: "Displace",
     category: "Effects",
+    tooltip: "Moves the input x pixels horizontally and y pixels vertically.",
     shader: displaceShader,
     inputs: {
       input: {
@@ -880,6 +918,8 @@ export const NODE_TYPES = {
   voronoi: {
     name: "Voronoi filter",
     category: "Effects",
+    tooltip:
+      "Divides the input into Voronoi cells, each with their own color, based on the original color of nearby pixels.",
     shader: voronoiShader,
     inputs: {
       input: {
@@ -912,6 +952,8 @@ export const NODE_TYPES = {
   kuwahara: {
     name: "Kuwahara filter",
     category: "Effects",
+    tooltip:
+      "Creates a painting-like effect by reducing noise without blurring the edges.",
     shader: kuwaharaFilterShader,
     inputs: {
       input: {
@@ -939,6 +981,8 @@ export const NODE_TYPES = {
   split_channels: {
     name: "Split channels",
     category: "Utility",
+    tooltip:
+      "Separates the RGB values of the input, 0 being the minimum and 1 being the maximum.",
     shader: splitChannelsShader,
     inputs: {
       input: {
@@ -965,6 +1009,7 @@ export const NODE_TYPES = {
   merge_channels: {
     name: "Merge channels",
     category: "Utility",
+    tooltip: "Combines RGB values into an output color.",
     shader: mergeChannelsShader,
     inputs: {
       red: {
@@ -991,6 +1036,8 @@ export const NODE_TYPES = {
   edge_tangent_flow: {
     name: "Edge Tangent Flow",
     category: "Utility",
+    tooltip:
+      "Outputs the local tangent direction of the edges in the input as a normalized 2D vector, with red and green being the x and y components respectively.",
     shader: edgeTangentFlowShader,
     inputs: {
       gradient: {
