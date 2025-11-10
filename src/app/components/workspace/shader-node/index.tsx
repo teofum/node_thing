@@ -21,7 +21,7 @@ export function RenderShaderNode(
   const nodeTypes = useNodeTypes();
   const remove = useProjectStore((s) => s.removeNode);
 
-  const tooltips = useConfigStore((s) => s.view.tooltipsEnabled);
+  const tooltipsEnabled = useConfigStore((s) => s.view.tooltipsEnabled);
 
   const nodeTypeInfo = nodeTypes[data.type];
   if (!nodeTypeInfo)
@@ -112,12 +112,14 @@ export function RenderShaderNode(
     </div>
   );
 
-  return tooltips ? (
+  return tooltipsEnabled &&
+    nodeTypeInfo.category !== "Custom" &&
+    !nodeTypeInfo.externalShaderId ? (
     <Tooltip
       className="text-[15px] max-w-70 max-h-70"
       content={nodeTypeInfo.tooltip ?? "(Missing description)"}
       side={props.mock ? "right" : "top"}
-      delay={600}
+      delay={700}
     >
       {node}
     </Tooltip>

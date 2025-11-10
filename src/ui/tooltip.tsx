@@ -32,6 +32,10 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
               sideOffset={sideOffset}
               className={cn(
                 "rounded-xl bg-neutral-700 px-[15px] py-2.5",
+                "data-[state=delayed-open]:data-[side=top]:animate-[tooltipSlideUp_200ms_ease-out_forwards]",
+                "data-[state=delayed-open]:data-[side=right]:animate-[tooltipSlideRight_200ms_ease-out_forwards]",
+                "data-[state=delayed-open]:data-[side=bottom]:animate-[tooltipSlideDown_200ms_ease-out_forwards]",
+                "data-[state=delayed-open]:data-[side=left]:animate-[tooltipSlideLeft_200ms_ease-out_forwards]",
                 className,
               )}
               {...props}
