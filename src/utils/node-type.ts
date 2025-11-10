@@ -139,6 +139,7 @@ export const NODE_TYPES = {
   white_noise: {
     name: "White Noise",
     category: "Generate",
+    tooltip: "Outputs a random number between 0 and 1 for every pixel.",
     shader: whiteNoiseShader,
     inputs: {
       seed: {
@@ -213,6 +214,8 @@ export const NODE_TYPES = {
   radialGradient: {
     name: "Radial Gradient",
     category: "Object",
+    tooltip:
+      "Generates an elliptical gradient. You can customize its shape and position on the canvas.",
     shader: radialGradientShader,
     inputs: {},
     outputs: {
@@ -232,6 +235,8 @@ export const NODE_TYPES = {
   voronoi_noise: {
     name: "Voronoi noise",
     category: "Generate",
+    tooltip:
+      "Produces a random pattern of Voronoi cells, outputting a 0 near their centers and 1 along their edges.",
     shader: voronoiNoiseShader,
     inputs: {
       size: {
@@ -460,6 +465,8 @@ export const NODE_TYPES = {
   gaussBlurEdge: {
     name: "Directional blur",
     category: "Filter",
+    tooltip:
+      "Produces a directional gaussian blur. Uses the input tangent as the direction for each pixel.",
     shader: gaussianBlurEdgeShader,
     inputs: {
       input: {
@@ -582,6 +589,8 @@ export const NODE_TYPES = {
   contrast: {
     name: "Contrast",
     category: "Color",
+    tooltip:
+      "Increases/decreases the difference in brightness between the different colors in the input.",
     shader: contrastShader,
     inputs: {
       input: {
@@ -612,6 +621,7 @@ export const NODE_TYPES = {
   saturation: {
     name: "Saturation",
     category: "Color",
+    tooltip: "Modifies the saturation value of the colors of the input.",
     shader: saturationShader,
     inputs: {
       input: {
@@ -636,6 +646,7 @@ export const NODE_TYPES = {
   hsl: {
     name: "HSL",
     category: "Color",
+    tooltip: "Modifies Hue, Saturation and Luminance.",
     shader: hslShader,
     inputs: {
       input: {
@@ -824,6 +835,7 @@ export const NODE_TYPES = {
   posterize: {
     name: "Posterize",
     category: "Effects",
+    tooltip: "Limits the range of colors that are outputted.",
     shader: posterizeShader,
     inputs: {
       input: {
@@ -906,6 +918,8 @@ export const NODE_TYPES = {
   voronoi: {
     name: "Voronoi filter",
     category: "Effects",
+    tooltip:
+      "Divides the input into Voronoi cells, each with their own color, based on the original color of nearby pixels.",
     shader: voronoiShader,
     inputs: {
       input: {
@@ -938,6 +952,8 @@ export const NODE_TYPES = {
   kuwahara: {
     name: "Kuwahara filter",
     category: "Effects",
+    tooltip:
+      "Creates a painting-like effect by reducing noise without blurring the edges.",
     shader: kuwaharaFilterShader,
     inputs: {
       input: {
