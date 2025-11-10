@@ -33,7 +33,7 @@ export function ViewMenu() {
           checked={view.tooltipsEnabled}
           onCheckedChange={(tooltipsEnabled) => updateView({ tooltipsEnabled })}
         >
-          Tooltips
+          Tooltips on placed nodes
         </MenuCheckboxItem>
 
         <MenuSeparator />

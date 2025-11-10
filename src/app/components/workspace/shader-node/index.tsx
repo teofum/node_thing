@@ -112,9 +112,11 @@ export function RenderShaderNode(
     </div>
   );
 
-  return tooltipsEnabled &&
-    nodeTypeInfo.category !== "Custom" &&
-    !nodeTypeInfo.externalShaderId ? (
+  const showTooltip = props.mock
+    ? nodeTypeInfo.category !== "Custom" && !nodeTypeInfo.externalShaderId
+    : tooltipsEnabled && nodeTypeInfo.tooltip;
+
+  return showTooltip ? (
     <Tooltip
       className="text-[15px] max-w-70 max-h-70"
       content={nodeTypeInfo.tooltip ?? "(Missing description)"}
