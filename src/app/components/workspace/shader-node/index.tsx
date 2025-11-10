@@ -11,6 +11,7 @@ import { NodeParameter } from "./node-parameter";
 import { useNodeTypes } from "@/utils/use-node-types";
 import { Button } from "@/ui/button";
 import { useProjectStore } from "@/store/project.store";
+import { Tooltip } from "@/ui/tooltip";
 
 export function RenderShaderNode(
   props: NodeProps<ShaderNodeType> & { mock?: boolean },
@@ -55,56 +56,63 @@ export function RenderShaderNode(
     );
 
   return (
-    <div
-      className={cn("glass rounded-xl border min-w-32", {
-        "border-white/15": !selected,
-        "border-teal-400/40 outline-teal-400/20 outline-2": selected,
-      })}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
+    <Tooltip
+      className="text-[15px] max-w-70 max-h-70"
+      content={nodeTypeInfo.tooltip ?? "(Missing description)"}
+      side={props.mock ? "right" : "top"}
+      delay={600}
     >
       <div
-        className={cn(
-          "text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px]",
-          {
-            "bg-purple-400/15": data.type === "__output",
-            "bg-orange-400/15": nodeTypeInfo.category === "Input",
-            "bg-blue-400/15": nodeTypeInfo.category === "Math",
-            "bg-pink-400/15": nodeTypeInfo.category === "Object",
-          },
-        )}
+        className={cn("glass rounded-xl border min-w-32", {
+          "border-white/15": !selected,
+          "border-teal-400/40 outline-teal-400/20 outline-2": selected,
+        })}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
       >
-        <div className="flex items-center gap-1">
-          {nodeTypeInfo.name}
-          {nodeTypeInfo.externalShaderId &&
-          nodeTypeInfo.category !== "Custom" ? (
-            <LuStar className="w-3 h-3 opacity-70" />
-          ) : null}
-          <NodeMenu {...props} />
-          <CustomShaderMenu {...props} />
+        <div
+          className={cn(
+            "text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px]",
+            {
+              "bg-purple-400/15": data.type === "__output",
+              "bg-orange-400/15": nodeTypeInfo.category === "Input",
+              "bg-blue-400/15": nodeTypeInfo.category === "Math",
+              "bg-pink-400/15": nodeTypeInfo.category === "Object",
+            },
+          )}
+        >
+          <div className="flex items-center gap-1">
+            {nodeTypeInfo.name}
+            {nodeTypeInfo.externalShaderId &&
+            nodeTypeInfo.category !== "Custom" ? (
+              <LuStar className="w-3 h-3 opacity-70" />
+            ) : null}
+            <NodeMenu {...props} />
+            <CustomShaderMenu {...props} />
+          </div>
+        </div>
+
+        <div className="p-2 grid grid-cols-[auto_auto_auto] gap-x-2">
+          {/* parameters */}
+          {!props.mock
+            ? Object.entries(nodeTypeInfo.parameters).map(([key, param]) => (
+                <NodeParameter key={key} name={key} param={param} {...props} />
+              ))
+            : null}
+
+          {/* inputs */}
+          {Object.entries(nodeTypeInfo.inputs).map(([key, input]) => (
+            <NodeInput key={key} input={[key, input]} {...props} />
+          ))}
+
+          {/* outputs */}
+          {Object.entries(nodeTypeInfo.outputs).map(([key, output]) => (
+            <NodeOutput key={key} output={[key, output]} {...props} />
+          ))}
         </div>
       </div>
-
-      <div className="p-2 grid grid-cols-[auto_auto_auto] gap-x-2">
-        {/* parameters */}
-        {!props.mock
-          ? Object.entries(nodeTypeInfo.parameters).map(([key, param]) => (
-              <NodeParameter key={key} name={key} param={param} {...props} />
-            ))
-          : null}
-
-        {/* inputs */}
-        {Object.entries(nodeTypeInfo.inputs).map(([key, input]) => (
-          <NodeInput key={key} input={[key, input]} {...props} />
-        ))}
-
-        {/* outputs */}
-        {Object.entries(nodeTypeInfo.outputs).map(([key, output]) => (
-          <NodeOutput key={key} output={[key, output]} {...props} />
-        ))}
-      </div>
-    </div>
+    </Tooltip>
   );
 }
