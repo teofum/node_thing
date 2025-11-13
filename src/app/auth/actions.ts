@@ -54,11 +54,17 @@ export async function signInAction(formData: FormData) {
 
 export async function signUpAction(formData: FormData) {
   const supabase = await createClient();
-  const username = formData.get("username") as string;
+  const username = (formData.get("username") as string).toLowerCase().trim();
   const email = formData.get("email") as string;
   const displayName = formData.get("displayName") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (/\s/.test(username)) {
+    redirect(
+      `/auth/signup?error=${encodeURIComponent("Username cannot contain spaces")}`,
+    );
+  }
 
   if (password !== confirmPassword) {
     redirect(
@@ -205,9 +211,16 @@ export async function signInWithDiscordAction(formData: FormData) {
 
 export async function onboardingAction(formData: FormData) {
   const supabase = await createClient();
-  const username = formData.get("username") as string;
+  const username = (formData.get("username") as string).toLowerCase().trim();
   const displayName = formData.get("displayName") as string;
   const next = formData.get("next") as string;
+
+  if (/\s/.test(username)) {
+    const errorUrl = next
+      ? `/onboarding?next=${encodeURIComponent(next)}&error=${encodeURIComponent("Username cannot contain spaces")}`
+      : `/onboarding?error=${encodeURIComponent("Username cannot contain spaces")}`;
+    redirect(errorUrl);
+  }
 
   const {
     data: { user },

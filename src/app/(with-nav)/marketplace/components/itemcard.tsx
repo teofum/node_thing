@@ -49,7 +49,13 @@ export default function ItemCard({
       {username && (
         <>
           <p className="text-sm text-white/60 mb-2">
-            by <span className="font-bold">{username}</span>
+            by{" "}
+            <Link
+              href={`/profile/${username}`}
+              className="font-bold hover:text-teal-400"
+            >
+              {username}
+            </Link>
           </p>
           <CardBadge
             text={itemType}

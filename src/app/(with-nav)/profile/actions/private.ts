@@ -6,27 +6,6 @@ import camelcaseKeys from "camelcase-keys";
 import { Replace } from "@/utils/replace";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
-export async function getPublishedShaders() {
-  const { supabase, user } = await getSupabaseUserOrRedirect(
-    "/auth/login?next=/profile",
-  );
-
-  const { data, error } = await supabase.rpc("get_published_shaders", {
-    user_uuid: user.id,
-  });
-
-  if (error) {
-    throw new Error(`Failed to load published shaders: ${error.message}`);
-  }
-
-  return camelcaseKeys(
-    data as Replace<
-      (typeof data)[number],
-      { category: { id: string; name: string } }
-    >[],
-  );
-}
-
 export async function getPurchasedShaders() {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
@@ -46,22 +25,6 @@ export async function getPurchasedShaders() {
       { category: { id: string; name: string } }
     >[],
   );
-}
-
-export async function getPublishedProjects() {
-  const { supabase, user } = await getSupabaseUserOrRedirect(
-    "/auth/login?next=/profile",
-  );
-
-  const { data, error } = await supabase.rpc("get_published_projects", {
-    user_uuid: user.id,
-  });
-
-  if (error) {
-    throw new Error(`Failed to load published shaders: ${error.message}`);
-  }
-
-  return camelcaseKeys(data);
 }
 
 export async function getPurchasedProjects() {

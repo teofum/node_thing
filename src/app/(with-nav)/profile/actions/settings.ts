@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
@@ -17,37 +18,53 @@ export async function checkUsernameAvailable(username: string) {
   const { data } = await supabase
     .from("profiles")
     .select("username")
-    .eq("username", username)
+    .ilike("username", username)
     .neq("id", user.id)
     .single();
 
   return !data;
 }
 
-export async function setUsername(newUsername: string) {
+export async function setUsername(formData: FormData) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
 
-  const isAvailable = await checkUsernameAvailable(newUsername);
-  if (!isAvailable) {
-    redirect("/profile?error=username_taken");
+  const currentUsername = formData.get("currentUsername") as string;
+  const newUsername = formData.get("username") as string;
+  const lowercaseUsername = newUsername.toLowerCase().trim();
+
+  if (/\s/.test(lowercaseUsername)) {
+    throw new Error("Username cannot contain spaces");
   }
 
-  const { data, error } = await supabase
+  if (currentUsername === lowercaseUsername) {
+    throw new Error("Username is the same as current");
+  }
+
+  const isAvailable = await checkUsernameAvailable(lowercaseUsername);
+  if (!isAvailable) {
+    throw new Error("Username already taken");
+  }
+
+  const { error } = await supabase
     .from("profiles")
-    .update({ username: newUsername })
+    .update({ username: lowercaseUsername })
     .eq("id", user.id);
 
   if (error) {
     throw new Error(`Failed to update username: ${error.message}`);
   }
+
+  redirect(`/profile/${lowercaseUsername}`);
 }
 
-export async function setDisplayName(newDisplayName: string) {
+export async function setDisplayName(formData: FormData) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
+
+  const newDisplayName = formData.get("displayName") as string;
 
   const { error } = await supabase.auth.updateUser({
     data: { full_name: newDisplayName },
@@ -56,15 +73,28 @@ export async function setDisplayName(newDisplayName: string) {
   if (error) {
     throw new Error(`Failed to update display name: ${error.message}`);
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  revalidatePath(`/profile/${profile?.username}`);
 }
 
-export async function changePassword(
-  currentPassword: string,
-  newPassword: string,
-) {
+export async function changePassword(formData: FormData) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
+
+  const currentPassword = formData.get("currentPassword") as string;
+  const newPassword = formData.get("newPassword") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (newPassword !== confirmPassword) {
+    throw new Error("Passwords do not match");
+  }
 
   const { data: isValid, error: verifyError } = await supabase.rpc(
     "verify_user_password",
@@ -86,6 +116,14 @@ export async function changePassword(
   if (error) {
     throw new Error(`Failed to change password: ${error.message}`);
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  revalidatePath(`/profile/${profile?.username}`);
 }
 
 export async function uploadAvatar(formData: FormData) {
@@ -120,6 +158,14 @@ export async function uploadAvatar(formData: FormData) {
   if (updateError) {
     throw new Error(`Failed to update avatar URL: ${updateError.message}`);
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  revalidatePath(`/profile/${profile?.username}`);
 }
 
 export async function removeAvatar() {
@@ -139,4 +185,12 @@ export async function removeAvatar() {
   if (error) {
     throw new Error(`Failed to remove avatar: ${error.message}`);
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  revalidatePath(`/profile/${profile?.username}`);
 }
