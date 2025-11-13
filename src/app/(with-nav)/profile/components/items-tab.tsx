@@ -66,6 +66,7 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
               shadersRatingsList.find((r) => r.shaderId === shader.id) ?? null
             }
             ratingCount={shader.ratingCount ?? 0}
+            canReview={isPurchasedTab}
           />
         ))
       ) : (
@@ -92,6 +93,7 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
               null
             }
             ratingCount={project.ratingCount ?? 0}
+            canReview={isPurchasedTab}
           />
         ))
       ) : (
