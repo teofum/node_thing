@@ -32,7 +32,11 @@ export async function setUsername(formData: FormData) {
 
   const currentUsername = formData.get("currentUsername") as string;
   const newUsername = formData.get("username") as string;
-  const lowercaseUsername = newUsername.toLowerCase();
+  const lowercaseUsername = newUsername.toLowerCase().trim();
+
+  if (/\s/.test(lowercaseUsername)) {
+    throw new Error("Username cannot contain spaces");
+  }
 
   if (currentUsername === lowercaseUsername) {
     throw new Error("Username is the same as current");
