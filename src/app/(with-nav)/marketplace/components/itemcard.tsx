@@ -5,6 +5,7 @@ import { Button } from "@/ui/button";
 import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
 import { Stars } from "./stars";
 import { CardBadge } from "./card-badge";
+import Link from "next/link";
 
 type ItemCardProps = {
   itemType: "Shader" | "Project"; // TODO group in the future
@@ -18,6 +19,7 @@ type ItemCardProps = {
   createdAt: string;
   averageRating?: number | null;
   ratingCount?: number | null;
+  imageUrl?: string | null;
 };
 
 export default function ItemCard({
@@ -32,11 +34,12 @@ export default function ItemCard({
   createdAt,
   averageRating,
   ratingCount,
+  imageUrl,
 }: ItemCardProps) {
   const isNew =
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
   return (
-    <div className="glass glass-border p-4 rounded-2xl relative">
+    <div className="glass glass-border p-4 rounded-2xl relative hover:bg-current/1">
       {isNew && (
         <div className="absolute top-4 right-4 bg-red-800 text-white text-xs font-bold px-2 py-1 rounded-md shadow-lg">
           NEW
@@ -64,13 +67,15 @@ export default function ItemCard({
         </>
       )}
 
-      <Image
-        src="/placeholder.webp"
-        width={1000}
-        height={667}
-        alt={itemType + " preview"}
-        className="w-full aspect-[3/2] object-cover my-5 rounded-lg grayscale-100"
-      />
+      <Link href={`/marketplace/item/${itemType.toLocaleLowerCase()}/${id}`}>
+        <Image
+          src={imageUrl ? `${imageUrl}?t=${Date.now()}` : "/placeholder.webp"}
+          width={1000}
+          height={667}
+          alt={itemType + " preview"}
+          className="w-full aspect-[3/2] object-cover my-5 rounded-lg"
+        />
+      </Link>
 
       <div className="flex flex-row gap-3">
         <div className="grow text-2xl font-bold text-teal-400">${price}</div>

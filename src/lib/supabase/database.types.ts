@@ -198,6 +198,7 @@ export type Database = {
           description: string | null;
           downloads: number | null;
           id: string;
+          image_name: string | null;
           name: string | null;
           price: number | null;
           published: boolean | null;
@@ -210,6 +211,7 @@ export type Database = {
           description?: string | null;
           downloads?: number | null;
           id?: string;
+          image_name?: string | null;
           name?: string | null;
           price?: number | null;
           published?: boolean | null;
@@ -222,6 +224,7 @@ export type Database = {
           description?: string | null;
           downloads?: number | null;
           id?: string;
+          image_name?: string | null;
           name?: string | null;
           price?: number | null;
           published?: boolean | null;
@@ -357,6 +360,7 @@ export type Database = {
           description: string | null;
           downloads: number;
           id: string;
+          image_name: string | null;
           node_config: Json | null;
           price: number;
           published: boolean | null;
@@ -372,6 +376,7 @@ export type Database = {
           description?: string | null;
           downloads?: number;
           id?: string;
+          image_name?: string | null;
           node_config?: Json | null;
           price: number;
           published?: boolean | null;
@@ -387,6 +392,7 @@ export type Database = {
           description?: string | null;
           downloads?: number;
           id?: string;
+          image_name?: string | null;
           node_config?: Json | null;
           price?: number;
           published?: boolean | null;
@@ -422,6 +428,23 @@ export type Database = {
         Args: { order_uuid: string; user_uuid: string };
         Returns: boolean;
       };
+      get_item: {
+        Args: { item_id: string; item_type: string; user_uuid?: string };
+        Returns: {
+          averagerating: number;
+          category: string;
+          createdat: string;
+          description: string;
+          downloads: number;
+          id: string;
+          incart: boolean;
+          itemtype: string;
+          price: number;
+          ratingcount: number;
+          title: string;
+          username: string;
+        }[];
+      };
       get_projects_with_avg: {
         Args: { user_uuid: string };
         Returns: {
@@ -430,6 +453,7 @@ export type Database = {
           description: string;
           downloads: number;
           id: string;
+          image_name: string;
           price: number;
           profiles: Json;
           rating_count: number;
@@ -483,6 +507,7 @@ export type Database = {
           description: string;
           downloads: number;
           id: string;
+          image_name: string;
           price: number;
           profiles: Json;
           rating_count: number;

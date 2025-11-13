@@ -54,7 +54,7 @@ export default function RatingEditor({
             return (
               <LuStar
                 key={star}
-                className={`w-6 h-6 cursor-pointer ${isActive ? "text-yellow-400" : "text-gray-500"}`}
+                className={`w-6 h-6 cursor-pointer ${isActive ? "text-yellow-400" : "text-white/50"}`}
                 onMouseEnter={() => setHovered(star)}
                 onMouseLeave={() => setHovered(null)}
                 onClick={() => setRating(star)}
