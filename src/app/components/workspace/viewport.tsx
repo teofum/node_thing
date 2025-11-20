@@ -23,8 +23,6 @@ export function Viewport() {
   const onEdgesChange = useProjectStore((s) => s.onEdgesChange);
   const onConnect = useProjectStore((s) => s.onConnect);
   const addNode = useProjectStore((s) => s.addNode);
-  const undo = useProjectStore((s) => s.undo);
-  const redo = useProjectStore((s) => s.redo);
 
   const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
   const { screenToFlowPosition } = useReactFlow();
@@ -87,12 +85,6 @@ export function Viewport() {
 
   return (
     <>
-      <button onClick={() => redo()} className="px-80">
-        redo
-      </button>
-      <button onClick={() => undo()} className="px-70">
-        undo
-      </button>
       <ContextMenu
         trigger={
           <ReactFlow
