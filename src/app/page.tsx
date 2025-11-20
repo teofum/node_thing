@@ -60,6 +60,7 @@ export default async function Home() {
 
         <Menubar className="mr-auto">
           <FileMenu />
+          <EditMenu />
           <ViewMenu />
           <LayerMenu />
           <AnimationMenu />
@@ -68,7 +69,6 @@ export default async function Home() {
             projects={projects}
             purchasedProjects={purchasedProjects}
           />
-          <EditMenu />
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">
