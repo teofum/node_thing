@@ -12,6 +12,7 @@ import { Workspace } from "./components/workspace";
 import { getProjects, getPurchasedProjects, getUserData } from "./actions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { EditMenu } from "./components/menu/edit";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -67,6 +68,7 @@ export default async function Home() {
             projects={projects}
             purchasedProjects={purchasedProjects}
           />
+          <EditMenu />
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">
