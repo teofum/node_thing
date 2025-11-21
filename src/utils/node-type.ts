@@ -158,6 +158,8 @@ export const NODE_TYPES = {
   checkers_Pattern: {
     name: "Checkers Pattern",
     category: "Generate",
+    tooltip:
+      "Fills the screen with a 2x2 pixel crossed pattern of 0.25 and 0.75. May be used when thresholding and dithering to approximate a range of colors or shades using a limited color palette.",
     shader: checkersPatternShader,
     inputs: {},
     outputs: {
@@ -171,6 +173,8 @@ export const NODE_TYPES = {
   bayers_Pattern_8x8: {
     name: "Bayers Pattern 8x8",
     category: "Generate",
+    tooltip:
+      "The 8x8 Bayer pattern intended for dithering (also known as an ordered dither matrix or threshold matrix) is a technique used in computer graphics to approximate a full range of colors or shades using a limited color palette.",
     shader: bayerPatternShader,
     inputs: {},
     outputs: {
@@ -184,6 +188,8 @@ export const NODE_TYPES = {
   perlin_noise: {
     name: "Perlin noise",
     category: "Generate",
+    tooltip:
+      "Classic type of procedural gradient noise function used extensively in computer graphics to create natural-looking textures and surfaces. It works by smoothly interpolating values based on random gradient vectors assigned to a grid. The angles may be animated",
     shader: perlinNoiseShader,
     inputs: {
       size: {
@@ -497,6 +503,8 @@ export const NODE_TYPES = {
   sharpness: {
     name: "Sharpness",
     category: "Filter",
+    tooltip:
+      "Common sharpening filter operates by enhancing edges and fine details, effectively increasing the contrast between a pixel and its surrounding area to make the resulting image appear clearer and sharper.",
     shader: sharpnessShader,
     inputs: {
       input: {
@@ -515,6 +523,8 @@ export const NODE_TYPES = {
   sobel: {
     name: "Sobel",
     category: "Filter",
+    tooltip:
+      "This code implements Edge Detection by computing the gradient (rate of change in brightness) in both the horizontal and vertical directions. The final output is the combined magnitude of these gradients, effectively highlighting the sharp edges and contours of objects in the image while suppressing uniform areas.",
     shader: sobelShader,
     inputs: {
       input: {
@@ -686,6 +696,8 @@ export const NODE_TYPES = {
   exposure: {
     name: "Exposure",
     category: "Color",
+    tooltip:
+      "Exposure adjustment filter, this filter brightens or darkens the image by applying a simple, global gamma-like correction based on a user-defined exposure setting. Positive values brighten the image while negative values darken it.",
     shader: exposureShader,
     inputs: {
       input: {
