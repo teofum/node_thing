@@ -40,6 +40,11 @@ import type { NodesChangePatch, EdgesChangePatch } from "@/store/types/command";
 import { getCartItems } from "@/app/(with-nav)/marketplace/cart.actions";
 import { constants } from "buffer";
 
+interface ProjectStore extends ReturnType<typeof createInitialState> {
+  undo: () => void;
+  redo: () => void;
+}
+
 export const useProjectStore = create(
   persist(
     combine(createInitialState(), (set, get) => ({
@@ -833,13 +838,34 @@ export const useProjectStore = create(
         });
       },
 
-      /**
-       * TODO:
-       * todos los actions tienen que hacer adjustHistory
-       *
+      /** NOTAS:
        * indexing: "done" seria la cant de redoables
        * o el indice del ultimo action "vivo"
        */
+
+      // esto tiene que ser entero
+      // to : tiene que ser el indice en el historial( arranca en 0 )
+      goTo: (to: number) => {
+        const state = get() as ProjectStore;
+        let { done } = state;
+        if (to === done) return;
+
+        let op, sum;
+        const { undo, redo } = state;
+        if (to > done) {
+          op = undo;
+          sum = 1;
+        } else {
+          op = redo;
+          sum = -1;
+        }
+        //let op = (to > done) ? undo : redo;
+
+        while (done !== to) {
+          op();
+          done += sum;
+        }
+      },
 
       undo: () => {
         const state = get();
