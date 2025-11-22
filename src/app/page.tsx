@@ -1,5 +1,5 @@
 import { Tables } from "@/lib/supabase/database.types";
-import { LinkButton } from "@/ui/button";
+import { Button, LinkButton } from "@/ui/button";
 import { Menubar } from "@/ui/menu-bar";
 import { AuthButton } from "./auth/components/auth-button";
 import { AnimationMenu } from "./components/menu/animation";
@@ -12,6 +12,7 @@ import { Workspace } from "./components/workspace";
 import { getProjects, getPurchasedProjects, getUserData } from "./actions";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { EditMenu } from "./components/menu/edit";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -59,6 +60,7 @@ export default async function Home() {
 
         <Menubar className="mr-auto">
           <FileMenu />
+          <EditMenu />
           <ViewMenu />
           <LayerMenu />
           <AnimationMenu />
