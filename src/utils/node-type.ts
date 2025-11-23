@@ -723,6 +723,8 @@ export const NODE_TYPES = {
   LGG: {
     name: "Lift gamma gain",
     category: "Color",
+    tooltip:
+      "The Lift, Gamma, Gain (LGG) controls are fundamental for color grading. Lift adjusts the darkest areas (shadows), effectively adding a constant offset to the output. Gamma controls the mid-tones by applying a power curve, changing the overall perceived brightness without dramatically affecting the pure blacks or pure whites. Gain adjusts the brightest areas (highlights) by multiplying the color values, increasing or decreasing the overall intensity.",
     shader: LGGShader,
     inputs: {
       input: {
@@ -759,6 +761,8 @@ export const NODE_TYPES = {
   tonemapReinhard: {
     name: "Reinhard",
     category: "Tone mapping",
+    tooltip:
+      "Reinhard tone mapping is a simple and fast method for compressing High Dynamic Range (HDR) values into the visible Low Dynamic Range (LDR). It works by scaling the input luminance based on its own value, preventing oversaturation and blown-out highlights. A variation of the algorithm allows for a specific white point to be set, giving more control over how bright highlights are preserved and mapped down. It tends to flatten contrast somewhat in very bright areas.",
     shader: tonemapReinhardShader,
     inputs: {
       input: {
@@ -784,6 +788,8 @@ export const NODE_TYPES = {
   tonemapACES: {
     name: "ACES",
     category: "Tone mapping",
+    tooltip:
+      "The Academy Color Encoding System (ACES) tone mapper is a sophisticated, industry-standard choice developed for professional film and television production. The ACES curve is a complex, data-driven function designed for wide-gamut and HDR inputs, providing excellent color separation and a highly natural preservation of detail in both shadows and highlights compared to simpler methods.",
     shader: tonemapACESShader,
     inputs: {
       input: {
@@ -802,6 +808,8 @@ export const NODE_TYPES = {
   tonemapHable: {
     name: "Hable",
     category: "Tone mapping",
+    tooltip:
+      "The Hable, tone mapping curve is a cinematic, artist-friendly choice designed to produce an aesthetically pleasing image with good contrast and color preservation. It provides a soft shoulder rolloff in the highlights, avoiding the harsh clipping often seen in simpler mappers, and giving the image a signature look, similar to film. It was allegedly used for the Uncharted 2 game.",
     shader: tonemapHableShader,
     inputs: {
       input: {
