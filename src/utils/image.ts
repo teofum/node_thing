@@ -40,3 +40,9 @@ export async function loadImageAssetFromFile(
     });
   }
 }
+
+export async function loadImageFromFile() {
+  const file = await openFile(["image/png", "image/jpeg", "image/webp"]);
+
+  return file;
+}
