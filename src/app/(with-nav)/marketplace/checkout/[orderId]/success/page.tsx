@@ -1,6 +1,6 @@
 import { LinkButton } from "@/ui/button";
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 type Props = {
   params: Promise<{ orderId: string }>;
@@ -11,14 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function SuccessPage({ params }: Props) {
   const { orderId } = await params;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login");
-  }
+  const { supabase, user } = await getSupabaseUserOrRedirect("/auth/login");
 
   const { data: order } = await supabase
     .from("orders")

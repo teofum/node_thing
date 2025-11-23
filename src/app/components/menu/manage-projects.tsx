@@ -1,11 +1,15 @@
-import { ComponentProps, useState } from "react";
+import {
+  ComponentProps,
+  startTransition,
+  useActionState,
+  useState,
+} from "react";
 import {
   LuCloudDownload,
   LuPencilLine,
   LuStar,
   LuTrash2,
 } from "react-icons/lu";
-import { useRouter } from "next/navigation";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
@@ -34,28 +38,34 @@ export function ManageProjects({
   const [nameDraft, setNameDraft] = useState<string>("");
   const [importResult, setImportResult] = useState<ImportResult>(undefined);
 
-  const router = useRouter();
+  // TODO pending behaviour
+  const [handleRenameState, handleRenameAction, handleRenamePending] =
+    useActionState(async (_1: null, projectId: string) => {
+      await updateProjectName(projectId, nameDraft);
+      setEditingId(null);
+      return null;
+    }, null);
 
-  async function handleRename(projectId: string) {
-    await updateProjectName(projectId, nameDraft);
-    setEditingId(null);
-    router.refresh();
-  }
+  // TODO pending behaviour
+  const [handleDeleteState, handleDeleteAction, handleDeletePending] =
+    useActionState(async (_1: null, projectId: string) => {
+      await deleteProject(projectId);
+      return null;
+    }, null);
 
-  async function handleDelete(projectId: string) {
-    await deleteProject(projectId);
-    router.refresh();
-  }
+  // TODO pending behaviour
+  const [handleOpenState, handleOpenAction, handleOpenPending] = useActionState(
+    async (_1: null, project: Tables<"projects">) => {
+      const blob = await loadProjectOnline(project.user_project);
+      const file = new File([blob], project.user_project, {
+        type: blob.type,
+      });
 
-  const handleOpen = async (project: Tables<"projects">) => {
-    const blob = await loadProjectOnline(project.user_project);
-
-    const file = new File([blob], project.user_project, {
-      type: blob.type,
-    });
-
-    setImportResult(await importProject(file));
-  };
+      setImportResult(await importProject(file));
+      return null;
+    },
+    null,
+  );
 
   const allProjects = [
     ...projects.map((p) => ({ ...p, isPurchased: false })),
@@ -84,7 +94,9 @@ export function ManageProjects({
                   <Input
                     value={nameDraft}
                     onChange={(e) => setNameDraft(e.target.value)}
-                    onBlur={() => handleRename(project.id)}
+                    onBlur={() =>
+                      startTransition(() => handleRenameAction(project.id))
+                    }
                     autoFocus
                     className="w-full"
                   />
@@ -97,7 +109,9 @@ export function ManageProjects({
                     <Button
                       icon
                       variant="ghost"
-                      onClick={() => handleOpen(project)}
+                      onClick={() =>
+                        startTransition(() => handleOpenAction(project))
+                      }
                     >
                       <LuStar className="opacity-70" />
                     </Button>
@@ -105,7 +119,9 @@ export function ManageProjects({
                   <Button
                     icon
                     variant="ghost"
-                    onClick={() => handleOpen(project)}
+                    onClick={() =>
+                      startTransition(() => handleOpenAction(project))
+                    }
                   >
                     <LuCloudDownload />
                   </Button>
@@ -127,7 +143,9 @@ export function ManageProjects({
                     disabled={project.isPurchased}
                     className="text-red-400"
                     variant="ghost"
-                    onClick={() => handleDelete(project.id)}
+                    onClick={() =>
+                      startTransition(() => handleDeleteAction(project.id))
+                    }
                   >
                     <LuTrash2 />
                   </Button>
