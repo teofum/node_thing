@@ -12,6 +12,7 @@ interface Shader {
   ratingCount?: number | null;
   downloads: number;
   createdAt: string;
+  imageName?: string | null;
   category: { name: string };
   profiles?: { username?: string };
 }
@@ -23,6 +24,7 @@ interface Project {
   price: number | null;
   downloads: number | null;
   createdAt: string | null;
+  imageName?: string | null;
   profiles?: { username?: string };
   averageRating?: number | null;
   ratingCount?: number | null;
@@ -191,6 +193,11 @@ export function ShaderListClient({
               createdAt={item.createdAt}
               averageRating={item.averageRating}
               ratingCount={item.ratingCount}
+              imageUrl={
+                item.imageName
+                  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}storage/v1/object/public/marketplace_images/${item.imageName}`
+                  : null
+              }
             />
           ) : (
             <ItemCard
@@ -205,6 +212,11 @@ export function ShaderListClient({
               createdAt={item.createdAt ?? new Date().toISOString()}
               averageRating={item.averageRating}
               ratingCount={item.ratingCount}
+              imageUrl={
+                item.imageName
+                  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}storage/v1/object/public/marketplace_images/${item.imageName}`
+                  : null
+              }
             />
           ),
         )}
