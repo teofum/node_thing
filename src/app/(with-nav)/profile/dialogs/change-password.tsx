@@ -14,6 +14,7 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // TODO pending behaviour
   const [changePasswordState, changePasswordAction, changePasswordPending] =
     useActionState(
       async () => await changePassword(currentPassword, newPassword),

@@ -34,6 +34,7 @@ export function ProjectsMenu({
   const [projectsManagerOpen, setProjectsManagerOpen] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult>(undefined);
 
+  // TODO pending behaviour
   const [handleOpenState, handleOpenAction, handleOpenPending] = useActionState(
     async (_1: null, project: Tables<"projects">) => {
       const blob = await loadProjectOnline(project.user_project);
@@ -47,6 +48,7 @@ export function ProjectsMenu({
     null,
   );
 
+  // TODO pending behaviour
   const [
     saveProjectOnlineState,
     saveProjectOnlineAction,

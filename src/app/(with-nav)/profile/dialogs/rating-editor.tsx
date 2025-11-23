@@ -37,12 +37,14 @@ export default function RatingEditor({
   const [comment, setComment] = useState(userRating?.comment ?? "");
   const stars = [1, 2, 3, 4, 5];
 
+  // TODO pending behaviour
   const [submitReviewState, submitReviewAction, submitReviewPending] =
     useActionState(
       async () => await submitReview(type, id, rating, comment),
       null,
     );
 
+  // TODO pending behaviour
   const [deleteReviewState, deleteReviewAction, deleteReviewPending] =
     useActionState(async () => await deleteReview(type, id), null);
 

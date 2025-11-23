@@ -38,6 +38,7 @@ export function ManageProjects({
   const [nameDraft, setNameDraft] = useState<string>("");
   const [importResult, setImportResult] = useState<ImportResult>(undefined);
 
+  // TODO pending behaviour
   const [handleRenameState, handleRenameAction, handleRenamePending] =
     useActionState(async (_1: null, projectId: string) => {
       await updateProjectName(projectId, nameDraft);
@@ -45,12 +46,14 @@ export function ManageProjects({
       return null;
     }, null);
 
+  // TODO pending behaviour
   const [handleDeleteState, handleDeleteAction, handleDeletePending] =
     useActionState(async (_1: null, projectId: string) => {
       await deleteProject(projectId);
       return null;
     }, null);
 
+  // TODO pending behaviour
   const [handleOpenState, handleOpenAction, handleOpenPending] = useActionState(
     async (_1: null, project: Tables<"projects">) => {
       const blob = await loadProjectOnline(project.user_project);

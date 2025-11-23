@@ -37,6 +37,7 @@ export default function ItemCard({
   const isNew =
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
 
+  // TODO pending behaviour
   const [addToCartState, addToCartAction, addToCartPending] = useActionState(
     async (_prev: null, formData: FormData) => {
       await addToCart(formData);

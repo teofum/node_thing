@@ -16,6 +16,7 @@ export default function DisplayNameEditor({
 }: DisplayNameEditorProps) {
   const [name, setName] = useState(currentDisplayName ?? "");
 
+  // TODO pending behaviour
   const [setDisplayNameState, setDisplayNameAction, setDisplayNamePending] =
     useActionState(async () => await setDisplayName(name), null);
 

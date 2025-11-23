@@ -24,6 +24,7 @@ export function PublishDialog({
   categories = [],
   ...props
 }: PublishDialogProps) {
+  // TODO pending behaviour
   const [handlePublishState, handlePublishAction, handlePublishPending] =
     useActionState(async (_prevState: null, formData: FormData) => {
       const priceStr = formData.get("price") as string;

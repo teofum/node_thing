@@ -19,6 +19,7 @@ export default function AccountEditor({
 }: AccountEditorProps) {
   const [name, setName] = useState(userData.username ?? "");
 
+  // TODO pending behaviour
   const [setUsernameState, setUsernameAction, setUsernamePending] =
     useActionState(async () => await setUsername(name), null);
 

@@ -21,12 +21,14 @@ export function Cart({ items }: CartProps) {
     null,
   );
 
+  // TODO pending behaviour
   const [removeFromCartState, removeFromCartAction, removeFromCartPending] =
     useActionState(async (_prev: null, formData: FormData) => {
       await removeFromCart(formData);
       return null;
     }, null);
 
+  // TODO pending behaviour
   const [
     createOrderAndRedirectStatus,
     createOrderAndRedirectAction,
