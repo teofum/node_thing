@@ -29,6 +29,12 @@ export function ViewMenu() {
         >
           Timeline
         </MenuCheckboxItem>
+        <MenuCheckboxItem
+          checked={view.tooltipsEnabled}
+          onCheckedChange={(tooltipsEnabled) => updateView({ tooltipsEnabled })}
+        >
+          Tooltips on placed nodes
+        </MenuCheckboxItem>
 
         <MenuSeparator />
 

@@ -11,6 +11,8 @@ import { NodeParameter } from "./node-parameter";
 import { useNodeTypes } from "@/utils/use-node-types";
 import { Button } from "@/ui/button";
 import { useProjectStore } from "@/store/project.store";
+import { Tooltip } from "@/ui/tooltip";
+import { useConfigStore } from "@/store/config.store";
 
 export function RenderShaderNode(
   props: NodeProps<ShaderNodeType> & { mock?: boolean },
@@ -18,6 +20,8 @@ export function RenderShaderNode(
   const { data, selected } = props;
   const nodeTypes = useNodeTypes();
   const remove = useProjectStore((s) => s.removeNode);
+
+  const tooltipsEnabled = useConfigStore((s) => s.view.tooltipsEnabled);
 
   const nodeTypeInfo = nodeTypes[data.type];
   if (!nodeTypeInfo)
@@ -54,7 +58,7 @@ export function RenderShaderNode(
       </div>
     );
 
-  return (
+  const node = (
     <div
       className={cn("glass rounded-xl border min-w-32", {
         "border-white/15": !selected,
@@ -106,5 +110,22 @@ export function RenderShaderNode(
         ))}
       </div>
     </div>
+  );
+
+  const showTooltip = props.mock
+    ? nodeTypeInfo.category !== "Custom" && !nodeTypeInfo.externalShaderId
+    : tooltipsEnabled && nodeTypeInfo.tooltip;
+
+  return showTooltip ? (
+    <Tooltip
+      className="max-w-70 max-h-70"
+      content={nodeTypeInfo.tooltip ?? "(Missing description)"}
+      side={props.mock ? "right" : "top"}
+      delay={700}
+    >
+      {node}
+    </Tooltip>
+  ) : (
+    node
   );
 }
