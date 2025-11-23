@@ -15,6 +15,7 @@ export type TutorialStep = {
 };
 
 export type Tutorial = {
+  id: string;
   name: string;
   steps: TutorialStep[];
 };

@@ -1,57 +1,11 @@
-"use client";
-
-import { ShaderNode } from "@/schemas/node.schema";
 import { useConfigStore } from "@/store/config.store";
-import { Project } from "@/store/project.types";
-import {
-  Tutorial as TutorialType,
-  useTutorialStore,
-} from "@/store/tutorial.store";
-import { Button } from "@/ui/button";
-import { Dialog } from "@/ui/dialog";
+import { Tutorial } from "@/store/tutorial.store";
 import { LuEllipsisVertical } from "react-icons/lu";
+import { nodeExists, edgeExistsBetween, and } from "../helpers";
 
-function nodeExists(fn: (node: ShaderNode) => boolean) {
-  return (p: Project) => p.layers[p.currentLayer].nodes.some(fn);
-}
-
-function edgeExistsBetween(
-  source: `${string}:${string}`,
-  target: `${string}:${string}`,
-) {
-  return (p: Project) => {
-    const { nodes, edges } = p.layers[p.currentLayer];
-    return edges.some((e) => {
-      const s = nodes.find((n) => n.id === e.source);
-      const t = nodes.find((n) => n.id === e.target);
-
-      const [sourceType, sourceHandle] = source.split(":");
-      const [targetType, targetHandle] = target.split(":");
-
-      return (
-        s?.data.type === sourceType &&
-        t?.data.type === targetType &&
-        e.sourceHandle === sourceHandle &&
-        e.targetHandle === targetHandle
-      );
-    });
-  };
-}
-
-function and(...fns: ((p: Project) => boolean)[]) {
-  return (p: Project) => fns.every((fn) => fn(p));
-}
-
-function or(...fns: ((p: Project) => boolean)[]) {
-  return (p: Project) => fns.some((fn) => fn(p));
-}
-
-function not(fn: (p: Project) => boolean) {
-  return (p: Project) => !fn(p);
-}
-
-const testTutorial: TutorialType = {
-  name: "Test tutorial",
+export const intro: Tutorial = {
+  id: "intro",
+  name: "Introduction",
   steps: [
     {
       title: "Welcome to node thing!",
@@ -379,50 +333,3 @@ const testTutorial: TutorialType = {
     },
   ],
 };
-
-export function Tutorial() {
-  const { tutorial, step } = useTutorialStore();
-  const currentStep = useTutorialStore((s) => s.tutorial?.steps[s.step]);
-  const start = useTutorialStore((s) => s.startTutorial);
-  const end = useTutorialStore((s) => s.endTutorial);
-  const next = useTutorialStore((s) => s.nextStep);
-
-  return (
-    <>
-      <div className="fixed top-2 right-2 bg-pink-400 text-black rounded-xl p-4 z-1000">
-        <div>tutorials go here wip ui</div>
-        <Button variant="outline" onClick={() => start(testTutorial)}>
-          Start tutorial
-        </Button>
-        <div>active tutorial: {tutorial?.name ?? "none"}</div>
-        <div>step: {step}</div>
-      </div>
-
-      <Dialog
-        modal={currentStep?.nextCondition === undefined}
-        trigger={null}
-        open={tutorial !== null}
-        onOpenChange={(open) => open || end()}
-        title={currentStep?.title}
-        description={`${step + 1} of ${tutorial?.steps.length}`}
-        onInteractOutside={(ev) => ev.preventDefault()}
-        className="select-none"
-        style={{
-          top: currentStep?.position?.y,
-          left: currentStep?.position?.x,
-          translate: currentStep?.position ? "none" : undefined,
-          maxWidth: currentStep?.maxWidth ?? 480,
-        }}
-      >
-        <div className="p-3">{currentStep?.content}</div>
-        {currentStep && !currentStep.nextCondition ? (
-          <div className="p-3 flex flex-row gap-2 justify-end items-end border-t border-white/15">
-            <Button variant="outline" onClick={next}>
-              Continue
-            </Button>
-          </div>
-        ) : null}
-      </Dialog>
-    </>
-  );
-}
