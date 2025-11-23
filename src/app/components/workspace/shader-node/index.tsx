@@ -118,7 +118,7 @@ export function RenderShaderNode(
 
   return showTooltip ? (
     <Tooltip
-      className="text-[15px] max-w-70 max-h-70"
+      className="max-w-70 max-h-70"
       content={nodeTypeInfo.tooltip ?? "(Missing description)"}
       side={props.mock ? "right" : "top"}
       delay={700}

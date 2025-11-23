@@ -31,7 +31,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
               side={side}
               sideOffset={sideOffset}
               className={cn(
-                "rounded-xl bg-neutral-700 px-[15px] py-2.5",
+                "rounded-lg glass glass-border px-3 py-2.5 text-xs/4",
                 "data-[state=delayed-open]:data-[side=top]:animate-[tooltipSlideUp_200ms_ease-out_forwards]",
                 "data-[state=delayed-open]:data-[side=right]:animate-[tooltipSlideRight_200ms_ease-out_forwards]",
                 "data-[state=delayed-open]:data-[side=bottom]:animate-[tooltipSlideDown_200ms_ease-out_forwards]",
@@ -41,7 +41,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
               {...props}
             >
               {content}
-              <RadixTooltip.Arrow className="fill-neutral-700" />
+              <RadixTooltip.Arrow className="fill-neutral-700 z-10" />
             </RadixTooltip.Content>
           </RadixTooltip.Portal>
         </RadixTooltip.Root>
