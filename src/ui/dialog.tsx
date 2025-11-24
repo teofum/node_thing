@@ -26,7 +26,9 @@ export function Dialog({
     <D.Root {...{ open, onOpenChange, modal }}>
       <D.Trigger asChild>{trigger}</D.Trigger>
       <D.Portal>
-        <D.Overlay className="fixed inset-0 bg-neutral-700/10 animate-[dialogOverlay_500ms_ease-out_forwards]" />
+        {modal !== false ? (
+          <D.Overlay className="fixed inset-0 bg-neutral-700/10 animate-[dialogOverlay_500ms_ease-out_forwards]" />
+        ) : null}
         <D.Content
           className={cn(
             "fixed top-1/2 left-1/2 -translate-1/2 min-w-md max-w-[calc(100vw-10rem)] max-h-[calc(100vh-10rem)]",
