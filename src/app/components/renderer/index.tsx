@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { LuCrop, LuSettings, LuTimer } from "react-icons/lu";
 
 import { useAssetStore } from "@/store/asset.store";
-import { useConfigStore } from "@/store/config.store";
+import { DisplayOption, useConfigStore } from "@/store/config.store";
 import { useProjectStore } from "@/store/project.store";
 import { Button, ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
@@ -75,8 +75,15 @@ export function Renderer() {
           storeHydrated={storeHydrated}
         />
 
-        <div className="mr-auto min-w-32 flex flex-row">
-          <Select variant="outline" className="py-1.75">
+        <div className="mr-auto min-w-36 flex flex-row">
+          <Select
+            variant="outline"
+            className="py-1.75"
+            value={view.display}
+            onValueChange={(val) =>
+              updateView({ display: val as DisplayOption })
+            }
+          >
             <SelectItem value="final-render" className="py-1.75">
               Final render
             </SelectItem>
