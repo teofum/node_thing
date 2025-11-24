@@ -91,7 +91,7 @@ export function MenuHistory() {
                         "shrink-0 w-4 h-4 flex items-center justify-center rounded-full border",
                         isActive
                           ? "border-blue-500 text-blue-500 bg-blue-500/20"
-                          : "border-transparent text-white/20 transition-colors duration-300 group-hover:border-white/20",
+                          : "border-transparent text-white/20 transition-colors",
                       )}
                     >
                       {isActive && <LuArrowRight className="w-3 h-3" />}
