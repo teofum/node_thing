@@ -8,8 +8,9 @@ export function initYjsSync(projectId: string, channel: RealtimeChannel) {
   const yNodes = ydoc.getArray<ShaderNode>("nodes");
   const yEdges = ydoc.getArray<Edge>("edges");
 
-  // Send updates to other clients
-  ydoc.on("update", (update: Uint8Array) => {
+  ydoc.on("update", (update: Uint8Array, origin: unknown) => {
+    if (origin === channel) return;
+
     channel.send({
       type: "broadcast",
       event: "yjs-update",
@@ -17,9 +18,8 @@ export function initYjsSync(projectId: string, channel: RealtimeChannel) {
     });
   });
 
-  // Receive updates from other clients
   channel.on("broadcast", { event: "yjs-update" }, ({ payload }) => {
-    Y.applyUpdate(ydoc, new Uint8Array(payload.update));
+    Y.applyUpdate(ydoc, new Uint8Array(payload.update), channel);
   });
 
   return { ydoc, yNodes, yEdges };
