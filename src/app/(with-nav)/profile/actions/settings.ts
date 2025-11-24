@@ -25,20 +25,29 @@ export async function checkUsernameAvailable(username: string) {
   return !data;
 }
 
-export async function setUsername(formData: FormData) {
+export async function setUsername(username: string) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
 
-  const currentUsername = formData.get("currentUsername") as string;
-  const newUsername = formData.get("username") as string;
-  const lowercaseUsername = newUsername.toLowerCase().trim();
+  const lowercaseUsername = username.toLowerCase().trim();
+
+  if (!lowercaseUsername) {
+    throw new Error("Username cannot be empty");
+  }
 
   if (/\s/.test(lowercaseUsername)) {
     throw new Error("Username cannot contain spaces");
   }
 
-  if (currentUsername === lowercaseUsername) {
+  // Get current username to check if it's the same
+  const { data: currentProfile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
+  if (currentProfile?.username === lowercaseUsername) {
     throw new Error("Username is the same as current");
   }
 
@@ -59,15 +68,19 @@ export async function setUsername(formData: FormData) {
   redirect(`/profile/${lowercaseUsername}`);
 }
 
-export async function setDisplayName(formData: FormData) {
+export async function setDisplayName(displayName: string) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
 
-  const newDisplayName = formData.get("displayName") as string;
+  const trimmedDisplayName = displayName.trim();
+
+  if (!trimmedDisplayName) {
+    throw new Error("Display name cannot be empty");
+  }
 
   const { error } = await supabase.auth.updateUser({
-    data: { full_name: newDisplayName },
+    data: { full_name: trimmedDisplayName },
   });
 
   if (error) {
@@ -83,17 +96,16 @@ export async function setDisplayName(formData: FormData) {
   revalidatePath(`/profile/${profile?.username}`);
 }
 
-export async function changePassword(formData: FormData) {
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
 
-  const currentPassword = formData.get("currentPassword") as string;
-  const newPassword = formData.get("newPassword") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  if (newPassword !== confirmPassword) {
-    throw new Error("Passwords do not match");
+  if (!currentPassword || !newPassword) {
+    throw new Error("Passwords cannot be empty");
   }
 
   const { data: isValid, error: verifyError } = await supabase.rpc(

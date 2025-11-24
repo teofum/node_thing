@@ -6,11 +6,6 @@ import { Button } from "@/ui/button";
 import { uploadAvatar, removeAvatar } from "../actions/settings";
 import Image from "next/image";
 import Cropper, { type Area } from "react-easy-crop";
-import { ErrorBoundary } from "react-error-boundary";
-
-function ErrorFallback({ error }: { error: Error }) {
-  return <div className="text-red-400 text-sm p-2">{error.message}</div>;
-}
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
@@ -76,106 +71,104 @@ export default function AvatarEditor({
 
   return (
     <Dialog trigger={trigger} title="Change Avatar" description="">
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <div className="flex flex-col p-4 text-lg">
-          {!imageSrc ? (
-            <>
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-[120px] h-[120px] rounded-full overflow-hidden">
-                  <Image
-                    src={currentAvatarUrl}
-                    alt="Avatar preview"
-                    width={120}
-                    height={120}
-                    unoptimized
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImageSrc(reader.result as string);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
+      <div className="flex flex-col p-4 text-lg">
+        {!imageSrc ? (
+          <>
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-[120px] h-[120px] rounded-full overflow-hidden">
+                <Image
+                  src={currentAvatarUrl}
+                  alt="Avatar preview"
+                  width={120}
+                  height={120}
+                  unoptimized
+                  className="w-full h-full object-cover"
                 />
               </div>
-              <div className="flex justify-between items-center mt-4">
-                <form action={removeAvatar}>
-                  <Button type="submit" variant="outline">
-                    Remove
-                  </Button>
-                </form>
-                <Button onClick={() => fileInputRef.current?.click()}>
-                  Choose Image
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <div className="relative w-full h-[300px] bg-black">
-                <Cropper
-                  image={imageSrc}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={1}
-                  cropShape="round"
-                  showGrid={false}
-                  onCropChange={setCrop}
-                  onZoomChange={setZoom}
-                  onCropComplete={onCropComplete}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Zoom:</span>
-                <input
-                  type="range"
-                  min={1}
-                  max={3}
-                  step={0.1}
-                  value={zoom}
-                  onChange={(e) => setZoom(Number(e.target.value))}
-                  className="flex-1"
-                />
-              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setImageSrc(reader.result as string);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
             </div>
-          )}
-
-          {imageSrc && (
             <div className="flex justify-between items-center mt-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setImageSrc(null);
-                  setCrop({ x: 0, y: 0 });
-                  setZoom(1);
-                  if (fileInputRef.current) fileInputRef.current.value = "";
-                }}
-              >
-                Back
-              </Button>
-              <Button
-                onClick={async () => {
-                  const croppedBlob = await createCroppedImage();
-                  const formData = new FormData();
-                  formData.append("avatar", croppedBlob, "avatar.jpg");
-                  await uploadAvatar(formData);
-                }}
-              >
-                Save
+              <form action={removeAvatar}>
+                <Button type="submit" variant="outline">
+                  Remove
+                </Button>
+              </form>
+              <Button onClick={() => fileInputRef.current?.click()}>
+                Choose Image
               </Button>
             </div>
-          )}
-        </div>
-      </ErrorBoundary>
+          </>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <div className="relative w-full h-[300px] bg-black">
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Zoom:</span>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="flex-1"
+              />
+            </div>
+          </div>
+        )}
+
+        {imageSrc && (
+          <div className="flex justify-between items-center mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setImageSrc(null);
+                setCrop({ x: 0, y: 0 });
+                setZoom(1);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+            >
+              Back
+            </Button>
+            <Button
+              onClick={async () => {
+                const croppedBlob = await createCroppedImage();
+                const formData = new FormData();
+                formData.append("avatar", croppedBlob, "avatar.jpg");
+                await uploadAvatar(formData);
+              }}
+            >
+              Save
+            </Button>
+          </div>
+        )}
+      </div>
     </Dialog>
   );
 }
