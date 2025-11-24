@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LuCrop, LuTimer } from "react-icons/lu";
+import { LuCrop, LuSettings, LuTimer } from "react-icons/lu";
 
 import { useAssetStore } from "@/store/asset.store";
 import { useConfigStore } from "@/store/config.store";
 import { useProjectStore } from "@/store/project.store";
-import { ToggleButton } from "@/ui/button";
+import { Button, ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Canvas } from "./canvas";
 import { LayerHandle } from "./handles/layer-handle";
 import { Timeline } from "./timeline";
 import { ZoomControls } from "./zoom-controls";
 import { RadialHandle } from "./handles/radial-handle";
+import { Popover } from "@/ui/popover";
+import { Select, SelectItem } from "@/ui/select";
 
 export function Renderer() {
   const canvas = useProjectStore((s) => s.properties.canvas);
@@ -73,29 +75,18 @@ export function Renderer() {
           storeHydrated={storeHydrated}
         />
 
-        <div className="flex flex-row items-center gap-1 ml-auto">
-          <div className="font-medium text-xs">Canvas size</div>
-          <Input
-            variant="outline"
-            size="sm"
-            className="min-w-12 w-0"
-            defaultValue={canvas.width}
-            onBlur={(ev) => updateWidth(ev.target.value)}
-            onKeyDown={(ev) => {
-              if (ev.key === "Enter") updateWidth(ev.currentTarget.value);
-            }}
-          />
-          ×
-          <Input
-            size="sm"
-            variant="outline"
-            className="min-w-12 w-0"
-            defaultValue={canvas.height}
-            onBlur={(ev) => updateHeight(ev.target.value)}
-            onKeyDown={(ev) => {
-              if (ev.key === "Enter") updateHeight(ev.currentTarget.value);
-            }}
-          />
+        <div className="mr-auto min-w-32 flex flex-row">
+          <Select variant="outline" className="py-1.75">
+            <SelectItem value="final-render" className="py-1.75">
+              Final render
+            </SelectItem>
+            <SelectItem value="layer-output" className="py-1.75">
+              Layer output
+            </SelectItem>
+            <SelectItem value="selection" className="py-1.75">
+              Selection
+            </SelectItem>
+          </Select>
         </div>
 
         <ToggleButton
@@ -114,6 +105,41 @@ export function Renderer() {
         >
           <LuTimer />
         </ToggleButton>
+        <Popover
+          trigger={
+            <Button icon variant="outline">
+              <LuSettings />
+            </Button>
+          }
+          className="p-3"
+          align="end"
+          sideOffset={4}
+        >
+          <div className="flex flex-row items-center gap-1">
+            <div className="font-medium text-xs">Canvas size</div>
+            <Input
+              variant="outline"
+              size="sm"
+              className="min-w-12 w-0"
+              defaultValue={canvas.width}
+              onBlur={(ev) => updateWidth(ev.target.value)}
+              onKeyDown={(ev) => {
+                if (ev.key === "Enter") updateWidth(ev.currentTarget.value);
+              }}
+            />
+            ×
+            <Input
+              size="sm"
+              variant="outline"
+              className="min-w-12 w-0"
+              defaultValue={canvas.height}
+              onBlur={(ev) => updateHeight(ev.target.value)}
+              onKeyDown={(ev) => {
+                if (ev.key === "Enter") updateHeight(ev.currentTarget.value);
+              }}
+            />
+          </div>
+        </Popover>
       </div>
       <div
         ref={viewport}
