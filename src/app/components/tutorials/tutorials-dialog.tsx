@@ -16,10 +16,14 @@ type ExportOptionsProps = {
 export function TutorialsDialog({ open, onOpenChange }: ExportOptionsProps) {
   const start = useTutorialStore((s) => s.startTutorial);
 
+  // TODO
+  const description = "test description";
+  const progress = 3;
+
   return (
     <Dialog
       title="Tutorials"
-      description="Learn more about node thing"
+      description="Learn more about node_thing"
       trigger={null}
       open={open}
       onOpenChange={onOpenChange}
@@ -30,10 +34,22 @@ export function TutorialsDialog({ open, onOpenChange }: ExportOptionsProps) {
             <Button
               variant="outline"
               size="lg"
-              className="justify-between!"
+              className="flex justify-between!"
               onClick={() => start(tutorial)}
             >
-              {tutorial.name} <LuArrowRight />
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  {tutorial.name}
+
+                  <span className="text-xs text-white/60 text-left">
+                    {`(${progress}/?)`}
+                  </span>
+                </div>
+
+                <p className="text-xs text-white/60 text-left">{description}</p>
+              </div>
+
+              <LuArrowRight />
             </Button>
           </DialogClose>
         ))}
