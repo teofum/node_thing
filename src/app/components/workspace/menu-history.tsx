@@ -60,8 +60,8 @@ export function MenuHistory() {
   const redo = useProjectStore((state) => state.redo);
 
   return (
-    <div className="border-t border-white/15 flex flex-col h-full bg-neutral-900 text-white select-none">
-      <div className="grow overflow-y-auto min-h-0 border-b border-white/15 custom-scrollbar">
+    <div className="group border-t border-white/15 flex flex-col h-full bg-neutral-900 text-white select-none">
+      <div className="grow overflow-y-auto min-h-0 border-b border-white/15 custom-scrollbar transition-opacity duration-300 opacity-80 group-hover:opacity-100">
         {history.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-white/30 gap-2">
             <LuHistory className="w-8 h-8 opacity-50" />
