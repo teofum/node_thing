@@ -5,8 +5,8 @@ import { Edge } from "@xyflow/react";
 
 export function initYjsSync(projectId: string, channel: RealtimeChannel) {
   const ydoc = new Y.Doc();
-  const yNodes = ydoc.getArray<ShaderNode>("nodes");
-  const yEdges = ydoc.getArray<Edge>("edges");
+  const yNodes = ydoc.getMap<ShaderNode>("nodes");
+  const yEdges = ydoc.getMap<Edge>("edges");
 
   ydoc.on("update", (update: Uint8Array, origin: unknown) => {
     if (origin === channel) return;

@@ -61,16 +61,16 @@ export const useProjectStore = create(
             await channel.subscribe();
             const { ydoc } = initYjsSync("shared", channel);
 
-            const yNodes = ydoc.getArray("nodes");
-            const yEdges = ydoc.getArray("edges");
+            const yNodes = ydoc.getMap("nodes");
+            const yEdges = ydoc.getMap("edges");
 
             yNodes.observe(() => {
-              const nodes = yNodes.toArray() as ShaderNode[];
+              const nodes = Array.from(yNodes.values()) as ShaderNode[];
               set(modifyLayer(() => ({ nodes })));
             });
 
             yEdges.observe(() => {
-              const edges = yEdges.toArray() as Edge[];
+              const edges = Array.from(yEdges.values()) as Edge[];
               set(modifyLayer(() => ({ edges })));
             });
 
@@ -101,11 +101,19 @@ export const useProjectStore = create(
 
           set(modifyLayer(() => ({ nodes: newNodes })));
 
-          // Sync to Yjs if collaboration is enabled
           if (collaborationEnabled && yjsDoc) {
-            const yNodes = yjsDoc.getArray("nodes");
-            yNodes.delete(0, yNodes.length);
-            yNodes.push(newNodes);
+            const yNodes = yjsDoc.getMap("nodes");
+            yjsDoc.transact(() => {
+              for (const node of newNodes) {
+                yNodes.set(node.id, node);
+              }
+              const currentIds = new Set(newNodes.map((n) => n.id));
+              for (const key of yNodes.keys()) {
+                if (!currentIds.has(key)) {
+                  yNodes.delete(key);
+                }
+              }
+            });
           }
         },
 
@@ -118,11 +126,19 @@ export const useProjectStore = create(
 
           set(modifyLayer(() => ({ edges: newEdges })));
 
-          // Sync to Yjs if collaboration is enabled
           if (collaborationEnabled && yjsDoc) {
-            const yEdges = yjsDoc.getArray("edges");
-            yEdges.delete(0, yEdges.length);
-            yEdges.push(newEdges);
+            const yEdges = yjsDoc.getMap("edges");
+            yjsDoc.transact(() => {
+              for (const edge of newEdges) {
+                yEdges.set(edge.id, edge);
+              }
+              const currentIds = new Set(newEdges.map((e) => e.id));
+              for (const key of yEdges.keys()) {
+                if (!currentIds.has(key)) {
+                  yEdges.delete(key);
+                }
+              }
+            });
           }
         },
 
@@ -143,9 +159,18 @@ export const useProjectStore = create(
           set(modifyLayer(() => ({ edges: newEdges })));
 
           if (collaborationEnabled && yjsDoc) {
-            const yEdges = yjsDoc.getArray("edges");
-            yEdges.delete(0, yEdges.length);
-            yEdges.push(newEdges);
+            const yEdges = yjsDoc.getMap("edges");
+            yjsDoc.transact(() => {
+              for (const edge of newEdges) {
+                yEdges.set(edge.id, edge);
+              }
+              const currentIds = new Set(newEdges.map((e) => e.id));
+              for (const key of yEdges.keys()) {
+                if (!currentIds.has(key)) {
+                  yEdges.delete(key);
+                }
+              }
+            });
           }
         },
 
