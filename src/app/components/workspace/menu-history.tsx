@@ -1,8 +1,8 @@
 import { clsx } from "clsx";
 import {
   LuHistory,
-  LuCheck,
-  LuCircleDashed,
+  LuCircleCheckBig,
+  LuCircleOff,
   LuArrowRight,
   LuRedo2,
   LuUndo2,
@@ -91,14 +91,14 @@ export function MenuHistory() {
                         "shrink-0 w-4 h-4 flex items-center justify-center rounded-full border",
                         isActive
                           ? "border-blue-500 text-blue-500 bg-blue-500/20"
-                          : "border-transparent text-white/20 group-hover:border-white/20",
+                          : "border-transparent text-white/20 transition-colors duration-300 group-hover:border-white/20",
                       )}
                     >
                       {isActive && <LuArrowRight className="w-3 h-3" />}
                       {!isActive && !isUndone && (
-                        <LuCheck className="w-3 h-3 text-green-500/50" />
+                        <LuCircleCheckBig className="w-3 h-3 text-green-500/80" />
                       )}
-                      {isUndone && <LuCircleDashed className="w-3 h-3" />}
+                      {isUndone && <LuCircleOff className="w-3 h-3" />}
                     </div>
                     <span className="truncate font-medium">
                       {getCommandLabel(cmd)}
