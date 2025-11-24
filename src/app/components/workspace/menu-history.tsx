@@ -12,9 +12,6 @@ import { Button } from "@/ui/button";
 import { useProjectStore } from "@/store/project.store";
 import { Command } from "@/store/types/command";
 
-/**
- * Maps store command strings to human-readable labels.
- */
 const getCommandLabel = (cmd: Command): string => {
   switch (cmd.command) {
     case "createNode":
@@ -64,7 +61,6 @@ export function MenuHistory() {
 
   return (
     <div className="border-t border-white/15 flex flex-col h-full bg-neutral-900 text-white select-none">
-      {/* Scrollable List Area */}
       <div className="grow overflow-y-auto min-h-0 border-b border-white/15 custom-scrollbar">
         {history.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-white/30 gap-2">
@@ -74,8 +70,8 @@ export function MenuHistory() {
         ) : (
           <div className="flex flex-col">
             {history.map((cmd, index) => {
-              const isUndone = index < done; // Future / Redoable
-              const isActive = index === done; // Current State
+              const isUndone = index < done;
+              const isActive = index === done;
 
               return (
                 <div
@@ -117,7 +113,6 @@ export function MenuHistory() {
               );
             })}
 
-            {/* Initial State Entry */}
             <div
               onClick={() => goTo(history.length)}
               className={clsx(
@@ -140,7 +135,6 @@ export function MenuHistory() {
         )}
       </div>
 
-      {/* Footer / Controls - Matching MenuLibrary footer style */}
       <div className="p-2 flex gap-2">
         <Button
           variant="outline"
