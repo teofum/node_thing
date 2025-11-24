@@ -37,8 +37,6 @@ import {
   historyPush,
 } from "./project.actions";
 import type { NodesChangePatch, EdgesChangePatch } from "@/store/types/command";
-import { getCartItems } from "@/app/(with-nav)/marketplace/cart.actions";
-import { constants } from "buffer";
 
 interface ProjectStore extends ReturnType<typeof createInitialState> {
   undo: () => void;
@@ -73,7 +71,6 @@ export const useProjectStore = create(
           if (!layer) return state;
 
           let slicedHist = history.slice(done);
-          const startLen = slicedHist.length;
           let nodes = layer.nodes;
           let nextState = state;
 
@@ -181,6 +178,10 @@ export const useProjectStore = create(
                     data: { layer: currentLayer, patch: patch },
                   });
                 }
+                break;
+              }
+              case "select": {
+                commit(ch);
                 break;
               }
               default: {
