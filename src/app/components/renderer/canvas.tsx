@@ -26,6 +26,7 @@ export function Canvas() {
    */
   const { canvas: canvasProperties } = useProjectStore((s) => s.properties);
   const layers = useProjectStore((s) => s.layers);
+  const currentLayer = useProjectStore((s) => s.currentLayer);
 
   const animation = useAnimationStore();
   const updateAnimation = useAnimationStore((s) => s.update);
@@ -50,7 +51,7 @@ export function Canvas() {
     const scale = view.zoom / window.devicePixelRatio;
     canvas?.style.setProperty("width", `${canvas.width * scale}px`);
     canvas?.style.setProperty("height", `${canvas.height * scale}px`);
-  }, [canvas, view, canvasProperties]);
+  }, [canvas, view.zoom, canvasProperties]);
 
   /*
    * Get GPU device and configure canvas WebGPU context
@@ -119,8 +120,13 @@ export function Canvas() {
         recording.current ||
         deltaTime + lastFrameError.current > minFrametime
       ) {
+        let renderLayers = zip(pipeline, layers);
+        if (view.display === "layer-output") {
+          renderLayers = renderLayers.slice(0, currentLayer + 1);
+        }
+
         const target = ctx.getCurrentTexture();
-        for (const [layerPipeline, layer] of zip(pipeline, layers)) {
+        for (const [layerPipeline, layer] of renderLayers) {
           if (layerPipeline)
             render(
               device,
@@ -190,6 +196,8 @@ export function Canvas() {
     recordingFramerate,
     recorder,
     layers,
+    currentLayer,
+    view.display,
   ]);
 
   return (
