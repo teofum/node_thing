@@ -1,11 +1,11 @@
 import { clsx } from "clsx";
 import {
   LuHistory,
-  LuRotateCcw,
-  LuRotateCw,
   LuCheck,
   LuCircleDashed,
   LuArrowRight,
+  LuRedo2,
+  LuUndo2,
 } from "react-icons/lu";
 
 import { Button } from "@/ui/button";
@@ -143,7 +143,7 @@ export function MenuHistory() {
           className="flex-1 gap-2"
           title="Undo (Ctrl+Z)"
         >
-          <LuRotateCcw className="w-3.5 h-3.5" />
+          <LuUndo2 className="w-3.5 h-3.5" />
           Undo
         </Button>
         <Button
@@ -154,7 +154,7 @@ export function MenuHistory() {
           title="Redo (Ctrl+Y)"
         >
           Redo
-          <LuRotateCw className="w-3.5 h-3.5" />
+          <LuRedo2 className="w-3.5 h-3.5" />
         </Button>
       </div>
     </div>
