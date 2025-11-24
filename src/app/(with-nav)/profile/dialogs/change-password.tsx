@@ -1,10 +1,9 @@
 "use client";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
-import { ReactNode, useState } from "react";
+import { ReactNode, startTransition, useActionState, useState } from "react";
 import { Button } from "@/ui/button";
 import { changePassword } from "../actions/settings";
-import { useRouter } from "next/navigation";
 
 type PasswordEditorProps = {
   trigger: ReactNode;
@@ -14,12 +13,13 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const router = useRouter();
 
-  const passwordChangeHandler = async () => {
-    await changePassword(currentPassword, newPassword);
-    router.refresh();
-  };
+  // TODO pending behaviour
+  const [changePasswordState, changePasswordAction, changePasswordPending] =
+    useActionState(
+      async () => await changePassword(currentPassword, newPassword),
+      null,
+    );
 
   const passwordsMatch =
     newPassword.length > 0 && newPassword === confirmPassword;
@@ -57,14 +57,12 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <DialogClose asChild>
-            <Button
-              onClick={() => passwordChangeHandler()}
-              disabled={!passwordsMatch}
-            >
-              Change Password
-            </Button>
-          </DialogClose>
+          <Button
+            onClick={() => startTransition(() => changePasswordAction())}
+            disabled={!passwordsMatch || changePasswordPending}
+          >
+            {changePasswordPending ? "Changing..." : "Change Password"}
+          </Button>
         </div>
       </div>
     </Dialog>

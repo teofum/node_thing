@@ -1,4 +1,4 @@
-import { ComponentProps } from "react";
+import { ComponentProps, useActionState } from "react";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
@@ -24,20 +24,23 @@ export function PublishDialog({
   categories = [],
   ...props
 }: PublishDialogProps) {
-  async function handlePublish(formData: FormData) {
-    const priceStr = formData.get("price") as string;
-    const description = formData.get("description") as string;
-    const price = Number(priceStr) || 0;
+  // TODO pending behaviour
+  const [handlePublishState, handlePublishAction, handlePublishPending] =
+    useActionState(async (_prevState: null, formData: FormData) => {
+      const priceStr = formData.get("price") as string;
+      const description = formData.get("description") as string;
+      const price = Number(priceStr) || 0;
 
-    if (type === "shader") {
-      const categoryId = Number(formData.get("categoryId"));
-      await publishShader(id, price, description, categoryId);
-    } else {
-      await publishProject(id, price, description);
-    }
+      if (type === "shader") {
+        const categoryId = Number(formData.get("categoryId"));
+        await publishShader(id, price, description, categoryId);
+      } else {
+        await publishProject(id, price, description);
+      }
 
-    props.onOpenChange?.(false);
-  }
+      props.onOpenChange?.(false);
+      return null;
+    }, null);
 
   return (
     <Dialog
@@ -47,7 +50,7 @@ export function PublishDialog({
       className="w-2/5"
       {...props}
     >
-      <form action={handlePublish}>
+      <form action={handlePublishAction}>
         <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
           <div className="font-semibold text-3x1 mt-3">Price</div>
 
