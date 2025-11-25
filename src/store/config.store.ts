@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { combine, persist } from "zustand/middleware";
 
 export type SidebarPanel = "library" | "layers" | "assets" | "animation";
+export type DisplayOption = "final-render" | "layer-output" | "selection";
+
 export type Config = {
   view: {
     zoom: number;
@@ -11,6 +13,7 @@ export type Config = {
       panel: SidebarPanel;
       pinned: boolean;
     };
+    display: DisplayOption;
   };
 };
 
@@ -23,6 +26,7 @@ const initialState: Config = {
       panel: "library",
       pinned: false,
     },
+    display: "final-render",
   },
 };
 
