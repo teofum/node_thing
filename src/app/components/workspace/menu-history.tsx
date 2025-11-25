@@ -60,7 +60,7 @@ export function MenuHistory() {
   const redo = useProjectStore((state) => state.redo);
 
   return (
-    <div className="group border-t border-white/15 flex flex-col h-full bg-neutral-900 text-white select-none">
+    <div className="group border-t border-white/15 flex flex-col h-full text-white select-none">
       <div className="grow overflow-y-auto min-h-0 border-b border-white/15 custom-scrollbar transition-opacity duration-300 opacity-80 group-hover:opacity-100">
         {history.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-white/30 gap-2">
@@ -80,7 +80,7 @@ export function MenuHistory() {
                   className={clsx(
                     "group flex items-center justify-between px-3 py-3 text-xs border-b border-white/5 cursor-pointer transition-colors duration-150",
                     isActive
-                      ? "bg-blue-500/10 text-white"
+                      ? "bg-teal-400/10 text-white"
                       : "hover:bg-white/8 text-neutral-300",
                     isUndone && "opacity-50 hover:opacity-80",
                   )}
@@ -90,7 +90,7 @@ export function MenuHistory() {
                       className={clsx(
                         "shrink-0 w-4 h-4 flex items-center justify-center rounded-full border",
                         isActive
-                          ? "border-blue-500 text-blue-500 bg-blue-500/20"
+                          ? "border-teal-400 text-teal-400 bg-teal-400/20"
                           : "border-transparent text-white/20 transition-colors",
                       )}
                     >
@@ -118,13 +118,13 @@ export function MenuHistory() {
               className={clsx(
                 "group flex items-center gap-3 px-3 py-3 text-xs cursor-pointer hover:bg-white/8 transition-colors",
                 done === history.length
-                  ? "bg-blue-500/10 text-white"
+                  ? "bg-teal-400/10 text-white"
                   : "text-neutral-500",
               )}
             >
               <div className="shrink-0 w-4 h-4 flex items-center justify-center">
                 {done === history.length ? (
-                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                  <div className="w-2 h-2 rounded-full bg-teal-400" />
                 ) : (
                   <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
                 )}
