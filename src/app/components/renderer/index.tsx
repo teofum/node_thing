@@ -19,7 +19,7 @@ import { Select, SelectItem } from "@/ui/select";
 export function Renderer() {
   const canvas = useProjectStore((s) => s.properties.canvas);
   const setCanvasSize = useProjectStore((s) => s.setCanvasSize);
-  const { nodes } = useProjectStore((s) => s.layers[s.currentLayer]);
+  const { nodes, edges } = useProjectStore((s) => s.layers[s.currentLayer]);
 
   const view = useConfigStore((s) => s.view);
   const updateView = useConfigStore((s) => s.updateView);
@@ -62,6 +62,7 @@ export function Renderer() {
     );
 
   const selectedNodes = nodes.filter((n) => n.selected);
+  const selectedEdges = edges.filter((e) => e.selected);
 
   /*
    * Component UI
@@ -150,7 +151,7 @@ export function Renderer() {
       </div>
       <div
         ref={viewport}
-        className="overflow-auto grow grid place-items-center p-4"
+        className="overflow-auto grow grid place-items-center p-4 relative"
       >
         <div className="relative">
           <Canvas />
@@ -161,6 +162,12 @@ export function Renderer() {
               <RadialHandle key={n.id} nodeId={n.id} node={n.data} />
             ))}
         </div>
+
+        {view.display === "selection" && selectedEdges.length !== 1 ? (
+          <div className="absolute inset-0 bg-neutral-950 grid place-items-center">
+            Select a single edge to preview
+          </div>
+        ) : null}
       </div>
 
       {view.timeline ? <Timeline /> : null}
