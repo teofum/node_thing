@@ -23,30 +23,31 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
 
   const passwordsMatch =
     newPassword.length > 0 && newPassword === confirmPassword;
+  const isValid = currentPassword.length > 0 && passwordsMatch;
 
   return (
     <Dialog trigger={trigger} title="Change Password" description="">
       <div className="flex flex-col p-4 text-lg gap-3">
         <h1 className="text-sm/3">Current Password</h1>
-        <textarea
-          className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15  mb-2"
+        <input
+          type="password"
           value={currentPassword}
-          rows={1}
           onChange={(e) => setCurrentPassword(e.target.value)}
+          className="text-sm max-w-full w-full outline-none p-2 rounded-lg border border-white/15 mb-2"
         />
         <h1 className="text-sm/3">New Password</h1>
-        <textarea
-          className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15  mb-2"
+        <input
+          type="password"
           value={newPassword}
-          rows={1}
           onChange={(e) => setNewPassword(e.target.value)}
+          className="text-sm max-w-full w-full outline-none p-2 rounded-lg border border-white/15 mb-2"
         />
         <h1 className="text-sm/3">Confirm New Password</h1>
-        <textarea
-          className="text-sm resize-none max-w-full w-full outline-none p-2 rounded-lg border border-white/15  mb-2"
+        <input
+          type="password"
           value={confirmPassword}
-          rows={1}
           onChange={(e) => setConfirmPassword(e.target.value)}
+          className="text-sm max-w-full w-full outline-none p-2 rounded-lg border border-white/15 mb-2"
         />
 
         {!passwordsMatch && confirmPassword.length > 0 && (
@@ -59,7 +60,7 @@ export default function PasswordEditor({ trigger }: PasswordEditorProps) {
           </DialogClose>
           <Button
             onClick={() => startTransition(() => changePasswordAction())}
-            disabled={!passwordsMatch || changePasswordPending}
+            disabled={!isValid || changePasswordPending}
           >
             {changePasswordPending ? "Changing..." : "Change Password"}
           </Button>

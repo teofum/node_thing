@@ -10,7 +10,7 @@ import {
 import {
   deleteReview,
   submitReview,
-} from "@/app/(with-nav)/profile/actions/items";
+} from "@/app/(with-nav)/profile/actions/private";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 import { RatingsDisplay } from "../components/items-tab";

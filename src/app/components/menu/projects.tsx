@@ -62,8 +62,10 @@ export function ProjectsMenu({
     return (
       <Menu label="Projects" value="file">
         <MenuItem icon={<LuMedal />}>
-          {/* TODO acá redirigir a premium */}
-          <Link href="/profile" className="w-full h-full">
+          <Link
+            href={`/profile/${userData?.username}`}
+            className="w-full h-full"
+          >
             Premium
           </Link>
         </MenuItem>
