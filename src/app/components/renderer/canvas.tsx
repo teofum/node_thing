@@ -121,7 +121,7 @@ export function Canvas() {
         deltaTime + lastFrameError.current > minFrametime
       ) {
         let renderLayers = zip(pipeline, layers);
-        if (view.display === "layer-output") {
+        if (view.display !== "final-render") {
           renderLayers = renderLayers.slice(0, currentLayer + 1);
         }
 
