@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { create } from "zustand";
-import { combine } from "zustand/middleware";
+import { combine, persist } from "zustand/middleware";
 import { useProjectStore } from "./project.store";
 import { Project } from "./project.types";
 import { Point } from "@/utils/point";
@@ -24,55 +24,82 @@ type TutorialState = {
   tutorial: Tutorial | null;
   unsubscribe: (() => void) | null;
   step: number;
+  progress: Record<string, number>;
 };
 
 const initialState: TutorialState = {
   tutorial: null,
   unsubscribe: null,
   step: 0,
+  progress: {},
 };
 
 export const useTutorialStore = create(
-  combine(initialState, (set, get) => ({
-    startTutorial: (tutorial: Tutorial) => {
-      const unsubscribe = useProjectStore.subscribe((state) => {
-        const { tutorial, step } = get();
-        if (tutorial?.steps[step].nextCondition?.(state)) {
-          if (step === tutorial.steps.length - 1) {
-            set({ tutorial: null, step: 0 });
-          } else {
-            const nextStep = tutorial.steps[step + 1];
-            set({ step: step + 1 });
-            nextStep.onStart?.();
+  persist(
+    combine(initialState, (set, get) => ({
+      startTutorial: (tutorial: Tutorial) => {
+        const unsubscribe = useProjectStore.subscribe((state) => {
+          const { tutorial, step } = get();
+          if (tutorial?.steps[step].nextCondition?.(state)) {
+            if (step === tutorial.steps.length - 1) {
+              set((s) => ({
+                tutorial: null,
+                step: 0,
+                progress: {
+                  ...s.progress,
+                  [tutorial.id]: tutorial.steps.length,
+                },
+              }));
+            } else {
+              const nextStep = tutorial.steps[step + 1];
+              set({ step: step + 1 });
+              nextStep.onStart?.();
+            }
           }
+        });
+
+        const progressStep = get().progress[tutorial.id] ?? 0;
+
+        set({
+          tutorial,
+          step: progressStep,
+          unsubscribe,
+        });
+        tutorial.steps[progressStep].onStart?.();
+      },
+
+      endTutorial: () => {
+        const { unsubscribe } = get();
+        unsubscribe?.();
+        set(initialState);
+      },
+
+      nextStep: () => {
+        const { step, tutorial } = get();
+        if (!tutorial) return;
+
+        if (step === tutorial.steps.length - 1) {
+          set((s) => ({
+            tutorial: null,
+            step: 0,
+            progress: { ...s.progress, [tutorial.id]: tutorial.steps.length },
+          }));
+        } else {
+          const nextStep = tutorial.steps[step + 1];
+          set((s) => ({
+            step: step + 1,
+            progress: { ...s.progress, [tutorial.id]: step + 1 },
+          }));
+          nextStep.onStart?.();
         }
-      });
+      },
+    })),
+    {
+      name: "tutorial-store",
 
-      set({
-        tutorial,
-        step: 0,
-        unsubscribe,
-      });
-      tutorial.steps[0].onStart?.();
+      partialize: (state) => ({
+        progress: state.progress,
+      }),
     },
-
-    endTutorial: () => {
-      const { unsubscribe } = get();
-      unsubscribe?.();
-      set(initialState);
-    },
-
-    nextStep: () => {
-      const { step, tutorial } = get();
-      if (!tutorial) return;
-
-      if (step === tutorial.steps.length - 1) {
-        set({ tutorial: null, step: 0 });
-      } else {
-        const nextStep = tutorial.steps[step + 1];
-        set({ step: step + 1 });
-        nextStep.onStart?.();
-      }
-    },
-  })),
+  ),
 );
