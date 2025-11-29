@@ -1,5 +1,6 @@
 "use server";
 
+import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import { createClient } from "@/lib/supabase/server";
 import { HandleDescriptor } from "@/store/project.types";
 
@@ -116,4 +117,22 @@ export async function getCustomShaders() {
   }
 
   return data ?? [];
+}
+
+export async function saveTutorialProgress(progress: Record<string, number>) {
+  const { supabase, user } = await getSupabaseUserOrRedirect("/");
+
+  if (!user) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("tutorials")
+    .upsert({ user_id: user.id, progress });
+
+  if (error) {
+    throw new Error(`Failed to save tutorials: ${error.message}`);
+  }
+
+  return true;
 }

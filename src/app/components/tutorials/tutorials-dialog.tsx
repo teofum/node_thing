@@ -15,10 +15,7 @@ type ExportOptionsProps = {
 
 export function TutorialsDialog({ open, onOpenChange }: ExportOptionsProps) {
   const start = useTutorialStore((s) => s.startTutorial);
-
-  // TODO
-  const description = "test description";
-  const progress = 3;
+  const progress = useTutorialStore((s) => s.progress);
 
   return (
     <Dialog
@@ -42,11 +39,13 @@ export function TutorialsDialog({ open, onOpenChange }: ExportOptionsProps) {
                   {tutorial.name}
 
                   <span className="text-xs text-white/60 text-left">
-                    {`(${progress}/?)`}
+                    {`(${progress[tutorial.id] ? progress[tutorial.id] + 1 : 0}/${tutorial.steps.length})`}
                   </span>
                 </div>
 
-                <p className="text-xs text-white/60 text-left">{description}</p>
+                <p className="text-xs text-white/60 text-left">
+                  {tutorial.description}
+                </p>
               </div>
 
               <LuArrowRight />
