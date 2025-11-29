@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
+    "start:test": "NODE_OPTIONS='--max-old-space-size=4096' next start",
     "postinstall": "electron-builder install-app-deps",
     "lint": "eslint",
     "prepare": "husky",
