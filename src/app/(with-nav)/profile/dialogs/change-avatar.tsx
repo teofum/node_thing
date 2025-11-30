@@ -29,9 +29,6 @@ export default function AvatarEditor({
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, setIsPending] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
     setCroppedAreaPixels(croppedPixels);
@@ -106,28 +103,11 @@ export default function AvatarEditor({
               />
             </div>
             <div className="flex justify-between items-center mt-4">
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  setIsPending(true);
-                  try {
-                    await removeAvatar();
-                    setIsPending(false);
-                    setSuccess(true);
-                    window.location.reload();
-                  } catch (err) {
-                    setError(
-                      err instanceof Error
-                        ? err.message
-                        : "Failed to remove avatar",
-                    );
-                    setIsPending(false);
-                  }
-                }}
-                disabled={isPending || success}
-              >
-                {isPending ? "Removing..." : success ? "✓ Removed!" : "Remove"}
-              </Button>
+              <form action={removeAvatar}>
+                <Button type="submit" variant="outline">
+                  Remove
+                </Button>
+              </form>
               <Button onClick={() => fileInputRef.current?.click()}>
                 Choose Image
               </Button>
@@ -162,7 +142,7 @@ export default function AvatarEditor({
             </div>
           </div>
         )}
-        {error && <p className="text-sm text-red-400 mt-2">{error}</p>}
+
         {imageSrc && (
           <div className="flex justify-between items-center mt-4">
             <Button
@@ -178,27 +158,13 @@ export default function AvatarEditor({
             </Button>
             <Button
               onClick={async () => {
-                setIsPending(true);
-                try {
-                  const croppedBlob = await createCroppedImage();
-                  const formData = new FormData();
-                  formData.append("avatar", croppedBlob, "avatar.jpg");
-                  await uploadAvatar(formData);
-                  setIsPending(false);
-                  setSuccess(true);
-                  window.location.reload();
-                } catch (err) {
-                  setError(
-                    err instanceof Error
-                      ? err.message
-                      : "Failed to upload avatar",
-                  );
-                  setIsPending(false);
-                }
+                const croppedBlob = await createCroppedImage();
+                const formData = new FormData();
+                formData.append("avatar", croppedBlob, "avatar.jpg");
+                await uploadAvatar(formData);
               }}
-              disabled={isPending || success}
             >
-              {isPending ? "Saving..." : success ? "Saved!" : "Save"}
+              Save
             </Button>
           </div>
         )}
