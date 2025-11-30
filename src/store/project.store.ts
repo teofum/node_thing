@@ -77,7 +77,9 @@ export const useProjectStore = create(
             nodes: applyNodeChanges(collapsed, layer.nodes) as ShaderNode[],
           }))(state);
 
-          set(withHistory(state, withCollapsed, "moveNodes"));
+          set(
+            withHistory(state, withCollapsed, "moveNodes", { collapse: true }),
+          );
         }
 
         // Apply tracked changes

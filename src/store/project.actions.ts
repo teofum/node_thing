@@ -13,7 +13,7 @@ import {
 } from "./project.types";
 import { NODE_TYPES } from "@/utils/node-type";
 import { Command } from "./types/command";
-import { diff } from "json-diff-ts";
+import { diff, revertChangeset } from "json-diff-ts";
 
 const initialNodes: ShaderNode[] = [
   {
@@ -197,14 +197,33 @@ export function historyPush(h: Project["history"], cmd: Command) {
   return [cmd, ...h];
 }
 
+type HistoryOptions = {
+  collapse?: boolean;
+};
+
 export function withHistory(
   state: Project,
   newState: Partial<Project>,
   command: string,
+  options: HistoryOptions = {
+    collapse: false,
+  },
 ) {
   const { history, done } = state;
-
+  state = JSON.parse(JSON.stringify(state));
   const fullNewState = { ...state, ...newState };
+
+  if (options.collapse && done === 0 && history[done]?.command === command) {
+    const oldState = revertChangeset(state, history[done].diff);
+    return {
+      ...newState,
+      history: historyPush(history.slice(done + 1), {
+        command,
+        diff: diff(oldState, fullNewState),
+      }),
+      done: 0,
+    };
+  }
 
   return {
     ...newState,
@@ -221,7 +240,7 @@ const nodeChangeTypes = {
   remove: "tracked",
   replace: "tracked",
   position: "collapsed",
-  dimensions: "collapsed",
+  dimensions: "untracked",
   select: "untracked",
 } satisfies Record<
   NodeChange<Node>["type"],
