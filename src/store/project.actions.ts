@@ -1,4 +1,4 @@
-import { Edge, Node, NodeChange } from "@xyflow/react";
+import { Edge, EdgeChange, Node, NodeChange } from "@xyflow/react";
 import { nanoid } from "nanoid";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
@@ -257,6 +257,24 @@ export function getNodeChangesByType(changes: NodeChange<Node>[]) {
     ),
     untracked: changes.filter(
       (change) => nodeChangeTypes[change.type] === "untracked",
+    ),
+  };
+}
+
+const edgeChangeTypes = {
+  add: "tracked",
+  remove: "tracked",
+  replace: "tracked",
+  select: "untracked",
+} satisfies Record<EdgeChange<Edge>["type"], "tracked" | "untracked">;
+
+export function getEdgeChangesByType(changes: EdgeChange<Edge>[]) {
+  return {
+    tracked: changes.filter(
+      (change) => edgeChangeTypes[change.type] === "tracked",
+    ),
+    untracked: changes.filter(
+      (change) => edgeChangeTypes[change.type] === "untracked",
     ),
   };
 }

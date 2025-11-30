@@ -28,6 +28,7 @@ import {
   createInitialState,
   createLayer,
   getAllNodeTypes,
+  getEdgeChangesByType,
   getNodeChangesByType,
   mergeProject,
   modifyLayer,
@@ -64,7 +65,7 @@ export const useProjectStore = create(
         if (untracked.length) {
           const withUntracked = modifyLayer((l) => ({
             ...l,
-            nodes: applyNodeChanges(untracked, layer.nodes) as ShaderNode[],
+            nodes: applyNodeChanges(untracked, l.nodes) as ShaderNode[],
           }))(state);
           set(withUntracked);
         }
@@ -74,7 +75,7 @@ export const useProjectStore = create(
           state = get();
           const withCollapsed = modifyLayer((l) => ({
             ...l,
-            nodes: applyNodeChanges(collapsed, layer.nodes) as ShaderNode[],
+            nodes: applyNodeChanges(collapsed, l.nodes) as ShaderNode[],
           }))(state);
 
           set(
@@ -87,7 +88,7 @@ export const useProjectStore = create(
           state = get();
           const newState = modifyLayer((l) => ({
             ...l,
-            nodes: applyNodeChanges(tracked, layer.nodes) as ShaderNode[],
+            nodes: applyNodeChanges(tracked, l.nodes) as ShaderNode[],
           }))(state);
 
           set(withHistory(state, newState, "nodesChange"));
@@ -95,18 +96,33 @@ export const useProjectStore = create(
       },
 
       onEdgesChange: (changes: EdgeChange<Edge>[]) => {
-        const state = get();
+        let state = get();
         const { layers, currentLayer } = state;
 
         const layer = layers[currentLayer];
         if (!layer) return;
 
-        const newState = modifyLayer((l) => ({
-          ...l,
-          edges: applyEdgeChanges(changes, layer.edges),
-        }))(state);
+        const { tracked, untracked } = getEdgeChangesByType(changes);
 
-        set(withHistory(state, newState, "nodesEdgesChange"));
+        // Apply untracked changes
+        if (untracked.length) {
+          const withUntracked = modifyLayer((l) => ({
+            ...l,
+            edges: applyEdgeChanges(untracked, l.edges),
+          }))(state);
+          set(withUntracked);
+        }
+
+        // Apply tracked changes
+        if (tracked.length) {
+          state = get();
+          const newState = modifyLayer((l) => ({
+            ...l,
+            edges: applyEdgeChanges(tracked, l.edges),
+          }))(state);
+
+          set(withHistory(state, newState, "edgesChange"));
+        }
       },
 
       onConnect: (connection: Connection) => {
