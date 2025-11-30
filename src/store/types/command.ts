@@ -1,5 +1,7 @@
 import { ShaderNode } from "@/schemas/node.schema";
 import { Edge } from "@xyflow/react";
+import { Changeset } from "json-diff-ts";
+
 import { Layer } from "../project.types";
 
 type GenericCommand<K extends string, T extends object> = {
@@ -137,21 +139,7 @@ export type UpdateNodeUniformsCommand = GenericCommand<
   }
 >;
 
-export type Command =
-  | CreateNodeCommand
-  | RemoveNodeCommand
-  | ModifyNodeCommand
-  | EdgeChangesCommand
-  | EdgesChangeCommand
-  | SwitchLayerCommand
-  | AddLayerCommand
-  | ImportLayerCommand
-  | RemoveLayerCommand
-  | RenameLayerCommand
-  | DuplicateLayerCommand
-  | ReorderLayerCommand
-  | SetCanvasSizeCommand
-  | SetLayerBoundsCommand
-  | SpdateNodeDefaultValueCommand
-  | UpdateNodeUniformsCommand
-  | NodesChangeCommand;
+export type Command = {
+  command: string;
+  diff: Changeset;
+};

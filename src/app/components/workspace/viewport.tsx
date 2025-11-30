@@ -113,7 +113,7 @@ export function Viewport() {
               } as Record<string, string>
             }
           >
-            <Background />{" "}
+            <Background />
           </ReactFlow>
         }
       >

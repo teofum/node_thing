@@ -13,6 +13,7 @@ import {
 } from "./project.types";
 import { NODE_TYPES } from "@/utils/node-type";
 import { Command } from "./types/command";
+import { diff } from "json-diff-ts";
 
 const initialNodes: ShaderNode[] = [
   {
@@ -194,4 +195,23 @@ export function mergeProject(imported: unknown, current: Project): Project {
 
 export function historyPush(h: Project["history"], cmd: Command) {
   return [cmd, ...h];
+}
+
+export function withHistory(
+  state: Project,
+  newState: Partial<Project>,
+  command: string,
+) {
+  const { history, done } = state;
+
+  const fullNewState = { ...state, ...newState };
+
+  return {
+    ...newState,
+    history: historyPush(history.slice(done), {
+      command,
+      diff: diff(state, fullNewState),
+    }),
+    done: 0,
+  };
 }

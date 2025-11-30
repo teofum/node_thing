@@ -14,39 +14,40 @@ import { Command } from "@/store/types/command";
 
 const getCommandLabel = (cmd: Command): string => {
   switch (cmd.command) {
-    case "createNode":
-      return `Create Node: ${cmd.data.node?.data?.type || "Unknown"}`;
-    case "removeNode":
-      return "Remove Node";
-    case "nodesChange":
-      const type = cmd.data.patch?.type;
-      return type === "position" ? "Move Node" : `Modify Node (${type})`;
-    case "edgeChanges":
-      return "Connect/Disconnect";
-    case "updateNodeDefaultValue":
-      return `Update Input: ${cmd.data.input}`;
-    case "updateNodeUniforms":
-      return `Update Uniform: ${cmd.data.name}`;
-    case "switchLayer":
-      return "Switch Layer";
-    case "addLayer":
-      return "Add Layer";
-    case "removeLayer":
-      return "Remove Layer";
-    case "renameLayer":
-      return "Rename Layer";
-    case "duplicateLayer":
-      return "Duplicate Layer";
-    case "reorderLayer":
-      return "Reorder Layers";
-    case "setCanvasSize":
-      return "Resize Canvas";
-    case "setLayerBounds":
-      return "Move Layer";
-    case "importLayer":
-      return "Import Layer";
-    case "modifyNode":
-      return "Edit Node Settings";
+    // TODO
+    // case "createNode":
+    //   return `Create Node: ${cmd.data.node?.data?.type || "Unknown"}`;
+    // case "removeNode":
+    //   return "Remove Node";
+    // case "nodesChange":
+    //   const type = cmd.data.patch?.type;
+    //   return type === "position" ? "Move Node" : `Modify Node (${type})`;
+    // case "edgeChanges":
+    //   return "Connect/Disconnect";
+    // case "updateNodeDefaultValue":
+    //   return `Update Input: ${cmd.data.input}`;
+    // case "updateNodeUniforms":
+    //   return `Update Uniform: ${cmd.data.name}`;
+    // case "switchLayer":
+    //   return "Switch Layer";
+    // case "addLayer":
+    //   return "Add Layer";
+    // case "removeLayer":
+    //   return "Remove Layer";
+    // case "renameLayer":
+    //   return "Rename Layer";
+    // case "duplicateLayer":
+    //   return "Duplicate Layer";
+    // case "reorderLayer":
+    //   return "Reorder Layers";
+    // case "setCanvasSize":
+    //   return "Resize Canvas";
+    // case "setLayerBounds":
+    //   return "Move Layer";
+    // case "importLayer":
+    //   return "Import Layer";
+    // case "modifyNode":
+    //   return "Edit Node Settings";
     default:
       return cmd.command;
   }
