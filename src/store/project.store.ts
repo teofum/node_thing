@@ -28,6 +28,7 @@ import {
   createInitialState,
   createLayer,
   getAllNodeTypes,
+  getNodeChangesByType,
   mergeProject,
   modifyLayer,
   modifyNode,
@@ -51,18 +52,44 @@ export const useProjectStore = create(
       },
 
       onNodesChange: (changes: NodeChange<Node>[]) => {
-        const state = get();
+        let state = get();
         const { layers, currentLayer } = state;
 
         const layer = layers[currentLayer];
         if (!layer) return;
 
-        const newState = modifyLayer((l) => ({
-          ...l,
-          nodes: applyNodeChanges(changes, layer.nodes) as ShaderNode[],
-        }))(state);
+        const { tracked, untracked, collapsed } = getNodeChangesByType(changes);
 
-        set(withHistory(state, newState, "nodesEdgesChange"));
+        // Apply untracked changes
+        if (untracked.length) {
+          const withUntracked = modifyLayer((l) => ({
+            ...l,
+            nodes: applyNodeChanges(untracked, layer.nodes) as ShaderNode[],
+          }))(state);
+          set(withUntracked);
+        }
+
+        // Apply collapsed changes
+        if (collapsed.length) {
+          state = get();
+          const withCollapsed = modifyLayer((l) => ({
+            ...l,
+            nodes: applyNodeChanges(collapsed, layer.nodes) as ShaderNode[],
+          }))(state);
+
+          set(withHistory(state, withCollapsed, "moveNodes"));
+        }
+
+        // Apply tracked changes
+        if (tracked.length) {
+          state = get();
+          const newState = modifyLayer((l) => ({
+            ...l,
+            nodes: applyNodeChanges(tracked, layer.nodes) as ShaderNode[],
+          }))(state);
+
+          set(withHistory(state, newState, "nodesChange"));
+        }
       },
 
       onEdgesChange: (changes: EdgeChange<Edge>[]) => {

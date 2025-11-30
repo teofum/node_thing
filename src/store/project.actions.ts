@@ -1,4 +1,4 @@
-import { Edge } from "@xyflow/react";
+import { Edge, Node, NodeChange } from "@xyflow/react";
 import { nanoid } from "nanoid";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
@@ -213,5 +213,31 @@ export function withHistory(
       diff: diff(state, fullNewState),
     }),
     done: 0,
+  };
+}
+
+const nodeChangeTypes = {
+  add: "tracked",
+  remove: "tracked",
+  replace: "tracked",
+  position: "collapsed",
+  dimensions: "collapsed",
+  select: "untracked",
+} satisfies Record<
+  NodeChange<Node>["type"],
+  "tracked" | "collapsed" | "untracked"
+>;
+
+export function getNodeChangesByType(changes: NodeChange<Node>[]) {
+  return {
+    tracked: changes.filter(
+      (change) => nodeChangeTypes[change.type] === "tracked",
+    ),
+    collapsed: changes.filter(
+      (change) => nodeChangeTypes[change.type] === "collapsed",
+    ),
+    untracked: changes.filter(
+      (change) => nodeChangeTypes[change.type] === "untracked",
+    ),
   };
 }
