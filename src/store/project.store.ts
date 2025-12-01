@@ -7,6 +7,7 @@ import {
   EdgeChange,
   Node,
   NodeChange,
+  NodePositionChange,
 } from "@xyflow/react";
 import { applyChangeset, revertChangeset } from "json-diff-ts";
 import { nanoid } from "nanoid";
@@ -79,7 +80,12 @@ export const useProjectStore = create(
           }))(state);
 
           set(
-            withHistory(state, withCollapsed, "moveNodes", { collapse: true }),
+            withHistory(
+              state,
+              withCollapsed,
+              `moveNodes::${collapsed.map((c) => (c as NodePositionChange).id).join(":")}`,
+              { collapse: true },
+            ),
           );
         }
 
