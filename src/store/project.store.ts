@@ -43,6 +43,7 @@ export const useProjectStore = create(
     combine(
       {
         ...createInitialState(),
+        currentRoomId: null as string | null,
         yjsDoc: null as Y.Doc | null,
         realtimeChannel: null as RealtimeChannel | null,
         collaborationEnabled: false,
@@ -52,14 +53,17 @@ export const useProjectStore = create(
 
         toggleCollaboration: async (enabled: boolean) => {
           if (enabled) {
+            const { currentRoomId } = get();
+            if (!currentRoomId) return;
+
             const [{ createClient }, { initYjsSync }] = await Promise.all([
               import("@/lib/supabase/client"),
               import("@/lib/collaboration/yjs-sync"),
             ]);
             const supabase = createClient();
-            const channel = supabase.channel("project:shared");
+            const channel = supabase.channel(`room:${currentRoomId}`);
             await channel.subscribe();
-            const { ydoc } = initYjsSync("shared", channel);
+            const { ydoc } = initYjsSync(currentRoomId, channel);
 
             const yNodes = ydoc.getMap("nodes");
             const yEdges = ydoc.getMap("edges");
@@ -476,8 +480,13 @@ export const useProjectStore = create(
         ...mergeProject(persisted, current),
       }),
       partialize: (state) => {
-        const { yjsDoc, realtimeChannel, collaborationEnabled, ...rest } =
-          state;
+        const {
+          currentRoomId,
+          yjsDoc,
+          realtimeChannel,
+          collaborationEnabled,
+          ...rest
+        } = state;
         return prepareProjectForExport(rest);
       },
     },

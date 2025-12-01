@@ -1,25 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import { useProjectStore } from "@/store/project.store";
+import { createRoom } from "@/lib/collaboration/actions";
 
 export function CollaborationToggle() {
-  const [enabled, setEnabled] = useState(false);
   const toggleCollaboration = useProjectStore((s) => s.toggleCollaboration);
+  const currentRoomId = useProjectStore((s) => s.currentRoomId);
+  const enabled = useProjectStore((s) => s.collaborationEnabled);
 
-  const handleToggle = () => {
-    const newState = !enabled;
-    setEnabled(newState);
-    toggleCollaboration(newState);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomFromUrl = params.get("room");
+    if (roomFromUrl && !currentRoomId && !enabled) {
+      useProjectStore.setState({ currentRoomId: roomFromUrl });
+      useProjectStore.getState().toggleCollaboration(true);
+    }
+  }, [currentRoomId, enabled]);
+
+  const handleToggle = async () => {
+    if (!currentRoomId && !enabled) {
+      const result = await createRoom();
+      if (result) {
+        useProjectStore.setState({ currentRoomId: result.roomId });
+        toggleCollaboration(true);
+      }
+    } else {
+      toggleCollaboration(!enabled);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (currentRoomId) {
+      const url = `${window.location.origin}?room=${currentRoomId}`;
+      navigator.clipboard.writeText(url);
+    }
   };
 
   return (
-    <button
-      onClick={handleToggle}
-      className="absolute top-2 right-2 z-50 px-3 py-1.5 rounded font-bold text-white text-sm"
-      style={{ backgroundColor: enabled ? "#ff1493" : "#ff69b4" }}
-    >
-      {enabled ? "COLLAB ON" : "COLLAB OFF"}
-    </button>
+    <div className="absolute top-2 right-2 z-50 flex gap-2">
+      {currentRoomId && (
+        <button
+          onClick={handleCopyLink}
+          className="px-3 py-1.5 rounded font-bold text-white text-sm bg-green-500"
+        >
+          COPY LINK
+        </button>
+      )}
+      <button
+        onClick={handleToggle}
+        className="px-3 py-1.5 rounded font-bold text-white text-sm"
+        style={{ backgroundColor: enabled ? "#ff1493" : "#ff69b4" }}
+      >
+        {enabled ? "COLLAB ON" : "START COLLAB"}
+      </button>
+    </div>
   );
 }

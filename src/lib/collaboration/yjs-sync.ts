@@ -3,7 +3,7 @@ import { RealtimeChannel } from "@supabase/supabase-js";
 import { ShaderNode } from "@/schemas/node.schema";
 import { Edge } from "@xyflow/react";
 
-export function initYjsSync(projectId: string, channel: RealtimeChannel) {
+export function initYjsSync(roomId: string, channel: RealtimeChannel) {
   const ydoc = new Y.Doc();
   const yNodes = ydoc.getMap<ShaderNode>("nodes");
   const yEdges = ydoc.getMap<Edge>("edges");
