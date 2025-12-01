@@ -1,4 +1,5 @@
-import { Dialog } from "@/ui/dialog";
+import { Dialog, DialogClose } from "@/ui/dialog";
+import { deletePublication } from "../actions/deletePost";
 import RatingEditor from "../dialogs/rating-editor";
 import { Button } from "@/ui/button";
 import { Stars } from "@/app/(with-nav)/marketplace/components/stars";
