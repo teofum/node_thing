@@ -1,34 +1,50 @@
 import { Dialog } from "@/ui/dialog";
 import RatingEditor from "../dialogs/rating-editor";
-import { UserRatingsDisplay } from "../page";
 import { Button } from "@/ui/button";
 import { Stars } from "@/app/(with-nav)/marketplace/components/stars";
+import { RatingsDisplay } from "./items-tab";
+import { CardBadge } from "../../marketplace/components/card-badge";
 
 type RatingCardProps = {
   id: string;
+  type: "shader" | "project";
   title: string;
-  category: string;
+  category?: string | null;
   averageRating?: number | null;
-  userRating: UserRatingsDisplay | null;
+  userRating: RatingsDisplay | null;
   ratingCount: number | null;
+  canReview?: boolean;
 };
 
 export default function RatingCard({
   id,
+  type,
   title,
   category,
   averageRating,
   userRating,
   ratingCount,
+  canReview = false,
 }: RatingCardProps) {
   return (
-    <div className="glass glass-border p-6 rounded-2xl">
-      <h3 className="text-xl font-semibold mb-1">{title}</h3>
-      {category && (
-        <p className="inline-block text-sm text-teal-400 border border-current/15 mb-4 font-semibold rounded-lg items-center justify-center gap-2  py-1 px-2">
-          {category}
-        </p>
-      )}
+    <div className="glass glass-border p-4 rounded-2xl">
+      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+
+      <div className="mb-7">
+        <CardBadge
+          text={type.charAt(0).toUpperCase() + type.slice(1)}
+          color={
+            type === "shader"
+              ? "blue"
+              : type === "project"
+                ? "fuchsia"
+                : "black"
+          }
+        />
+        {type === "shader" && category && (
+          <CardBadge text={category} color="teal" />
+        )}
+      </div>
 
       <Stars ratingValue={averageRating} ratingCount={ratingCount} />
 
@@ -50,18 +66,21 @@ export default function RatingCard({
           )}
         </div>
 
-        <RatingEditor
-          key={id}
-          id={id}
-          title={title}
-          category={category}
-          userRating={userRating}
-          trigger={
-            <Button variant="outline" className="text-xs">
-              {userRating ? "Edit review" : "Add review"}
-            </Button>
-          }
-        />
+        {canReview && (
+          <RatingEditor
+            key={id}
+            id={id}
+            type={type}
+            title={title}
+            category={category}
+            userRating={userRating}
+            trigger={
+              <Button variant="outline" className="text-xs">
+                {userRating ? "Edit review" : "Add review"}
+              </Button>
+            }
+          />
+        )}
       </div>
     </div>
   );

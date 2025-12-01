@@ -15,17 +15,23 @@ function compareNodes(current: ShaderNode, last: ShaderNode) {
   return false;
 }
 
-function compareEdges(current: Edge, last: Edge) {
+function compareEdges(current: Edge, last: Edge, displaySelection: boolean) {
   if (current.id !== last.id) return true;
   if (current.source !== last.source) return true;
   if (current.sourceHandle !== last.sourceHandle) return true;
   if (current.target !== last.target) return true;
   if (current.targetHandle !== last.targetHandle) return true;
 
+  if (displaySelection && current.selected !== last.selected) return true;
+
   return false;
 }
 
-export function compareLayers(current: Layer, last: Layer) {
+export function compareLayers(
+  current: Layer,
+  last: Layer,
+  displaySelection: boolean,
+) {
   /*
    * Compare nodes
    */
@@ -39,7 +45,7 @@ export function compareLayers(current: Layer, last: Layer) {
    */
   if (current.edges.length !== last.edges.length) return true; // Edges were added or removed
   for (const [currentEdge, lastEdge] of zip(current.edges, last.edges)) {
-    if (compareEdges(currentEdge, lastEdge)) return true; // An edge is different
+    if (compareEdges(currentEdge, lastEdge, displaySelection)) return true; // An edge is different
   }
 
   return false; // Nothing significant changed

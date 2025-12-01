@@ -7,6 +7,8 @@ export type SidebarPanel =
   | "assets"
   | "animation"
   | "history";
+export type DisplayOption = "final-render" | "layer-output" | "selection";
+
 export type Config = {
   view: {
     zoom: number;
@@ -16,6 +18,7 @@ export type Config = {
       panel: SidebarPanel;
       pinned: boolean;
     };
+    display: DisplayOption;
   };
 };
 
@@ -28,6 +31,7 @@ const initialState: Config = {
       panel: "library",
       pinned: false,
     },
+    display: "final-render",
   },
 };
 

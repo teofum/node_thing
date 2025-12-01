@@ -8,7 +8,7 @@ import {
   resumeSubscriptionAction,
   subscribePremiumAction,
 } from "../actions/subscription";
-import type { UserData } from "../page";
+import type { UserData } from "../actions/user";
 
 type IconTextLine = { id: string; icon: IconType; text: string };
 

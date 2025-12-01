@@ -1,18 +1,21 @@
+import { redirect } from "next/navigation";
+
 import { Tables } from "@/lib/supabase/database.types";
-import { Button, LinkButton } from "@/ui/button";
+import { createClient } from "@/lib/supabase/server";
+import { LinkButton } from "@/ui/button";
 import { Menubar } from "@/ui/menu-bar";
+import { getProjects, getPurchasedProjects } from "./actions";
 import { AuthButton } from "./auth/components/auth-button";
 import { AnimationMenu } from "./components/menu/animation";
+import { EditMenu } from "./components/menu/edit";
 import { FileMenu } from "./components/menu/file";
+import { HelpMenu } from "./components/menu/help";
 import { LayerMenu } from "./components/menu/layer";
 import { ProjectsMenu } from "./components/menu/projects";
 import { ViewMenu } from "./components/menu/view";
 import { Renderer } from "./components/renderer";
+import { Tutorial } from "./components/tutorials/tutorial";
 import { Workspace } from "./components/workspace";
-import { getProjects, getPurchasedProjects, getUserData } from "./actions";
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { EditMenu } from "./components/menu/edit";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -69,6 +72,7 @@ export default async function Home() {
             projects={projects}
             purchasedProjects={purchasedProjects}
           />
+          <HelpMenu />
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">
@@ -81,6 +85,7 @@ export default async function Home() {
       {/* Main panel */}
       <main className="flex flex-row min-h-0 max-w-full select-none p-2">
         <Workspace />
+        <Tutorial />
 
         {/* Output panel */}
         <div className="relative min-h-0">

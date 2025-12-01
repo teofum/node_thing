@@ -1,13 +1,21 @@
 import { getCreatedShaders, getUserProjects } from "./actions";
+import { getCategories } from "../actions";
 import PublishMenu from "./components/publish-menu";
 
 export default async function UploadPage() {
-  const projects = await getUserProjects();
-  const shaders = await getCreatedShaders();
+  const [projects, shaders, categories] = await Promise.all([
+    getUserProjects(),
+    getCreatedShaders(),
+    getCategories(),
+  ]);
 
   return (
     <>
-      <PublishMenu projects={projects} shaders={shaders} />
+      <PublishMenu
+        projects={projects}
+        shaders={shaders}
+        categories={categories}
+      />
     </>
   );
 }

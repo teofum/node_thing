@@ -1,26 +1,32 @@
 "use client";
 
 import { LuStar } from "react-icons/lu";
-import { ComponentProps, useState } from "react";
 import {
-  deleteShaderReview,
-  submitShaderReview,
-} from "@/app/(with-nav)/profile/actions/shaders";
+  ComponentProps,
+  startTransition,
+  useActionState,
+  useState,
+} from "react";
+import {
+  deleteReview,
+  submitReview,
+} from "@/app/(with-nav)/profile/actions/private";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
-import { UserRatingsDisplay } from "../page";
-import { useRouter } from "next/navigation";
+import { RatingsDisplay } from "../components/items-tab";
 
 type RatingEditorProps = {
   id: string;
+  type: "shader" | "project";
   title: string;
-  category: string;
-  userRating: UserRatingsDisplay | null;
+  category?: string | null;
+  userRating: RatingsDisplay | null;
   trigger: ComponentProps<typeof Dialog>["trigger"];
 };
 
 export default function RatingEditor({
   id,
+  type,
   title,
   category,
   userRating,
@@ -30,17 +36,19 @@ export default function RatingEditor({
   const [rating, setRating] = useState(userRating?.rating ?? 0);
   const [comment, setComment] = useState(userRating?.comment ?? "");
   const stars = [1, 2, 3, 4, 5];
-  const router = useRouter();
 
-  const handleSubmit = async () => {
-    await submitShaderReview(id, rating, comment);
-    router.refresh();
-  };
+  // TODO pending behaviour
+  const [submitReviewState, submitReviewAction, submitReviewPending] =
+    useActionState(
+      async () => await submitReview(type, id, rating, comment),
+      null,
+    );
 
-  const handleDelete = async () => {
-    await deleteShaderReview(id);
-    router.refresh();
-  };
+  // TODO pending behaviour
+  const [deleteReviewState, deleteReviewAction, deleteReviewPending] =
+    useActionState(async () => await deleteReview(type, id), null);
+
+  const isPending = submitReviewPending || deleteReviewPending;
 
   return (
     <Dialog trigger={trigger} title={title} description={category}>
@@ -52,7 +60,7 @@ export default function RatingEditor({
             return (
               <LuStar
                 key={star}
-                className={`w-6 h-6 cursor-pointer ${isActive ? "text-yellow-400" : "text-gray-500"}`}
+                className={`w-6 h-6 cursor-pointer ${isActive ? "text-yellow-400" : "text-white/50"}`}
                 onMouseEnter={() => setHovered(star)}
                 onMouseLeave={() => setHovered(null)}
                 onClick={() => setRating(star)}
@@ -69,17 +77,22 @@ export default function RatingEditor({
         />
         <div className="flex flex-row gap-2">
           {userRating && (
-            <DialogClose asChild>
-              <Button onClick={handleDelete} className="mt-3 text-red-400">
-                Delete Review
-              </Button>
-            </DialogClose>
-          )}
-          <DialogClose asChild>
-            <Button onClick={handleSubmit} className="mt-3 ml-auto">
-              Submit Review
+            <Button
+              onClick={() => startTransition(() => deleteReviewAction())}
+              className="mt-3 text-red-400"
+              disabled={isPending}
+            >
+              {deleteReviewPending ? "Deleting..." : "Delete Review"}
             </Button>
-          </DialogClose>
+          )}
+
+          <Button
+            onClick={() => startTransition(() => submitReviewAction())}
+            className="mt-3 ml-auto"
+            disabled={isPending}
+          >
+            {submitReviewPending ? "Submitting..." : "Submit Review"}
+          </Button>
         </div>
       </div>
     </Dialog>

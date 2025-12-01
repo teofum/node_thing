@@ -86,7 +86,7 @@ export const RangeSliderInput = React.forwardRef<
             onChange={(e) => handleInputChange(0, e.target.value)}
             onBlur={() => handleInputBlur(0)}
           />
-          <span className="absolute right-1 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+          <span className="absolute right-1 top-1/2 -translate-y-1/2 text-xs text-white/40">
             $
           </span>
         </div>
@@ -122,7 +122,7 @@ export const RangeSliderInput = React.forwardRef<
             onChange={(e) => handleInputChange(1, e.target.value)}
             onBlur={() => handleInputBlur(1)}
           />
-          <span className="absolute right-1 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+          <span className="absolute right-1 top-1/2 -translate-y-1/2 text-xs text-white/40">
             $
           </span>
         </div>

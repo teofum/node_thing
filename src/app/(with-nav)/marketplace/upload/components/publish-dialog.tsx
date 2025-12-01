@@ -1,17 +1,18 @@
-import { ComponentProps, useState } from "react";
+import { ComponentProps, useActionState } from "react";
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
+import { Select, SelectItem } from "@/ui/select";
 
 import { Tables } from "@/lib/supabase/database.types";
-import { publishProject } from "../actions";
-import { useRouter } from "next/navigation";
+import { publishProject, publishShader } from "../actions";
 
 type PublishDialogProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
-  type: "shader" | "project"; // TODO grupos de shader
+  type: "shader" | "project";
   id: string;
+  categories?: Tables<"categories">[];
   open?: ComponentProps<typeof Dialog>["open"];
   onOpenChange?: ComponentProps<typeof Dialog>["onOpenChange"];
 };
@@ -20,20 +21,26 @@ export function PublishDialog({
   trigger,
   type,
   id,
+  categories = [],
   ...props
 }: PublishDialogProps) {
-  const [price, setPrice] = useState(0);
-  const [description, setDescription] = useState("");
+  // TODO pending behaviour
+  const [handlePublishState, handlePublishAction, handlePublishPending] =
+    useActionState(async (_prevState: null, formData: FormData) => {
+      const priceStr = formData.get("price") as string;
+      const description = formData.get("description") as string;
+      const price = Number(priceStr) || 0;
 
-  const router = useRouter();
+      if (type === "shader") {
+        const categoryId = Number(formData.get("categoryId"));
+        await publishShader(id, price, description, categoryId);
+      } else {
+        await publishProject(id, price, description);
+      }
 
-  async function handlePublish(id: string, price: number, description: string) {
-    // TODO invalid price error handling
-
-    publishProject(id, price, description);
-
-    router.refresh();
-  }
+      props.onOpenChange?.(false);
+      return null;
+    }, null);
 
   return (
     <Dialog
@@ -43,41 +50,47 @@ export function PublishDialog({
       className="w-2/5"
       {...props}
     >
-      <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
-        <div className="font-semibold text-3x1 mt-3">Price</div>
+      <form action={handlePublishAction}>
+        <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
+          <div className="font-semibold text-3x1 mt-3">Price</div>
 
-        <Input
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-          type=""
-          autoFocus
-          className="w-full"
-        />
+          <Input
+            name="price"
+            type="number"
+            defaultValue=""
+            autoFocus
+            className="w-full"
+            required
+          />
 
-        <div className="font-semibold text-3x1 mt-4">Description</div>
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          type=""
-          autoFocus
-          className="w-full"
-        />
-      </div>
-      <div className="flex justify-between p-4 mt-15">
-        <DialogClose asChild>
-          <Button variant="outline">Close</Button>
-        </DialogClose>
+          <div className="font-semibold text-3x1 mt-4">Description</div>
+          <Input name="description" defaultValue="" className="w-full" />
 
-        <DialogClose asChild>
-          <Button
-            icon
-            variant="outline"
-            onClick={() => handlePublish(id, price, description)}
-          >
+          {type === "shader" && (
+            <>
+              <div className="font-semibold text-3x1 mt-4">Category</div>
+              <Select name="categoryId" defaultValue="0">
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id.toString()}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </Select>
+            </>
+          )}
+        </div>
+        <div className="flex justify-between p-4 mt-15">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Close
+            </Button>
+          </DialogClose>
+
+          <Button type="submit" icon variant="outline">
             Publish
           </Button>
-        </DialogClose>
-      </div>
+        </div>
+      </form>
     </Dialog>
   );
 }

@@ -115,7 +115,7 @@ export async function getProjects() {
     redirect("/auth/login?next=/marketplace");
   }
 
-  const { data, error } = await supabase.rpc("get_projects", {
+  const { data, error } = await supabase.rpc("get_projects_with_avg", {
     user_uuid: user.id,
   });
 
@@ -179,4 +179,30 @@ export async function getPurchasedShaders() {
     .not("shader_id", "is", null);
 
   return purchases?.map((p) => p.shader).filter(Boolean) || [];
+}
+
+export async function getImage(itemType: "shader" | "project", itemId: string) {
+  const { supabase } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
+
+  const { data: imageName, error } = await supabase
+    .from(`${itemType}s`)
+    .select("image_name")
+    .eq("id", itemId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to load image name: ${error.message}`);
+  }
+
+  if (imageName.image_name == null) {
+    return null;
+  }
+
+  const { data } = supabase.storage
+    .from("marketplace_images")
+    .getPublicUrl(imageName.image_name);
+
+  return data.publicUrl;
 }
