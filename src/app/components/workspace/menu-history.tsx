@@ -1,4 +1,4 @@
-import { clsx } from "clsx";
+import cn from "classnames";
 import {
   LuHistory,
   LuCircleCheckBig,
@@ -60,7 +60,7 @@ export function MenuHistory() {
                 <div
                   key={index}
                   onClick={() => goTo(index)}
-                  className={clsx(
+                  className={cn(
                     "group flex items-center justify-between px-3 py-3 text-xs border-b border-white/5 cursor-pointer transition-colors duration-150",
                     isActive
                       ? "bg-teal-400/10 text-white"
@@ -70,7 +70,7 @@ export function MenuHistory() {
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
                     <div
-                      className={clsx(
+                      className={cn(
                         "shrink-0 w-4 h-4 flex items-center justify-center rounded-full border",
                         isActive
                           ? "border-teal-400 text-teal-400 bg-teal-400/20"
@@ -98,7 +98,7 @@ export function MenuHistory() {
 
             <div
               onClick={() => goTo(history.length)}
-              className={clsx(
+              className={cn(
                 "group flex items-center gap-3 px-3 py-3 text-xs cursor-pointer hover:bg-white/8 transition-colors",
                 done === history.length
                   ? "bg-teal-400/10 text-white"
@@ -122,7 +122,7 @@ export function MenuHistory() {
         <Button
           variant="outline"
           onClick={undo}
-          disabled={history.length - done <= 0}
+          disabled={history.length <= done}
           className="flex-1 gap-2"
           title="Undo (Ctrl+Z)"
         >
