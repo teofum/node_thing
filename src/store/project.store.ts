@@ -154,7 +154,14 @@ export const useProjectStore = create(
           },
         }))(state);
 
-        set(withHistory(state, newState, "updateNodeDefaultValue"));
+        set(
+          withHistory(
+            state,
+            newState,
+            `updateNodeDefaultValue::${id}::${input}`,
+            { collapse: true },
+          ),
+        );
       },
 
       updateNodeParameter: (
@@ -186,7 +193,11 @@ export const useProjectStore = create(
           },
         }))(state);
 
-        set(withHistory(state, newState, "updateNodeUniform"));
+        set(
+          withHistory(state, newState, `updateNodeUniform::${id}::${name}`, {
+            collapse: true,
+          }),
+        );
       },
 
       /*
@@ -228,7 +239,14 @@ export const useProjectStore = create(
           size: { width, height },
         }))(state);
 
-        set(withHistory(state, newState, "setLayerBounds"));
+        set(
+          withHistory(
+            state,
+            newState,
+            `setLayerBounds::${state.layers[state.currentLayer].id}`,
+            { collapse: true },
+          ),
+        );
       },
 
       reorderLayers: (from: number, to: number) => {
