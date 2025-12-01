@@ -128,7 +128,7 @@ export async function saveTutorialProgress(progress: Record<string, number>) {
 
   const { error } = await supabase
     .from("tutorials")
-    .upsert({ user_id: user.id, progress });
+    .upsert({ user_id: user.id, progress }, { onConflict: "user_id" });
 
   if (error) {
     throw new Error(`Failed to save tutorials: ${error.message}`);

@@ -125,6 +125,18 @@ export const useTutorialStore = create(
           saveTutorialProgress(newProgress);
         }
       },
+
+      syncProgress: (remote: Record<string, number>) => {
+        const local = get().progress;
+
+        const merged: Record<string, number> = { ...local };
+
+        for (const key in remote) {
+          merged[key] = Math.max(remote[key] ?? 0, local[key] ?? 0);
+        }
+
+        set({ progress: merged });
+      },
     })),
     {
       name: "tutorial-store",
