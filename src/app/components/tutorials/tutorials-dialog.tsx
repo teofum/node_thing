@@ -4,7 +4,7 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { useTutorialStore } from "@/store/tutorial.store";
 import { intro } from "./content/intro";
 import { Button } from "@/ui/button";
-import { LuArrowRight } from "react-icons/lu";
+import { LuArrowRight, LuUndo2 } from "react-icons/lu";
 import { dummy } from "./content/dummy";
 
 const tutorials = [intro, dummy];
@@ -17,6 +17,7 @@ type ExportOptionsProps = {
 export function TutorialsDialog({ open, onOpenChange }: ExportOptionsProps) {
   const start = useTutorialStore((s) => s.startTutorial);
   const progress = useTutorialStore((s) => s.progress);
+  const reset = useTutorialStore((s) => s.resetProgress);
 
   return (
     <Dialog
@@ -28,30 +29,38 @@ export function TutorialsDialog({ open, onOpenChange }: ExportOptionsProps) {
     >
       <div className="flex flex-col p-3 gap-2">
         {tutorials.map((tutorial) => (
-          <DialogClose asChild key={tutorial.id}>
-            <Button
-              variant="outline"
-              size="lg"
-              className="flex justify-between!"
-              onClick={() => start(tutorial)}
-            >
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  {tutorial.name}
+          <div
+            key={tutorial.id}
+            className="flex items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
+          >
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                {tutorial.name}
 
-                  <span className="text-xs text-white/60 text-left">
-                    {`(${progress[tutorial.id] ? progress[tutorial.id] + 1 : 0}/${tutorial.steps.length})`}
-                  </span>
-                </div>
-
-                <p className="text-xs text-white/60 text-left">
-                  {tutorial.description}
-                </p>
+                <span className="text-xs text-white/60 text-left">
+                  {`(${progress[tutorial.id] ? progress[tutorial.id] + 1 : 0}/${tutorial.steps.length})`}
+                </span>
               </div>
 
-              <LuArrowRight />
-            </Button>
-          </DialogClose>
+              <p className="text-xs text-white/60 text-left">
+                {tutorial.description}
+              </p>
+            </div>
+
+            <div className="flex gap-1">
+              <DialogClose asChild>
+                <Button icon variant="ghost" onClick={() => reset(tutorial.id)}>
+                  <LuUndo2 />
+                </Button>
+              </DialogClose>
+
+              <DialogClose asChild>
+                <Button icon variant="ghost" onClick={() => start(tutorial)}>
+                  <LuArrowRight />
+                </Button>
+              </DialogClose>
+            </div>
+          </div>
         ))}
       </div>
     </Dialog>

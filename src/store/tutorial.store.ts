@@ -137,6 +137,18 @@ export const useTutorialStore = create(
 
         set({ progress: merged });
       },
+
+      resetProgress: (tutorialId: string) => {
+        const { progress } = get();
+
+        const newProgress = {
+          ...progress,
+          [tutorialId]: 0,
+        };
+
+        set({ progress: newProgress });
+        saveTutorialProgress(newProgress);
+      },
     })),
     {
       name: "tutorial-store",
