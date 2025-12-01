@@ -4,6 +4,7 @@ import { LinkButton, Button } from "@/ui/button";
 import Image from "next/image";
 import { Popover } from "@/ui/popover";
 import { LuLogOut } from "react-icons/lu";
+import { SignOutButton } from "./signout-button";
 
 export async function AuthButton() {
   const supabase = await createClient();
@@ -48,16 +49,7 @@ export async function AuthButton() {
           <LinkButton href="/profile" variant="ghost">
             Profile
           </LinkButton>
-          <form action={signOutAction} className="inline">
-            <Button
-              type="submit"
-              variant="ghost"
-              className="text-red-400 w-full"
-            >
-              <LuLogOut />
-              Sign out
-            </Button>
-          </form>
+          <SignOutButton />
         </div>
       </Popover>
     </div>
