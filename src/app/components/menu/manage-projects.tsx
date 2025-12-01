@@ -82,8 +82,6 @@ export function ManageProjects({
         {...props}
       >
         <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
-          <div className="font-semibold text-xl mb-4">Projects</div>
-
           {allProjects.length ? (
             allProjects.map((project) => (
               <div
@@ -101,7 +99,15 @@ export function ManageProjects({
                     className="w-full"
                   />
                 ) : (
-                  <div className="w-full">{project.name ?? "Untitled"}</div>
+                  <div className="flex flex-col">
+                    <div className="w-full font-semibold">
+                      {project.name ?? "Untitled"}
+                    </div>
+
+                    <p className="text-xs text-white/60 text-left min-h-4">
+                      {project.description}
+                    </p>
+                  </div>
                 )}
 
                 <div className="flex gap-1">
