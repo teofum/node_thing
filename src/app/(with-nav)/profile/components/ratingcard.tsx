@@ -14,6 +14,7 @@ type RatingCardProps = {
   averageRating?: number | null;
   userRating: RatingsDisplay | null;
   ratingCount: number | null;
+  canReview?: boolean;
 };
 
 export default function RatingCard({
@@ -24,6 +25,7 @@ export default function RatingCard({
   averageRating,
   userRating,
   ratingCount,
+  canReview = false,
 }: RatingCardProps) {
   return (
     <div className="glass glass-border p-4 rounded-2xl">
@@ -65,19 +67,21 @@ export default function RatingCard({
           )}
         </div>
 
-        <RatingEditor
-          key={id}
-          id={id}
-          type={type}
-          title={title}
-          category={category}
-          userRating={userRating}
-          trigger={
-            <Button variant="outline" className="text-xs">
-              {userRating ? "Edit review" : "Add review"}
-            </Button>
-          }
-        />
+        {canReview && (
+          <RatingEditor
+            key={id}
+            id={id}
+            type={type}
+            title={title}
+            category={category}
+            userRating={userRating}
+            trigger={
+              <Button variant="outline" className="text-xs">
+                {userRating ? "Edit review" : "Add review"}
+              </Button>
+            }
+          />
+        )}
       </div>
     </div>
   );
