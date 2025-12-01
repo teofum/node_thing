@@ -9,6 +9,8 @@ export function CollaborationToggle() {
   const currentRoomId = useProjectStore((s) => s.currentRoomId);
   const enabled = useProjectStore((s) => s.collaborationEnabled);
 
+  // auto-join room from URL when someone opens a shared link
+  // TODO: see if there's another way to do it
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const roomFromUrl = params.get("room");
