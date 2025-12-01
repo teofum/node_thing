@@ -1,7 +1,12 @@
 import { create } from "zustand";
 import { combine, persist } from "zustand/middleware";
 
-export type SidebarPanel = "library" | "layers" | "assets" | "animation";
+export type SidebarPanel =
+  | "library"
+  | "layers"
+  | "assets"
+  | "animation"
+  | "history";
 export type DisplayOption = "final-render" | "layer-output" | "selection";
 
 export type Config = {
