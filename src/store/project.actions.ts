@@ -220,6 +220,7 @@ export function withHistory(
       history: historyPush(history.slice(done + 1), {
         command,
         diff: diff(oldState, fullNewState),
+        layerIdx: fullNewState.currentLayer,
       }),
       done: 0,
     };
@@ -230,6 +231,7 @@ export function withHistory(
     history: historyPush(history.slice(done), {
       command,
       diff: diff(state, fullNewState),
+      layerIdx: fullNewState.currentLayer,
     }),
     done: 0,
   };

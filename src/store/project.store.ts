@@ -519,25 +519,35 @@ export const useProjectStore = create(
       },
 
       undo: () => {
-        const state = get();
+        let state = get();
         const { history, done } = state;
 
         if (history.length <= done) return;
 
+        state = JSON.parse(JSON.stringify(state));
         const newState = revertChangeset(state, history[done].diff);
-        const newState2 = JSON.parse(JSON.stringify(newState));
-        set({ ...newState2, done: done + 1 });
+
+        set({
+          ...newState,
+          done: done + 1,
+          currentLayer: history[done].layerIdx ?? 0,
+        });
       },
 
       redo: () => {
-        const state = get();
+        let state = get();
         const { history, done } = state;
 
         if (done <= 0) return;
 
+        state = JSON.parse(JSON.stringify(state));
         const newState = applyChangeset(state, history[done - 1].diff);
-        const newState2 = JSON.parse(JSON.stringify(newState));
-        set({ ...newState2, done: done - 1 });
+
+        set({
+          ...newState,
+          done: done - 1,
+          currentLayer: history[done].layerIdx ?? 0,
+        });
       },
     })),
     {
