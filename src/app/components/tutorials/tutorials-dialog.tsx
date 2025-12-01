@@ -3,10 +3,11 @@ import { ComponentProps } from "react";
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { useTutorialStore } from "@/store/tutorial.store";
 import { intro } from "./content/intro";
+import { layerIntro } from "./content/layers";
 import { Button } from "@/ui/button";
 import { LuArrowRight } from "react-icons/lu";
 
-const tutorials = [intro];
+const tutorials = [intro, layerIntro];
 
 type ExportOptionsProps = {
   open: ComponentProps<typeof Dialog>["open"];
