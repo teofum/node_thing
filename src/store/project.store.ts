@@ -546,7 +546,7 @@ export const useProjectStore = create(
         set({
           ...newState,
           done: done - 1,
-          currentLayer: history[done].layerIdx ?? 0,
+          currentLayer: history[done - 1].layerIdx ?? 0,
         });
       },
     })),

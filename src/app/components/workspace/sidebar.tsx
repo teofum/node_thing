@@ -2,9 +2,9 @@ import cn from "classnames";
 import { useLayoutEffect, useRef, useState } from "react";
 import {
   LuGitFork,
+  LuHistory,
   LuImage,
   LuLayers,
-  LuLogs,
   LuPin,
   LuPlay,
 } from "react-icons/lu";
@@ -106,7 +106,7 @@ export function Sidebar() {
 
             <SelectItem value="history">
               <div className="flex items-center gap-2">
-                <LuLogs className="text-base" />
+                <LuHistory className="text-base" />
                 <div className="font-semibold">History</div>
               </div>
             </SelectItem>
