@@ -20,6 +20,12 @@ export async function AuthButton() {
     );
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
   const displayName = user.user_metadata?.full_name || user.email;
 
   return (
@@ -46,7 +52,7 @@ export async function AuthButton() {
           Hey, {displayName}!
         </span>
         <div className="flex flex-col gap-1 pt-2 border-t border-white/15">
-          <LinkButton href="/profile" variant="ghost">
+          <LinkButton href={`/profile/${profile?.username}`} variant="ghost">
             Profile
           </LinkButton>
           <SignOutButton />

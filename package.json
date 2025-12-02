@@ -80,6 +80,7 @@
     "camelcase-keys": "^10.0.0",
     "classnames": "^2.5.1",
     "get-port-please": "^3.2.0",
+    "json-diff-ts": "^4.8.2",
     "jszip": "^3.10.1",
     "mediabunny": "^1.23.0",
     "mercadopago": "^2.9.0",
@@ -124,5 +125,6 @@
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b"
 }

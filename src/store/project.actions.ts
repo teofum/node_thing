@@ -1,4 +1,4 @@
-import { Connection, Edge } from "@xyflow/react";
+import { Edge, EdgeChange, Node, NodeChange } from "@xyflow/react";
 import { nanoid } from "nanoid";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
@@ -12,6 +12,8 @@ import {
   NodeTypeDependency,
 } from "./project.types";
 import { NODE_TYPES } from "@/utils/node-type";
+import { Command } from "./types/command";
+import { diff, revertChangeset } from "json-diff-ts";
 
 const initialNodes: ShaderNode[] = [
   {
@@ -171,6 +173,8 @@ export function createInitialState(): Project {
       external: {},
     },
     projectName: "Untitled Project",
+    history: [],
+    done: -1, // todo, deberia haber un action inicial y arrancar en 0
   };
 }
 
@@ -186,5 +190,93 @@ export function mergeProject(imported: unknown, current: Project): Project {
       ...current.properties,
       ...(imported as Project).properties,
     },
+  };
+}
+
+export function historyPush(h: Project["history"], cmd: Command) {
+  return [cmd, ...h];
+}
+
+type HistoryOptions = {
+  collapse?: boolean;
+};
+
+export function withHistory(
+  state: Project,
+  newState: Partial<Project>,
+  command: string,
+  options: HistoryOptions = {
+    collapse: false,
+  },
+) {
+  const { history, done } = state;
+  state = JSON.parse(JSON.stringify(state));
+  const fullNewState = { ...state, ...newState };
+
+  if (options.collapse && done === 0 && history[done]?.command === command) {
+    const oldState = revertChangeset(state, history[done].diff);
+    return {
+      ...newState,
+      history: historyPush(history.slice(done + 1), {
+        command,
+        diff: diff(oldState, fullNewState),
+        layerIdx: fullNewState.currentLayer,
+      }),
+      done: 0,
+    };
+  }
+
+  return {
+    ...newState,
+    history: historyPush(history.slice(done), {
+      command,
+      diff: diff(state, fullNewState),
+      layerIdx: fullNewState.currentLayer,
+    }),
+    done: 0,
+  };
+}
+
+const nodeChangeTypes = {
+  add: "tracked",
+  remove: "tracked",
+  replace: "tracked",
+  position: "collapsed",
+  dimensions: "untracked",
+  select: "untracked",
+} satisfies Record<
+  NodeChange<Node>["type"],
+  "tracked" | "collapsed" | "untracked"
+>;
+
+export function getNodeChangesByType(changes: NodeChange<Node>[]) {
+  return {
+    tracked: changes.filter(
+      (change) => nodeChangeTypes[change.type] === "tracked",
+    ),
+    collapsed: changes.filter(
+      (change) => nodeChangeTypes[change.type] === "collapsed",
+    ),
+    untracked: changes.filter(
+      (change) => nodeChangeTypes[change.type] === "untracked",
+    ),
+  };
+}
+
+const edgeChangeTypes = {
+  add: "tracked",
+  remove: "tracked",
+  replace: "tracked",
+  select: "untracked",
+} satisfies Record<EdgeChange<Edge>["type"], "tracked" | "untracked">;
+
+export function getEdgeChangesByType(changes: EdgeChange<Edge>[]) {
+  return {
+    tracked: changes.filter(
+      (change) => edgeChangeTypes[change.type] === "tracked",
+    ),
+    untracked: changes.filter(
+      (change) => edgeChangeTypes[change.type] === "untracked",
+    ),
   };
 }
