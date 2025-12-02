@@ -75,3 +75,23 @@ export async function getUserData(supabase: SupabaseClient, user: User) {
 
   return data;
 }
+
+export async function loadTutorialProgress() {
+  const { supabase, user } = await getSupabaseUserOrRedirect("/");
+
+  if (!user) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("tutorials")
+    .select("progress")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load tutorials: ${error.message}`);
+  }
+
+  return data ? (data.progress as Record<string, number>) : null;
+}
