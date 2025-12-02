@@ -195,7 +195,7 @@ export function ShaderListClient({
               ratingCount={item.ratingCount}
               imageUrl={
                 item.imageName
-                  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/marketplace_images/${item.imageName}`
+                  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}storage/v1/object/public/marketplace_images/${item.imageName}`
                   : null
               }
             />
@@ -214,7 +214,7 @@ export function ShaderListClient({
               ratingCount={item.ratingCount}
               imageUrl={
                 item.imageName
-                  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/marketplace_images/${item.imageName}`
+                  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}storage/v1/object/public/marketplace_images/${item.imageName}`
                   : null
               }
             />
