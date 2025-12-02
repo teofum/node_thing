@@ -48,16 +48,14 @@ export function TutorialsDialog({ open, onOpenChange }: ExportOptionsProps) {
             </div>
 
             <div className="flex gap-1">
-              <DialogClose asChild>
-                <Button
-                  icon
-                  variant="ghost"
-                  className="text-red-400"
-                  onClick={() => reset(tutorial.id)}
-                >
-                  <LuUndo2 />
-                </Button>
-              </DialogClose>
+              <Button
+                icon
+                variant="ghost"
+                className="text-red-400"
+                onClick={() => reset(tutorial.id)}
+              >
+                <LuUndo2 />
+              </Button>
 
               <DialogClose asChild>
                 <Button icon variant="ghost" onClick={() => start(tutorial)}>

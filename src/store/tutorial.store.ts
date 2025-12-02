@@ -5,6 +5,7 @@ import { useProjectStore } from "./project.store";
 import { Project } from "./project.types";
 import { Point } from "@/utils/point";
 import { saveTutorialProgress } from "./actions";
+import { setTutorialStep } from "./tutorial.actions";
 
 export type TutorialStep = {
   title: string;
@@ -22,7 +23,7 @@ export type Tutorial = {
   steps: TutorialStep[];
 };
 
-type TutorialState = {
+export type TutorialState = {
   tutorial: Tutorial | null;
   unsubscribe: (() => void) | null;
   step: number;
@@ -41,37 +42,9 @@ export const useTutorialStore = create(
     combine(initialState, (set, get) => ({
       startTutorial: (tutorial: Tutorial) => {
         const unsubscribe = useProjectStore.subscribe((state) => {
-          const { tutorial, step, progress } = get();
+          const { tutorial, step } = get();
           if (tutorial?.steps[step].nextCondition?.(state)) {
-            if (step === tutorial.steps.length - 1) {
-              const newProgress = {
-                ...progress,
-                [tutorial.id]: tutorial.steps.length,
-              };
-
-              set({
-                tutorial: null,
-                step: 0,
-                progress: newProgress,
-              });
-
-              saveTutorialProgress(newProgress);
-            } else {
-              const nextStep = tutorial.steps[step + 1];
-
-              const newProgress = {
-                ...progress,
-                [tutorial.id]: step + 1,
-              };
-
-              set({
-                step: step + 1,
-                progress: newProgress,
-              });
-
-              nextStep.onStart?.();
-              saveTutorialProgress(newProgress);
-            }
+            setTutorialStep(get, set, step + 1);
           }
         });
 
@@ -92,38 +65,8 @@ export const useTutorialStore = create(
       },
 
       nextStep: () => {
-        const { step, tutorial, progress } = get();
-        if (!tutorial) return;
-
-        if (step === tutorial.steps.length - 1) {
-          const newProgress = {
-            ...progress,
-            [tutorial.id]: tutorial.steps.length,
-          };
-
-          set({
-            tutorial: null,
-            step: 0,
-            progress: newProgress,
-          });
-
-          saveTutorialProgress(newProgress);
-        } else {
-          const nextStep = tutorial.steps[step + 1];
-
-          const newProgress = {
-            ...progress,
-            [tutorial.id]: step + 1,
-          };
-
-          set({
-            step: step + 1,
-            progress: newProgress,
-          });
-
-          nextStep.onStart?.();
-          saveTutorialProgress(newProgress);
-        }
+        const { step } = get();
+        setTutorialStep(get, set, step + 1);
       },
 
       syncProgress: (remote: Record<string, number>) => {
