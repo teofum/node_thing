@@ -5,7 +5,14 @@ import {
   NodeType,
   ShaderNode,
 } from "@/schemas/node.schema";
-import { Layer } from "@/store/project.types";
+import {
+  GroupNode,
+  isEdgeBetweenShaders,
+  isGroup,
+  isShader,
+  Layer,
+} from "@/store/project.types";
+import { isGroupIO } from "@/utils/edge";
 import { Edge } from "@xyflow/react";
 
 type Buffer = {
@@ -67,11 +74,10 @@ export class RenderPipeline {
   }
 
   private constructor(
-    { nodes, edges }: Pick<Layer, "nodes" | "edges">,
+    layer: Pick<Layer, "nodes" | "edges">,
     nodeTypes: Record<string, NodeType>,
   ) {
-    this.nodes = nodes;
-    this.edges = edges;
+    [this.nodes, this.edges] = expandGroups(layer);
     this.nodeTypes = nodeTypes;
 
     this.findConnectedNodes();
@@ -318,6 +324,86 @@ export class RenderPipeline {
 
     return passes;
   }
+}
+
+function getInputEdges(group: GroupNode, edges: Edge[]): Edge[] {
+  const externalInputEdges = edges.filter((e) => e.target === group.id);
+  const internalInputEdges = group.data.edges.filter((e) =>
+    e.source.startsWith("__group_input"),
+  );
+
+  const joinedInputEdges = internalInputEdges
+    .map((ie) => {
+      const ee = externalInputEdges.find(
+        (e) => e.targetHandle === ie.sourceHandle,
+      );
+      if (!ee) return null;
+
+      return {
+        ...ie,
+        source: ee.source,
+        target: `${group.id}::${ie.target}`,
+      };
+    })
+    .filter((ie) => ie !== null);
+
+  return joinedInputEdges;
+}
+
+function getOutputEdges(group: GroupNode, edges: Edge[]): Edge[] {
+  const externalOutputEdges = edges.filter((e) => e.source === group.id);
+  const internalOutputEdges = group.data.edges.filter((e) =>
+    e.target.startsWith("__group_output"),
+  );
+
+  const joinedOutputEdges = internalOutputEdges
+    .map((ie) => {
+      const ee = externalOutputEdges.find(
+        (e) => e.sourceHandle === ie.targetHandle,
+      );
+      if (!ee) return null;
+
+      return {
+        ...ie,
+        target: ee.target,
+        source: `${group.id}::${ie.source}`,
+      };
+    })
+    .filter((ie) => ie !== null);
+
+  return joinedOutputEdges;
+}
+
+function expandGroups({ nodes, edges }: Pick<Layer, "nodes" | "edges">) {
+  const expandedNodes = nodes.filter((n) => isShader(n));
+  const expandedEdges = edges.filter((e) => isEdgeBetweenShaders(e, nodes));
+
+  const groups = nodes.filter((n) => isGroup(n));
+  for (const group of groups) {
+    const [groupNodes, groupEdges] = expandGroups(group.data);
+
+    const expandedGroupNodes = groupNodes
+      .filter((n) => !n.data.type.startsWith("__group_"))
+      .map((n) => ({ ...n, id: `${group.id}::${n.id}` }));
+
+    const expandedGroupEdges = groupEdges
+      .filter((e) => !isGroupIO(e, groupNodes))
+      .map((e) => ({
+        ...e,
+        source: `${group.id}::${e.source}`,
+        target: `${group.id}::${e.target}`,
+      }));
+
+    const groupInputEdges = getInputEdges(group, edges);
+    const groupOutputEdges = getOutputEdges(group, edges);
+
+    expandedNodes.push(...expandedGroupNodes);
+    expandedEdges.push(...expandedGroupEdges);
+    expandedEdges.push(...groupInputEdges);
+    expandedEdges.push(...groupOutputEdges);
+  }
+
+  return [expandedNodes, expandedEdges] as const;
 }
 
 function unlinkDependencies(

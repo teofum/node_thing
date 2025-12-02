@@ -1,11 +1,38 @@
-import { Edge } from "@xyflow/react";
+import { Edge, Node } from "@xyflow/react";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
 import { DeepPartial } from "@/utils/deep-partial";
 import { Command } from "./types/command";
 
+export type GroupData = {
+  group: true;
+
+  nodes: (ShaderNode | GroupNode)[];
+  edges: Edge[];
+};
+
+export type GroupNode = Node<GroupData>;
+
+export function isShader(node: ShaderNode | GroupNode): node is ShaderNode {
+  return (node as ShaderNode).data.type !== undefined;
+}
+
+export function isGroup(node: ShaderNode | GroupNode): node is GroupNode {
+  return (node as GroupNode).data.group !== undefined;
+}
+
+export function isEdgeBetweenShaders(
+  edge: Edge,
+  nodes: (ShaderNode | GroupNode)[],
+) {
+  const source = nodes.find((n) => n.id === edge.source);
+  const target = nodes.find((n) => n.id === edge.target);
+
+  return source && target && isShader(source) && isShader(target);
+}
+
 export type Layer = {
-  nodes: ShaderNode[];
+  nodes: (ShaderNode | GroupNode)[];
   edges: Edge[];
 
   position: { x: number; y: number };

@@ -11,7 +11,7 @@ import {
 import { createUniform } from "./uniforms";
 import { createInputStage, createOutputStage } from "./io";
 import { zip } from "@/utils/zip";
-import { Layer } from "@/store/project.types";
+import { isShader, Layer } from "@/store/project.types";
 
 const THREADS_PER_WORKGROUP = 16;
 
@@ -247,7 +247,7 @@ export function render(
   for (const [node, buffer, uniforms] of desc.passes.map(
     (p, i) =>
       [
-        layer.nodes.find((n) => n.id === p.nodeId)!.data,
+        layer.nodes.filter(isShader).find((n) => n.id === p.nodeId)!.data,
         localUniformsBuffers[i],
         nodeTypes[p.nodeType].uniforms,
       ] as const,
@@ -287,7 +287,9 @@ export function render(
    * Fill in dummy buffers
    */
   for (const buf of dummyBuffers) {
-    const node = layer.nodes.find((n) => n.id === buf.pass.nodeId)!.data;
+    const node = layer.nodes
+      .filter(isShader)
+      .find((n) => n.id === buf.pass.nodeId)!.data;
     const value = node.defaultValues[buf.input] ?? 0;
 
     const values = Float32Array.from(

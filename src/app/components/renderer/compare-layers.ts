@@ -1,11 +1,18 @@
 import { Edge } from "@xyflow/react";
 
 import { ShaderNode } from "@/schemas/node.schema";
-import { Layer } from "@/store/project.types";
+import { GroupNode, isGroup, Layer } from "@/store/project.types";
 import { zip } from "@/utils/zip";
 
-function compareNodes(current: ShaderNode, last: ShaderNode) {
+function compareNodes(
+  current: ShaderNode | GroupNode,
+  last: ShaderNode | GroupNode,
+) {
   if (current.id !== last.id) return true;
+
+  // TODO compare groups
+  if (isGroup(current) || isGroup(last)) return true;
+
   if (
     JSON.stringify(current.data.parameters) !==
     JSON.stringify(last.data.parameters)

@@ -10,6 +10,7 @@ import {
   NodeTypes,
   StoredProject,
   NodeTypeDependency,
+  isShader,
 } from "./project.types";
 import { NODE_TYPES } from "@/utils/node-type";
 import { Command } from "./types/command";
@@ -40,7 +41,9 @@ export function prepareProjectForExport(project: Project): StoredProject {
 function getNodeTypeDependencies(project: Project): NodeTypeDependency[] {
   const projectNodeTypes = new Set(
     project.layers
-      .flatMap((layer) => layer.nodes.map((node) => node.data.type))
+      .flatMap((layer) =>
+        layer.nodes.map((node) => (isShader(node) ? node.data.type : "")),
+      )
       .filter((type) => Object.hasOwn(project.nodeTypes.external, type))
       .map((type) => [type, project.nodeTypes.external[type]] as const),
   );
@@ -70,7 +73,7 @@ export function modifyNode(
 ): (state: Project) => Partial<Project> {
   return modifyLayer(({ nodes }) => {
     const node = nodes.find((n) => n.id === id);
-    if (!node) return {};
+    if (!node || !isShader(node)) return {};
 
     return {
       nodes: [

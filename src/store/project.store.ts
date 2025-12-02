@@ -39,7 +39,7 @@ import {
   updateNodeType,
   withHistory,
 } from "./project.actions";
-import { Layer, NodeTypeDescriptor, Project } from "./project.types";
+import { isShader, Layer, NodeTypeDescriptor, Project } from "./project.types";
 
 interface ProjectStore extends ReturnType<typeof createInitialState> {
   undo: () => void;
@@ -62,27 +62,23 @@ export const useProjectStore = create(
 
         const { tracked, untracked, collapsed } = getNodeChangesByType(changes);
 
-        // Apply untracked changes
-        if (untracked.length) {
-          const withUntracked = modifyLayer((l) => ({
+        const apply = (state: Project, changes: NodeChange<Node>[]) => {
+          return modifyLayer((l) => ({
             ...l,
-            nodes: applyNodeChanges(untracked, l.nodes) as ShaderNode[],
+            nodes: applyNodeChanges(changes, l.nodes) as ShaderNode[],
           }))(state);
-          set(withUntracked);
-        }
+        };
+
+        // Apply untracked changes
+        if (untracked.length) set(apply(state, untracked));
 
         // Apply collapsed changes
         if (collapsed.length) {
           state = get();
-          const withCollapsed = modifyLayer((l) => ({
-            ...l,
-            nodes: applyNodeChanges(collapsed, l.nodes) as ShaderNode[],
-          }))(state);
-
           set(
             withHistory(
               state,
-              withCollapsed,
+              apply(state, collapsed),
               `moveNodes::${collapsed.map((c) => (c as NodePositionChange).id).join(":")}`,
               { collapse: true },
             ),
@@ -92,12 +88,7 @@ export const useProjectStore = create(
         // Apply tracked changes
         if (tracked.length) {
           state = get();
-          const newState = modifyLayer((l) => ({
-            ...l,
-            nodes: applyNodeChanges(tracked, l.nodes) as ShaderNode[],
-          }))(state);
-
-          set(withHistory(state, newState, "nodesChange"));
+          set(withHistory(state, apply(state, tracked), "nodesChange"));
         }
       },
 
@@ -110,24 +101,20 @@ export const useProjectStore = create(
 
         const { tracked, untracked } = getEdgeChangesByType(changes);
 
-        // Apply untracked changes
-        if (untracked.length) {
-          const withUntracked = modifyLayer((l) => ({
+        const apply = (state: Project, changes: EdgeChange<Edge>[]) => {
+          return modifyLayer((l) => ({
             ...l,
-            edges: applyEdgeChanges(untracked, l.edges),
+            edges: applyEdgeChanges(changes, l.edges),
           }))(state);
-          set(withUntracked);
-        }
+        };
+
+        // Apply untracked changes
+        if (untracked.length) set(apply(state, untracked));
 
         // Apply tracked changes
         if (tracked.length) {
           state = get();
-          const newState = modifyLayer((l) => ({
-            ...l,
-            edges: applyEdgeChanges(tracked, l.edges),
-          }))(state);
-
-          set(withHistory(state, newState, "edgesChange"));
+          set(withHistory(state, apply(state, tracked), "edgesChange"));
         }
       },
 
@@ -160,14 +147,8 @@ export const useProjectStore = create(
           },
         }))(state);
 
-        set(
-          withHistory(
-            state,
-            newState,
-            `updateNodeDefaultValue::${id}::${input}`,
-            { collapse: true },
-          ),
-        );
+        const command = `updateNodeDefaultValue::${id}::${input}`;
+        set(withHistory(state, newState, command, { collapse: true }));
       },
 
       updateNodeParameter: (
@@ -199,11 +180,8 @@ export const useProjectStore = create(
           },
         }))(state);
 
-        set(
-          withHistory(state, newState, `updateNodeUniform::${id}::${name}`, {
-            collapse: true,
-          }),
-        );
+        const command = `updateNodeUniform::${id}::${name}`;
+        set(withHistory(state, newState, command, { collapse: true }));
       },
 
       /*
@@ -245,14 +223,8 @@ export const useProjectStore = create(
           size: { width, height },
         }))(state);
 
-        set(
-          withHistory(
-            state,
-            newState,
-            `setLayerBounds::${state.layers[state.currentLayer].id}`,
-            { collapse: true },
-          ),
-        );
+        const command = `setLayerBounds::${state.layers[state.currentLayer].id}`;
+        set(withHistory(state, newState, command, { collapse: true }));
       },
 
       reorderLayers: (from: number, to: number) => {
@@ -410,10 +382,21 @@ export const useProjectStore = create(
             nodeTypes: { ...nodeTypes, custom: rest },
             layers: layers.map((layer) => ({
               ...layer,
-              nodes: layer.nodes.filter((n) => n.data.type !== name),
+              nodes: layer.nodes.filter(
+                (n) => !isShader(n) || n.data.type !== name,
+              ),
               edges: layer.edges.filter((e) => {
                 const source = layer.nodes.find((n) => n.id === e.source);
                 const target = layer.nodes.find((n) => n.id === e.target);
+
+                if (
+                  !source ||
+                  !target ||
+                  !isShader(source) ||
+                  !isShader(target)
+                )
+                  return true;
+
                 return source?.data.type !== name && target?.data.type !== name;
               }),
             })),
