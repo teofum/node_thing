@@ -29,7 +29,33 @@ export default function RatingCard({
 }: RatingCardProps) {
   return (
     <div className="glass glass-border p-4 rounded-2xl">
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      <div className="flex items-start justify-between mb-2">
+        <h3 className="text-xl font-semibold mb-2">{title}</h3>
+
+        <Dialog
+          title="Delete publication"
+          description="This action cannot be undone. Are you sure?"
+          trigger={
+            <Button variant="outline" size="md">
+              Delete
+            </Button>
+          }
+        >
+          <form
+            action={async () => {
+              "use server";
+              await deletePublication(id, type);
+            }}
+            className="p-4 flex flex-col gap-4"
+          >
+            <Button variant="outline">Confirm delete</Button>
+
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+          </form>
+        </Dialog>
+      </div>
 
       <div className="mb-7">
         <CardBadge

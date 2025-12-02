@@ -192,6 +192,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      project_collaborators: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          project_id: string;
+          role: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          project_id: string;
+          role?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          project_id?: string;
+          role?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "project_collaborators_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "project_collaborators_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       projects: {
         Row: {
           created_at: string | null;
@@ -205,6 +244,7 @@ export type Database = {
           updated_at: string | null;
           user_id: string;
           user_project: string;
+          yjs_snapshot: string | null;
         };
         Insert: {
           created_at?: string | null;
@@ -218,6 +258,7 @@ export type Database = {
           updated_at?: string | null;
           user_id: string;
           user_project: string;
+          yjs_snapshot?: string | null;
         };
         Update: {
           created_at?: string | null;
@@ -231,6 +272,7 @@ export type Database = {
           updated_at?: string | null;
           user_id?: string;
           user_project?: string;
+          yjs_snapshot?: string | null;
         };
         Relationships: [
           {
@@ -413,6 +455,32 @@ export type Database = {
             foreignKeyName: "fk_shaders_user_id";
             columns: ["user_id"];
             isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tutorials: {
+        Row: {
+          id: number;
+          progress: Json;
+          user_id: string;
+        };
+        Insert: {
+          id?: number;
+          progress: Json;
+          user_id: string;
+        };
+        Update: {
+          id?: number;
+          progress?: Json;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutorials_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
