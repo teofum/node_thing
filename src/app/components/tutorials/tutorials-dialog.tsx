@@ -5,9 +5,8 @@ import { useTutorialStore } from "@/store/tutorial.store";
 import { intro } from "./content/intro";
 import { Button } from "@/ui/button";
 import { LuArrowRight, LuUndo2 } from "react-icons/lu";
-import { dummy } from "./content/dummy";
 
-const tutorials = [intro, dummy];
+const tutorials = [intro];
 
 type ExportOptionsProps = {
   open: ComponentProps<typeof Dialog>["open"];
