@@ -889,6 +889,7 @@ export const NODE_TYPES = {
       size: {
         name: "size",
         type: "number",
+        default: 2,
         min: 2,
         step: 1,
       },
