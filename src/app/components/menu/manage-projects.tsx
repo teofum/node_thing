@@ -78,17 +78,15 @@ export function ManageProjects({
         trigger={trigger}
         title="Project Manager"
         description="Manage projects lol"
-        className="w-3/5"
+        className="w-2/5"
         {...props}
       >
         <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
-          <div className="font-semibold text-xl mb-4">Projects</div>
-
           {allProjects.length ? (
             allProjects.map((project) => (
               <div
                 key={project.id}
-                className="flex items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
+                className="flex items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3 hover:bg-current/10 disabled:bg-current/10 active:bg-current/15 disabled:active:bg-current/10"
               >
                 {editingId === project.id ? (
                   <Input
@@ -101,7 +99,15 @@ export function ManageProjects({
                     className="w-full"
                   />
                 ) : (
-                  <div className="w-full">{project.name ?? "Untitled"}</div>
+                  <div className="flex flex-col">
+                    <div className="w-full font-semibold">
+                      {project.name ?? "Untitled"}
+                    </div>
+
+                    <p className="text-xs text-white/60 text-left min-h-4">
+                      {project.description}
+                    </p>
+                  </div>
                 )}
 
                 <div className="flex gap-1">
@@ -155,12 +161,6 @@ export function ManageProjects({
           ) : (
             <p className="text-sm text-white/50 mt-2">No projects yet...</p>
           )}
-        </div>
-
-        <div className="p-3 flex justify-end gap-2">
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
         </div>
       </Dialog>
       <ConfirmImport

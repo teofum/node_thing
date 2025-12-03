@@ -3,7 +3,7 @@ import { LuGem, LuPencil } from "react-icons/lu";
 import { signOutAction } from "@/app/auth/actions";
 import { Button } from "@/ui/button";
 import type { User } from "@supabase/supabase-js";
-import type { UserData } from "../page";
+import type { UserData } from "../actions/user";
 import AvatarEditor from "../dialogs/change-avatar";
 
 type ProfileHeaderProps = {

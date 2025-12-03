@@ -6,6 +6,7 @@ import { nodeExists, edgeExistsBetween, and } from "../helpers";
 export const layerIntro: Tutorial = {
   id: "layers",
   name: "Layers introduction",
+  description: "A simple tutorial to explore layer controls",
   steps: [
     {
       title: "Welcome to layers!",

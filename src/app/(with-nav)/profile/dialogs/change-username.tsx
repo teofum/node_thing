@@ -2,19 +2,17 @@
 
 import { Dialog, DialogClose } from "@/ui/dialog";
 import { ReactNode, startTransition, useActionState, useState } from "react";
-import { UserData } from "../page";
+import { UserData } from "../actions/user";
 import { Button } from "@/ui/button";
 import { setUsername } from "../actions/settings";
 
 type AccountEditorProps = {
   trigger: ReactNode;
-  title: string;
   userData: UserData;
 };
 
 export default function AccountEditor({
   trigger,
-  title,
   userData,
 }: AccountEditorProps) {
   const [name, setName] = useState(userData.username ?? "");
@@ -22,6 +20,8 @@ export default function AccountEditor({
   // TODO pending behaviour
   const [setUsernameState, setUsernameAction, setUsernamePending] =
     useActionState(async () => await setUsername(name), null);
+
+  const isValid = name.trim().length > 0;
 
   return (
     <Dialog trigger={trigger} title="Edit Username" description="">
@@ -41,7 +41,7 @@ export default function AccountEditor({
           </DialogClose>
           <Button
             onClick={() => startTransition(() => setUsernameAction())}
-            disabled={setUsernamePending}
+            disabled={!isValid || setUsernamePending}
           >
             {setUsernamePending ? "Applying..." : "Apply"}
           </Button>

@@ -6,6 +6,7 @@ import { nodeExists, edgeExistsBetween, and } from "../helpers";
 export const intro: Tutorial = {
   id: "intro",
   name: "Introduction",
+  description: "A very simple node_thing tutorial",
   steps: [
     {
       title: "Welcome to node thing!",

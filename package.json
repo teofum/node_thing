@@ -80,6 +80,7 @@
     "camelcase-keys": "^10.0.0",
     "classnames": "^2.5.1",
     "get-port-please": "^3.2.0",
+    "json-diff-ts": "^4.8.2",
     "jszip": "^3.10.1",
     "mediabunny": "^1.23.0",
     "mercadopago": "^2.9.0",
