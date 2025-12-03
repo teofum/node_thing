@@ -1,16 +1,18 @@
+import { Background, ReactFlow, useReactFlow } from "@xyflow/react";
 import { useCallback, useMemo, useState } from "react";
-import { ReactFlow, useReactFlow, Background } from "@xyflow/react";
-import { useProjectStore } from "@/store/project.store";
-import { RenderShaderNode } from "./shader-node";
+import { LuPlus } from "react-icons/lu";
+
 import { NodeData, NodeType } from "@/schemas/node.schema";
+import { useProjectStore } from "@/store/project.store";
+import { Graph, isGroup } from "@/store/project.types";
 import {
   ContextMenu,
   ContextMenuItem,
   ContextSubmenu,
 } from "@/ui/context-menu";
-import { LuPlus } from "react-icons/lu";
 import { useNodeTypes } from "@/utils/use-node-types";
 import { RenderGroupNode } from "./group-node";
+import { RenderShaderNode } from "./shader-node";
 
 const nodeTypes = {
   RenderShaderNode,
@@ -20,6 +22,8 @@ const nodeTypes = {
 export function Viewport() {
   const layers = useProjectStore((s) => s.layers);
   const currentLayer = useProjectStore((s) => s.currentLayer);
+  const currentGroup = useProjectStore((s) => s.currentGroup);
+
   const storeNodeTypes = useNodeTypes();
   const onNodesChange = useProjectStore((s) => s.onNodesChange);
   const onEdgesChange = useProjectStore((s) => s.onEdgesChange);
@@ -78,7 +82,16 @@ export function Viewport() {
     [screenToFlowPosition, addNode, storeNodeTypes],
   );
 
-  const { nodes, edges } = layers[currentLayer];
+  let currentGraph: Graph = layers[currentLayer];
+  for (const groupId of currentGroup) {
+    const group = currentGraph.nodes
+      .filter(isGroup)
+      .find((n) => n.id === groupId);
+
+    if (!group) break;
+    currentGraph = group.data;
+  }
+  const { nodes, edges } = currentGraph;
 
   /*
    * Detect macOS and adjust controls to be more consistent with platform
@@ -87,58 +100,56 @@ export function Viewport() {
   const mac = navigator.platform.startsWith("Mac");
 
   return (
-    <>
-      <ContextMenu
-        trigger={
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            nodeTypes={nodeTypes}
-            colorMode="dark"
-            fitView
-            panOnScroll={mac}
-            panOnDrag={!mac}
-            selectionOnDrag={mac}
-            onContextMenu={onContextMenu}
-            style={
-              {
-                "--xy-edge-stroke":
-                  "rgb(from var(--color-neutral-300) r g b / 0.4)",
-                "--xy-edge-stroke-selected":
-                  "rgb(from var(--color-teal-400) r g b / 0.6)",
-                "--xy-handle-background-color": "var(--color-neutral-100)",
-                "--xy-handle-border-color": "var(--color-neutral-600)",
-              } as Record<string, string>
-            }
-          >
-            <Background />
-          </ReactFlow>
-        }
-      >
-        <ContextSubmenu icon={<LuPlus />} label="Add node">
-          {nodeCategories.map(([name, types]) => (
-            <ContextSubmenu key={name} label={name}>
-              {types.map(([key, type]) => (
-                <ContextMenuItem
-                  key={key}
-                  onClick={() => addNode(key, ctxMenuPosition, {})}
-                >
-                  {type.name}
-                </ContextMenuItem>
-              ))}
-            </ContextSubmenu>
-          ))}
-        </ContextSubmenu>
+    <ContextMenu
+      trigger={
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          nodeTypes={nodeTypes}
+          colorMode="dark"
+          fitView
+          panOnScroll={mac}
+          panOnDrag={!mac}
+          selectionOnDrag={mac}
+          onContextMenu={onContextMenu}
+          style={
+            {
+              "--xy-edge-stroke":
+                "rgb(from var(--color-neutral-300) r g b / 0.4)",
+              "--xy-edge-stroke-selected":
+                "rgb(from var(--color-teal-400) r g b / 0.6)",
+              "--xy-handle-background-color": "var(--color-neutral-100)",
+              "--xy-handle-border-color": "var(--color-neutral-600)",
+            } as Record<string, string>
+          }
+        >
+          <Background />
+        </ReactFlow>
+      }
+    >
+      <ContextSubmenu icon={<LuPlus />} label="Add node">
+        {nodeCategories.map(([name, types]) => (
+          <ContextSubmenu key={name} label={name}>
+            {types.map(([key, type]) => (
+              <ContextMenuItem
+                key={key}
+                onClick={() => addNode(key, ctxMenuPosition, {})}
+              >
+                {type.name}
+              </ContextMenuItem>
+            ))}
+          </ContextSubmenu>
+        ))}
+      </ContextSubmenu>
 
-        <ContextMenuItem onClick={() => addGroup(ctxMenuPosition)}>
-          Add group
-        </ContextMenuItem>
-      </ContextMenu>
-    </>
+      <ContextMenuItem onClick={() => addGroup(ctxMenuPosition)}>
+        New group
+      </ContextMenuItem>
+    </ContextMenu>
   );
 }

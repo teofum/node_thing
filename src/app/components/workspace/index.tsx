@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
+import { LuX } from "react-icons/lu";
 
 import { useProjectStore } from "@/store/project.store";
 import { useAssetStore } from "@/store/asset.store";
+import { Button } from "@/ui/button";
 import { Sidebar } from "./sidebar";
 import { Viewport } from "./viewport";
 
 export function Workspace() {
   const loadNodeTypes = useProjectStore((state) => state.loadNodeTypes);
+  const currentGroup = useProjectStore((s) => s.currentGroup);
+  const closeGroup = useProjectStore((s) => s.closeGroup);
 
   useEffect(() => {
     loadNodeTypes();
@@ -34,10 +38,25 @@ export function Workspace() {
 
   return (
     <ReactFlowProvider>
-      <div className="relative w-full h-full flex-1 min-h-0 rounded-2xl overflow-hidden border border-white/15">
-        <Sidebar />
+      <div className="flex flex-col w-full h-full flex-1 min-h-0 gap-2">
+        {currentGroup.length ? (
+          <div className="flex flex-row gap-2 items-center">
+            <div className="text-xs/3">groups: {currentGroup.join("/")}</div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={closeGroup}
+              className="ml-auto"
+            >
+              <LuX /> Exit
+            </Button>
+          </div>
+        ) : null}
 
-        <Viewport />
+        <div className="relative w-full h-full flex-1 min-h-0 rounded-2xl overflow-hidden border border-white/15">
+          <Sidebar />
+          <Viewport />
+        </div>
       </div>
     </ReactFlowProvider>
   );

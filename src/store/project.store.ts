@@ -54,6 +54,16 @@ export const useProjectStore = create(
         set({ currentLayer: idx });
       },
 
+      openGroup: (id: string) => {
+        const { currentGroup } = get();
+        set({ currentGroup: [...currentGroup, id] });
+      },
+
+      closeGroup: () => {
+        const { currentGroup } = get();
+        set({ currentGroup: currentGroup.slice(0, -1) });
+      },
+
       onNodesChange: (changes: NodeChange<Node>[]) => {
         let state = get();
         const { layers, currentLayer } = state;
