@@ -10,9 +10,11 @@ import {
 } from "@/ui/context-menu";
 import { LuPlus } from "react-icons/lu";
 import { useNodeTypes } from "@/utils/use-node-types";
+import { RenderGroupNode } from "./group-node";
 
 const nodeTypes = {
   RenderShaderNode,
+  RenderGroupNode,
 };
 
 export function Viewport() {
@@ -23,6 +25,7 @@ export function Viewport() {
   const onEdgesChange = useProjectStore((s) => s.onEdgesChange);
   const onConnect = useProjectStore((s) => s.onConnect);
   const addNode = useProjectStore((s) => s.addNode);
+  const addGroup = useProjectStore((s) => s.addGroup);
 
   const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
   const { screenToFlowPosition } = useReactFlow();
@@ -131,6 +134,10 @@ export function Viewport() {
             </ContextSubmenu>
           ))}
         </ContextSubmenu>
+
+        <ContextMenuItem onClick={() => addGroup(ctxMenuPosition)}>
+          Add group
+        </ContextMenuItem>
       </ContextMenu>
     </>
   );

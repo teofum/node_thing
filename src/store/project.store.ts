@@ -16,7 +16,7 @@ import { combine, persist } from "zustand/middleware";
 
 import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
-import { createNode } from "@/utils/node";
+import { createGroup, createNode } from "@/utils/node";
 import { Point } from "@/utils/point";
 import {
   deleteShader,
@@ -419,6 +419,18 @@ export const useProjectStore = create(
         }))(state);
 
         set(withHistory(state, newState, "addNode"));
+      },
+
+      addGroup: (position: Point) => {
+        const state = get();
+        const newState = modifyLayer((layer) => ({
+          nodes: [
+            ...layer.nodes.map((node) => ({ ...node, selected: false })),
+            createGroup(position),
+          ],
+        }))(state);
+
+        set(withHistory(state, newState, "addGroup"));
       },
 
       removeNode: (id: string) => {

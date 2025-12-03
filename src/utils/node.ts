@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 
 import { Handle, NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
+import { GroupNode } from "@/store/project.types";
 
 export function createNode<
   N extends Record<string, NodeType>,
@@ -68,6 +69,20 @@ function getDefaultDefaultValue(input: Handle): number | number[] {
     value = Math.round(value / input.step) * input.step;
 
   return value;
+}
+
+export function createGroup(position: { x: number; y: number }): GroupNode {
+  return {
+    id: newNodeId("__group"),
+    type: "RenderGroupNode",
+    position,
+    data: {
+      group: true,
+      nodes: [],
+      edges: [],
+    },
+    selected: true,
+  };
 }
 
 function newNodeId(type: string) {
