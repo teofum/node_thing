@@ -110,5 +110,61 @@ export const layerIntro: Tutorial = {
       },
       //nextCondition: layerExists((n) => n. === "Layer 1"), // TODO
     },
+    {
+      title: "Use the undelying layer",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            Now, to use the layers underneath your current one you will have to
+            use the <strong className="font-bold">Underlying Layer</strong>{" "}
+            node. This node&apos;s output is the output of the layer directly
+            below this one.
+          </p>
+          <p>
+            Look for this node in the input section of the Library or by right
+            clicking the canvas. Drop it in the canvas.
+          </p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      nextCondition: and(nodeExists((n) => n.data.type === "__input_layer")),
+    },
+    {
+      title: "Excellent!!",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            Now we will apply an effect on this to more easily see how the
+            layers work.
+          </p>
+          <p>
+            Create a mix node, set the input colors A and B to red and blue
+            respectively. Then connect the underlying layer output into the
+            factor input and the output to the output of the current layer.
+          </p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong>If you find it handy, you
+            can set colors using the hexa values
+          </p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      nextCondition: and(
+        nodeExists((n) => n.data.type === "mix"),
+        //edgeExistsBetween("__input_layer:color", "mix:factor"),
+        edgeExistsBetween("mix:output", "__output:color"),
+        nodeExists((n) => {
+          if (n.data.type !== "mix") return false;
+
+          const [r1, g1, b1] = n.data.defaultValues.input_a as number[];
+          const [r2, g2, b2] = n.data.defaultValues.input_b as number[];
+
+          const firstIsRed = r1 > 0.8 && g1 < 0.1 && b1 < 0.1;
+          const secondIsBlue = r2 < 0.1 && g2 < 0.1 && b2 > 0.8;
+
+          return firstIsRed && secondIsBlue;
+        }),
+      ),
+    },
   ],
 };
