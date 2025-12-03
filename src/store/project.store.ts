@@ -32,6 +32,7 @@ import {
   getEdgeChangesByType,
   getNodeChangesByType,
   mergeProject,
+  modifyGroup,
   modifyLayer,
   modifyNode,
   newLayerId,
@@ -63,10 +64,10 @@ export const useProjectStore = create(
         const { tracked, untracked, collapsed } = getNodeChangesByType(changes);
 
         const apply = (state: Project, changes: NodeChange<Node>[]) => {
-          return modifyLayer((l) => ({
+          return modifyGroup(state, (l) => ({
             ...l,
             nodes: applyNodeChanges(changes, l.nodes) as ShaderNode[],
-          }))(state);
+          }));
         };
 
         // Apply untracked changes
@@ -102,10 +103,10 @@ export const useProjectStore = create(
         const { tracked, untracked } = getEdgeChangesByType(changes);
 
         const apply = (state: Project, changes: EdgeChange<Edge>[]) => {
-          return modifyLayer((l) => ({
+          return modifyGroup(state, (l) => ({
             ...l,
             edges: applyEdgeChanges(changes, l.edges),
-          }))(state);
+          }));
         };
 
         // Apply untracked changes
@@ -120,7 +121,7 @@ export const useProjectStore = create(
 
       onConnect: (connection: Connection) => {
         const state = get();
-        const newState = modifyLayer((layer) => {
+        const newState = modifyGroup(state, (layer) => {
           const edgesWithoutConflictingConnections = layer.edges.filter(
             (e) =>
               e.target !== connection.target ||
@@ -129,7 +130,7 @@ export const useProjectStore = create(
           return {
             edges: addEdge(connection, edgesWithoutConflictingConnections),
           };
-        })(state);
+        });
 
         set(withHistory(state, newState, "connect"));
       },
@@ -140,12 +141,12 @@ export const useProjectStore = create(
         value: number | number[],
       ) => {
         const state = get();
-        const newState = modifyNode(id, (node) => ({
+        const newState = modifyNode(state, id, (node) => ({
           data: {
             ...node.data,
             defaultValues: { ...node.data.defaultValues, [input]: value },
           },
-        }))(state);
+        }));
 
         const command = `updateNodeDefaultValue::${id}::${input}`;
         set(withHistory(state, newState, command, { collapse: true }));
@@ -157,12 +158,12 @@ export const useProjectStore = create(
         value: string | null,
       ) => {
         const state = get();
-        const newState = modifyNode(id, (node) => ({
+        const newState = modifyNode(state, id, (node) => ({
           data: {
             ...node.data,
             parameters: { ...node.data.parameters, [param]: { value } },
           },
-        }))(state);
+        }));
 
         set(withHistory(state, newState, "updateNodeParameter"));
       },
@@ -173,12 +174,12 @@ export const useProjectStore = create(
         value: number | number[],
       ) => {
         const state = get();
-        const newState = modifyNode(id, (node) => ({
+        const newState = modifyNode(state, id, (node) => ({
           data: {
             ...node.data,
             uniforms: { ...node.data.uniforms, [name]: value },
           },
-        }))(state);
+        }));
 
         const command = `updateNodeUniform::${id}::${name}`;
         set(withHistory(state, newState, command, { collapse: true }));
@@ -217,11 +218,11 @@ export const useProjectStore = create(
 
       setLayerBounds: (x: number, y: number, width: number, height: number) => {
         const state = get();
-        const newState = modifyLayer((layer) => ({
+        const newState = modifyLayer(state, (layer) => ({
           ...layer,
           position: { x, y },
           size: { width, height },
-        }))(state);
+        }));
 
         const command = `setLayerBounds::${state.layers[state.currentLayer].id}`;
         set(withHistory(state, newState, command, { collapse: true }));
@@ -411,40 +412,40 @@ export const useProjectStore = create(
       ) => {
         const state = get();
         const allNodeTypes = getAllNodeTypes(state.nodeTypes);
-        const newState = modifyLayer((layer) => ({
+        const newState = modifyGroup(state, (layer) => ({
           nodes: [
             ...layer.nodes.map((node) => ({ ...node, selected: false })),
             createNode(type, position, allNodeTypes, parameters),
           ],
-        }))(state);
+        }));
 
         set(withHistory(state, newState, "addNode"));
       },
 
       addGroup: (position: Point) => {
         const state = get();
-        const newState = modifyLayer((layer) => ({
+        const newState = modifyGroup(state, (layer) => ({
           nodes: [
             ...layer.nodes.map((node) => ({ ...node, selected: false })),
             createGroup(position),
           ],
-        }))(state);
+        }));
 
         set(withHistory(state, newState, "addGroup"));
       },
 
       removeNode: (id: string) => {
         const state = get();
-        const newState = modifyLayer((layer) => ({
+        const newState = modifyGroup(state, (layer) => ({
           nodes: layer.nodes.filter((node) => node.id !== id),
-        }))(state);
+        }));
 
         set(withHistory(state, newState, "removeNode"));
       },
 
       changeLayerName: (name: string, idx: number) => {
         const state = get();
-        const newState = modifyLayer(() => ({ name }), idx)(state);
+        const newState = modifyLayer(state, () => ({ name }), idx);
 
         set(withHistory(state, newState, "renameLayer"));
       },

@@ -13,6 +13,8 @@ export type GroupData = {
 
 export type GroupNode = Node<GroupData>;
 
+export type Graph = Pick<Layer, "nodes" | "edges">;
+
 export function isShader(node: ShaderNode | GroupNode): node is ShaderNode {
   return (node as ShaderNode).data.type !== undefined;
 }
@@ -54,6 +56,8 @@ export type NodeTypes = Record<string, NodeType>;
 export type Project = {
   layers: Layer[];
   currentLayer: number;
+  currentGroup: string[];
+
   properties: ProjectProperties;
   nodeTypes: {
     default: NodeTypes;
@@ -61,6 +65,7 @@ export type Project = {
     external: NodeTypes;
   };
   projectName: string;
+
   history: Command[];
   done: number;
 };
