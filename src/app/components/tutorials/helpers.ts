@@ -1,5 +1,14 @@
+import { Layer } from "@/store/project.types";
 import { ShaderNode } from "@/schemas/node.schema";
 import { Project } from "@/store/project.types";
+
+export function inLayer(layer: number) {
+  return (p: Project) => p.currentLayer === layer;
+}
+
+export function layerExists(fn: (l: Layer) => boolean) {
+  return (p: Project) => p.layers.some(fn);
+}
 
 export function nodeExists(fn: (node: ShaderNode) => boolean) {
   return (p: Project) => p.layers[p.currentLayer].nodes.some(fn);
