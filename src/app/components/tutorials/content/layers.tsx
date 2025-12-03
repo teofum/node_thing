@@ -39,7 +39,7 @@ export const layerIntro: Tutorial = {
             Place the <strong className="font-bold">voronoi noise</strong> node.
             You can see details about this node in its{" "}
             <strong className="font-bold">tooltip</strong>. We will use it to
-            make a basic patter for our background layer.
+            make a basic pattern for our background layer.
           </p>
           <p>
             Find the <strong className="font-bold">voronoi noise</strong> node
@@ -176,8 +176,8 @@ export const layerIntro: Tutorial = {
         const [r1, g1, b1] = n.data.defaultValues.input_a as number[];
         const [r2, g2, b2] = n.data.defaultValues.input_b as number[];
 
-        const firstIsRed = r1 > 0.8 && g1 < 0.1 && b1 < 0.1;
-        const secondIsBlue = r2 < 0.1 && g2 < 0.1 && b2 > 0.8;
+        const firstIsRed = r1 > 0.8 && g1 < 0.2 && b1 < 0.2;
+        const secondIsBlue = r2 < 0.2 && g2 < 0.2 && b2 > 0.8;
 
         return firstIsRed && secondIsBlue;
       }),
@@ -228,6 +228,10 @@ export const layerIntro: Tutorial = {
           </p>
           <LuCrop />
           <p>You should see a green outline around your image in the canvas.</p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong>You can zoom in and out
+            on the canvas by using the on screen controls or your mouse.
+          </p>
         </div>
       ),
       position: { x: 250, y: 67 },
@@ -241,8 +245,8 @@ export const layerIntro: Tutorial = {
             Now that you have access to the controls, you should see a green
             outline around the image in your canvas. Try to set the width to to
             half of the max size, you can do this by{" "}
-            <strong className="font-bold">dragging</strong> on one of the edges
-            of the green outline.
+            <strong className="font-bold">dragging</strong> on one of the point
+            on the edges of the green outline.
           </p>
           <p className="text-xs/4 text-white/60">
             <strong className="font-bold">Tip:</strong> You can also move the
@@ -260,9 +264,9 @@ export const layerIntro: Tutorial = {
         <div className="flex flex-col gap-3 text-sm/4">
           <p>
             You can see now that the layer we just created will only apply
-            effects to the underlying layer if its inside the selected area.
-            This has different effects if combined with pictures and more
-            complex node webs, but ill let the experimentation to you.
+            effects to the underlying layer if its inside the selected area. If
+            combined with pictures and more complex node webs, this can have
+            different effects but ill let the experimentation to you.
           </p>
           <p>
             Remember that if you ever want to reset the layer bounds you can do
