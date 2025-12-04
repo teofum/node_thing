@@ -15,6 +15,7 @@ import { loadImageFromFile } from "@/utils/image";
 import { UploadImage } from "./components/upload-image";
 import { getImage } from "../../../actions";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
+import Link from "next/link";
 
 type ItemDetailPageProps = {
   params: {
@@ -60,7 +61,13 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           <div className="text-3xl font-semibold mb-1">{item.title}</div>
           {item.username && (
             <p className="text-2x1 text-white/60 mb-2">
-              by <span className="font-bold">{item.username}</span>
+              by{" "}
+              <Link
+                href={`/profile/${item.username}`}
+                className="font-bold hover:text-teal-400"
+              >
+                {item.username}
+              </Link>
             </p>
           )}
 

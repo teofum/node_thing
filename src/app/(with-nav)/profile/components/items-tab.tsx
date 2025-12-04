@@ -34,11 +34,22 @@ type ItemTabsProps = {
   projectsList: ProjectDisplay[];
   shadersRatingsList: RatingsDisplay[];
   projectsRatingsList: RatingsDisplay[];
+  isOwnProfile: boolean;
+  isPurchasedTab?: boolean;
+  username?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
   (
-    { shadersList, projectsList, shadersRatingsList, projectsRatingsList },
+    {
+      shadersList,
+      projectsList,
+      shadersRatingsList,
+      projectsRatingsList,
+      isOwnProfile,
+      isPurchasedTab = false,
+      username,
+    },
     forwardedRef,
   ) => {
     const shadersCards =
@@ -55,11 +66,16 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
               shadersRatingsList.find((r) => r.shaderId === shader.id) ?? null
             }
             ratingCount={shader.ratingCount ?? 0}
+            canReview={isPurchasedTab}
           />
         ))
       ) : (
-        <p className="text-white/40">
-          {"You haven't purchased any shaders yet"}
+        <p className="text-white/40 p-2">
+          {isPurchasedTab
+            ? "You haven't purchased any shaders yet"
+            : isOwnProfile
+              ? "You haven't published any shaders yet"
+              : "User didn't publish any shaders"}
         </p>
       );
 
@@ -77,11 +93,16 @@ const ItemsTab = forwardRef<HTMLDivElement, ItemTabsProps>(
               null
             }
             ratingCount={project.ratingCount ?? 0}
+            canReview={isPurchasedTab}
           />
         ))
       ) : (
-        <p className="text-white/40">
-          {"You haven't published any shaders yet"}
+        <p className="text-white/40 p-2">
+          {isPurchasedTab
+            ? "You haven't purchased any projects yet"
+            : isOwnProfile
+              ? "You haven't published any projects yet"
+              : "User didn't publish any projects"}
         </p>
       );
 

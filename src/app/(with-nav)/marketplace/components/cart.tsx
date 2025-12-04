@@ -1,4 +1,7 @@
+"use client";
+
 import { LuArrowRight, LuShoppingCart, LuTrash2, LuX } from "react-icons/lu";
+import { startTransition, useActionState } from "react";
 
 import { Button } from "@/ui/button";
 import { Popover } from "@/ui/popover";
@@ -10,6 +13,31 @@ type CartProps = {
 };
 
 export function Cart({ items }: CartProps) {
+  const [clearCartStatus, clearCartAction, clearCartPending] = useActionState(
+    async () => {
+      await clearCart();
+      return null;
+    },
+    null,
+  );
+
+  // TODO pending behaviour
+  const [removeFromCartState, removeFromCartAction, removeFromCartPending] =
+    useActionState(async (_prev: null, formData: FormData) => {
+      await removeFromCart(formData);
+      return null;
+    }, null);
+
+  // TODO pending behaviour
+  const [
+    createOrderAndRedirectStatus,
+    createOrderAndRedirectAction,
+    createOrderAndRedirectPending,
+  ] = useActionState(async () => {
+    await createOrderAndRedirect();
+    return null;
+  }, null);
+
   if (!items.length) return null;
 
   return (
@@ -29,7 +57,10 @@ export function Cart({ items }: CartProps) {
     >
       <div className="flex flex-row items-center text-base/4 font-semibold border-b border-white/15 p-2 pl-4">
         <div>Cart ({items.length} items)</div>
-        <form action={clearCart} className="ml-auto">
+        <form
+          action={() => startTransition(() => clearCartAction())}
+          className="ml-auto"
+        >
           <Button variant="ghost" type="submit" className="text-red-400">
             <LuX />
             Clear
@@ -52,7 +83,11 @@ export function Cart({ items }: CartProps) {
               <div className="font-semibold text-white/60 text-end">
                 $ {item.price_at_time.toFixed(2)}
               </div>
-              <form action={removeFromCart}>
+              <form
+                action={(formData) =>
+                  startTransition(() => removeFromCartAction(formData))
+                }
+              >
                 <input type="hidden" name="itemId" value={itemId!} />
                 <input type="hidden" name="itemType" value={itemType} />
                 <Button
@@ -76,7 +111,7 @@ export function Cart({ items }: CartProps) {
               .toFixed(2)}
           </div>
           <form
-            action={createOrderAndRedirect}
+            action={() => startTransition(() => createOrderAndRedirectAction())}
             className="col-start-1 -col-end-1"
           >
             <Button type="submit" size="lg" className="w-full">
