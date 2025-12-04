@@ -13,6 +13,7 @@ import { create } from "zustand";
 import { combine, persist } from "zustand/middleware";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import type * as Y from "yjs";
+import type { Awareness } from "y-protocols/awareness";
 
 import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
@@ -46,7 +47,14 @@ export const useProjectStore = create(
         currentRoomId: null as string | null,
         yjsDoc: null as Y.Doc | null,
         realtimeChannel: null as RealtimeChannel | null,
+        awareness: null as Awareness | null,
         collaborationEnabled: false,
+        connectedUsers: [] as Array<{
+          id: string;
+          name: string;
+          avatar: string;
+          color: string;
+        }>,
       },
       (set, get) => ({
         setActiveLayer: (idx: number) => set({ currentLayer: idx }),
@@ -61,9 +69,16 @@ export const useProjectStore = create(
               import("@/lib/collaboration/yjs-sync"),
             ]);
             const supabase = createClient();
+            const {
+              data: { user },
+            } = await supabase.auth.getUser();
             const channel = supabase.channel(`room:${currentRoomId}`);
             await channel.subscribe();
-            const { ydoc } = initYjsSync(currentRoomId, channel);
+            const { ydoc, awareness } = initYjsSync(currentRoomId, channel, {
+              name:
+                user?.user_metadata?.full_name || user?.email || "Anonymous",
+              avatar: user?.user_metadata?.avatar_url || "",
+            });
 
             const yNodes = ydoc.getMap("nodes");
             const yEdges = ydoc.getMap("edges");
@@ -78,9 +93,44 @@ export const useProjectStore = create(
               set(modifyLayer(() => ({ edges })));
             });
 
+            const updateUsers = () => {
+              const states = awareness.getStates();
+              const users: Array<{
+                id: string;
+                name: string;
+                avatar: string;
+                color: string;
+              }> = [];
+              const localClientId = awareness.clientID;
+
+              states.forEach(
+                (
+                  state: {
+                    user?: { name: string; avatar: string; color: string };
+                  },
+                  clientId: number,
+                ) => {
+                  if (state.user && clientId !== localClientId) {
+                    users.push({
+                      id: String(clientId),
+                      name: state.user.name || "Anonymous",
+                      avatar: state.user.avatar || "",
+                      color: state.user.color || "#3b82f6",
+                    });
+                  }
+                },
+              );
+
+              set({ connectedUsers: users });
+            };
+
+            awareness.on("change", updateUsers);
+            updateUsers();
+
             set({
               yjsDoc: ydoc,
               realtimeChannel: channel,
+              awareness,
               collaborationEnabled: true,
             });
           } else {
@@ -91,7 +141,9 @@ export const useProjectStore = create(
             set({
               yjsDoc: null,
               realtimeChannel: null,
+              awareness: null,
               collaborationEnabled: false,
+              connectedUsers: [],
             });
           }
         },
@@ -484,7 +536,9 @@ export const useProjectStore = create(
           currentRoomId,
           yjsDoc,
           realtimeChannel,
+          awareness,
           collaborationEnabled,
+          connectedUsers,
           ...rest
         } = state;
         return prepareProjectForExport(rest);

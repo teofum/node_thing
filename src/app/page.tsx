@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Tutorial } from "./components/tutorials/tutorial";
 import { HelpMenu } from "./components/menu/help";
+import { ShareButton } from "./components/workspace/share-button";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -75,6 +76,8 @@ export default async function Home() {
         <LinkButton href="/marketplace" variant="outline">
           Marketplace
         </LinkButton>
+
+        <ShareButton />
 
         <AuthButton />
       </div>
