@@ -13,6 +13,41 @@ import { useNodeTypes } from "@/utils/use-node-types";
 import { ShaderEditor } from "./shader-editor";
 import { RenderShaderNode } from "./shader-node";
 
+type ShaderListProps = {
+  nodeKey: string;
+  onDragStart: (event: React.DragEvent, nodeType: string) => void;
+};
+
+const SidebarShader = ({ nodeKey, onDragStart }: ShaderListProps) => {
+  return (
+    <div
+      className="cursor-grab"
+      onDragStart={(event) => onDragStart(event, nodeKey)}
+      draggable
+    >
+      <RenderShaderNode
+        mock
+        id={nodeKey}
+        data={{
+          type: nodeKey,
+          defaultValues: {},
+          parameters: {},
+        }}
+        selected={false}
+        type={""}
+        dragging={false}
+        zIndex={0}
+        selectable={false}
+        deletable={false}
+        draggable={false}
+        isConnectable={false}
+        positionAbsoluteX={0}
+        positionAbsoluteY={0}
+      />
+    </div>
+  );
+};
+
 export function MenuLibrary() {
   const nodeTypes = useNodeTypes();
 
@@ -42,32 +77,11 @@ export function MenuLibrary() {
                 <AccordionContent className="border-b border-white/15">
                   <div className="flex flex-col gap-3 p-1">
                     {Object.entries(types).map(([key]) => (
-                      <div
+                      <SidebarShader
                         key={key}
-                        className="cursor-grab"
-                        onDragStart={(event) => onDragStart(event, key)}
-                        draggable
-                      >
-                        <RenderShaderNode
-                          mock
-                          id={key}
-                          data={{
-                            type: key,
-                            defaultValues: {},
-                            parameters: {},
-                          }}
-                          selected={false}
-                          type={""}
-                          dragging={false}
-                          zIndex={0}
-                          selectable={false}
-                          deletable={false}
-                          draggable={false}
-                          isConnectable={false}
-                          positionAbsoluteX={0}
-                          positionAbsoluteY={0}
-                        />
-                      </div>
+                        nodeKey={key}
+                        onDragStart={onDragStart}
+                      />
                     ))}
                   </div>
                 </AccordionContent>
