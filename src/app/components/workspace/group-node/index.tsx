@@ -1,46 +1,20 @@
-import { Handle, NodeProps, Position } from "@xyflow/react";
-import cn from "classnames";
+import { NodeProps } from "@xyflow/react";
+import { useState } from "react";
 
 import { GroupNode, isShader } from "@/store/project.types";
 import { Button } from "@/ui/button";
 import { useProjectStore } from "@/store/project.store";
 
 import { ShaderNodeContainer } from "../shader-node";
-import { Handle as HandleType } from "@/schemas/node.schema";
-
-type GroupHandleProps = {
-  id: string;
-  input: HandleType;
-  type: "target" | "source";
-};
-
-export function GroupHandle({ id, input, type }: GroupHandleProps) {
-  return (
-    <div className="grid grid-cols-subgrid col-span-3 h-6 items-center relative">
-      <Handle
-        type={type}
-        position={type === "target" ? Position.Left : Position.Right}
-        id={id}
-        className={cn({
-          "!bg-teal-500": input.type === "color",
-          "!bg-neutral-100": input.type === "number",
-          "!-left-2": type === "target",
-          "!-right-2": type === "source",
-        })}
-      />
-      <div
-        className={cn("text-xs/4 min-w-4", {
-          "text-end col-start-3": type === "source",
-        })}
-      >
-        {input.name}
-      </div>
-    </div>
-  );
-}
+import { GroupHandle } from "./group-handle";
+import { GroupMenu } from "./group-menu";
+import { Input } from "@/ui/input";
 
 export function RenderGroupNode(props: NodeProps<GroupNode>) {
   const openGroup = useProjectStore((s) => s.openGroup);
+  const renameGroup = useProjectStore((s) => s.renameGroup);
+
+  const [editingName, setEditingName] = useState(false);
 
   const nodes = props.data.nodes;
   const inputs = nodes
@@ -50,12 +24,41 @@ export function RenderGroupNode(props: NodeProps<GroupNode>) {
     .filter(isShader)
     .filter((n) => n.data.type.startsWith("__group_output"));
 
+  const rename = (name: string) => {
+    renameGroup(name, props.id);
+    setEditingName(false);
+  };
+
   return (
     <ShaderNodeContainer {...props}>
       <div className="text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px] bg-amber-400/15">
-        <div className="flex items-center gap-1">
-          Group
-          {/*<NodeMenu {...props} />*/}
+        <div className="flex items-center gap-1 min-w-40">
+          {editingName ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const newName = formData.get("name")?.toString() || "";
+                rename(newName);
+              }}
+            >
+              <Input
+                ref={(self) => {
+                  // Set a short timeout because radix messes with focus
+                  setTimeout(() => self?.focus(), 1);
+                }}
+                size="sm"
+                variant="outline"
+                name="name"
+                defaultValue={props.data.name}
+                onBlur={(e) => rename(e.target.value)}
+                className="-mx-2 px-1.75 py-1 -my-1.5 !text-xs/4 w-full max-w-36 bg-black/40"
+              />
+            </form>
+          ) : (
+            <div>{props.data.name || "(Unnamed group)"}</div>
+          )}
+          <GroupMenu {...props} rename={() => setEditingName(true)} />
         </div>
       </div>
 

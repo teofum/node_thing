@@ -40,7 +40,13 @@ import {
   updateNodeType,
   withHistory,
 } from "./project.actions";
-import { isShader, Layer, NodeTypeDescriptor, Project } from "./project.types";
+import {
+  isGroup,
+  isShader,
+  Layer,
+  NodeTypeDescriptor,
+  Project,
+} from "./project.types";
 
 interface ProjectStore extends ReturnType<typeof createInitialState> {
   undo: () => void;
@@ -442,6 +448,23 @@ export const useProjectStore = create(
         }));
 
         set(withHistory(state, newState, "addGroup"));
+      },
+
+      renameGroup: (name: string, id: string) => {
+        const state = get();
+        const newState = modifyGroup(state, (layer) => {
+          const group = layer.nodes.find((n) => n.id === id);
+          if (!group || !isGroup(group)) return {};
+
+          return {
+            nodes: [
+              ...layer.nodes.filter((n) => n.id !== id),
+              { ...group, data: { ...group.data, name } },
+            ],
+          };
+        });
+
+        set(withHistory(state, newState, "renameGroup"));
       },
 
       removeNode: (id: string) => {

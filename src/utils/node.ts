@@ -78,6 +78,7 @@ export function createGroup(position: { x: number; y: number }): GroupNode {
     position,
     data: {
       group: true,
+      name: "New group",
       nodes: [],
       edges: [],
     },

@@ -6,6 +6,7 @@ import { Command } from "./types/command";
 
 export type GroupData = {
   group: true;
+  name: string;
 
   nodes: (ShaderNode | GroupNode)[];
   edges: Edge[];
