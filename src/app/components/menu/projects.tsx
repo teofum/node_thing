@@ -41,7 +41,7 @@ export function ProjectsMenu({
         type: blob.type,
       });
 
-      setImportResult(await importProject(file, project.id));
+      setImportResult(await importProject(file));
       return null;
     },
     null,
@@ -52,10 +52,7 @@ export function ProjectsMenu({
     saveProjectOnlineAction,
     saveProjectOnlinePending,
   ] = useActionState(async () => {
-    const { currentRoomId } = await import("@/store/project.store").then((m) =>
-      m.useProjectStore.getState(),
-    );
-    await saveProjectOnline(await exportProject(), currentRoomId);
+    await saveProjectOnline(await exportProject());
     return null;
   }, null);
 

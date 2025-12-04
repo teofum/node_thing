@@ -14,13 +14,11 @@ export function CollaborationToggle() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const roomFromUrl = params.get("room");
-    if (roomFromUrl && !currentRoomId) {
+    if (roomFromUrl && !currentRoomId && !enabled) {
       useProjectStore.setState({ currentRoomId: roomFromUrl });
-      if (!enabled) {
-        toggleCollaboration(true);
-      }
+      useProjectStore.getState().toggleCollaboration(true);
     }
-  }, []);
+  }, [currentRoomId, enabled]);
 
   const handleToggle = async () => {
     if (!currentRoomId && !enabled) {

@@ -2,9 +2,8 @@
 
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import { revalidatePath } from "next/cache";
-import { linkRoomToProject } from "@/lib/collaboration/actions";
 
-export async function saveProjectOnline(blob: Blob, roomId?: string | null) {
+export async function saveProjectOnline(blob: Blob) {
   const { supabase, user } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/profile",
   );
@@ -23,28 +22,18 @@ export async function saveProjectOnline(blob: Blob, roomId?: string | null) {
   }
 
   // guardo referncia al proyecto en el bucket en la tabla projects
-  const { data: project, error: tableError } = await supabase
-    .from("projects")
-    .insert({
-      user_id: user.id,
-      name: fileName,
-      updated_at: new Date().toISOString(),
-      user_project: fileName,
-    })
-    .select("id")
-    .single();
+  const { error: tableError } = await supabase.from("projects").insert({
+    user_id: user.id,
+    name: fileName,
+    updated_at: new Date().toISOString(),
+    user_project: fileName,
+  });
 
-  if (tableError || !project) {
-    throw new Error(`Failed to save project: ${tableError?.message}`);
-  }
-
-  // vincular room activo con proyecto si existe
-  if (roomId) {
-    await linkRoomToProject(roomId, project.id);
+  if (tableError) {
+    throw new Error(`Failed to save project: ${tableError.message}`);
   }
 
   revalidatePath("/");
-  return project.id;
 }
 
 export async function loadProjectOnline(user_project: string | null) {
