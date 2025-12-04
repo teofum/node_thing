@@ -71,6 +71,7 @@ export async function uploadImageToBucket(
     .from(`${itemType}s`)
     .update({
       image_name: fileName,
+      updated_at: new Date().toISOString(),
     })
     .eq("id", itemId);
 
