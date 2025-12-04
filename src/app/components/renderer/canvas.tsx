@@ -91,6 +91,8 @@ export function Canvas() {
     elapsedTime.current = animation.time;
   }, [animation.frameIndex, animation.time]);
 
+  const flatLayers = useMemo(() => layers.map(expandGroups), [layers]);
+
   const lastFrameTime = useRef(performance.now());
   const lastFrameError = useRef(0);
   useEffect(() => {
@@ -121,7 +123,7 @@ export function Canvas() {
         recording.current ||
         deltaTime + lastFrameError.current > minFrametime
       ) {
-        let renderPipeline = zip(pipeline, layers);
+        let renderPipeline = zip(pipeline, flatLayers);
         if (view.display !== "final-render") {
           renderPipeline = renderPipeline.slice(0, currentLayer + 1);
         }
@@ -129,11 +131,10 @@ export function Canvas() {
         const target = ctx.getCurrentTexture();
         for (const [pipeline, layer] of renderPipeline) {
           if (pipeline) {
-            console.log("render layer");
             render(
               device,
               pipeline,
-              expandGroups(layer),
+              layer,
               target,
               textures,
               sampler,
@@ -198,7 +199,7 @@ export function Canvas() {
     recording,
     recordingFramerate,
     recorder,
-    layers,
+    flatLayers,
     currentLayer,
     view.display,
   ]);
