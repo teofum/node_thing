@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
-import { NodeProps } from "@xyflow/react";
+import { Node, NodeProps } from "@xyflow/react";
 import cn from "classnames";
 import { LuStar, LuTriangleAlert, LuX } from "react-icons/lu";
 
-import { ShaderNode as ShaderNodeType } from "@/schemas/node.schema";
+import { ShaderNode } from "@/schemas/node.schema";
 import { CustomShaderMenu } from "./custom-shader-menu";
 import { NodeInput } from "./node-input";
 import { NodeMenu } from "./node-menu";
@@ -13,14 +13,14 @@ import { useNodeTypes } from "@/utils/use-node-types";
 import { Button } from "@/ui/button";
 import { useProjectStore } from "@/store/project.store";
 
-type ShaderNodeProps = NodeProps<ShaderNodeType> & {
+export type ShaderNodeProps<T extends Node> = NodeProps<T> & {
   mock?: boolean;
 };
 
-function ShaderNodeContainer({
+export function ShaderNodeContainer({
   selected,
   children,
-}: ShaderNodeProps & { children?: ReactNode }) {
+}: ShaderNodeProps<Node> & { children?: ReactNode }) {
   return (
     <div
       className={cn("glass rounded-xl border min-w-32", {
@@ -37,7 +37,7 @@ function ShaderNodeContainer({
   );
 }
 
-export function RenderShaderNode(props: ShaderNodeProps) {
+export function RenderShaderNode(props: ShaderNodeProps<ShaderNode>) {
   const { data } = props;
   const nodeTypes = useNodeTypes();
   const remove = useProjectStore((s) => s.removeNode);
