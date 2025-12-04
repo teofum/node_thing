@@ -933,7 +933,13 @@ export const NODE_TYPES = {
         type: "color",
       },
     },
-    parameters: {},
+    parameters: {
+      mode: {
+        name: "Wrapping mode",
+        type: "select",
+        options: ["Repeat", "Mirror", "Clamp"],
+      },
+    },
   },
   voronoi: {
     name: "Voronoi filter",
