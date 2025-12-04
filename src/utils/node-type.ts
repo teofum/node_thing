@@ -127,6 +127,39 @@ export const NODE_TYPES = {
     outputs: {},
     parameters: {},
   },
+  // Group IO ///////////////////////////////
+  __group_input_number: {
+    name: "Number input",
+    category: "Group",
+    shader: "",
+    inputs: {},
+    outputs: { value: { name: "Value", type: "number" } },
+    parameters: {},
+  },
+  __group_input_color: {
+    name: "Color input",
+    category: "Group",
+    shader: "",
+    inputs: {},
+    outputs: { value: { name: "Value", type: "color" } },
+    parameters: {},
+  },
+  __group_output_number: {
+    name: "Number output",
+    category: "Group",
+    shader: "",
+    inputs: { value: { name: "Value", type: "number" } },
+    outputs: {},
+    parameters: {},
+  },
+  __group_output_color: {
+    name: "Color output",
+    category: "Group",
+    shader: "",
+    inputs: { value: { name: "Value", type: "color" } },
+    outputs: {},
+    parameters: {},
+  },
   // Generate category ///////////////////////////////
   white_noise: {
     name: "White Noise",

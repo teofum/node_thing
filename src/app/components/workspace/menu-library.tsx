@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { LuFilePlus2 } from "react-icons/lu";
 
 import { NodeType } from "@/schemas/node.schema";
+import { useProjectStore } from "@/store/project.store";
 import {
   AccordionContent,
   AccordionItem,
@@ -15,6 +16,7 @@ import { RenderShaderNode } from "./shader-node";
 
 export function MenuLibrary() {
   const nodeTypes = useNodeTypes();
+  const currentGroup = useProjectStore((s) => s.currentGroup);
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.effectAllowed = "move";
@@ -25,6 +27,7 @@ export function MenuLibrary() {
   Object.entries(nodeTypes)
     .filter(([key]) => !key.startsWith("__output"))
     .forEach(([key, type]) => {
+      if (type.category === "Group" && !currentGroup.length) return;
       if (!nodesByCategory[type.category]) nodesByCategory[type.category] = {};
       nodesByCategory[type.category][key] = type;
     });

@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { NodeProps } from "@xyflow/react";
 import cn from "classnames";
 import { LuStar, LuTriangleAlert, LuX } from "react-icons/lu";
@@ -12,26 +13,39 @@ import { useNodeTypes } from "@/utils/use-node-types";
 import { Button } from "@/ui/button";
 import { useProjectStore } from "@/store/project.store";
 
-export function RenderShaderNode(
-  props: NodeProps<ShaderNodeType> & { mock?: boolean },
-) {
-  const { data, selected } = props;
+type ShaderNodeProps = NodeProps<ShaderNodeType> & {
+  mock?: boolean;
+};
+
+function ShaderNodeContainer({
+  selected,
+  children,
+}: ShaderNodeProps & { children?: ReactNode }) {
+  return (
+    <div
+      className={cn("glass rounded-xl border min-w-32", {
+        "border-white/15": !selected,
+        "border-teal-400/40 outline-teal-400/20 outline-2": selected,
+      })}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function RenderShaderNode(props: ShaderNodeProps) {
+  const { data } = props;
   const nodeTypes = useNodeTypes();
   const remove = useProjectStore((s) => s.removeNode);
 
   const nodeTypeInfo = nodeTypes[data.type];
   if (!nodeTypeInfo)
     return (
-      <div
-        className={cn("glass rounded-xl border min-w-32", {
-          "border-white/15": !selected,
-          "border-teal-400/40 outline-teal-400/20 outline-2": selected,
-        })}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      >
+      <ShaderNodeContainer {...props}>
         <div className="text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px] bg-red-500/40">
           <div className="flex items-center gap-1">
             <LuTriangleAlert />
@@ -51,28 +65,21 @@ export function RenderShaderNode(
             Remove
           </Button>
         </div>
-      </div>
+      </ShaderNodeContainer>
     );
 
   return (
-    <div
-      className={cn("glass rounded-xl border min-w-32", {
-        "border-white/15": !selected,
-        "border-teal-400/40 outline-teal-400/20 outline-2": selected,
-      })}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-    >
+    <ShaderNodeContainer {...props}>
       <div
         className={cn(
           "text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px]",
           {
-            "bg-purple-400/15": data.type === "__output",
+            "bg-purple-400/15":
+              data.type === "__output" || nodeTypeInfo.category === "Group",
             "bg-orange-400/15": nodeTypeInfo.category === "Input",
             "bg-blue-400/15": nodeTypeInfo.category === "Math",
             "bg-pink-400/15": nodeTypeInfo.category === "Object",
+            "bg-green-400/15": nodeTypeInfo.category === "Generate",
           },
         )}
       >
@@ -105,6 +112,6 @@ export function RenderShaderNode(
           <NodeOutput key={key} output={[key, output]} {...props} />
         ))}
       </div>
-    </div>
+    </ShaderNodeContainer>
   );
 }
