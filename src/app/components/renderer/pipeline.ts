@@ -7,6 +7,7 @@ import {
 } from "@/schemas/node.schema";
 import {
   FlatGraph,
+  Graph,
   GroupNode,
   isEdgeBetweenShaders,
   isGroup,
@@ -82,7 +83,9 @@ export class RenderPipeline {
     layer: Pick<Layer, "nodes" | "edges">,
     nodeTypes: Record<string, NodeType>,
   ) {
-    [this.nodes, this.edges] = expandGroups(layer);
+    const graph = expandGroups(layer);
+    this.nodes = graph.nodes;
+    this.edges = graph.edges;
     this.nodeTypes = nodeTypes;
 
     this.findConnectedNodes();
@@ -379,13 +382,13 @@ function getOutputEdges(group: GroupNode, edges: Edge[]): Edge[] {
   return joinedOutputEdges;
 }
 
-function expandGroups({ nodes, edges }: Pick<Layer, "nodes" | "edges">) {
+export function expandGroups({ nodes, edges }: Graph): FlatGraph {
   const expandedNodes = nodes.filter((n) => isShader(n));
   const expandedEdges = edges.filter((e) => isEdgeBetweenShaders(e, nodes));
 
   const groups = nodes.filter((n) => isGroup(n));
   for (const group of groups) {
-    const [groupNodes, groupEdges] = expandGroups(group.data);
+    const { nodes: groupNodes, edges: groupEdges } = expandGroups(group.data);
 
     const expandedGroupNodes = groupNodes
       .filter((n) => !n.data.type.startsWith("__group_"))
@@ -408,7 +411,7 @@ function expandGroups({ nodes, edges }: Pick<Layer, "nodes" | "edges">) {
     expandedEdges.push(...groupOutputEdges);
   }
 
-  return [expandedNodes, expandedEdges] as const;
+  return { nodes: expandedNodes, edges: expandedEdges };
 }
 
 function unlinkDependencies(

@@ -13,6 +13,8 @@ import { usePipeline } from "./use-pipeline";
 import { useTextureCache } from "./use-texture-cache";
 import { useWebGPUContext } from "./use-webgpu-context";
 import { useConfigStore } from "@/store/config.store";
+import { zip } from "@/utils/zip";
+import { expandGroups } from "./pipeline";
 
 const SAMPLER_DESC: GPUSamplerDescriptor = {
   magFilter: "linear",
@@ -119,24 +121,26 @@ export function Canvas() {
         recording.current ||
         deltaTime + lastFrameError.current > minFrametime
       ) {
-        let renderPipeline = pipeline;
+        let renderPipeline = zip(pipeline, layers);
         if (view.display !== "final-render") {
           renderPipeline = renderPipeline.slice(0, currentLayer + 1);
         }
 
         const target = ctx.getCurrentTexture();
-        for (const layer of renderPipeline) {
-          if (layer)
+        for (const [pipeline, layer] of renderPipeline) {
+          if (pipeline) {
+            console.log("render layer");
             render(
               device,
-              layer,
-              layer.desc.graph,
+              pipeline,
+              expandGroups(layer),
               target,
               textures,
               sampler,
               frameIndex.current,
               elapsedTime.current,
             );
+          }
         }
 
         if (nextRenderFinishedCallback) {
