@@ -39,7 +39,7 @@ export async function exportProject() {
   return await zip.generateAsync({ type: "blob" });
 }
 
-export async function importProject(file: File) {
+export async function importProject(file: File, projectId?: string) {
   const zip = await JSZip.loadAsync(file);
   const project = await getProject(zip);
 
@@ -57,6 +57,18 @@ export async function importProject(file: File) {
     }
 
     useProjectStore.getState().importProject(project);
+
+    // buscar room existente para este proyecto
+    if (projectId) {
+      const { getRoomByProjectId } = await import(
+        "@/lib/collaboration/actions"
+      );
+      const roomId = await getRoomByProjectId(projectId);
+      if (roomId) {
+        useProjectStore.setState({ currentRoomId: roomId });
+        await useProjectStore.getState().toggleCollaboration(true);
+      }
+    }
   }
 
   const missingDependencies = getMissingDependencies(project);

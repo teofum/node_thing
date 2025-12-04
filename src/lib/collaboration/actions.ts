@@ -33,3 +33,30 @@ export async function createRoom() {
 
   return { roomId: room.id, token: token.token };
 }
+
+export async function getRoomByProjectId(projectId: string) {
+  const supabase = await createClient();
+
+  const { data: room, error } = await supabase
+    .from("collaboration_rooms")
+    .select("id")
+    .eq("project_id", projectId)
+    .single();
+
+  if (error || !room) return null;
+
+  return room.id;
+}
+
+export async function linkRoomToProject(roomId: string, projectId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("collaboration_rooms")
+    .update({ project_id: projectId })
+    .eq("id", roomId);
+
+  if (error) return false;
+
+  return true;
+}
