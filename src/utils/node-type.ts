@@ -134,7 +134,7 @@ export const NODE_TYPES = {
     shader: "",
     inputs: {},
     outputs: { value: { name: "Value", type: "number" } },
-    parameters: {},
+    parameters: { name: { name: "Name", type: "string" } },
   },
   __group_input_color: {
     name: "Color input",
@@ -142,7 +142,7 @@ export const NODE_TYPES = {
     shader: "",
     inputs: {},
     outputs: { value: { name: "Value", type: "color" } },
-    parameters: {},
+    parameters: { name: { name: "Name", type: "string" } },
   },
   __group_output_number: {
     name: "Number output",
@@ -150,7 +150,7 @@ export const NODE_TYPES = {
     shader: "",
     inputs: { value: { name: "Value", type: "number" } },
     outputs: {},
-    parameters: {},
+    parameters: { name: { name: "Name", type: "string" } },
   },
   __group_output_color: {
     name: "Color output",
@@ -158,7 +158,7 @@ export const NODE_TYPES = {
     shader: "",
     inputs: { value: { name: "Value", type: "color" } },
     outputs: {},
-    parameters: {},
+    parameters: { name: { name: "Name", type: "string" } },
   },
   // Generate category ///////////////////////////////
   white_noise: {
