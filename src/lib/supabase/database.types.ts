@@ -418,6 +418,32 @@ export type Database = {
           },
         ];
       };
+      tutorials: {
+        Row: {
+          id: number;
+          progress: Json;
+          user_id: string;
+        };
+        Insert: {
+          id?: number;
+          progress: Json;
+          user_id: string;
+        };
+        Update: {
+          id?: number;
+          progress?: Json;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutorials_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
