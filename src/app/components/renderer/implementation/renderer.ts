@@ -11,7 +11,7 @@ import {
 import { createUniform } from "./uniforms";
 import { createInputStage, createOutputStage } from "./io";
 import { zip } from "@/utils/zip";
-import { isShader, Layer } from "@/store/project.types";
+import { FlatGraph } from "@/store/project.types";
 
 const THREADS_PER_WORKGROUP = 16;
 
@@ -166,7 +166,7 @@ export type PreparedPipeline = ReturnType<typeof preparePipeline>;
 export function render(
   device: GPUDevice,
   pipeline: PreparedPipeline,
-  layer: Layer,
+  graph: FlatGraph,
   target: GPUTexture,
   textures: [string, GPUTexture][],
   sampler: GPUSampler,
@@ -247,7 +247,7 @@ export function render(
   for (const [node, buffer, uniforms] of desc.passes.map(
     (p, i) =>
       [
-        layer.nodes.filter(isShader).find((n) => n.id === p.nodeId)!.data,
+        graph.nodes.find((n) => n.id === p.nodeId)!.data,
         localUniformsBuffers[i],
         nodeTypes[p.nodeType].uniforms,
       ] as const,
@@ -287,9 +287,7 @@ export function render(
    * Fill in dummy buffers
    */
   for (const buf of dummyBuffers) {
-    const node = layer.nodes
-      .filter(isShader)
-      .find((n) => n.id === buf.pass.nodeId)!.data;
+    const node = graph.nodes.find((n) => n.id === buf.pass.nodeId)!.data;
     const value = node.defaultValues[buf.input] ?? 0;
 
     const values = Float32Array.from(

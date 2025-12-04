@@ -73,7 +73,7 @@ function getDefaultDefaultValue(input: Handle): number | number[] {
 
 export function createGroup(position: { x: number; y: number }): GroupNode {
   return {
-    id: newNodeId("__group"),
+    id: newNodeId("group"),
     type: "RenderGroupNode",
     position,
     data: {
@@ -86,5 +86,5 @@ export function createGroup(position: { x: number; y: number }): GroupNode {
 }
 
 function newNodeId(type: string) {
-  return `${type.startsWith("__input") || type === "__output" ? `${type}_` : ""}${nanoid()}`;
+  return `${type.startsWith("__") ? `${type}_` : ""}${nanoid()}`;
 }

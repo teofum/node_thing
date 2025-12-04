@@ -6,6 +6,7 @@ import {
   ShaderNode,
 } from "@/schemas/node.schema";
 import {
+  FlatGraph,
   GroupNode,
   isEdgeBetweenShaders,
   isGroup,
@@ -71,6 +72,10 @@ export class RenderPipeline {
     nodeTypes: Record<string, NodeType>,
   ) {
     return new RenderPipeline(layer, nodeTypes);
+  }
+
+  public get graph(): FlatGraph {
+    return { nodes: this.nodes, edges: this.edges };
   }
 
   private constructor(
@@ -334,15 +339,15 @@ function getInputEdges(group: GroupNode, edges: Edge[]): Edge[] {
 
   const joinedInputEdges = internalInputEdges
     .map((ie) => {
-      const ee = externalInputEdges.find(
-        (e) => e.targetHandle === ie.sourceHandle,
-      );
+      const ee = externalInputEdges.find((e) => e.targetHandle === ie.source);
       if (!ee) return null;
 
       return {
         ...ie,
         source: ee.source,
         target: `${group.id}::${ie.target}`,
+        sourceHandle: ee.sourceHandle,
+        targetHandle: ie.targetHandle,
       };
     })
     .filter((ie) => ie !== null);
@@ -358,15 +363,15 @@ function getOutputEdges(group: GroupNode, edges: Edge[]): Edge[] {
 
   const joinedOutputEdges = internalOutputEdges
     .map((ie) => {
-      const ee = externalOutputEdges.find(
-        (e) => e.sourceHandle === ie.targetHandle,
-      );
+      const ee = externalOutputEdges.find((e) => e.sourceHandle === ie.target);
       if (!ee) return null;
 
       return {
         ...ie,
         target: ee.target,
         source: `${group.id}::${ie.source}`,
+        targetHandle: ee.targetHandle,
+        sourceHandle: ie.sourceHandle,
       };
     })
     .filter((ie) => ie !== null);

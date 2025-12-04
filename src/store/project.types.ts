@@ -14,6 +14,10 @@ export type GroupData = {
 export type GroupNode = Node<GroupData>;
 
 export type Graph = Pick<Layer, "nodes" | "edges">;
+export type FlatGraph = {
+  nodes: ShaderNode[];
+  edges: Edge[];
+};
 
 export function isShader(node: ShaderNode | GroupNode): node is ShaderNode {
   return (node as ShaderNode).data.type !== undefined;
