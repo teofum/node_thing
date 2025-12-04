@@ -1,6 +1,7 @@
 import { Tables } from "@/lib/supabase/database.types";
 import { Button } from "@/ui/button";
 import { forwardRef } from "react";
+import { LuUpload } from "react-icons/lu";
 
 type PublishShaderListProps = {
   shaders: Tables<"shaders">[];
@@ -12,23 +13,31 @@ export const PublishShaderList = forwardRef<
   HTMLDivElement,
   PublishShaderListProps
 >(({ shaders, handleView, publish, ...props }, forwardedRef) => {
+  shaders.sort((a, b) => {
+    if (a.published === b.published) return 0;
+    return a.published ? 1 : -1;
+  });
   return (
-    <div className="space-y-1" ref={forwardedRef} {...props}>
+    <div className="flex gap-4 space-y-1" ref={forwardedRef} {...props}>
       {shaders.length ? (
         shaders.map((shader) => (
           <div
             key={shader.id}
-            className="flex flex-row items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
+            className="glass glass-border p-4 rounded-2xl w-xs"
           >
-            {shader.title}
+            <div className="flex">
+              <h3 className="text-xl font-semibold mb-2">{shader.title}</h3>
+              {shader.published && <LuUpload className="ml-auto" />}
+            </div>
 
             {shader.published ? (
               <Button
                 onClick={() => handleView("shader", shader.id)}
                 type="submit"
                 variant="ghost"
-                size="sm"
+                size="md"
                 icon
+                className="ml-auto"
               >
                 View post
               </Button>
@@ -36,9 +45,10 @@ export const PublishShaderList = forwardRef<
               <Button
                 type="submit"
                 variant="ghost"
-                size="sm"
+                size="md"
                 icon
                 onClick={() => publish(shader.id)}
+                className="ml-auto"
               >
                 Publish
               </Button>
