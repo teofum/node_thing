@@ -2,17 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
-import { LuX } from "react-icons/lu";
+import { LuChevronRight, LuGroup, LuLayers2, LuX } from "react-icons/lu";
 
 import { useProjectStore } from "@/store/project.store";
 import { useAssetStore } from "@/store/asset.store";
 import { Button } from "@/ui/button";
 import { Sidebar } from "./sidebar";
 import { Viewport } from "./viewport";
+import { Graph, GroupNode, isGroup } from "@/store/project.types";
 
 export function Workspace() {
-  const loadNodeTypes = useProjectStore((state) => state.loadNodeTypes);
+  const layers = useProjectStore((s) => s.layers);
+  const currentLayer = useProjectStore((s) => s.currentLayer);
   const currentGroup = useProjectStore((s) => s.currentGroup);
+
+  const loadNodeTypes = useProjectStore((state) => state.loadNodeTypes);
   const closeGroup = useProjectStore((s) => s.closeGroup);
 
   useEffect(() => {
@@ -36,16 +40,42 @@ export function Workspace() {
       </div>
     );
 
+  const groups: GroupNode[] = [];
+  const layer = layers[currentLayer];
+
+  let graph: Graph = layer;
+  for (const groupId of currentGroup) {
+    const group = graph.nodes.find((n) => n.id === groupId);
+    if (!group || !isGroup(group)) break;
+
+    groups.push(group);
+    graph = group.data;
+  }
+
   return (
     <ReactFlowProvider>
       <div className="flex flex-col w-full h-full flex-1 min-h-0 gap-2">
         {currentGroup.length ? (
-          <div className="flex flex-row gap-2 items-center">
-            <div className="text-xs/3">groups: {currentGroup.join("/")}</div>
+          <div className="flex flex-row gap-1 items-center">
+            <Button size="sm" variant="ghost" onClick={() => closeGroup(0)}>
+              <LuLayers2 /> {layer.name}
+            </Button>
+            {groups.map((group, i) => (
+              <>
+                <LuChevronRight className="text-white/40" />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => closeGroup(i + 1)}
+                >
+                  <LuGroup /> {group.data.name}
+                </Button>
+              </>
+            ))}
             <Button
               size="sm"
               variant="outline"
-              onClick={closeGroup}
+              onClick={() => closeGroup()}
               className="ml-auto"
             >
               <LuX /> Exit

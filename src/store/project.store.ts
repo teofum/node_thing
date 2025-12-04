@@ -57,7 +57,7 @@ export const useProjectStore = create(
   persist(
     combine(createInitialState(), (set, get) => ({
       setActiveLayer: (idx: number) => {
-        set({ currentLayer: idx });
+        set({ currentLayer: idx, currentGroup: [] });
       },
 
       openGroup: (id: string) => {
@@ -65,9 +65,9 @@ export const useProjectStore = create(
         set({ currentGroup: [...currentGroup, id] });
       },
 
-      closeGroup: () => {
+      closeGroup: (level?: number) => {
         const { currentGroup } = get();
-        set({ currentGroup: currentGroup.slice(0, -1) });
+        set({ currentGroup: currentGroup.slice(0, level ?? -1) });
       },
 
       onNodesChange: (changes: NodeChange<Node>[]) => {
@@ -227,6 +227,7 @@ export const useProjectStore = create(
             ),
           ],
           currentLayer: state.layers.length,
+          currentGroup: [],
         };
 
         set(withHistory(state, newState, "addLayer"));
@@ -284,6 +285,7 @@ export const useProjectStore = create(
         const newState = {
           layers: [...state.layers, parsedLayer],
           currentLayer: state.layers.length,
+          currentGroup: [],
         };
 
         set(withHistory(state, newState, "importLayer"));
@@ -485,7 +487,7 @@ export const useProjectStore = create(
 
       removeLayer: (i: number) => {
         const state = get();
-        const { layers, currentLayer } = state;
+        const { layers, currentLayer, currentGroup } = state;
 
         if (layers.length <= 1) return; // don't remove the last layer
 
@@ -496,6 +498,7 @@ export const useProjectStore = create(
         const newState = {
           layers: newLayers,
           currentLayer: newCurrentLayer,
+          currentGroup: newCurrentLayer === currentLayer ? currentGroup : [],
         };
 
         set(withHistory(state, newState, "removeLayer"));
@@ -523,6 +526,7 @@ export const useProjectStore = create(
         const newState = {
           layers: newLayers,
           currentLayer: newLayerIdx,
+          currentGroup: [],
         };
 
         set(withHistory(state, newState, "duplicateLayer"));
