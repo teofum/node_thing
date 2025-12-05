@@ -106,6 +106,8 @@ export async function getItems() {
   // TODO we really shouldn't need to do this shit
   // Look into https://github.com/orgs/supabase/discussions/32925 or stop using
   // JSON objects in db functions altogether
+  // update: TODO DB structure is almost final
+  // and database.types.ts is not expected to change
   return {
     shaders: camelcaseKeys(
       shaders as Replace<
