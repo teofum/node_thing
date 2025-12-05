@@ -176,7 +176,7 @@ export const animationIntro: Tutorial = {
         </div>
       ),
       position: { x: 250, y: 67 },
-      //nextCondition: (s) => (useAnimationStore.getState().speed === 0.5), //TODO
+      //nextCondition: (s) => (useAnimationStore.getState().time > 1), //TODO
     },
     {
       title: "Excellent!!",
