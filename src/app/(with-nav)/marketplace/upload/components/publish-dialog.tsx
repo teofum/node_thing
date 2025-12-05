@@ -7,6 +7,7 @@ import { Select, SelectItem } from "@/ui/select";
 
 import { Tables } from "@/lib/supabase/database.types";
 import { publishProject, publishShader } from "../actions";
+import { Tooltip } from "@/ui/tooltip";
 
 type PublishDialogProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
@@ -46,29 +47,40 @@ export function PublishDialog({
     <Dialog
       trigger={trigger}
       title={"Publish " + type}
-      description="Publish things lol"
+      description=""
       className="w-2/5"
       {...props}
     >
       <form action={handlePublishAction}>
         <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
-          <div className="font-semibold text-3x1 mt-3">Price</div>
+          <div className="font-semibold text-lg mt-3">Price</div>
 
-          <Input
-            name="price"
-            type="number"
-            defaultValue=""
-            autoFocus
-            className="w-full"
-            required
-          />
+          <div className="flex items-center gap-2">
+            <Input
+              name="price"
+              type="number"
+              defaultValue=""
+              autoFocus
+              className="w-full"
+              required
+            />
+            <Tooltip
+              content={
+                "Currently AR$ (Argentine Peso) is the only supported currency"
+              }
+              side={"right"}
+              delay={200}
+            >
+              <p>AR$</p>
+            </Tooltip>
+          </div>
 
-          <div className="font-semibold text-3x1 mt-4">Description</div>
+          <div className="font-semibold text-lg mt-4">Description</div>
           <Input name="description" defaultValue="" className="w-full" />
 
           {type === "shader" && (
             <>
-              <div className="font-semibold text-3x1 mt-4">Category</div>
+              <div className="font-semibold text-lg mt-4">Category</div>
               <Select name="categoryId" defaultValue="0">
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id.toString()}>

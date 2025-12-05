@@ -6,6 +6,7 @@ import { useState } from "react";
 import { PublishDialog } from "./publish-dialog";
 import { useRouter } from "next/navigation";
 import { PublishShaderList } from "./publish-shader-list";
+import { PublishProjectList } from "./publish-project-list";
 
 type PublishMenuProps = {
   projects: Tables<"projects">[];
@@ -64,44 +65,11 @@ export default function PublishMenu({
           </div>
           <div className="flex flex-col border border-white/15 rounded-2xl p-6">
             <h2 className="text-xl font-semibold mb-4">Your projects</h2>
-            <div className="space-y-1 ">
-              {projects.length ? (
-                projects.map((currProject) => (
-                  <div
-                    key={currProject.id}
-                    className="flex flex-row items-center min-h-0 min-w-0 justify-between mb-3 border border-white/15 rounded-md p-3"
-                  >
-                    {currProject.name}
-
-                    {currProject.published ? (
-                      <Button
-                        onClick={() =>
-                          handleViewPost("project", currProject.id)
-                        }
-                        type="submit"
-                        variant="ghost"
-                        size="sm"
-                        icon
-                      >
-                        View post
-                      </Button>
-                    ) : (
-                      <Button
-                        type="submit"
-                        variant="ghost"
-                        size="sm"
-                        icon
-                        onClick={() => publishProject(currProject.id)}
-                      >
-                        Publish
-                      </Button>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-white/50 mt-2">No projects yet...</p>
-              )}
-            </div>
+            <PublishProjectList
+              projects={projects}
+              handleView={handleViewPost}
+              publish={publishProject}
+            />
           </div>
         </div>
       </div>
