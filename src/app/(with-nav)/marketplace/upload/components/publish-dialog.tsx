@@ -8,6 +8,7 @@ import { Select, SelectItem } from "@/ui/select";
 import { Tables } from "@/lib/supabase/database.types";
 import { publishProject, publishShader } from "../actions";
 import { Tooltip } from "@/ui/tooltip";
+import { ImagePicker } from "./image-picker";
 
 type PublishDialogProps = {
   trigger: ComponentProps<typeof Dialog>["trigger"];
@@ -31,6 +32,7 @@ export function PublishDialog({
       const priceStr = formData.get("price") as string;
       const description = formData.get("description") as string;
       const price = Number(priceStr) || 0;
+      const image = formData.get("image") as File | null;
 
       if (type === "shader") {
         const categoryId = Number(formData.get("categoryId"));
@@ -90,6 +92,9 @@ export function PublishDialog({
               </Select>
             </>
           )}
+
+          <div className="font-semibold text-lg mt-4">Image</div>
+          <ImagePicker name="image" />
         </div>
         <div className="flex justify-between p-4 mt-15">
           <DialogClose asChild>
