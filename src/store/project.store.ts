@@ -54,6 +54,7 @@ export const useProjectStore = create(
           name: string;
           avatar: string;
           color: string;
+          selectedNode?: string | null;
         }>,
       },
       (set, get) => ({
@@ -100,6 +101,7 @@ export const useProjectStore = create(
                 name: string;
                 avatar: string;
                 color: string;
+                selectedNode?: string | null;
               }> = [];
               const localClientId = awareness.clientID;
 
@@ -107,6 +109,7 @@ export const useProjectStore = create(
                 (
                   state: {
                     user?: { name: string; avatar: string; color: string };
+                    selectedNode?: string | null;
                   },
                   clientId: number,
                 ) => {
@@ -116,6 +119,7 @@ export const useProjectStore = create(
                       name: state.user.name || "Anonymous",
                       avatar: state.user.avatar || "",
                       color: state.user.color || "#3b82f6",
+                      selectedNode: state.selectedNode,
                     });
                   }
                 },

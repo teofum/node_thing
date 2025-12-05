@@ -1,16 +1,12 @@
 import * as Y from "yjs";
-import { Awareness } from "y-protocols/awareness";
+import {
+  Awareness,
+  encodeAwarenessUpdate,
+  applyAwarenessUpdate,
+} from "y-protocols/awareness";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { ShaderNode } from "@/schemas/node.schema";
 import { Edge } from "@xyflow/react";
-
-interface AwarenessUserState {
-  user?: {
-    name: string;
-    avatar: string;
-    color: string;
-  };
-}
 
 export function initYjsSync(
   roomId: string,
@@ -48,45 +44,35 @@ export function initYjsSync(
       removed: number[];
     }) => {
       const changedClients = added.concat(updated).concat(removed);
-      const states: Record<number, AwarenessUserState> = {};
-      changedClients.forEach((clientId) => {
-        const state = awareness.getStates().get(clientId);
-        if (state) {
-          states[clientId] = state;
-        }
-      });
+      const update = encodeAwarenessUpdate(awareness, changedClients);
 
       channel.send({
         type: "broadcast",
         event: "awareness-update",
-        payload: { states },
+        payload: { update: Array.from(update) },
       });
     },
   );
 
   channel.on("broadcast", { event: "awareness-update" }, ({ payload }) => {
-    if (payload.states) {
-      const states = awareness.getStates();
-      Object.entries(payload.states).forEach(([clientId, state]) => {
-        states.set(Number(clientId), state as AwarenessUserState);
-      });
-      awareness.emit("change", [
-        {
-          added: [] as number[],
-          updated: Object.keys(payload.states).map(Number),
-          removed: [] as number[],
-        },
-      ]);
+    if (payload.update) {
+      applyAwarenessUpdate(awareness, new Uint8Array(payload.update), null);
     }
   });
+
+  const color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 
   awareness.setLocalState({
     user: {
       name: userInfo?.name || "User",
       avatar: userInfo?.avatar || "",
-      color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+      color,
     },
   });
+
+  setInterval(() => {
+    awareness.setLocalState(awareness.getLocalState());
+  }, 10000);
 
   return { ydoc, yNodes, yEdges, awareness };
 }

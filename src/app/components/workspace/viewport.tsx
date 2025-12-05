@@ -23,6 +23,7 @@ export function Viewport() {
   const onEdgesChange = useProjectStore((s) => s.onEdgesChange);
   const onConnect = useProjectStore((s) => s.onConnect);
   const addNode = useProjectStore((s) => s.addNode);
+  const awareness = useProjectStore((s) => s.awareness);
 
   const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
   const { screenToFlowPosition } = useReactFlow();
@@ -30,6 +31,24 @@ export function Viewport() {
   const onContextMenu = (ev: React.MouseEvent) => {
     setCtxMenuPosition(screenToFlowPosition({ x: ev.clientX, y: ev.clientY }));
   };
+
+  const handleNodesChange = useCallback(
+    (changes: Parameters<typeof onNodesChange>[0]) => {
+      onNodesChange(changes);
+
+      if (awareness) {
+        const selectedNode = changes.find(
+          (c) => c.type === "select" && c.selected,
+        );
+        if (selectedNode && "id" in selectedNode) {
+          awareness.setLocalStateField("selectedNode", selectedNode.id);
+        } else if (changes.some((c) => c.type === "select" && !c.selected)) {
+          awareness.setLocalStateField("selectedNode", null);
+        }
+      }
+    },
+    [onNodesChange, awareness],
+  );
 
   const nodeCategories = useMemo(() => {
     const categories: [string, [string, NodeType][]][] = [];
@@ -89,7 +108,7 @@ export function Viewport() {
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          onNodesChange={onNodesChange}
+          onNodesChange={handleNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onDrop={onDrop}
@@ -112,7 +131,7 @@ export function Viewport() {
             } as Record<string, string>
           }
         >
-          <Background />{" "}
+          <Background />
         </ReactFlow>
       }
     >
