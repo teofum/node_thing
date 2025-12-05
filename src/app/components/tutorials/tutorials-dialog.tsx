@@ -4,10 +4,11 @@ import { Dialog, DialogClose } from "@/ui/dialog";
 import { useTutorialStore } from "@/store/tutorial.store";
 import { intro } from "./content/intro";
 import { layerIntro } from "./content/layers";
+import { animationIntro } from "./content/animation";
 import { Button } from "@/ui/button";
 import { LuArrowRight, LuUndo2 } from "react-icons/lu";
 
-const tutorials = [intro, layerIntro];
+const tutorials = [intro, layerIntro, animationIntro];
 
 type ExportOptionsProps = {
   open: ComponentProps<typeof Dialog>["open"];
