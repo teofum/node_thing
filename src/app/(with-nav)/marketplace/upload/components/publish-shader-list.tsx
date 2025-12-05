@@ -1,7 +1,9 @@
 import { Tables } from "@/lib/supabase/database.types";
 import { Button } from "@/ui/button";
+import { Tooltip } from "@/ui/tooltip";
 import { forwardRef } from "react";
 import { LuUpload } from "react-icons/lu";
+import PeekCodeDialog from "./peek-code-dialog";
 
 type PublishShaderListProps = {
   shaders: Tables<"shaders">[];
@@ -27,32 +29,50 @@ export const PublishShaderList = forwardRef<
           >
             <div className="flex">
               <h3 className="text-xl font-semibold mb-2">{shader.title}</h3>
-              {shader.published && <LuUpload className="ml-auto" />}
+              {shader.published && (
+                <Tooltip
+                  content={"This shader has already been published"}
+                  delay={100}
+                >
+                  <LuUpload className="ml-auto" />
+                </Tooltip>
+              )}
             </div>
 
-            {shader.published ? (
-              <Button
-                onClick={() => handleView("shader", shader.id)}
-                type="submit"
-                variant="ghost"
-                size="md"
-                icon
-                className="ml-auto"
-              >
-                View post
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                variant="ghost"
-                size="md"
-                icon
-                onClick={() => publish(shader.id)}
-                className="ml-auto"
-              >
-                Publish
-              </Button>
-            )}
+            <div className="flex">
+              <PeekCodeDialog
+                trigger={
+                  <Button type="submit" variant="outline" size="md" icon>
+                    See code
+                  </Button>
+                }
+                title={shader.title}
+                code={shader.code}
+              />
+              <div className="ml-auto text-teal-300">
+                {shader.published ? (
+                  <Button
+                    onClick={() => handleView("shader", shader.id)}
+                    type="submit"
+                    variant="ghost"
+                    size="md"
+                    icon
+                  >
+                    View post
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    variant="ghost"
+                    size="md"
+                    icon
+                    onClick={() => publish(shader.id)}
+                  >
+                    Publish
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         ))
       ) : (
