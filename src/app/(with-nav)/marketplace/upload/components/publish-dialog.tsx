@@ -36,9 +36,9 @@ export function PublishDialog({
 
       if (type === "shader") {
         const categoryId = Number(formData.get("categoryId"));
-        await publishShader(id, price, description, categoryId);
+        await publishShader(id, price, description, categoryId, image);
       } else {
-        await publishProject(id, price, description);
+        await publishProject(id, price, description, image);
       }
 
       props.onOpenChange?.(false);
