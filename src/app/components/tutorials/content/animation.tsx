@@ -1,6 +1,7 @@
 import { useConfigStore } from "@/store/config.store";
 import { Tutorial } from "@/store/tutorial.store";
 import { nodeExists, edgeExistsBetween, and } from "../helpers";
+import { LuTimer } from "react-icons/lu";
 
 export const animationIntro: Tutorial = {
   id: "animation",
@@ -221,6 +222,69 @@ export const animationIntro: Tutorial = {
         edgeExistsBetween("time:output", "sine:t"),
         edgeExistsBetween("sine:output", "mix:factor"),
         edgeExistsBetween("mix:output", "__output:color"),
+      ),
+    },
+    {
+      title: "More interesting things",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            Some nodes have been made with a built in animation in mind, these
+            usually have a t input specifically for that.
+          </p>
+          <p>
+            Place a voronoi noise node from the generate section of the library.
+            Connect the time node&apos;s output into the t input of the voronoi
+            node and then the voronoi&apos;s output into the layer&apos;s
+            output.
+          </p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> You can also add nodes
+            by <strong className="font-bold">right clicking</strong> anywhere in
+            the workspace!
+          </p>
+          <p className="text-xs/4 text-white/60">
+            At this point you can delete the mix and sine nodes if you want to.
+            You can do this with backspace or the node options.
+          </p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      onStart: () => {
+        const { view } = useConfigStore.getState();
+        useConfigStore.setState({
+          view: {
+            ...view,
+            sidebar: {
+              pinned: true,
+              panel: "library",
+            },
+          },
+        });
+      },
+      nextCondition: and(
+        nodeExists((n) => n.data.type === "voronoi_noise"),
+        edgeExistsBetween("time:output", "voronoi_noise:t"),
+        edgeExistsBetween("voronoi_noise:output", "__output:color"),
+        //(s) => (useAnimationStore.getState().time > 1), //TODO
+      ),
+    },
+    {
+      title: "Thats it!",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            That&apos;s all you need to know about the animation functionality
+            of Node Thing. Remember you can export these animations with various
+            settings. Feel free to experiment with this in however way you see
+            fit.
+          </p>
+          <p>
+            You can also use the timeline function on the canvas to the right of
+            your screen by pressing the clock icon on the top of the canvas.
+          </p>
+          <LuTimer />
+        </div>
       ),
     },
     /// end
