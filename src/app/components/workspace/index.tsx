@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { LuChevronRight, LuGroup, LuLayers2, LuX } from "react-icons/lu";
 
@@ -61,7 +61,7 @@ export function Workspace() {
               <LuLayers2 /> {layer.name}
             </Button>
             {groups.map((group, i) => (
-              <>
+              <Fragment key={group.id}>
                 <LuChevronRight className="text-white/40" />
                 <Button
                   size="sm"
@@ -70,7 +70,7 @@ export function Workspace() {
                 >
                   <LuGroup /> {group.data.name}
                 </Button>
-              </>
+              </Fragment>
             ))}
             <Button
               size="sm"
