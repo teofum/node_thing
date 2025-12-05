@@ -442,12 +442,10 @@ export const useProjectStore = create(
 
       addGroup: (position: Point) => {
         const state = get();
-        const newState = modifyGroup(state, (layer) => ({
-          nodes: [
-            ...layer.nodes.map((node) => ({ ...node, selected: false })),
-            createGroup(position),
-          ],
-        }));
+        const allNodeTypes = getAllNodeTypes(state.nodeTypes);
+        const newState = modifyGroup(state, (graph) =>
+          createGroup(position, graph, allNodeTypes),
+        );
 
         set(withHistory(state, newState, "addGroup"));
       },
