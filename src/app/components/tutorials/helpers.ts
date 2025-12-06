@@ -1,6 +1,6 @@
 import { Layer } from "@/store/project.types";
 import { ShaderNode } from "@/schemas/node.schema";
-import { Project } from "@/store/project.types";
+import { isShader, Project } from "@/store/project.types";
 
 export function inLayer(layer: number) {
   return (p: Project) => p.currentLayer === layer;
@@ -11,7 +11,8 @@ export function layerExists(fn: (l: Layer) => boolean) {
 }
 
 export function nodeExists(fn: (node: ShaderNode) => boolean) {
-  return (p: Project) => p.layers[p.currentLayer].nodes.some(fn);
+  return (p: Project) =>
+    p.layers[p.currentLayer].nodes.filter(isShader).some(fn);
 }
 
 export function edgeExistsBetween(
@@ -28,8 +29,12 @@ export function edgeExistsBetween(
       const [targetType, targetHandle] = target.split(":");
 
       return (
-        s?.data.type === sourceType &&
-        t?.data.type === targetType &&
+        s &&
+        t &&
+        isShader(s) &&
+        isShader(t) &&
+        s.data.type === sourceType &&
+        t.data.type === targetType &&
         e.sourceHandle === sourceHandle &&
         e.targetHandle === targetHandle
       );
