@@ -1,11 +1,20 @@
 import { Edge } from "@xyflow/react";
 
 import { ShaderNode } from "@/schemas/node.schema";
-import { Layer } from "@/store/project.types";
+import { Graph, GroupNode, isGroup, Layer } from "@/store/project.types";
 import { zip } from "@/utils/zip";
 
-function compareNodes(current: ShaderNode, last: ShaderNode) {
+function compareNodes(
+  current: ShaderNode | GroupNode,
+  last: ShaderNode | GroupNode,
+  displaySelection: boolean,
+) {
   if (current.id !== last.id) return true;
+
+  if (isGroup(current) && isGroup(last))
+    return compareGraphs(current.data, last.data, displaySelection);
+  if (isGroup(current) || isGroup(last)) return true; // Should be unreachable
+
   if (
     JSON.stringify(current.data.parameters) !==
     JSON.stringify(last.data.parameters)
@@ -27,9 +36,9 @@ function compareEdges(current: Edge, last: Edge, displaySelection: boolean) {
   return false;
 }
 
-export function compareLayers(
-  current: Layer,
-  last: Layer,
+export function compareGraphs(
+  current: Graph,
+  last: Graph,
   displaySelection: boolean,
 ) {
   /*
@@ -37,7 +46,7 @@ export function compareLayers(
    */
   if (current.nodes.length !== last.nodes.length) return true; // Nodes were added or removed
   for (const [currentNode, lastNode] of zip(current.nodes, last.nodes)) {
-    if (compareNodes(currentNode, lastNode)) return true; // A node is different
+    if (compareNodes(currentNode, lastNode, displaySelection)) return true; // A node is different
   }
 
   /*

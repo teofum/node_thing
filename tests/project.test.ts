@@ -1,3 +1,4 @@
+import { ShaderNode } from "@/schemas/node.schema";
 import {
   createInitialState,
   createLayer,
@@ -26,7 +27,7 @@ describe("createLayer", () => {
     const newLayer = createLayer("New layer");
 
     expect(newLayer.nodes.length).toBeGreaterThan(0);
-    expect(newLayer.nodes[0].data.type).toBe("__output");
+    expect((newLayer.nodes[0] as ShaderNode).data.type).toBe("__output");
     expect(newLayer.nodes[0].id).toBe("__output");
   });
 
@@ -40,8 +41,8 @@ describe("createLayer", () => {
       expect(source).toBeDefined();
       expect(target).toBeDefined();
 
-      const sourceType = nodeTypes[source!.data.type];
-      const targetType = nodeTypes[target!.data.type];
+      const sourceType = nodeTypes[(source as ShaderNode).data.type];
+      const targetType = nodeTypes[(target as ShaderNode).data.type];
       expect(sourceType.inputs).toHaveProperty(edge.sourceHandle ?? "");
       expect(targetType.inputs).toHaveProperty(edge.targetHandle ?? "");
     }
