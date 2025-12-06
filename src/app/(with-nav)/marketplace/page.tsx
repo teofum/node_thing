@@ -7,6 +7,7 @@ import { getCartItems } from "./cart.actions";
 import { ShaderListClient } from "./components/items-sort";
 import { Cart } from "./components/cart";
 import { Input } from "@/ui/input";
+import { getUserData } from "../profile/actions/user";
 
 type Props = {
   searchParams: Promise<{
@@ -25,6 +26,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
   const projects = await getProjects();
   const categories = await getCategories();
   const cartItems = await getCartItems();
+  const userData = await getUserData();
   const cartIds = new Set(
     cartItems
       .map((item) => item.shader_id || item.project_id)
@@ -248,6 +250,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
             shaders={filteredShaders}
             projects={filteredProjects}
             cartIds={cartIds}
+            currentUsername={userData.username}
           />
         )}
       </div>
