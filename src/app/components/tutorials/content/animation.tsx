@@ -1,7 +1,13 @@
 import { useConfigStore } from "@/store/config.store";
 import { Tutorial } from "@/store/tutorial.store";
-import { nodeExists, edgeExistsBetween, and } from "../helpers";
+import {
+  nodeExists,
+  edgeExistsBetween,
+  and,
+  externalNextCondition,
+} from "../helpers";
 import { LuTimer } from "react-icons/lu";
+import { Animation, useAnimationStore } from "@/store/animation.store";
 
 export const animationIntro: Tutorial = {
   id: "animation",
@@ -99,8 +105,13 @@ export const animationIntro: Tutorial = {
             },
           },
         });
+
+        externalNextCondition(
+          useAnimationStore,
+          (state) => state.state === "running" && state.time > 1000,
+        );
       },
-      //nextCondition: (s) => (useAnimationStore.getState().time > 1), //TODO
+      nextCondition: () => false, // dummy next condition
     },
     {
       title: "Time controls",
@@ -129,8 +140,17 @@ export const animationIntro: Tutorial = {
             },
           },
         });
+        useAnimationStore.getState().stop();
+
+        externalNextCondition(
+          useAnimationStore,
+          (state) =>
+            state.options.speed === 0.5 &&
+            state.state === "running" &&
+            state.time > 1000,
+        );
       },
-      //nextCondition: (s) => (useAnimationStore.getState().speed === 0.5), //TODO
+      nextCondition: () => false, // dummy next condition
     },
     {
       title: "More interesting things",

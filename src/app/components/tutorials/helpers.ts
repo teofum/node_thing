@@ -1,6 +1,8 @@
 import { Layer } from "@/store/project.types";
 import { ShaderNode } from "@/schemas/node.schema";
 import { isShader, Project } from "@/store/project.types";
+import { ExtractState, StoreApi, UseBoundStore } from "zustand";
+import { useTutorialStore } from "@/store/tutorial.store";
 
 export function inLayer(layer: number) {
   return (p: Project) => p.currentLayer === layer;
@@ -42,14 +44,26 @@ export function edgeExistsBetween(
   };
 }
 
-export function and(...fns: ((p: Project) => boolean)[]) {
-  return (p: Project) => fns.every((fn) => fn(p));
+export function and<T>(...fns: ((p: T) => boolean)[]) {
+  return (p: T) => fns.every((fn) => fn(p));
 }
 
-export function or(...fns: ((p: Project) => boolean)[]) {
-  return (p: Project) => fns.some((fn) => fn(p));
+export function or<T>(...fns: ((p: T) => boolean)[]) {
+  return (p: T) => fns.some((fn) => fn(p));
 }
 
-export function not(fn: (p: Project) => boolean) {
-  return (p: Project) => !fn(p);
+export function not<T>(fn: (p: T) => boolean) {
+  return (p: T) => !fn(p);
+}
+
+export function externalNextCondition<S extends StoreApi<unknown>>(
+  store: UseBoundStore<S>,
+  condition: (state: ExtractState<S>) => boolean,
+) {
+  const unsubscribe = store.subscribe((state) => {
+    if (condition(state as ExtractState<S>)) {
+      useTutorialStore.getState().nextStep();
+      unsubscribe();
+    }
+  });
 }
