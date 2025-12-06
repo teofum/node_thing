@@ -44,6 +44,7 @@ export const NODE_TYPES = {
   __input_image: {
     name: "Image",
     category: "Input",
+    tooltip: "Upload an image to be used as input.",
     shader: "",
     inputs: {},
     outputs: {
@@ -66,6 +67,7 @@ export const NODE_TYPES = {
   __input_layer: {
     name: "Underlying layer",
     category: "Input",
+    tooltip: "Takes the output of the layer directly below.",
     shader: "",
     inputs: {},
     outputs: {
@@ -83,6 +85,8 @@ export const NODE_TYPES = {
   uv: {
     name: "UV",
     category: "Input",
+    tooltip:
+      "Outputs the relative position of a pixel with respect to the canvas size. U is horizontal and V is vertical. 0 means left/top and 1 means right/bottom.",
     shader: uvShader,
     inputs: {},
     outputs: {
@@ -100,6 +104,8 @@ export const NODE_TYPES = {
   time: {
     name: "Time",
     category: "Input",
+    tooltip:
+      "Outputs the seconds since the start of the animation. Use the Animation tab for related options.",
     shader: timeShader,
     inputs: {},
     outputs: {
@@ -113,6 +119,8 @@ export const NODE_TYPES = {
   __output: {
     name: "Output",
     category: "Special",
+    tooltip:
+      "This is the output node. Whatever you connect here will be seen on the canvas.",
     shader: "",
     inputs: {
       color: {
@@ -164,6 +172,7 @@ export const NODE_TYPES = {
   white_noise: {
     name: "White Noise",
     category: "Generate",
+    tooltip: "Outputs a random number between 0 and 1 for every pixel.",
     shader: whiteNoiseShader,
     inputs: {
       seed: {
@@ -182,6 +191,8 @@ export const NODE_TYPES = {
   checkers_Pattern: {
     name: "Checkers Pattern",
     category: "Generate",
+    tooltip:
+      "Fills the screen with a 2x2 pixel crossed pattern of 0.25 and 0.75. May be used when thresholding and dithering to approximate a range of colors or shades using a limited color palette.",
     shader: checkersPatternShader,
     inputs: {},
     outputs: {
@@ -195,6 +206,8 @@ export const NODE_TYPES = {
   bayers_Pattern_8x8: {
     name: "Bayers Pattern 8x8",
     category: "Generate",
+    tooltip:
+      "The 8x8 Bayer pattern intended for dithering (also known as an ordered dither matrix or threshold matrix) is a technique used in computer graphics to approximate a full range of colors or shades using a limited color palette.",
     shader: bayerPatternShader,
     inputs: {},
     outputs: {
@@ -208,6 +221,8 @@ export const NODE_TYPES = {
   perlin_noise: {
     name: "Perlin noise",
     category: "Generate",
+    tooltip:
+      "Classic type of procedural gradient noise function used extensively in computer graphics to create natural-looking textures and surfaces. It works by smoothly interpolating values based on random gradient vectors assigned to a grid. The angles may be animated",
     shader: perlinNoiseShader,
     inputs: {
       size: {
@@ -238,6 +253,8 @@ export const NODE_TYPES = {
   radialGradient: {
     name: "Radial Gradient",
     category: "Object",
+    tooltip:
+      "Generates an elliptical gradient. You can customize its shape and position on the canvas.",
     shader: radialGradientShader,
     inputs: {},
     outputs: {
@@ -257,6 +274,8 @@ export const NODE_TYPES = {
   voronoi_noise: {
     name: "Voronoi noise",
     category: "Generate",
+    tooltip:
+      "Produces a random pattern of Voronoi cells, outputting a 0 near their centers and 1 along their edges.",
     shader: voronoiNoiseShader,
     inputs: {
       size: {
@@ -287,6 +306,8 @@ export const NODE_TYPES = {
   constant: {
     name: "Constant",
     category: "Math",
+    tooltip:
+      "Outputs the same number as the input, perfect for organizing nodes that all need the same value for something.",
     shader: constantShader,
     inputs: {
       value: {
@@ -305,6 +326,7 @@ export const NODE_TYPES = {
   add: {
     name: "Add",
     category: "Math",
+    tooltip: "Takes two numbers, outputs their sum.",
     shader: addShader,
     inputs: {
       x: {
@@ -327,6 +349,7 @@ export const NODE_TYPES = {
   multiply: {
     name: "Multiply",
     category: "Math",
+    tooltip: "Takes two numbers, outputs their product.",
     shader: multiplyShader,
     inputs: {
       x: {
@@ -349,6 +372,7 @@ export const NODE_TYPES = {
   abs: {
     name: "Absolute value",
     category: "Math",
+    tooltip: "Outputs the absolute value of x.",
     shader: absShader,
     inputs: {
       x: {
@@ -367,6 +391,8 @@ export const NODE_TYPES = {
   sine: {
     name: "Sine wave",
     category: "Math",
+    tooltip:
+      "Outputs the sine of t in radians, phase shifted by the given fraction of 2π.",
     shader: sineShader,
     inputs: {
       t: {
@@ -389,6 +415,7 @@ export const NODE_TYPES = {
   fract: {
     name: "Floor/Fract",
     category: "Math",
+    tooltip: "Separates the integer and fractional part of x.",
     shader: fractShader,
     inputs: {
       x: {
@@ -412,6 +439,8 @@ export const NODE_TYPES = {
   boxBlur: {
     name: "Box Blur",
     category: "Filter",
+    tooltip:
+      "On each pixel, outputs the average color of the 9 neighboring pixels.",
     shader: boxBlurShader,
     inputs: {
       input: {
@@ -438,6 +467,8 @@ export const NODE_TYPES = {
   gaussBlur: {
     name: "Gaussian blur",
     category: "Filter",
+    tooltip:
+      "On each pixel, outputs a weighted average of the colors of nearby pixels, following a Gaussian distribution with the given standard deviation.",
     shader: gaussianBlurXShader,
     inputs: {
       input: {
@@ -473,6 +504,8 @@ export const NODE_TYPES = {
   gaussBlurEdge: {
     name: "Directional blur",
     category: "Filter",
+    tooltip:
+      "Produces a directional gaussian blur. Uses the input tangent as the direction for each pixel.",
     shader: gaussianBlurEdgeShader,
     inputs: {
       input: {
@@ -503,6 +536,8 @@ export const NODE_TYPES = {
   sharpness: {
     name: "Sharpness",
     category: "Filter",
+    tooltip:
+      "Common sharpening filter operates by enhancing edges and fine details, effectively increasing the contrast between a pixel and its surrounding area to make the resulting image appear clearer and sharper.",
     shader: sharpnessShader,
     inputs: {
       input: {
@@ -521,6 +556,8 @@ export const NODE_TYPES = {
   sobel: {
     name: "Sobel",
     category: "Filter",
+    tooltip:
+      "This code implements Edge Detection by computing the gradient (rate of change in brightness) in both the horizontal and vertical directions. The final output is the combined magnitude of these gradients, effectively highlighting the sharp edges and contours of objects in the image while suppressing uniform areas.",
     shader: sobelShader,
     inputs: {
       input: {
@@ -540,6 +577,8 @@ export const NODE_TYPES = {
   mix: {
     name: "Mix",
     category: "Blend",
+    tooltip:
+      "Combines the two inputs with a weighted operation. A factor of 0 favors input A, while a factor of 1 favors input B.",
     shader: mixShader,
     inputs: {
       input_a: {
@@ -593,6 +632,8 @@ export const NODE_TYPES = {
   contrast: {
     name: "Contrast",
     category: "Color",
+    tooltip:
+      "Increases/decreases the difference in brightness between the different colors in the input.",
     shader: contrastShader,
     inputs: {
       input: {
@@ -623,6 +664,7 @@ export const NODE_TYPES = {
   saturation: {
     name: "Saturation",
     category: "Color",
+    tooltip: "Modifies the saturation value of the colors of the input.",
     shader: saturationShader,
     inputs: {
       input: {
@@ -647,6 +689,7 @@ export const NODE_TYPES = {
   hsl: {
     name: "HSL",
     category: "Color",
+    tooltip: "Modifies Hue, Saturation and Luminance.",
     shader: hslShader,
     inputs: {
       input: {
@@ -686,6 +729,8 @@ export const NODE_TYPES = {
   exposure: {
     name: "Exposure",
     category: "Color",
+    tooltip:
+      "Exposure adjustment filter, this filter brightens or darkens the image by applying a simple, global gamma-like correction based on a user-defined exposure setting. Positive values brighten the image while negative values darken it.",
     shader: exposureShader,
     inputs: {
       input: {
@@ -711,6 +756,8 @@ export const NODE_TYPES = {
   LGG: {
     name: "Lift gamma gain",
     category: "Color",
+    tooltip:
+      "The Lift, Gamma, Gain (LGG) controls are fundamental for color grading. Lift adjusts the darkest areas (shadows), effectively adding a constant offset to the output. Gamma controls the mid-tones by applying a power curve, changing the overall perceived brightness without dramatically affecting the pure blacks or pure whites. Gain adjusts the brightest areas (highlights) by multiplying the color values, increasing or decreasing the overall intensity.",
     shader: LGGShader,
     inputs: {
       input: {
@@ -747,6 +794,8 @@ export const NODE_TYPES = {
   tonemapReinhard: {
     name: "Reinhard",
     category: "Tone mapping",
+    tooltip:
+      "Reinhard tone mapping is a simple and fast method for compressing High Dynamic Range (HDR) values into the visible Low Dynamic Range (LDR). It works by scaling the input luminance based on its own value, preventing oversaturation and blown-out highlights. A variation of the algorithm allows for a specific white point to be set, giving more control over how bright highlights are preserved and mapped down. It tends to flatten contrast somewhat in very bright areas.",
     shader: tonemapReinhardShader,
     inputs: {
       input: {
@@ -772,6 +821,8 @@ export const NODE_TYPES = {
   tonemapACES: {
     name: "ACES",
     category: "Tone mapping",
+    tooltip:
+      "The Academy Color Encoding System (ACES) tone mapper is a sophisticated, industry-standard choice developed for professional film and television production. The ACES curve is a complex, data-driven function designed for wide-gamut and HDR inputs, providing excellent color separation and a highly natural preservation of detail in both shadows and highlights compared to simpler methods.",
     shader: tonemapACESShader,
     inputs: {
       input: {
@@ -790,6 +841,8 @@ export const NODE_TYPES = {
   tonemapHable: {
     name: "Hable",
     category: "Tone mapping",
+    tooltip:
+      "The Hable, tone mapping curve is a cinematic, artist-friendly choice designed to produce an aesthetically pleasing image with good contrast and color preservation. It provides a soft shoulder rolloff in the highlights, avoiding the harsh clipping often seen in simpler mappers, and giving the image a signature look, similar to film. It was allegedly used for the Uncharted 2 game.",
     shader: tonemapHableShader,
     inputs: {
       input: {
@@ -809,6 +862,8 @@ export const NODE_TYPES = {
   threshold: {
     name: "Threshold",
     category: "Effects",
+    tooltip:
+      "On each pixel, if the perceived brightness exceeds the threshold, outputs white, otherwise outputs black.",
     shader: thresholdShader,
     inputs: {
       input: {
@@ -833,6 +888,7 @@ export const NODE_TYPES = {
   posterize: {
     name: "Posterize",
     category: "Effects",
+    tooltip: "Limits the range of colors that are outputted.",
     shader: posterizeShader,
     inputs: {
       input: {
@@ -859,6 +915,7 @@ export const NODE_TYPES = {
   pixelate: {
     name: "Pixelate",
     category: "Effects",
+    tooltip: "Through down-sampling, reduces the resolution of the input.",
     shader: pixelateShader,
     inputs: {
       input: {
@@ -885,6 +942,7 @@ export const NODE_TYPES = {
   displace: {
     name: "Displace",
     category: "Effects",
+    tooltip: "Moves the input x pixels horizontally and y pixels vertically.",
     shader: displaceShader,
     inputs: {
       input: {
@@ -913,6 +971,8 @@ export const NODE_TYPES = {
   voronoi: {
     name: "Voronoi filter",
     category: "Effects",
+    tooltip:
+      "Divides the input into Voronoi cells, each with their own color, based on the original color of nearby pixels.",
     shader: voronoiShader,
     inputs: {
       input: {
@@ -946,6 +1006,8 @@ export const NODE_TYPES = {
   kuwahara: {
     name: "Kuwahara filter",
     category: "Effects",
+    tooltip:
+      "Creates a painting-like effect by reducing noise without blurring the edges.",
     shader: kuwaharaFilterShader,
     inputs: {
       input: {
@@ -973,6 +1035,8 @@ export const NODE_TYPES = {
   split_channels: {
     name: "Split channels",
     category: "Utility",
+    tooltip:
+      "Separates the RGB values of the input, 0 being the minimum and 1 being the maximum.",
     shader: splitChannelsShader,
     inputs: {
       input: {
@@ -999,6 +1063,7 @@ export const NODE_TYPES = {
   merge_channels: {
     name: "Merge channels",
     category: "Utility",
+    tooltip: "Combines RGB values into an output color.",
     shader: mergeChannelsShader,
     inputs: {
       red: {
@@ -1025,6 +1090,8 @@ export const NODE_TYPES = {
   edge_tangent_flow: {
     name: "Edge Tangent Flow",
     category: "Utility",
+    tooltip:
+      "Outputs the local tangent direction of the edges in the input as a normalized 2D vector, with red and green being the x and y components respectively.",
     shader: edgeTangentFlowShader,
     inputs: {
       gradient: {

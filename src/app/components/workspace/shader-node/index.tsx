@@ -12,6 +12,8 @@ import { NodeParameter } from "./node-parameter";
 import { useNodeTypes } from "@/utils/use-node-types";
 import { Button } from "@/ui/button";
 import { useProjectStore } from "@/store/project.store";
+import { Tooltip } from "@/ui/tooltip";
+import { useConfigStore } from "@/store/config.store";
 
 export type ShaderNodeProps<T extends Node> = NodeProps<T> & {
   mock?: boolean;
@@ -42,6 +44,8 @@ export function RenderShaderNode(props: ShaderNodeProps<ShaderNode>) {
   const nodeTypes = useNodeTypes();
   const remove = useProjectStore((s) => s.removeNode);
 
+  const tooltipsEnabled = useConfigStore((s) => s.view.tooltipsEnabled);
+
   const nodeTypeInfo = nodeTypes[data.type];
   if (!nodeTypeInfo)
     return (
@@ -68,7 +72,7 @@ export function RenderShaderNode(props: ShaderNodeProps<ShaderNode>) {
       </ShaderNodeContainer>
     );
 
-  return (
+  const node = (
     <ShaderNodeContainer {...props}>
       <div
         className={cn(
@@ -113,5 +117,22 @@ export function RenderShaderNode(props: ShaderNodeProps<ShaderNode>) {
         ))}
       </div>
     </ShaderNodeContainer>
+  );
+
+  const showTooltip = props.mock
+    ? nodeTypeInfo.category !== "Custom" && !nodeTypeInfo.externalShaderId
+    : tooltipsEnabled && nodeTypeInfo.tooltip;
+
+  return showTooltip ? (
+    <Tooltip
+      className="max-w-70 max-h-70"
+      content={nodeTypeInfo.tooltip ?? "(Missing description)"}
+      side={props.mock ? "right" : "top"}
+      delay={700}
+    >
+      {node}
+    </Tooltip>
+  ) : (
+    node
   );
 }
