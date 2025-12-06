@@ -1,9 +1,12 @@
-import { Dialog } from "@/ui/dialog";
+import { Dialog, DialogClose } from "@/ui/dialog";
+import { deletePublication } from "../actions/deletePost";
+import { isOwner } from "../../marketplace/item/actions";
 import RatingEditor from "../dialogs/rating-editor";
 import { Button } from "@/ui/button";
 import { Stars } from "@/app/(with-nav)/marketplace/components/stars";
 import { RatingsDisplay } from "./items-tab";
 import { CardBadge } from "../../marketplace/components/card-badge";
+import { LuTrash2 } from "react-icons/lu";
 
 type RatingCardProps = {
   id: string;
@@ -16,7 +19,7 @@ type RatingCardProps = {
   canReview?: boolean;
 };
 
-export default function RatingCard({
+export default async function RatingCard({
   id,
   type,
   title,
@@ -26,9 +29,39 @@ export default function RatingCard({
   ratingCount,
   canReview = false,
 }: RatingCardProps) {
+  const owner = await isOwner(type, id);
+
   return (
     <div className="glass glass-border p-4 rounded-2xl">
-      <h3 className="text-xl font-semibold mb-2">{title}</h3>
+      <div className="flex items-start justify-between mb-2">
+        <h3 className="text-xl font-semibold mb-2">{title}</h3>
+
+        {owner && (
+          <Dialog
+            title="Delete publication"
+            description="This action cannot be undone. Are you sure?"
+            trigger={
+              <Button variant="ghost" size="md" className="text-red-400" icon>
+                <LuTrash2 />
+              </Button>
+            }
+          >
+            <form
+              action={async () => {
+                "use server";
+                await deletePublication(id, type);
+              }}
+              className="p-4 flex flex-col gap-4"
+            >
+              <Button variant="outline">Confirm delete</Button>
+
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+            </form>
+          </Dialog>
+        )}
+      </div>
 
       <div className="mb-7">
         <CardBadge

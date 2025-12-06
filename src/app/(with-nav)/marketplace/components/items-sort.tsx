@@ -96,10 +96,12 @@ export function ShaderListClient({
   shaders,
   cartIds,
   projects,
+  currentUsername,
 }: {
   shaders: Shader[];
   cartIds: Set<string>;
   projects: Project[];
+  currentUsername?: string;
 }) {
   const [sortBy, setSortBy] = useState("price");
   const [ascending, setAscending] = useState(true);
@@ -191,6 +193,7 @@ export function ShaderListClient({
               downloads={item.downloads}
               inCart={cartIds.has(item.id)}
               username={item.profiles?.username}
+              isOwn={item.profiles?.username === currentUsername}
               category={item.category.name}
               createdAt={item.createdAt}
               averageRating={item.averageRating}
@@ -212,6 +215,7 @@ export function ShaderListClient({
               downloads={item.downloads ?? 0}
               inCart={cartIds.has(item.id)}
               username={item.profiles?.username}
+              isOwn={item.profiles?.username === currentUsername}
               createdAt={item.createdAt ?? new Date().toISOString()}
               averageRating={item.averageRating}
               ratingCount={item.ratingCount}

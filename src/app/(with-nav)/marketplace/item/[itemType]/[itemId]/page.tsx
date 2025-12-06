@@ -1,4 +1,4 @@
-import { LuCircleCheckBig, LuDownload, LuPlus } from "react-icons/lu";
+import { LuCircleCheckBig, LuDownload, LuPlus, LuTrash2 } from "react-icons/lu";
 import { CardBadge } from "../../../components/card-badge";
 
 import Image from "next/image";
@@ -16,6 +16,8 @@ import { UploadImage } from "./components/upload-image";
 import { getImage } from "../../../actions";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import Link from "next/link";
+import { Dialog, DialogClose } from "@/ui/dialog";
+import { deletePublication } from "@/app/(with-nav)/profile/actions/deletePost";
 
 type ItemDetailPageProps = {
   params: {
@@ -115,33 +117,65 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             </div>
           </div>
 
-          {/*Add to Cart*/}
-          <div className="mt-2">
-            {item.incart ? (
-              <div className="flex justify-center items-center h-13.5 text-base/5 font-semibold rounded-lg border border-current/15 select-none">
-                <LuCircleCheckBig className="inline mr-2 text-emerald-600" />
-                In cart
-              </div>
-            ) : (
-              <form action={addToCart}>
-                <input type="hidden" name="itemId" value={item.id} />
-                <input
-                  type="hidden"
-                  name="itemType"
-                  value={itemType.toLocaleLowerCase()}
-                />
+          {/*Add to Cart or Delete Post*/}
+
+          {owner ? (
+            <Dialog
+              title="Delete publication"
+              description="This action cannot be undone. Are you sure?"
+              trigger={
                 <Button
-                  type="submit"
-                  size="lg"
                   variant="outline"
-                  className="flex items-center text-emerald-600 w-full"
+                  size="lg"
+                  className="text-red-400 flex items-center w-full mt-2"
+                  icon
                 >
-                  <LuPlus />
-                  Add to cart
+                  <LuTrash2 /> Delete Publication
                 </Button>
+              }
+            >
+              <form
+                action={async () => {
+                  "use server";
+                  await deletePublication(itemId, itemType);
+                }}
+                className="p-4 flex flex-col gap-4"
+              >
+                <Button variant="outline">Confirm delete</Button>
+
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
               </form>
-            )}
-          </div>
+            </Dialog>
+          ) : (
+            <div className="mt-2">
+              {item.incart ? (
+                <div className="flex justify-center items-center h-13.5 text-base/5 font-semibold rounded-lg border border-current/15 select-none">
+                  <LuCircleCheckBig className="inline mr-2 text-emerald-600" />
+                  In cart
+                </div>
+              ) : (
+                <form action={addToCart}>
+                  <input type="hidden" name="itemId" value={item.id} />
+                  <input
+                    type="hidden"
+                    name="itemType"
+                    value={itemType.toLocaleLowerCase()}
+                  />
+                  <Button
+                    type="submit"
+                    size="lg"
+                    variant="outline"
+                    className="flex items-center text-emerald-600 w-full"
+                  >
+                    <LuPlus />
+                    Add to cart
+                  </Button>
+                </form>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
