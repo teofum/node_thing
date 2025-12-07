@@ -20,6 +20,8 @@ export default function DisplayNameEditor({
   const [setDisplayNameState, setDisplayNameAction, setDisplayNamePending] =
     useActionState(async () => await setDisplayName(name), null);
 
+  const isValid = name.trim().length > 0;
+
   return (
     <Dialog trigger={trigger} title="Edit Display Name" description="">
       <div className="flex flex-col p-4 text-lg gap-4">
@@ -38,7 +40,7 @@ export default function DisplayNameEditor({
           </DialogClose>
           <Button
             onClick={() => startTransition(() => setDisplayNameAction())}
-            disabled={setDisplayNamePending}
+            disabled={!isValid || setDisplayNamePending}
           >
             {setDisplayNamePending ? "Applying..." : "Apply"}
           </Button>

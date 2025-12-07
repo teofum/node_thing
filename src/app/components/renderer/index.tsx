@@ -1,23 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LuCrop, LuTimer } from "react-icons/lu";
+import { LuCrop, LuSettings, LuTimer } from "react-icons/lu";
 
 import { useAssetStore } from "@/store/asset.store";
-import { useConfigStore } from "@/store/config.store";
+import { DisplayOption, useConfigStore } from "@/store/config.store";
 import { useProjectStore } from "@/store/project.store";
-import { ToggleButton } from "@/ui/button";
+import { Button, ToggleButton } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Canvas } from "./canvas";
 import { LayerHandle } from "./handles/layer-handle";
 import { Timeline } from "./timeline";
 import { ZoomControls } from "./zoom-controls";
 import { RadialHandle } from "./handles/radial-handle";
+import { Popover } from "@/ui/popover";
+import { Select, SelectItem } from "@/ui/select";
+import { isShader } from "@/store/project.types";
 
 export function Renderer() {
   const canvas = useProjectStore((s) => s.properties.canvas);
   const setCanvasSize = useProjectStore((s) => s.setCanvasSize);
-  const { nodes } = useProjectStore((s) => s.layers[s.currentLayer]);
+  const { nodes, edges } = useProjectStore((s) => s.layers[s.currentLayer]);
 
   const view = useConfigStore((s) => s.view);
   const updateView = useConfigStore((s) => s.updateView);
@@ -60,6 +63,7 @@ export function Renderer() {
     );
 
   const selectedNodes = nodes.filter((n) => n.selected);
+  const selectedEdges = edges.filter((e) => e.selected);
 
   /*
    * Component UI
@@ -73,29 +77,25 @@ export function Renderer() {
           storeHydrated={storeHydrated}
         />
 
-        <div className="flex flex-row items-center gap-1 ml-auto">
-          <div className="font-medium text-xs">Canvas size</div>
-          <Input
+        <div className="mr-auto min-w-36 flex flex-row">
+          <Select
             variant="outline"
-            size="sm"
-            className="min-w-12 w-0"
-            defaultValue={canvas.width}
-            onBlur={(ev) => updateWidth(ev.target.value)}
-            onKeyDown={(ev) => {
-              if (ev.key === "Enter") updateWidth(ev.currentTarget.value);
-            }}
-          />
-          ×
-          <Input
-            size="sm"
-            variant="outline"
-            className="min-w-12 w-0"
-            defaultValue={canvas.height}
-            onBlur={(ev) => updateHeight(ev.target.value)}
-            onKeyDown={(ev) => {
-              if (ev.key === "Enter") updateHeight(ev.currentTarget.value);
-            }}
-          />
+            className="py-1.75"
+            value={view.display}
+            onValueChange={(val) =>
+              updateView({ display: val as DisplayOption })
+            }
+          >
+            <SelectItem value="final-render" className="py-1.75">
+              Final render
+            </SelectItem>
+            <SelectItem value="layer-output" className="py-1.75">
+              Layer output
+            </SelectItem>
+            <SelectItem value="selection" className="py-1.75">
+              Selection
+            </SelectItem>
+          </Select>
         </div>
 
         <ToggleButton
@@ -114,20 +114,62 @@ export function Renderer() {
         >
           <LuTimer />
         </ToggleButton>
+        <Popover
+          trigger={
+            <Button icon variant="outline">
+              <LuSettings />
+            </Button>
+          }
+          className="p-3"
+          align="end"
+          sideOffset={4}
+        >
+          <div className="flex flex-row items-center gap-1">
+            <div className="font-medium text-xs">Canvas size</div>
+            <Input
+              variant="outline"
+              size="sm"
+              className="min-w-12 w-0"
+              defaultValue={canvas.width}
+              onBlur={(ev) => updateWidth(ev.target.value)}
+              onKeyDown={(ev) => {
+                if (ev.key === "Enter") updateWidth(ev.currentTarget.value);
+              }}
+            />
+            ×
+            <Input
+              size="sm"
+              variant="outline"
+              className="min-w-12 w-0"
+              defaultValue={canvas.height}
+              onBlur={(ev) => updateHeight(ev.target.value)}
+              onKeyDown={(ev) => {
+                if (ev.key === "Enter") updateHeight(ev.currentTarget.value);
+              }}
+            />
+          </div>
+        </Popover>
       </div>
       <div
         ref={viewport}
-        className="overflow-auto grow grid place-items-center p-4"
+        className="overflow-auto grow grid place-items-center p-4 relative"
       >
         <div className="relative">
           <Canvas />
           {view.layerHandles ? <LayerHandle /> : null}
           {selectedNodes
+            .filter(isShader)
             .filter((n) => n.data.type === "radialGradient")
             .map((n) => (
               <RadialHandle key={n.id} nodeId={n.id} node={n.data} />
             ))}
         </div>
+
+        {view.display === "selection" && selectedEdges.length !== 1 ? (
+          <div className="absolute inset-0 bg-neutral-950 grid place-items-center">
+            Select a single edge to preview
+          </div>
+        ) : null}
       </div>
 
       {view.timeline ? <Timeline /> : null}

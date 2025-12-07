@@ -1,7 +1,14 @@
 import { create } from "zustand";
 import { combine, persist } from "zustand/middleware";
 
-export type SidebarPanel = "library" | "layers" | "assets" | "animation";
+export type SidebarPanel =
+  | "library"
+  | "layers"
+  | "assets"
+  | "animation"
+  | "history";
+export type DisplayOption = "final-render" | "layer-output" | "selection";
+
 export type Config = {
   view: {
     zoom: number;
@@ -11,6 +18,8 @@ export type Config = {
       panel: SidebarPanel;
       pinned: boolean;
     };
+    tooltipsEnabled: boolean;
+    display: DisplayOption;
   };
 };
 
@@ -23,6 +32,8 @@ const initialState: Config = {
       panel: "library",
       pinned: false,
     },
+    tooltipsEnabled: true,
+    display: "final-render",
   },
 };
 

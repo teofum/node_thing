@@ -554,6 +554,7 @@ export type Database = {
           profiles: Json;
           rating_count: number;
           title: string;
+          updated_at: string;
         }[];
       };
       get_published_projects: {
@@ -608,6 +609,7 @@ export type Database = {
           profiles: Json;
           rating_count: number;
           title: string;
+          updated_at: string;
         }[];
       };
       get_user_email_by_username: {

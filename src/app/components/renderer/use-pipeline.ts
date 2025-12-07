@@ -1,12 +1,13 @@
 import { useMemo, useRef } from "react";
 
-import { Layer } from "@/store/project.types";
+import { useConfigStore } from "@/store/config.store";
 import { useProjectStore } from "@/store/project.store";
-import { PreparedPipeline, preparePipeline } from "./implementation/renderer";
-import { RenderPipeline } from "./pipeline";
-import { compareLayerDims, compareLayers } from "./compare-layers";
+import { Layer } from "@/store/project.types";
 import { enumerate } from "@/utils/enumerate";
 import { useNodeTypes } from "@/utils/use-node-types";
+import { compareLayerDims, compareGraphs } from "./compare-layers";
+import { PreparedPipeline, preparePipeline } from "./implementation/renderer";
+import { RenderPipeline } from "./pipeline";
 
 function compareSize(
   a: { width: number; height: number },
@@ -15,13 +16,46 @@ function compareSize(
   return a.width !== b.width || a.height !== b.height;
 }
 
+function prepareLayer(
+  layer: Pick<Layer, "nodes" | "edges">,
+  displaySelection: boolean,
+) {
+  if (!displaySelection) return layer;
+
+  const outputEdge = layer.edges.find(
+    (e) => e.target === "__output" && e.targetHandle === "color",
+  );
+  const selectedEdge = layer.edges.find((e) => e.selected);
+
+  if (!outputEdge || !selectedEdge) return layer;
+
+  return {
+    ...layer,
+    edges: [
+      ...layer.edges.filter(
+        (e) => e.target !== "__output" && e.id !== selectedEdge.id,
+      ),
+      {
+        id: "__dummy_output_edge",
+        source: selectedEdge.source,
+        sourceHandle: selectedEdge.sourceHandle,
+        target: outputEdge.target,
+        targetHandle: outputEdge.targetHandle,
+      },
+    ],
+  } satisfies typeof layer;
+}
+
 export function usePipeline(
   device: GPUDevice | null,
   ctx: GPUCanvasContext | null,
 ) {
   const layers = useProjectStore((s) => s.layers);
   const canvas = useProjectStore((s) => s.properties.canvas);
+  const view = useConfigStore((s) => s.view);
   const nodeTypes = useNodeTypes();
+
+  const displaySelection = view.display === "selection";
 
   /*
    * Pipeline descriptor and layer cache
@@ -31,6 +65,7 @@ export function usePipeline(
   const layersCache = useRef<Layer[] | null>(null);
   const canvasDimsCache = useRef<typeof canvas | null>(null);
   const nodeTypesCache = useRef<typeof nodeTypes | null>(null);
+  const displaySelectionCache = useRef(displaySelection);
 
   /*
    * Rebuild render pipeline when node graph state changes
@@ -59,9 +94,10 @@ export function usePipeline(
 
       // Pipeline descriptor must me rebuilt from node graph if...
       const desc =
-        !cachedLayers[i] || //                              layer is not cached, or
-        compareLayers(layer, cachedLayers[i]) || //         layer has changed, or
-        nodeTypes != nodeTypesCache.current; //             node types have changed
+        displaySelectionCache.current !== displaySelection || //      selection display has changed, or
+        !cachedLayers[i] || //                                        layer is not cached, or
+        compareGraphs(layer, cachedLayers[i], displaySelection) || // layer has changed, or
+        nodeTypes != nodeTypesCache.current; //                       node types have changed
 
       // GPU pipeline object must be rebuilt from descriptor if...
       const pipeline =
@@ -77,6 +113,7 @@ export function usePipeline(
 
     canvasDimsCache.current = canvas;
     nodeTypesCache.current = nodeTypes;
+    displaySelectionCache.current = displaySelection;
 
     /*
      * Rebuild whatever needs to be rebuilt
@@ -86,7 +123,10 @@ export function usePipeline(
       if (needsRebuild[i].desc) {
         console.log(`Rebuilding render graph [layer ${i}]...`);
 
-        descCache.current[i] = RenderPipeline.tryCreate(layer, nodeTypes);
+        descCache.current[i] = RenderPipeline.tryCreate(
+          prepareLayer(layer, displaySelection),
+          nodeTypes,
+        );
         if (!descCache.current[i] || descCache.current[i].outputBuffer < 0)
           descCache.current[i] = null;
       }
@@ -121,7 +161,7 @@ export function usePipeline(
     }
 
     return pipelineCache.current;
-  }, [ctx, device, layers, canvas, nodeTypes]);
+  }, [ctx, device, layers, canvas, nodeTypes, displaySelection]);
 
   return pipeline;
 }

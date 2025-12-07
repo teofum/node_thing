@@ -1,4 +1,4 @@
-import { Connection, Edge } from "@xyflow/react";
+import { Edge, EdgeChange, Node, NodeChange } from "@xyflow/react";
 import { nanoid } from "nanoid";
 
 import { NodeType, ShaderNode } from "@/schemas/node.schema";
@@ -10,8 +10,14 @@ import {
   NodeTypes,
   StoredProject,
   NodeTypeDependency,
+  isShader,
+  GroupData,
+  Graph,
+  isGroup,
 } from "./project.types";
 import { NODE_TYPES } from "@/utils/node-type";
+import { Command } from "./types/command";
+import { diff, revertChangeset } from "json-diff-ts";
 
 const initialNodes: ShaderNode[] = [
   {
@@ -38,7 +44,9 @@ export function prepareProjectForExport(project: Project): StoredProject {
 function getNodeTypeDependencies(project: Project): NodeTypeDependency[] {
   const projectNodeTypes = new Set(
     project.layers
-      .flatMap((layer) => layer.nodes.map((node) => node.data.type))
+      .flatMap((layer) =>
+        layer.nodes.map((node) => (isShader(node) ? node.data.type : "")),
+      )
       .filter((type) => Object.hasOwn(project.nodeTypes.external, type))
       .map((type) => [type, project.nodeTypes.external[type]] as const),
   );
@@ -63,12 +71,13 @@ export function getAllNodeTypes(nodeTypes: {
 }
 
 export function modifyNode(
+  state: Project,
   id: string,
   updater: (node: ShaderNode) => Partial<ShaderNode>,
-): (state: Project) => Partial<Project> {
-  return modifyLayer(({ nodes }) => {
+): Partial<Project> {
+  return modifyGroup(state, ({ nodes }) => {
     const node = nodes.find((n) => n.id === id);
-    if (!node) return {};
+    if (!node || !isShader(node)) return {};
 
     return {
       nodes: [
@@ -83,28 +92,53 @@ export function modifyNode(
   });
 }
 
-export function modifyLayer(
-  updater: (layer: Layer) => Partial<Layer>,
-  idx?: number,
-): (state: Project) => Partial<Project> {
-  return ({ layers, currentLayer }) => {
-    const layerIdx = idx ?? currentLayer;
-    const layerToModify = layers[layerIdx];
-    if (!layerToModify) return {};
+export function modifyGroup(
+  state: Project,
+  updater: (data: Graph) => Partial<Graph>,
+): Partial<Project> {
+  const modify = (data: Graph, groupPath: string[]): Partial<Graph> => {
+    if (groupPath.length === 0) return updater(data);
 
-    const layersUnder = layers.slice(0, layerIdx);
-    const layersOver = layers.slice(layerIdx + 1);
+    const group = data.nodes.filter(isGroup).find((n) => n.id === groupPath[0]);
+    if (!group) return {};
 
     return {
-      layers: [
-        ...layersUnder,
+      nodes: [
+        ...data.nodes.filter((n) => n.id !== group.id),
         {
-          ...layerToModify,
-          ...updater(layerToModify),
+          ...group,
+          data: { ...group.data, ...modify(group.data, groupPath.slice(1)) },
         },
-        ...layersOver,
       ],
     };
+  };
+
+  return modifyLayer(state, (layer) => modify(layer, state.currentGroup));
+}
+
+export function modifyLayer(
+  state: Project,
+  updater: (layer: Layer) => Partial<Layer>,
+  idx?: number,
+): Partial<Project> {
+  const { layers, currentLayer } = state;
+
+  const layerIdx = idx ?? currentLayer;
+  const layerToModify = layers[layerIdx];
+  if (!layerToModify) return {};
+
+  const layersUnder = layers.slice(0, layerIdx);
+  const layersOver = layers.slice(layerIdx + 1);
+
+  return {
+    layers: [
+      ...layersUnder,
+      {
+        ...layerToModify,
+        ...updater(layerToModify),
+      },
+      ...layersOver,
+    ],
   };
 }
 
@@ -164,6 +198,8 @@ export function createInitialState(): Project {
   return {
     layers: [createLayer("Background")],
     currentLayer: 0,
+    currentGroup: [],
+
     properties: { canvas: initialSize },
     nodeTypes: {
       default: NODE_TYPES,
@@ -171,6 +207,9 @@ export function createInitialState(): Project {
       external: {},
     },
     projectName: "Untitled Project",
+
+    history: [],
+    done: -1, // todo, deberia haber un action inicial y arrancar en 0
   };
 }
 
@@ -186,5 +225,110 @@ export function mergeProject(imported: unknown, current: Project): Project {
       ...current.properties,
       ...(imported as Project).properties,
     },
+  };
+}
+
+export function historyPush(h: Project["history"], cmd: Command) {
+  return [cmd, ...h];
+}
+
+type HistoryOptions = {
+  collapse?: boolean;
+};
+
+export function withHistory(
+  state: Project,
+  newState: Partial<Project>,
+  command: string,
+  options: HistoryOptions = {
+    collapse: false,
+  },
+) {
+  const {
+    history,
+    done,
+    currentRoomId,
+    yjsDoc,
+    realtimeChannel,
+    awareness,
+    collaborationEnabled,
+    connectedUsers,
+    ...cleanState
+  } = state as Project & {
+    currentRoomId?: string | null;
+    yjsDoc?: unknown;
+    realtimeChannel?: unknown;
+    awareness?: unknown;
+    collaborationEnabled?: boolean;
+    connectedUsers?: unknown[];
+  };
+  const serializable = JSON.parse(JSON.stringify(cleanState));
+  const fullNewState = { ...serializable, ...newState };
+
+  if (options.collapse && done === 0 && history[done]?.command === command) {
+    const oldState = revertChangeset(serializable, history[done].diff);
+    return {
+      ...newState,
+      history: historyPush(history.slice(done + 1), {
+        command,
+        diff: diff(oldState, fullNewState),
+        layerIdx: fullNewState.currentLayer,
+      }),
+      done: 0,
+    };
+  }
+
+  return {
+    ...newState,
+    history: historyPush(history.slice(done), {
+      command,
+      diff: diff(serializable, fullNewState),
+      layerIdx: fullNewState.currentLayer,
+    }),
+    done: 0,
+  };
+}
+
+const nodeChangeTypes = {
+  add: "tracked",
+  remove: "tracked",
+  replace: "tracked",
+  position: "collapsed",
+  dimensions: "untracked",
+  select: "untracked",
+} satisfies Record<
+  NodeChange<Node>["type"],
+  "tracked" | "collapsed" | "untracked"
+>;
+
+export function getNodeChangesByType(changes: NodeChange<Node>[]) {
+  return {
+    tracked: changes.filter(
+      (change) => nodeChangeTypes[change.type] === "tracked",
+    ),
+    collapsed: changes.filter(
+      (change) => nodeChangeTypes[change.type] === "collapsed",
+    ),
+    untracked: changes.filter(
+      (change) => nodeChangeTypes[change.type] === "untracked",
+    ),
+  };
+}
+
+const edgeChangeTypes = {
+  add: "tracked",
+  remove: "tracked",
+  replace: "tracked",
+  select: "untracked",
+} satisfies Record<EdgeChange<Edge>["type"], "tracked" | "untracked">;
+
+export function getEdgeChangesByType(changes: EdgeChange<Edge>[]) {
+  return {
+    tracked: changes.filter(
+      (change) => edgeChangeTypes[change.type] === "tracked",
+    ),
+    untracked: changes.filter(
+      (change) => edgeChangeTypes[change.type] === "untracked",
+    ),
   };
 }

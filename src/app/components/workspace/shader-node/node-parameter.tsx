@@ -8,6 +8,7 @@ import { Button } from "@/ui/button";
 import { imageURLFromAsset } from "@/utils/image-url-from-asset";
 import { AssetManager } from "../asset-manager";
 import { Select, SelectItem } from "@/ui/select";
+import { Input } from "@/ui/input";
 
 type ParameterProps = NodeProps<ShaderNode> & {
   name: string;
@@ -15,11 +16,14 @@ type ParameterProps = NodeProps<ShaderNode> & {
 };
 
 export function NodeParameter(props: ParameterProps) {
-  return props.param.type === "image" ? (
-    <ImageParameter {...props} />
-  ) : (
-    <SelectParameter {...props} />
-  );
+  switch (props.param.type) {
+    case "image":
+      return <ImageParameter {...props} />;
+    case "select":
+      return <SelectParameter {...props} />;
+    case "string":
+      return <StringParameter {...props} />;
+  }
 }
 
 function SelectParameter({ id, data, name, param }: ParameterProps) {
@@ -33,7 +37,7 @@ function SelectParameter({ id, data, name, param }: ParameterProps) {
         variant="outline"
         size="sm"
         className="col-span-2"
-        value={data.parameters[name].value ?? "0"}
+        value={data.parameters[name]?.value ?? "0"}
         onValueChange={(v) => setParameter(id, name, v)}
       >
         {param.options.map((option, i) => (
@@ -45,6 +49,24 @@ function SelectParameter({ id, data, name, param }: ParameterProps) {
     </div>
   );
 }
+
+function StringParameter({ id, data, name, param }: ParameterProps) {
+  const setParameter = useProjectStore((s) => s.updateNodeParameter);
+
+  return (
+    <div className="col-span-3 grid grid-cols-subgrid items-center mb-1.5">
+      <div className="text-xs/4 min-w-4">{param.name}</div>
+      <Input
+        variant="outline"
+        size="sm"
+        className="col-span-2"
+        value={data.parameters[name]?.value ?? ""}
+        onChange={(ev) => setParameter(id, name, ev.target.value)}
+      />
+    </div>
+  );
+}
+
 function ImageParameter({ id, data, name }: ParameterProps) {
   const images = useAssetStore((s) => s.images);
   const setParameter = useProjectStore((s) => s.updateNodeParameter);

@@ -1,19 +1,25 @@
+import { redirect } from "next/navigation";
+
 import { Tables } from "@/lib/supabase/database.types";
 import { LinkButton } from "@/ui/button";
 import { Menubar } from "@/ui/menu-bar";
 import { AuthButton } from "./auth/components/auth-button";
 import { AnimationMenu } from "./components/menu/animation";
+import { EditMenu } from "./components/menu/edit";
 import { FileMenu } from "./components/menu/file";
+import { HelpMenu } from "./components/menu/help";
 import { LayerMenu } from "./components/menu/layer";
 import { ProjectsMenu } from "./components/menu/projects";
 import { ViewMenu } from "./components/menu/view";
 import { Renderer } from "./components/renderer";
 import { Workspace } from "./components/workspace";
-import { getProjects, getPurchasedProjects } from "./actions";
+import {
+  getProjects,
+  getPurchasedProjects,
+  loadTutorialProgress,
+} from "./actions";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { Tutorial } from "./components/tutorials/tutorial";
-import { HelpMenu } from "./components/menu/help";
 import { ShareButton } from "./components/workspace/share-button";
 
 export default async function Home() {
@@ -37,6 +43,7 @@ export default async function Home() {
   let projects: Tables<"projects">[] = [];
   let purchasedProjects: Tables<"projects">[] = [];
   let userData = null;
+  let tutorialsProgressRemote: Record<string, number> | null = null;
 
   if (user) {
     const { data: data, error } = await supabase
@@ -52,6 +59,8 @@ export default async function Home() {
     userData = data;
     projects = await getProjects();
     purchasedProjects = await getPurchasedProjects();
+
+    tutorialsProgressRemote = await loadTutorialProgress();
   }
 
   return (
@@ -62,6 +71,7 @@ export default async function Home() {
 
         <Menubar className="mr-auto">
           <FileMenu />
+          <EditMenu />
           <ViewMenu />
           <LayerMenu />
           <AnimationMenu />
@@ -70,7 +80,7 @@ export default async function Home() {
             projects={projects}
             purchasedProjects={purchasedProjects}
           />
-          <HelpMenu />
+          <HelpMenu tutorialsProgressRemote={tutorialsProgressRemote} />
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">

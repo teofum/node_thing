@@ -18,6 +18,7 @@ type ItemCardProps = {
   username?: string;
   category?: string;
   createdAt: string;
+  updatedAt: string;
   averageRating?: number | null;
   ratingCount?: number | null;
   imageUrl?: string | null;
@@ -33,6 +34,7 @@ export default function ItemCard({
   username,
   category,
   createdAt,
+  updatedAt,
   averageRating,
   ratingCount,
   imageUrl,
@@ -60,7 +62,13 @@ export default function ItemCard({
       {username && (
         <>
           <p className="text-sm text-white/60 mb-2">
-            by <span className="font-bold">{username}</span>
+            by{" "}
+            <Link
+              href={`/profile/${username}`}
+              className="font-bold hover:text-teal-400"
+            >
+              {username}
+            </Link>
           </p>
           <CardBadge
             text={itemType}
@@ -80,7 +88,7 @@ export default function ItemCard({
 
       <Link href={`/marketplace/item/${itemType.toLocaleLowerCase()}/${id}`}>
         <Image
-          src={imageUrl ? `${imageUrl}?t=${Date.now()}` : "/placeholder.webp"}
+          src={imageUrl ? `${imageUrl}?t=${updatedAt}` : "/placeholder.webp"}
           width={1000}
           height={667}
           alt={itemType + " preview"}
