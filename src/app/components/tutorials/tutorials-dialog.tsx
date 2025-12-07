@@ -5,10 +5,11 @@ import { useTutorialStore } from "@/store/tutorial.store";
 import { intro } from "./content/intro";
 import { layerIntro } from "./content/layers";
 import { animationIntro } from "./content/animation";
+import { ditheringIntro } from "./content/dithering";
 import { Button } from "@/ui/button";
 import { LuArrowRight, LuUndo2 } from "react-icons/lu";
 
-const tutorials = [intro, layerIntro, animationIntro];
+const tutorials = [intro, layerIntro, animationIntro, ditheringIntro];
 
 type ExportOptionsProps = {
   open: ComponentProps<typeof Dialog>["open"];
