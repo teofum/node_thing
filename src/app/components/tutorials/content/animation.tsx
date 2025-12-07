@@ -286,7 +286,6 @@ export const animationIntro: Tutorial = {
         nodeExists((n) => n.data.type === "voronoi_noise"),
         edgeExistsBetween("time:output", "voronoi_noise:t"),
         edgeExistsBetween("voronoi_noise:output", "__output:color"),
-        //(s) => (useAnimationStore.getState().time > 1), //TODO
       ),
     },
     {

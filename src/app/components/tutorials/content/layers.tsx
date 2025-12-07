@@ -227,7 +227,10 @@ export const layerIntro: Tutorial = {
             by clicking the layer control icon:
           </p>
           <LuCrop />
-          <p>You should see a green outline around your image in the canvas.</p>
+          <p>
+            You should see a green outline around your image in the canvas. You
+            can drag the bounds with the points along the edges.
+          </p>
           <p className="text-xs/4 text-white/60">
             <strong className="font-bold">Tip:</strong>You can zoom in and out
             on the canvas by using the on screen controls or your mouse.
@@ -235,7 +238,7 @@ export const layerIntro: Tutorial = {
         </div>
       ),
       position: { x: 250, y: 67 },
-      nextCondition: (p) => useConfigStore.getState().view.layerHandles, // TODO, no se actualiza el coso cuando lo clickeas
+      nextCondition: (p) => useConfigStore.getState().view.layerHandles,
     },
     {
       title: "Resizing",
