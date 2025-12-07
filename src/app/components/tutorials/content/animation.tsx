@@ -197,7 +197,7 @@ export const animationIntro: Tutorial = {
         </div>
       ),
       position: { x: 250, y: 67 },
-      //nextCondition: (s) => (useAnimationStore.getState().time > 1), //TODO
+      transparentBackground: true,
     },
     {
       title: "Excellent!!",
@@ -306,6 +306,7 @@ export const animationIntro: Tutorial = {
           <LuTimer />
         </div>
       ),
+      transparentBackground: true,
     },
     /// end
   ],

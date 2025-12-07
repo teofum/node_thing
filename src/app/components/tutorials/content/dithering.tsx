@@ -124,10 +124,14 @@ export const ditheringIntro: Tutorial = {
             To mitigate this loss of detail we will use white noise to threshold
             the image.
           </p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> You might need to zoom
+            out in your canvas to see it clearly
+          </p>
         </div>
       ),
       position: { x: 250, y: 67 },
-      //todo, fondo trasparente
+      transparentBackground: true,
     },
     {
       title: "Add white noise",
@@ -172,7 +176,7 @@ export const ditheringIntro: Tutorial = {
         </div>
       ),
       position: { x: 250, y: 67 },
-      //todo, fondo trasparente
+      transparentBackground: true,
     },
     {
       title: "From random to patterns",
@@ -216,7 +220,7 @@ export const ditheringIntro: Tutorial = {
         </div>
       ),
       position: { x: 250, y: 67 },
-      //todo, fondo trasparente
+      transparentBackground: true,
     },
     {
       title: "Use a Bayer 8x8 pattern",
@@ -254,7 +258,7 @@ export const ditheringIntro: Tutorial = {
           </p>
         </div>
       ),
-      //todo, fondo trasparente
+      transparentBackground: true,
     },
   ],
 };
