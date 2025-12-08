@@ -12,7 +12,10 @@ export function Tutorial() {
 
   return (
     <Dialog
-      modal={currentStep?.nextCondition === undefined}
+      modal={
+        currentStep?.nextCondition === undefined &&
+        !currentStep?.transparentBackground
+      }
       trigger={null}
       open={tutorial !== null}
       onOpenChange={(open) => open || end()}

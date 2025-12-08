@@ -14,6 +14,7 @@ export type TutorialStep = {
   nextCondition?: (state: Project) => boolean;
   position?: Point;
   maxWidth?: number;
+  transparentBackground?: boolean;
 };
 
 export type Tutorial = {

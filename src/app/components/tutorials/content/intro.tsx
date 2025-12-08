@@ -1,6 +1,6 @@
 import { useConfigStore } from "@/store/config.store";
 import { Tutorial } from "@/store/tutorial.store";
-import { LuEllipsisVertical } from "react-icons/lu";
+import { LuEllipsisVertical, LuPin } from "react-icons/lu";
 import { nodeExists, edgeExistsBetween, and } from "../helpers";
 
 export const intro: Tutorial = {
@@ -25,13 +25,97 @@ export const intro: Tutorial = {
       ),
     },
     {
+      title: "Basic controls",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            The <strong className="font-bold">workspace</strong>, which is the
+            space in the middle of your screen, you should see the output node
+            in the middle, is where you will place and connect all your images
+            and effects using nodes. You can{" "}
+            <strong className="font-bold">zoom</strong> in and out with the
+            trackpad or <strong className="font-bold">(scroll wheel)</strong>,
+            as well as look around it by{" "}
+            <strong className="font-bold">clicking</strong> and{" "}
+            <strong className="font-bold">dragging</strong> the background.
+          </p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> Feel free to try it
+            right now.
+          </p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      transparentBackground: true,
+    },
+    {
+      title: "Basic controls",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            To the left of your screen you have the{" "}
+            <strong className="font-bold">control panel</strong>. It can be
+            deployed by hovering over it and it will collapse when you hover
+            away. To keep it open you can use the{" "}
+            <strong className="font-bold">pin icon</strong> <LuPin /> on the top
+            of the panel.
+          </p>
+          <p>
+            The control panel has different sections:{" "}
+            <strong className="font-bold">library</strong>,{" "}
+            <strong className="font-bold">layer</strong>,{" "}
+            <strong className="font-bold">assets</strong>,{" "}
+            <strong className="font-bold">layers</strong>, and{" "}
+            <strong className="font-bold">history</strong>. You can change
+            between these by clicking where it says{" "}
+            <strong className="font-bold">Library</strong> and choosing between
+            the options.
+          </p>
+        </div>
+      ),
+      transparentBackground: true,
+    },
+    {
+      title: "Basic controls",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            You can place nodes with the{" "}
+            <strong className="font-bold">panel</strong> to the left (we will be
+            doing that in this tutorial) and by right-clicking on the{" "}
+            <strong className="font-bold">workspace</strong>.
+          </p>
+          <p>
+            To delete both nodes and connections you can select them by{" "}
+            <strong className="font-bold">clicking</strong> and use the{" "}
+            <strong className="font-bold">backspace</strong> key on your
+            keyboard.
+          </p>
+
+          <p>
+            You can also undo and redo things with the controls at the top of
+            your screen or by pressing{" "}
+            <strong className="font-bold">Ctrl+Z</strong>.
+          </p>
+        </div>
+      ),
+      transparentBackground: true,
+    },
+    {
       title: "The Library panel",
       content: (
         <div className="flex flex-col gap-3 text-sm/4">
           <p>
             You can find all the different nodes, grouped by use, in the{" "}
-            <strong className="font-bold">Library panel</strong>. Let&apos;s
-            open it now.
+            <strong className="font-bold">Library panel</strong>.
+          </p>
+          <p>
+            Nodes are made so that all of the{" "}
+            <strong className="font-bold">inputs</strong>, things going into the
+            node, are on the <strong className="font-bold">left</strong> side.
+            And the <strong className="font-bold">outputs</strong>, things
+            supposed to go into other nodes, are on the{" "}
+            <strong className="font-bold">right</strong> side.
           </p>
         </div>
       ),
@@ -46,14 +130,23 @@ export const intro: Tutorial = {
             pixel&apos;s position in the canvas as two numbers.
           </p>
           <p>
-            Find the <strong className="font-bold">UV</strong> node in the
-            Library panel and drag it onto the workspace.
+            Find the <strong className="font-bold">UV</strong> node in the{" "}
+            <strong className="font-bold">input</strong> section in the Library
+            panel and drag it onto the workspace.
           </p>
 
           <p className="text-xs/4 text-white/60">
             <strong className="font-bold">Tip:</strong> You can also add nodes
             by <strong className="font-bold">right clicking</strong> anywhere in
             the workspace!
+          </p>
+
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Note:</strong> To keep the control
+            panel open I have already clicked the{" "}
+            <strong className="font-bold">pin button </strong>
+            for you, you shoud see it in green on the top of the pannel.
+            <LuPin />
           </p>
         </div>
       ),
@@ -78,16 +171,26 @@ export const intro: Tutorial = {
         <div className="flex flex-col gap-3 text-sm/4">
           <p>
             Great! With multiple nodes on the screen, we can start connecting
-            them. Nodes have <strong className="font-bold">inputs</strong> on
-            the left side, and <strong className="font-bold">outputs</strong> on
-            the right.
+            them. Remember nodes have{" "}
+            <strong className="font-bold">inputs</strong> on the{" "}
+            <strong className="font-bold">left</strong> side, and{" "}
+            <strong className="font-bold">outputs</strong> on the{" "}
+            <strong className="font-bold">right</strong>.
           </p>
           <p>
-            To create effects, we will connect outputs to inputs. You can create
-            new connections by{" "}
-            <strong className="font-bold">clicking and dragging</strong> an
-            output to an input, or the other way around.
+            To create effects, we will connect outputs to inputs, from left to
+            right. You can create new connections by{" "}
+            <strong className="font-bold">clicking and dragging</strong> the{" "}
+            <strong className="font-bold">dots</strong> next to the output to an
+            input, or the other way around.
           </p>
+        </div>
+      ),
+    },
+    {
+      title: "Connecting nodes",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
           <p>
             The <strong className="font-bold">Output</strong> node, highlighted
             in purple, is a special node that{" "}
@@ -96,8 +199,13 @@ export const intro: Tutorial = {
           </p>
           <p>
             Now try connecting the <strong className="font-bold">U</strong>{" "}
-            output on the UV node you just created to the output node&apos;s{" "}
-            <strong className="font-bold">Layer output</strong> input.
+            output of the <strong className="font-bold">UV node</strong> you
+            just created to the <strong className="font-bold">output</strong>{" "}
+            node&apos;s <strong className="font-bold">Layer output</strong>.
+          </p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> Feel free to move the
+            nodes around and zoom in or out yout workspace.
           </p>
         </div>
       ),
@@ -137,6 +245,7 @@ export const intro: Tutorial = {
           </p>
         </div>
       ),
+      transparentBackground: true,
     },
     {
       title: "Default values",
@@ -153,8 +262,9 @@ export const intro: Tutorial = {
             For now, we&apos;ll use it to blend between two different colors.
             You can find the <strong className="font-bold">Mix</strong> node
             under <strong className="font-bold">Blend</strong> in the Library
-            panel. Try adding one now, and connect it to the output.
+            panel.
           </p>
+          <p>Try adding one now.</p>
         </div>
       ),
       position: { x: 250, y: 67 },
@@ -170,24 +280,48 @@ export const intro: Tutorial = {
           },
         });
       },
-      nextCondition: and(
-        nodeExists((n) => n.data.type === "mix"),
-        edgeExistsBetween("mix:output", "__output:color"),
+      nextCondition: nodeExists((n) => n.data.type === "mix"),
+    },
+    {
+      title: "Connecting nodes",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            Now connect the <strong className="font-bold">output</strong> of the{" "}
+            <strong className="font-bold">Mix node</strong> you just created to
+            the <strong className="font-bold">output</strong> node&apos;s{" "}
+            <strong className="font-bold">Layer output</strong>.
+          </p>
+          <p>
+            This will automatically delete the previous edge that was connected
+            to this input.
+          </p>
+        </div>
       ),
+      position: { x: 250, y: 67 },
+      maxWidth: 640,
+      nextCondition: edgeExistsBetween("mix:output", "__output:color"),
     },
     {
       title: "Default values",
       content: (
         <div className="flex flex-col gap-3 text-sm/4">
           <p>
-            You&apos;ll see the Mix node we just added has multiple inputs.
-            Right now, they&apos;re not connected to anything. When inputs are
-            disconnected, you can set their value manually.
+            You&apos;ll see the Mix node we just added has multiple inputs, left
+            side. Right now, they&apos;re not connected to anything. When inputs
+            are disconnected, you can set their value manually.
           </p>
           <p>
-            Try setting the first color to a bright red, and the second color to
-            a bright blue. You should see a purple color in the canvas as red
-            and blue mix together.
+            In the <strong className="font-bold">Mix</strong> node, try setting
+            the <strong className="font-bold">input A</strong> to{" "}
+            <strong className="font-bold">red</strong>, and the{" "}
+            <strong className="font-bold">input B</strong> to{" "}
+            <strong className="font-bold">blue</strong>. you can do this by
+            clicking the coloured square next to the input.
+          </p>
+          <p>
+            When you do it right you should see a purple color in the canvas as
+            red and blue mix together.
           </p>
         </div>
       ),
@@ -198,8 +332,8 @@ export const intro: Tutorial = {
         const [r1, g1, b1] = n.data.defaultValues.input_a as number[];
         const [r2, g2, b2] = n.data.defaultValues.input_b as number[];
 
-        const firstIsRed = r1 > 0.8 && g1 < 0.1 && b1 < 0.1;
-        const secondIsBlue = r2 < 0.1 && g2 < 0.1 && b2 > 0.8;
+        const firstIsRed = r1 > 0.8 && g1 < 0.2 && b1 < 0.2;
+        const secondIsBlue = r2 < 0.2 && g2 < 0.2 && b2 > 0.8;
 
         return firstIsRed && secondIsBlue;
       }),
@@ -209,12 +343,25 @@ export const intro: Tutorial = {
       content: (
         <div className="flex flex-col gap-3 text-sm/4">
           <p>
-            Great! You can change the mix ratio of each color with the{" "}
-            <strong className="font-bold">Factor</strong> input. Try connecting
-            the UV node&apos;s <strong className="font-bold">U</strong> output
-            from before to it.
+            Great! Notice that the <strong className="font-bold">Factor</strong>{" "}
+            input changes the mix ratio of each color.
           </p>
-
+          <p>It should be at 0.5 by default.</p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      transparentBackground: true,
+    },
+    {
+      title: "Connecting nodes",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            Now try connecting the UV node&apos;s{" "}
+            <strong className="font-bold">U</strong> output from before, into
+            the <strong className="font-bold">Mix</strong> node&apos;s node{" "}
+            <strong className="font-bold">factor</strong> input.
+          </p>
           <p className="text-xs/4 text-white/60">
             <strong className="font-bold">Tip:</strong> Removed the UV node? You
             can add it back from the Library panel, or by right clicking on the
@@ -236,7 +383,9 @@ export const intro: Tutorial = {
           </p>
           <p>
             First, we&apos;ll change the colors to look like lava. Change the
-            blue color in the Mix node to a bright orange-yellow.
+            <strong className="font-bold"> blue</strong> color, input{" "}
+            <strong className="font-bold">B</strong> in the Mix node to a bright{" "}
+            <strong className="font-bold">orange-yellow</strong>.
           </p>
         </div>
       ),
@@ -247,8 +396,8 @@ export const intro: Tutorial = {
         const [r1, g1, b1] = n.data.defaultValues.input_a as number[];
         const [r2, g2, b2] = n.data.defaultValues.input_b as number[];
 
-        const firstIsRed = r1 > 0.8 && g1 < 0.1 && b1 < 0.1;
-        const secondIsYellow = r2 > 0.8 && g2 > 0.6 && b2 < 0.1;
+        const firstIsRed = r1 > 0.8 && g1 < 0.2 && b1 < 0.2;
+        const secondIsYellow = r2 > 0.8 && g2 > 0.6 && b2 < 0.2;
 
         return firstIsRed && secondIsYellow;
       }),
@@ -260,42 +409,66 @@ export const intro: Tutorial = {
           <p>
             Next, we&apos;ll change our gradient to something a little more
             interesting. Find the{" "}
-            <strong className="font-bold">Voronoi noise</strong> node under
-            Generate in the Library panel and add one, then connect it to the
-            Mix node&apos;s <strong className="font-bold">Factor</strong> input.
+            <strong className="font-bold">Voronoi noise</strong> node under{" "}
+            <strong className="font-bold">Generate</strong> in the Library panel
+            and add one.
           </p>
         </div>
       ),
       position: { x: 250, y: 67 },
-      nextCondition: and(
-        nodeExists((n) => n.data.type === "voronoi_noise"),
-        edgeExistsBetween("voronoi_noise:output", "mix:factor"),
-      ),
+      nextCondition: nodeExists((n) => n.data.type === "voronoi_noise"),
     },
     {
-      title: "Mixing images",
+      title: "Noise",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            Now connect the <strong className="font-bold">voronoi noise</strong>
+            &apos;s <strong className="font-bold">noise</strong> output to the{" "}
+            <strong className="font-bold">Mix</strong> node&apos;s{" "}
+            <strong className="font-bold">Factor</strong> input.
+          </p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      nextCondition: edgeExistsBetween("voronoi_noise:output", "mix:factor"),
+    },
+
+    {
+      title: "Almost there",
       content: (
         <div className="flex flex-col gap-3 text-sm/4">
           <p>
             Let&apos;s add another gradient by blending the result with a third
-            color. Add a new Mix node, and connect the output from the first one
-            to its <strong className="font-bold">A</strong> input. Make the
-            color in the second input a bright orange.
+            color.
           </p>
-
           <p>
-            Finally, connect the <strong className="font-bold">V</strong> output
-            from the UV node to the new Mix node&apos;s{" "}
-            <strong className="font-bold">Factor</strong> input, and this
-            node&apos;s output to the output node.
+            Add a <strong className="font-bold">new</strong> Mix node, and{" "}
+            <strong className="font-bold">connect</strong> the output from the{" "}
+            <strong className="font-bold">first</strong> one to the{" "}
+            <strong className="font-bold">A input</strong> of the new one.
           </p>
-
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> You can find the Mix
+            node under the <strong className="font-bold">blend</strong>{" "}
+            category.
+          </p>
           <p className="text-xs/4 text-white/60">
             <strong className="font-bold">Tip:</strong> You can create a new
             node from an existing one. Click the <LuEllipsisVertical /> menu
             icon on a node and select{" "}
             <strong className="font-bold">Duplicate</strong>.
           </p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      nextCondition: edgeExistsBetween("mix:output", "mix:input_a"),
+    },
+    {
+      title: "Mixing images",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>Now make the color in the second input a bright orange.</p>
         </div>
       ),
       position: { x: 250, y: 67 },
@@ -306,11 +479,44 @@ export const intro: Tutorial = {
           const [r1, g1, b1] = n.data.defaultValues.input_a as number[];
           const [r2, g2, b2] = n.data.defaultValues.input_b as number[];
 
-          const firstIsRed = r1 > 0.8 && g1 < 0.1 && b1 < 0.1;
-          const secondIsOrange = r2 > 0.8 && g2 > 0.5 && b2 < 0.1;
+          const firstIsRed = r1 > 0.8 && g1 < 0.2 && b1 < 0.2;
+          const secondIsOrange = r2 > 0.8 && g2 > 0.5 && b2 < 0.2;
 
           return !firstIsRed && secondIsOrange;
         }),
+      ),
+    },
+    {
+      title: "Mixing images",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            Finally, connect the <strong className="font-bold">V</strong> output
+            from the UV node to the <strong className="font-bold">new</strong>{" "}
+            Mix node&apos;s <strong className="font-bold">Factor</strong> input.
+          </p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      nextCondition: and(
+        edgeExistsBetween("mix:output", "mix:input_a"),
+        edgeExistsBetween("uv:out_v", "mix:factor"),
+      ),
+    },
+    {
+      title: "Mixing images",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
+          <p>
+            And now the <strong className="font-bold">new</strong> Mix
+            node&apos;s output, right side, to to the{" "}
+            <strong className="font-bold">output</strong> node&apos;s{" "}
+            <strong className="font-bold">Layer output</strong>.
+          </p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      nextCondition: and(
         edgeExistsBetween("mix:output", "mix:input_a"),
         edgeExistsBetween("mix:output", "__output:color"),
         edgeExistsBetween("uv:out_v", "mix:factor"),
@@ -331,6 +537,7 @@ export const intro: Tutorial = {
           </p>
         </div>
       ),
+      transparentBackground: true,
     },
   ],
 };

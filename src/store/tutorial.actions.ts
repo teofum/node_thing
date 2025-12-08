@@ -11,7 +11,7 @@ export function setTutorialStep(
   ) => void,
   newIndex: number,
 ) {
-  const { tutorial, progress } = get();
+  const { tutorial, progress, unsubscribe } = get();
 
   if (!tutorial) return;
 
@@ -25,10 +25,12 @@ export function setTutorialStep(
   };
 
   if (newIndex === tutorial.steps.length) {
+    unsubscribe?.();
     set({
       tutorial: null,
       step: 0,
       progress: newProgress,
+      unsubscribe: null,
     });
 
     saveTutorialProgress(newProgress);
