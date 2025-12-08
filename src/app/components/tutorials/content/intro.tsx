@@ -46,8 +46,9 @@ export const intro: Tutorial = {
             pixel&apos;s position in the canvas as two numbers.
           </p>
           <p>
-            Find the <strong className="font-bold">UV</strong> node in the
-            Library panel and drag it onto the workspace.
+            Find the <strong className="font-bold">UV</strong> node in the{" "}
+            <strong className="font-bold">input</strong> section in the Library
+            panel and drag it onto the workspace.
           </p>
 
           <p className="text-xs/4 text-white/60">

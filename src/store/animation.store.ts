@@ -20,7 +20,7 @@ export const QUALITY_SETTINGS = {
 };
 
 export type AnimationState = "running" | "stopped" | "frame";
-type Animation = {
+export type Animation = {
   state: AnimationState;
   time: number;
   frameIndex: number;
