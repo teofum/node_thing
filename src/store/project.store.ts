@@ -335,6 +335,19 @@ export const useProjectStore = create(
 
           const command = `updateNodeDefaultValue::${id}::${input}`;
           set(withHistory(state, newState, command, { collapse: true }));
+
+          const { yjsDoc, collaborationEnabled } = state;
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yNodes = yjsDoc.getMap("nodes");
+            yjsDoc.transact(() => {
+              yNodes.set(
+                id,
+                currentGraph.nodes.find((n) => n.id === id),
+              );
+            });
+          }
         },
 
         updateNodeParameter: (
@@ -351,6 +364,19 @@ export const useProjectStore = create(
           }));
 
           set(withHistory(state, newState, "updateNodeParameter"));
+
+          const { yjsDoc, collaborationEnabled } = state;
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yNodes = yjsDoc.getMap("nodes");
+            yjsDoc.transact(() => {
+              yNodes.set(
+                id,
+                currentGraph.nodes.find((n) => n.id === id),
+              );
+            });
+          }
         },
 
         updateNodeUniform: (
@@ -368,6 +394,19 @@ export const useProjectStore = create(
 
           const command = `updateNodeUniform::${id}::${name}`;
           set(withHistory(state, newState, command, { collapse: true }));
+
+          const { yjsDoc, collaborationEnabled } = state;
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yNodes = yjsDoc.getMap("nodes");
+            yjsDoc.transact(() => {
+              yNodes.set(
+                id,
+                currentGraph.nodes.find((n) => n.id === id),
+              );
+            });
+          }
         },
 
         setCanvasSize: (width: number, height: number) => {
