@@ -10,12 +10,14 @@ type ProfileHeaderProps = {
   user: User;
   userData: UserData;
   publishedCount: number;
+  isOwnProfile: boolean;
 };
 
 export default function ProfileHeader({
   user,
   userData,
   publishedCount,
+  isOwnProfile,
 }: ProfileHeaderProps) {
   return (
     <div className="flex justify-between items-center mb-8">
@@ -56,11 +58,13 @@ export default function ProfileHeader({
           </div>
         </div>
       </div>
-      <form action={signOutAction}>
-        <Button type="submit" variant="outline">
-          Logout
-        </Button>
-      </form>
+      {isOwnProfile && (
+        <form action={signOutAction}>
+          <Button type="submit" variant="outline">
+            Logout
+          </Button>
+        </form>
+      )}
     </div>
   );
 }
