@@ -73,8 +73,7 @@ export function Viewport() {
       const parameters: NodeData["parameters"] = {};
       for (const key in storeNodeTypes[type].parameters) {
         const value = event.dataTransfer.getData(`params.${key}`) || null;
-
-        parameters[key] = { value };
+        if (value) parameters[key] = { value };
       }
 
       addNode(type, position, parameters);
