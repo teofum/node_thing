@@ -127,6 +127,33 @@ export const useProjectStore = create(
 
             const yNodes = ydoc.getMap("nodes");
             const yEdges = ydoc.getMap("edges");
+            const yAssetRefs = ydoc.getMap("assetRefs");
+
+            yAssetRefs.observe((event) => {
+              if (event.transaction.origin === ydoc) return;
+
+              const changes = Array.from(event.changes.keys.entries());
+
+              (async () => {
+                const { useAssetStore } = await import("./asset.store");
+                const assetStore = useAssetStore.getState();
+                const { downloadAsset } = await import(
+                  "@/lib/collaboration/asset-sync"
+                );
+
+                for (const [key, change] of changes) {
+                  if (
+                    (change.action === "add" || change.action === "update") &&
+                    !assetStore.images[key]
+                  ) {
+                    const asset = await downloadAsset(currentRoomId, key);
+                    if (asset) {
+                      await assetStore.addImage(key, asset, true);
+                    }
+                  }
+                }
+              })();
+            });
 
             yNodes.observe(() => {
               const nodes = Array.from(yNodes.values()) as ShaderNode[];
@@ -370,12 +397,18 @@ export const useProjectStore = create(
             const updatedState = get();
             const currentGraph = updatedState.layers[updatedState.currentLayer];
             const yNodes = yjsDoc.getMap("nodes");
+            const yAssetRefs = yjsDoc.getMap("assetRefs");
+
             yjsDoc.transact(() => {
+              if (value) {
+                yAssetRefs.set(value, true);
+              }
+
               yNodes.set(
                 id,
                 currentGraph.nodes.find((n) => n.id === id),
               );
-            });
+            }, yjsDoc);
           }
         },
 

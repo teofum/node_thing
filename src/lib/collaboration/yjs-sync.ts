@@ -16,6 +16,7 @@ export function initYjsSync(
   const ydoc = new Y.Doc();
   const yNodes = ydoc.getMap<ShaderNode>("nodes");
   const yEdges = ydoc.getMap<Edge>("edges");
+  const yAssets = ydoc.getMap("assets");
   const awareness = new Awareness(ydoc);
 
   ydoc.on("update", (update: Uint8Array, origin: unknown) => {
@@ -77,5 +78,5 @@ export function initYjsSync(
 
   ydoc.on("destroy", () => clearInterval(heartbeat));
 
-  return { ydoc, yNodes, yEdges, awareness };
+  return { ydoc, yNodes, yEdges, yAssets, awareness };
 }
