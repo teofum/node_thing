@@ -2,7 +2,6 @@ import { nanoid } from "nanoid";
 
 import { Handle, NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { Graph, GroupNode, isShader } from "@/store/project.types";
-import { NODE_TYPES } from "./node-type";
 
 export function createNode<
   N extends Record<string, NodeType>,
