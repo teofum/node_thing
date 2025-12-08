@@ -44,6 +44,7 @@ import {
   withHistory,
 } from "./project.actions";
 import {
+  GroupNode,
   isGroup,
   isShader,
   Layer,
@@ -155,12 +156,14 @@ export const useProjectStore = create(
               })();
             });
 
-            yNodes.observe(() => {
+            yNodes.observe((event) => {
+              if (event.transaction.origin === ydoc) return;
               const nodes = Array.from(yNodes.values()) as ShaderNode[];
               set(modifyLayer(get(), () => ({ nodes })));
             });
 
-            yEdges.observe(() => {
+            yEdges.observe((event) => {
+              if (event.transaction.origin === ydoc) return;
               const edges = Array.from(yEdges.values()) as Edge[];
               set(modifyLayer(get(), () => ({ edges })));
             });
@@ -267,13 +270,15 @@ export const useProjectStore = create(
               for (const node of currentGraph.nodes) {
                 yNodes.set(node.id, node);
               }
-              const currentIds = new Set(currentGraph.nodes.map((n) => n.id));
+              const currentIds = new Set(
+                currentGraph.nodes.map((n: ShaderNode | GroupNode) => n.id),
+              );
               for (const key of yNodes.keys()) {
                 if (!currentIds.has(key)) {
                   yNodes.delete(key);
                 }
               }
-            });
+            }, yjsDoc);
           }
         },
 
@@ -298,23 +303,19 @@ export const useProjectStore = create(
           if (tracked.length) {
             state = get();
             set(withHistory(state, apply(state, tracked), "edgesChange"));
-          }
 
-          if (collaborationEnabled && yjsDoc) {
-            const updatedState = get();
-            const currentGraph = updatedState.layers[updatedState.currentLayer];
-            const yEdges = yjsDoc.getMap("edges");
-            yjsDoc.transact(() => {
-              for (const edge of currentGraph.edges) {
-                yEdges.set(edge.id, edge);
-              }
-              const currentIds = new Set(currentGraph.edges.map((e) => e.id));
-              for (const key of yEdges.keys()) {
-                if (!currentIds.has(key)) {
-                  yEdges.delete(key);
+            if (collaborationEnabled && yjsDoc) {
+              const updatedState = get();
+              const currentGraph =
+                updatedState.layers[updatedState.currentLayer];
+              const yEdges = yjsDoc.getMap("edges");
+              yjsDoc.transact(() => {
+                yEdges.clear();
+                for (const edge of currentGraph.edges) {
+                  yEdges.set(edge.id, edge);
                 }
-              }
-            });
+              }, yjsDoc);
+            }
           }
         },
 
@@ -343,7 +344,7 @@ export const useProjectStore = create(
               for (const edge of currentGraph.edges) {
                 yEdges.set(edge.id, edge);
               }
-            });
+            }, yjsDoc);
           }
         },
 
@@ -369,11 +370,10 @@ export const useProjectStore = create(
             const currentGraph = updatedState.layers[updatedState.currentLayer];
             const yNodes = yjsDoc.getMap("nodes");
             yjsDoc.transact(() => {
-              yNodes.set(
-                id,
-                currentGraph.nodes.find((n) => n.id === id),
-              );
-            });
+              for (const node of currentGraph.nodes) {
+                yNodes.set(node.id, node);
+              }
+            }, yjsDoc);
           }
         },
 
@@ -404,10 +404,9 @@ export const useProjectStore = create(
                 yAssetRefs.set(value, true);
               }
 
-              yNodes.set(
-                id,
-                currentGraph.nodes.find((n) => n.id === id),
-              );
+              for (const node of currentGraph.nodes) {
+                yNodes.set(node.id, node);
+              }
             }, yjsDoc);
           }
         },
@@ -434,11 +433,10 @@ export const useProjectStore = create(
             const currentGraph = updatedState.layers[updatedState.currentLayer];
             const yNodes = yjsDoc.getMap("nodes");
             yjsDoc.transact(() => {
-              yNodes.set(
-                id,
-                currentGraph.nodes.find((n) => n.id === id),
-              );
-            });
+              for (const node of currentGraph.nodes) {
+                yNodes.set(node.id, node);
+              }
+            }, yjsDoc);
           }
         },
 
