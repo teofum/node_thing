@@ -942,7 +942,8 @@ export const NODE_TYPES = {
   displace: {
     name: "Displace",
     category: "Effects",
-    tooltip: "Moves the input x pixels horizontally and y pixels vertically.",
+    tooltip:
+      "Moves the input x pixels horizontally and y pixels vertically. Wrapping mode affects the behavior of pixels that go offscreen.",
     shader: displaceShader,
     inputs: {
       input: {
@@ -959,6 +960,10 @@ export const NODE_TYPES = {
         type: "number",
         step: 1,
       },
+      fallback_input: {
+        name: "Fallback",
+        type: "color",
+      },
     },
     outputs: {
       output: {
@@ -966,7 +971,13 @@ export const NODE_TYPES = {
         type: "color",
       },
     },
-    parameters: {},
+    parameters: {
+      mode: {
+        name: "Wrapping mode",
+        type: "select",
+        options: ["Repeat", "Mirror", "Clamp", "Fallback"],
+      },
+    },
   },
   voronoi: {
     name: "Voronoi filter",
