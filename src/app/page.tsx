@@ -20,6 +20,7 @@ import {
 } from "./actions";
 import { createClient } from "@/lib/supabase/server";
 import { Tutorial } from "./components/tutorials/tutorial";
+import Image from "next/image";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -66,7 +67,7 @@ export default async function Home() {
     <div className="grid grid-rows-[auto_1fr] fixed w-screen h-screen bg-neutral-900">
       {/* header */}
       <div className="flex items-center px-4 pt-3 gap-4">
-        <h1 className="font-semibold tracking-wide">node_thing</h1>
+        <Image src="/logo.svg" alt="node_thing" width={100} height={33} />
 
         <Menubar className="mr-auto">
           <FileMenu />
