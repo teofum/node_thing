@@ -25,7 +25,9 @@ fn wrap_coord(coord: i32, max_value: i32) -> u32 {
     }
 }
 
-fn sample(coord: vec2f) -> vec3f {
+fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+    let coord = vec2f(f32(id.x) - x, f32(id.y) - y);
+
     let int_coord = vec2i(coord);
     let frac_coord = fract(coord);
 
@@ -39,14 +41,14 @@ fn sample(coord: vec2f) -> vec3f {
     let i10 = raw_input[x1 + y0 * u.width];
     let i11 = raw_input[x1 + y1 * u.width];
 
-    return mix(
-        mix(i00, i01, vec3f(frac_coord.y)),
-        mix(i10, i11, vec3f(frac_coord.y)),
-        vec3f(frac_coord.x),
-    );
-}
-
-fn main(@builtin(global_invocation_id) id: vec3<u32>) {
-    let coord = vec2f(f32(id.x) + x, f32(id.y) + y);
-    output[index] = sample(coord);
+    if mode == mode_fallback && (coord.x >= f32(u.width) || coord.x < 0 || coord.y >= f32(u.height) || coord.y < 0) {
+        output[index] = fallback_input;
+    }
+    else {        
+        output[index] = vec3f(mix(
+            mix(i00, i01, vec3f(frac_coord.y)),
+            mix(i10, i11, vec3f(frac_coord.y)),
+            vec3f(frac_coord.x),
+        ));
+    }
 }
