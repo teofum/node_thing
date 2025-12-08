@@ -71,7 +71,7 @@ export async function uploadShaderAction(formData: FormData) {
   redirect("/marketplace");
 }
 
-export async function getShaders() {
+export async function getItems() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -81,56 +81,52 @@ export async function getShaders() {
     redirect("/auth/login?next=/marketplace");
   }
 
-  const { data, error } = await supabase.rpc("get_shaders_with_avg", {
-    user_uuid: user.id,
-  });
+  const { data: shaders, error: shadersError } = await supabase.rpc(
+    "get_shaders_with_avg",
+    {
+      user_uuid: user.id,
+    },
+  );
 
-  if (error) {
-    throw new Error(`Failed rpc function: ${error.message}`);
+  if (shadersError) {
+    throw new Error(`Failed rpc function: ${shadersError.message}`);
+  }
+
+  const { data: projects, error: projectsrror } = await supabase.rpc(
+    "get_projects_with_avg",
+    {
+      user_uuid: user.id,
+    },
+  );
+
+  if (projectsrror) {
+    throw new Error(`Failed rpc function: ${projectsrror.message}`);
   }
 
   // TODO we really shouldn't need to do this shit
   // Look into https://github.com/orgs/supabase/discussions/32925 or stop using
   // JSON objects in db functions altogether
-  return camelcaseKeys(
-    data as Replace<
-      (typeof data)[number],
-      {
-        category: { id: string; name: string };
-        profiles: { username: string };
-      }
-    >[],
-  );
-}
-
-// This function is almost identical to getShaders
-// TODO: see if we can make it one
-export async function getProjects() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth/login?next=/marketplace");
-  }
-
-  const { data, error } = await supabase.rpc("get_projects_with_avg", {
-    user_uuid: user.id,
-  });
-
-  if (error) {
-    throw new Error(`Failed rpc function: ${error.message}`);
-  }
-
-  return camelcaseKeys(
-    data as Replace<
-      (typeof data)[number],
-      {
-        profiles: { username: string };
-      }
-    >[],
-  );
+  // update: TODO DB structure is almost final
+  // and database.types.ts is not expected to change
+  return {
+    shaders: camelcaseKeys(
+      shaders as Replace<
+        (typeof shaders)[number],
+        {
+          category: { id: string; name: string };
+          profiles: { username: string };
+        }
+      >[],
+    ),
+    projects: camelcaseKeys(
+      projects as Replace<
+        (typeof projects)[number],
+        {
+          profiles: { username: string };
+        }
+      >[],
+    ),
+  };
 }
 
 export async function getCategories(): Promise<Category[]> {
