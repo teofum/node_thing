@@ -11,7 +11,6 @@ import {
   StoredProject,
   NodeTypeDependency,
   isShader,
-  GroupData,
   Graph,
   isGroup,
 } from "./project.types";

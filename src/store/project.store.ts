@@ -312,6 +312,7 @@ export const useProjectStore = create(
             const currentGraph = updatedState.layers[updatedState.currentLayer];
             const yEdges = yjsDoc.getMap("edges");
             yjsDoc.transact(() => {
+              yEdges.clear();
               for (const edge of currentGraph.edges) {
                 yEdges.set(edge.id, edge);
               }
