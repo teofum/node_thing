@@ -14,6 +14,7 @@ import { useTextureCache } from "./use-texture-cache";
 import { useWebGPUContext } from "./use-webgpu-context";
 import { useConfigStore } from "@/store/config.store";
 import { zip } from "@/utils/zip";
+import { expandGroups } from "./pipeline";
 
 const SAMPLER_DESC: GPUSamplerDescriptor = {
   magFilter: "linear",
@@ -90,6 +91,8 @@ export function Canvas() {
     elapsedTime.current = animation.time;
   }, [animation.frameIndex, animation.time]);
 
+  const flatLayers = useMemo(() => layers.map(expandGroups), [layers]);
+
   const lastFrameTime = useRef(performance.now());
   const lastFrameError = useRef(0);
   useEffect(() => {
@@ -120,17 +123,17 @@ export function Canvas() {
         recording.current ||
         deltaTime + lastFrameError.current > minFrametime
       ) {
-        let renderLayers = zip(pipeline, layers);
+        let renderPipeline = zip(pipeline, flatLayers);
         if (view.display !== "final-render") {
-          renderLayers = renderLayers.slice(0, currentLayer + 1);
+          renderPipeline = renderPipeline.slice(0, currentLayer + 1);
         }
 
         const target = ctx.getCurrentTexture();
-        for (const [layerPipeline, layer] of renderLayers) {
-          if (layerPipeline)
+        for (const [pipeline, layer] of renderPipeline) {
+          if (pipeline) {
             render(
               device,
-              layerPipeline,
+              pipeline,
               layer,
               target,
               textures,
@@ -138,6 +141,7 @@ export function Canvas() {
               frameIndex.current,
               elapsedTime.current,
             );
+          }
         }
 
         if (nextRenderFinishedCallback) {
@@ -195,7 +199,7 @@ export function Canvas() {
     recording,
     recordingFramerate,
     recorder,
-    layers,
+    flatLayers,
     currentLayer,
     view.display,
   ]);

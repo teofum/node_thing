@@ -74,6 +74,41 @@ export type Database = {
         };
         Relationships: [];
       };
+      collaboration_rooms: {
+        Row: {
+          created_at: string | null;
+          created_by: string | null;
+          id: string;
+          last_activity: string | null;
+          project_id: string | null;
+          yjs_snapshot: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          created_by?: string | null;
+          id?: string;
+          last_activity?: string | null;
+          project_id?: string | null;
+          yjs_snapshot?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          created_by?: string | null;
+          id?: string;
+          last_activity?: string | null;
+          project_id?: string | null;
+          yjs_snapshot?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "collaboration_rooms_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       order_items: {
         Row: {
           created_at: string | null;
@@ -205,6 +240,7 @@ export type Database = {
           updated_at: string | null;
           user_id: string;
           user_project: string;
+          yjs_snapshot: string | null;
         };
         Insert: {
           created_at?: string | null;
@@ -218,6 +254,7 @@ export type Database = {
           updated_at?: string | null;
           user_id: string;
           user_project: string;
+          yjs_snapshot?: string | null;
         };
         Update: {
           created_at?: string | null;
@@ -231,6 +268,7 @@ export type Database = {
           updated_at?: string | null;
           user_id?: string;
           user_project?: string;
+          yjs_snapshot?: string | null;
         };
         Relationships: [
           {
@@ -352,6 +390,38 @@ export type Database = {
           },
         ];
       };
+      room_access_tokens: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          permission: string | null;
+          room_id: string | null;
+          token: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          permission?: string | null;
+          room_id?: string | null;
+          token?: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          permission?: string | null;
+          room_id?: string | null;
+          token?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "room_access_tokens_room_id_fkey";
+            columns: ["room_id"];
+            isOneToOne: false;
+            referencedRelation: "collaboration_rooms";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       shaders: {
         Row: {
           category_id: number;
@@ -418,6 +488,32 @@ export type Database = {
           },
         ];
       };
+      tutorials: {
+        Row: {
+          id: number;
+          progress: Json;
+          user_id: string;
+        };
+        Insert: {
+          id?: number;
+          progress: Json;
+          user_id: string;
+        };
+        Update: {
+          id?: number;
+          progress?: Json;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tutorials_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -458,6 +554,7 @@ export type Database = {
           profiles: Json;
           rating_count: number;
           title: string;
+          updated_at: string;
         }[];
       };
       get_published_projects: {
@@ -512,6 +609,7 @@ export type Database = {
           profiles: Json;
           rating_count: number;
           title: string;
+          updated_at: string;
         }[];
       };
       get_user_email_by_username: {

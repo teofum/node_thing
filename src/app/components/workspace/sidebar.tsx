@@ -1,6 +1,13 @@
 import cn from "classnames";
 import { useLayoutEffect, useRef, useState } from "react";
-import { LuGitFork, LuImage, LuLayers, LuPin, LuPlay } from "react-icons/lu";
+import {
+  LuGitFork,
+  LuHistory,
+  LuImage,
+  LuLayers,
+  LuPin,
+  LuPlay,
+} from "react-icons/lu";
 
 import { SidebarPanel, useConfigStore } from "@/store/config.store";
 import { ToggleButton } from "@/ui/button";
@@ -10,6 +17,7 @@ import { MenuAnimation } from "./menu-animation";
 import { MenuAssets } from "./menu-assets";
 import { MenuLayers } from "./menu-layers";
 import { MenuLibrary } from "./menu-library";
+import { MenuHistory } from "./menu-history";
 
 export function Sidebar() {
   const sidebar = useConfigStore((s) => s.view.sidebar);
@@ -33,6 +41,8 @@ export function Sidebar() {
         return <MenuAssets />;
       case "animation":
         return <MenuAnimation />;
+      case "history":
+        return <MenuHistory />;
       default:
         return null;
     }
@@ -91,6 +101,13 @@ export function Sidebar() {
               <div className="flex items-center gap-2">
                 <LuPlay className="text-base" />
                 <div className="font-semibold">Animation</div>
+              </div>
+            </SelectItem>
+
+            <SelectItem value="history">
+              <div className="flex items-center gap-2">
+                <LuHistory className="text-base" />
+                <div className="font-semibold">History</div>
               </div>
             </SelectItem>
           </Select>

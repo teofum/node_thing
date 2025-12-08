@@ -15,6 +15,7 @@ import { ZoomControls } from "./zoom-controls";
 import { RadialHandle } from "./handles/radial-handle";
 import { Popover } from "@/ui/popover";
 import { Select, SelectItem } from "@/ui/select";
+import { isShader } from "@/store/project.types";
 
 export function Renderer() {
   const canvas = useProjectStore((s) => s.properties.canvas);
@@ -157,6 +158,7 @@ export function Renderer() {
           <Canvas />
           {view.layerHandles ? <LayerHandle /> : null}
           {selectedNodes
+            .filter(isShader)
             .filter((n) => n.data.type === "radialGradient")
             .map((n) => (
               <RadialHandle key={n.id} nodeId={n.id} node={n.data} />

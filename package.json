@@ -73,6 +73,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.0",
     "@types/wicg-file-system-access": "^2023.10.6",
@@ -80,14 +81,15 @@
     "camelcase-keys": "^10.0.0",
     "classnames": "^2.5.1",
     "get-port-please": "^3.2.0",
+    "json-diff-ts": "^4.8.2",
     "jszip": "^3.10.1",
     "mediabunny": "^1.23.0",
     "mercadopago": "^2.9.0",
     "nanoid": "^5.1.6",
-    "next": "15.5.0",
-    "react": "19.1.0",
+    "next": "15.5.7",
+    "react": "19.2.1",
     "react-aria-components": "^1.12.2",
-    "react-dom": "19.1.0",
+    "react-dom": "19.2.1",
     "react-easy-crop": "^5.5.3",
     "react-icons": "^5.5.0",
     "wgsl_reflect": "^1.2.3",
@@ -124,5 +126,6 @@
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b"
 }

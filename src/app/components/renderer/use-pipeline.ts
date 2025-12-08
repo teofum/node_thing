@@ -5,7 +5,7 @@ import { useProjectStore } from "@/store/project.store";
 import { Layer } from "@/store/project.types";
 import { enumerate } from "@/utils/enumerate";
 import { useNodeTypes } from "@/utils/use-node-types";
-import { compareLayerDims, compareLayers } from "./compare-layers";
+import { compareLayerDims, compareGraphs } from "./compare-layers";
 import { PreparedPipeline, preparePipeline } from "./implementation/renderer";
 import { RenderPipeline } from "./pipeline";
 
@@ -96,7 +96,7 @@ export function usePipeline(
       const desc =
         displaySelectionCache.current !== displaySelection || //      selection display has changed, or
         !cachedLayers[i] || //                                        layer is not cached, or
-        compareLayers(layer, cachedLayers[i], displaySelection) || // layer has changed, or
+        compareGraphs(layer, cachedLayers[i], displaySelection) || // layer has changed, or
         nodeTypes != nodeTypesCache.current; //                       node types have changed
 
       // GPU pipeline object must be rebuilt from descriptor if...

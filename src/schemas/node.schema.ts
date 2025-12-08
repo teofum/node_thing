@@ -34,6 +34,9 @@ const parameterSchema = z
         type: z.literal("image"),
       }),
       z.object({
+        type: z.literal("string"),
+      }),
+      z.object({
         type: z.literal("select"),
         options: z.string().array(),
       }),
@@ -69,6 +72,7 @@ export type UniformDefinition = z.infer<typeof uniformSchema>;
 export const nodeTypeSchema = z.object({
   name: z.string(),
   category: z.string(),
+  tooltip: z.string().optional(),
 
   inputs: z.record(z.string(), handleSchema),
   outputs: z.record(z.string(), handleSchema),

@@ -1,28 +1,35 @@
+import { Background, ReactFlow, useReactFlow } from "@xyflow/react";
 import { useCallback, useMemo, useState } from "react";
-import { ReactFlow, useReactFlow, Background } from "@xyflow/react";
-import { useProjectStore } from "@/store/project.store";
-import { RenderShaderNode } from "./shader-node";
+import { LuPlus } from "react-icons/lu";
+
 import { NodeData, NodeType } from "@/schemas/node.schema";
+import { useProjectStore } from "@/store/project.store";
+import { Graph, isGroup } from "@/store/project.types";
 import {
   ContextMenu,
   ContextMenuItem,
   ContextSubmenu,
 } from "@/ui/context-menu";
-import { LuPlus } from "react-icons/lu";
 import { useNodeTypes } from "@/utils/use-node-types";
+import { RenderGroupNode } from "./group-node";
+import { RenderShaderNode } from "./shader-node";
 
 const nodeTypes = {
   RenderShaderNode,
+  RenderGroupNode,
 };
 
 export function Viewport() {
   const layers = useProjectStore((s) => s.layers);
   const currentLayer = useProjectStore((s) => s.currentLayer);
+  const currentGroup = useProjectStore((s) => s.currentGroup);
+
   const storeNodeTypes = useNodeTypes();
   const onNodesChange = useProjectStore((s) => s.onNodesChange);
   const onEdgesChange = useProjectStore((s) => s.onEdgesChange);
   const onConnect = useProjectStore((s) => s.onConnect);
   const addNode = useProjectStore((s) => s.addNode);
+  const addGroup = useProjectStore((s) => s.addGroup);
 
   const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
   const { screenToFlowPosition } = useReactFlow();
@@ -66,8 +73,7 @@ export function Viewport() {
       const parameters: NodeData["parameters"] = {};
       for (const key in storeNodeTypes[type].parameters) {
         const value = event.dataTransfer.getData(`params.${key}`) || null;
-
-        parameters[key] = { value };
+        if (value) parameters[key] = { value };
       }
 
       addNode(type, position, parameters);
@@ -75,7 +81,16 @@ export function Viewport() {
     [screenToFlowPosition, addNode, storeNodeTypes],
   );
 
-  const { nodes, edges } = layers[currentLayer];
+  let currentGraph: Graph = layers[currentLayer];
+  for (const groupId of currentGroup) {
+    const group = currentGraph.nodes
+      .filter(isGroup)
+      .find((n) => n.id === groupId);
+
+    if (!group) break;
+    currentGraph = group.data;
+  }
+  const { nodes, edges } = currentGraph;
 
   /*
    * Detect macOS and adjust controls to be more consistent with platform
@@ -112,7 +127,7 @@ export function Viewport() {
             } as Record<string, string>
           }
         >
-          <Background />{" "}
+          <Background />
         </ReactFlow>
       }
     >
@@ -130,6 +145,10 @@ export function Viewport() {
           </ContextSubmenu>
         ))}
       </ContextSubmenu>
+
+      <ContextMenuItem onClick={() => addGroup(ctxMenuPosition)}>
+        New group
+      </ContextMenuItem>
     </ContextMenu>
   );
 }
