@@ -82,8 +82,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
   }
 
   filteredProjects = filteredProjects.filter(
-    (project) =>
-      project.price && project.price >= minPrice && project.price <= maxPrice,
+    (project) => project.price >= minPrice && project.price <= maxPrice,
   );
 
   if (!selectedTypes.includes("shader")) filteredShaders = [];
