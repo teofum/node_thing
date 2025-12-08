@@ -14,7 +14,13 @@ export default function LayoutWithNav({
         <nav className="mx-auto max-w-6xl rounded-xl overflow-hidden relative z-10">
           <div className="glass glass-border rounded-xl w-full p-2 flex flex-row items-center gap-6">
             <LinkButton href="/" size="md" variant="ghost" icon>
-              <Image src="/logo.svg" alt="node_thing" width={100} height={33} />
+              <Image
+                src="/logo.svg"
+                alt="node_thing"
+                width={90}
+                height={30}
+                priority
+              />
             </LinkButton>
 
             <div className="flex flex-row gap-2 text-sm/4 font-medium">
