@@ -1,6 +1,6 @@
 import { useConfigStore } from "@/store/config.store";
 import { Tutorial } from "@/store/tutorial.store";
-import { LuEllipsisVertical } from "react-icons/lu";
+import { LuEllipsisVertical, LuPin } from "react-icons/lu";
 import { nodeExists, edgeExistsBetween, and } from "../helpers";
 
 export const intro: Tutorial = {
@@ -53,8 +53,8 @@ export const intro: Tutorial = {
             <strong className="font-bold">control panel</strong>. It can be
             deployed by hovering over it and it will collapse when you hover
             away. To keep it open you can use the{" "}
-            <strong className="font-bold">pin icon</strong> on the top of the
-            panel.
+            <strong className="font-bold">pin icon</strong> <LuPin /> on the top
+            of the panel.
           </p>
           <p>
             The control panel has different sections:{" "}
@@ -100,19 +100,15 @@ export const intro: Tutorial = {
         <div className="flex flex-col gap-3 text-sm/4">
           <p>
             You can find all the different nodes, grouped by use, in the{" "}
-            <strong className="font-bold">Library panel</strong>. Let&apos;s
-            open it now.
+            <strong className="font-bold">Library panel</strong>.
           </p>
           <p>
-            Nodes are made so that all of the inputs, things going into the
-            node, are on the left side of the node and the outputs, things
-            supposed to go into other nodes, are on the right side.
-          </p>
-          <p className="text-xs/4 text-white/60">
-            <strong className="font-bold">Tip:</strong> To keep it open I have
-            already clicked the{" "}
-            <strong className="font-bold">pin button </strong>
-            for you, you shoud see it in green on the top of the pannel.
+            Nodes are made so that all of the{" "}
+            <strong className="font-bold">inputs</strong>, things going into the
+            node, are on the <strong className="font-bold">left</strong> side of
+            the node. And the <strong className="font-bold">outputs</strong>,
+            things supposed to go into other nodes, are on the{" "}
+            <strong className="font-bold">right</strong> side.
           </p>
         </div>
       ),
@@ -136,6 +132,14 @@ export const intro: Tutorial = {
             <strong className="font-bold">Tip:</strong> You can also add nodes
             by <strong className="font-bold">right clicking</strong> anywhere in
             the workspace!
+          </p>
+
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> To keep the control
+            panel open I have already clicked the{" "}
+            <strong className="font-bold">pin button </strong>
+            for you, you shoud see it in green on the top of the pannel.
+            <LuPin />
           </p>
         </div>
       ),
@@ -191,6 +195,10 @@ export const intro: Tutorial = {
             output of the <strong className="font-bold">UV node</strong> you
             just created to the <strong className="font-bold">output</strong>{" "}
             node&apos;s <strong className="font-bold">Layer output</strong>.
+          </p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> Feel free to move the
+            nodes around and zoom in or out yout workspace.
           </p>
         </div>
       ),
@@ -298,10 +306,15 @@ export const intro: Tutorial = {
           </p>
           <p>
             In the <strong className="font-bold">Mix</strong> node, try setting
-            the <strong className="font-bold">input A</strong> to red, and the{" "}
-            <strong className="font-bold">input B</strong> to blue. you can do
-            this by clicking the coloured square next to the input. You should
-            see a purple color in the canvas as red and blue mix together.
+            the <strong className="font-bold">input A</strong> to{" "}
+            <strong className="font-bold">red</strong>, and the{" "}
+            <strong className="font-bold">input B</strong> to{" "}
+            <strong className="font-bold">blue</strong>. you can do this by
+            clicking the coloured square next to the input.
+          </p>
+          <p>
+            When you do it right you should see a purple color in the canvas as
+            red and blue mix together.
           </p>
         </div>
       ),
@@ -326,9 +339,11 @@ export const intro: Tutorial = {
             Great! Notice that the <strong className="font-bold">Factor</strong>{" "}
             input changes the mix ratio of each color.
           </p>
+          <p>It should be at 0.5 by default.</p>
         </div>
       ),
       position: { x: 250, y: 67 },
+      transparentBackground: true,
     },
     {
       title: "Connecting nodes",
@@ -361,8 +376,9 @@ export const intro: Tutorial = {
           </p>
           <p>
             First, we&apos;ll change the colors to look like lava. Change the
-            blue color, <strong className="font-bold">input B</strong> in the
-            Mix node to a bright orange-yellow.
+            <strong className="font-bold"> blue</strong> color, input{" "}
+            <strong className="font-bold">B</strong> in the Mix node to a bright{" "}
+            <strong className="font-bold">orange-yellow</strong>.
           </p>
         </div>
       ),
@@ -387,8 +403,7 @@ export const intro: Tutorial = {
             Next, we&apos;ll change our gradient to something a little more
             interesting. Find the{" "}
             <strong className="font-bold">Voronoi noise</strong> node under
-            Generate in the Library panel and add one, then connect it to the
-            Mix node&apos;s <strong className="font-bold">Factor</strong> input.
+            Generate in the Library panel and add one.
           </p>
         </div>
       ),
@@ -420,10 +435,21 @@ export const intro: Tutorial = {
             color.
           </p>
           <p>
-            Add a <strong className="font-bold">new</strong> Mix node, and
-            connect the output from the{" "}
+            Add a <strong className="font-bold">new</strong> Mix node, and{" "}
+            <strong className="font-bold">connect</strong> the output from the{" "}
             <strong className="font-bold">first</strong> one to the{" "}
             <strong className="font-bold">A input</strong> of the new one.
+          </p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> You can find the Mix
+            node under the <strong className="font-bold">blend</strong>{" "}
+            category.
+          </p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> You can create a new
+            node from an existing one. Click the <LuEllipsisVertical /> menu
+            icon on a node and select{" "}
+            <strong className="font-bold">Duplicate</strong>.
           </p>
         </div>
       ),
@@ -461,18 +487,23 @@ export const intro: Tutorial = {
             from the UV node to the <strong className="font-bold">new</strong>{" "}
             Mix node&apos;s <strong className="font-bold">Factor</strong> input.
           </p>
+        </div>
+      ),
+      position: { x: 250, y: 67 },
+      nextCondition: and(
+        edgeExistsBetween("mix:output", "mix:input_a"),
+        edgeExistsBetween("uv:out_v", "mix:factor"),
+      ),
+    },
+    {
+      title: "Mixing images",
+      content: (
+        <div className="flex flex-col gap-3 text-sm/4">
           <p>
-            And the <strong className="font-bold">new</strong> Mix node&apos;s
-            output, right side, to to the{" "}
+            And now the <strong className="font-bold">new</strong> Mix
+            node&apos;s output, right side, to to the{" "}
             <strong className="font-bold">output</strong> node&apos;s{" "}
             <strong className="font-bold">Layer output</strong>.
-          </p>
-
-          <p className="text-xs/4 text-white/60">
-            <strong className="font-bold">Tip:</strong> You can create a new
-            node from an existing one. Click the <LuEllipsisVertical /> menu
-            icon on a node and select{" "}
-            <strong className="font-bold">Duplicate</strong>.
           </p>
         </div>
       ),
@@ -483,7 +514,6 @@ export const intro: Tutorial = {
         edgeExistsBetween("uv:out_v", "mix:factor"),
       ),
     },
-
     {
       title: "Tutorial Completed",
       content: (
@@ -499,6 +529,7 @@ export const intro: Tutorial = {
           </p>
         </div>
       ),
+      transparentBackground: true,
     },
   ],
 };
