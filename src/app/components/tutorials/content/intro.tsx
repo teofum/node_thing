@@ -34,14 +34,18 @@ export const intro: Tutorial = {
             in the middle, is where you will place and connect all your images
             and effects using nodes. You can{" "}
             <strong className="font-bold">zoom</strong> in and out with the
-            trackpad or{" "}
-            <strong className="font-bold">Ctrl + (scroll wheel)</strong>, as
-            well as look around it by{" "}
+            trackpad or <strong className="font-bold">(scroll wheel)</strong>,
+            as well as look around it by{" "}
             <strong className="font-bold">clicking</strong> and{" "}
             <strong className="font-bold">dragging</strong> the background.
           </p>
+          <p className="text-xs/4 text-white/60">
+            <strong className="font-bold">Tip:</strong> Feel free to try it
+            right now.
+          </p>
         </div>
       ),
+      position: { x: 250, y: 67 },
       transparentBackground: true,
     },
     {
@@ -79,8 +83,10 @@ export const intro: Tutorial = {
             You can place nodes with the{" "}
             <strong className="font-bold">panel</strong> to the left (we will be
             doing that in this tutorial) and by right-clicking on the{" "}
-            <strong className="font-bold">workspace</strong>. To delete both
-            nodes and connections you can select them by{" "}
+            <strong className="font-bold">workspace</strong>.
+          </p>
+          <p>
+            To delete both nodes and connections you can select them by{" "}
             <strong className="font-bold">clicking</strong> and use the{" "}
             <strong className="font-bold">backspace</strong> key on your
             keyboard.
@@ -93,6 +99,7 @@ export const intro: Tutorial = {
           </p>
         </div>
       ),
+      transparentBackground: true,
     },
     {
       title: "The Library panel",
@@ -105,9 +112,9 @@ export const intro: Tutorial = {
           <p>
             Nodes are made so that all of the{" "}
             <strong className="font-bold">inputs</strong>, things going into the
-            node, are on the <strong className="font-bold">left</strong> side of
-            the node. And the <strong className="font-bold">outputs</strong>,
-            things supposed to go into other nodes, are on the{" "}
+            node, are on the <strong className="font-bold">left</strong> side.
+            And the <strong className="font-bold">outputs</strong>, things
+            supposed to go into other nodes, are on the{" "}
             <strong className="font-bold">right</strong> side.
           </p>
         </div>
@@ -135,7 +142,7 @@ export const intro: Tutorial = {
           </p>
 
           <p className="text-xs/4 text-white/60">
-            <strong className="font-bold">Tip:</strong> To keep the control
+            <strong className="font-bold">Note:</strong> To keep the control
             panel open I have already clicked the{" "}
             <strong className="font-bold">pin button </strong>
             for you, you shoud see it in green on the top of the pannel.
@@ -171,8 +178,8 @@ export const intro: Tutorial = {
             <strong className="font-bold">right</strong>.
           </p>
           <p>
-            To create effects, we will connect outputs, right, to inputs, left.
-            You can create new connections by{" "}
+            To create effects, we will connect outputs to inputs, from left to
+            right. You can create new connections by{" "}
             <strong className="font-bold">clicking and dragging</strong> the{" "}
             <strong className="font-bold">dots</strong> next to the output to an
             input, or the other way around.
@@ -402,8 +409,9 @@ export const intro: Tutorial = {
           <p>
             Next, we&apos;ll change our gradient to something a little more
             interesting. Find the{" "}
-            <strong className="font-bold">Voronoi noise</strong> node under
-            Generate in the Library panel and add one.
+            <strong className="font-bold">Voronoi noise</strong> node under{" "}
+            <strong className="font-bold">Generate</strong> in the Library panel
+            and add one.
           </p>
         </div>
       ),
@@ -427,7 +435,7 @@ export const intro: Tutorial = {
     },
 
     {
-      title: "Mixing images",
+      title: "Almost there",
       content: (
         <div className="flex flex-col gap-3 text-sm/4">
           <p>
