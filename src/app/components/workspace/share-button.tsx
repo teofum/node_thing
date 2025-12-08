@@ -4,8 +4,15 @@ import { useEffect, useState } from "react";
 import { LuShare2, LuUsers } from "react-icons/lu";
 import { useProjectStore } from "@/store/project.store";
 import { createRoom } from "@/lib/collaboration/actions";
+import { createClient } from "@/lib/supabase/client";
 
 export function ShareButton() {
+  const [user, setUser] = useState<{ id: string } | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+  }, []);
   const toggleCollaboration = useProjectStore((s) => s.toggleCollaboration);
   const currentRoomId = useProjectStore((s) => s.currentRoomId);
   const enabled = useProjectStore((s) => s.collaborationEnabled);
@@ -41,6 +48,8 @@ export function ShareButton() {
       setShowPopover(false);
     }
   };
+
+  if (!user) return null;
 
   return (
     <div className="flex items-center gap-2">
