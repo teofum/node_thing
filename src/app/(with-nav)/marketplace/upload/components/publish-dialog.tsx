@@ -49,7 +49,7 @@ export function PublishDialog({
     <Dialog
       trigger={trigger}
       title={"Publish " + type}
-      description=""
+      description="Fill your post info"
       className="w-2/5"
       {...props}
     >
