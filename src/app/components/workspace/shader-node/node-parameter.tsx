@@ -37,7 +37,7 @@ function SelectParameter({ id, data, name, param }: ParameterProps) {
         variant="outline"
         size="sm"
         className="col-span-2"
-        value={data.parameters[name]?.value ?? "0"}
+        value={data.parameters[name].value ?? "N/A"}
         onValueChange={(v) => setParameter(id, name, v)}
       >
         {param.options.map((option, i) => (
