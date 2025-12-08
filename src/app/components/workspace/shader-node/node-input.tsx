@@ -55,7 +55,7 @@ export function NodeInput({
           />
         ) : (
           <ColorInput
-            defaultColor={data.defaultValues[key] as number[]}
+            color={(data.defaultValues[key] ?? [0, 0, 1, 1]) as number[]}
             className="w-20 nodrag"
             onChange={(c) => {
               updateDefaultValue(id, key, c);

@@ -20,16 +20,13 @@ import cn from "classnames";
 import { Input } from "@/ui/input";
 
 type ColorInputProps = {
-  defaultColor?: number[];
+  color?: number[];
   onChange?: (color: number[]) => void;
-} & Omit<React.HTMLAttributes<HTMLDivElement>, "onChange">;
+} & Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "color">;
 
 export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
-  (
-    { defaultColor = [0, 0, 1, 1], onChange, className, ...props },
-    forwardedRef,
-  ) => {
-    const [r, g, b] = defaultColor.map((val) => Math.round(val * 255));
+  ({ color = [0, 0, 1, 1], onChange, className, ...props }, forwardedRef) => {
+    const [r, g, b] = color.map((val) => Math.round(val * 255));
 
     const handleChange = (c: Color) => {
       const rgba = c.toFormat("rgba");
@@ -46,7 +43,7 @@ export const ColorInput = React.forwardRef<HTMLInputElement, ColorInputProps>(
         {...props}
       >
         <ColorPicker
-          defaultValue={parseColor(`rgb(${r}, ${g}, ${b})`)}
+          value={parseColor(`rgb(${r}, ${g}, ${b})`)}
           onChange={handleChange}
         >
           <DialogTrigger>
