@@ -60,7 +60,8 @@ export function initYjsSync(
     }
   });
 
-  const color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+  const hue = Math.floor(Math.random() * 360);
+  const color = `hsl(${hue}, 70%, 60%)`;
 
   awareness.setLocalState({
     user: {
@@ -70,9 +71,11 @@ export function initYjsSync(
     },
   });
 
-  setInterval(() => {
+  const heartbeat = setInterval(() => {
     awareness.setLocalState(awareness.getLocalState());
   }, 10000);
+
+  ydoc.on("destroy", () => clearInterval(heartbeat));
 
   return { ydoc, yNodes, yEdges, awareness };
 }

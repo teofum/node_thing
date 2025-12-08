@@ -58,8 +58,8 @@ export function ShareButton() {
           {connectedUsers.slice(0, 3).map((user) => (
             <div
               key={user.id}
-              className="w-8 h-8 rounded-full border-2 border-neutral-950 overflow-hidden"
-              style={{ backgroundColor: user.color }}
+              className="w-8 h-8 rounded-full border-2 overflow-hidden"
+              style={{ borderColor: user.color, backgroundColor: user.color }}
               title={user.name}
             >
               {user.avatar ? (

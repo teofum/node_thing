@@ -1,5 +1,5 @@
 import { Background, ReactFlow, useReactFlow } from "@xyflow/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LuPlus } from "react-icons/lu";
 
 import { NodeData, NodeType } from "@/schemas/node.schema";
@@ -13,6 +13,7 @@ import {
 import { useNodeTypes } from "@/utils/use-node-types";
 import { RenderGroupNode } from "./group-node";
 import { RenderShaderNode } from "./shader-node";
+import { RemoteCursor } from "./remote-cursor";
 
 const nodeTypes = {
   RenderShaderNode,
@@ -31,13 +32,78 @@ export function Viewport() {
   const addNode = useProjectStore((s) => s.addNode);
   const awareness = useProjectStore((s) => s.awareness);
   const addGroup = useProjectStore((s) => s.addGroup);
+  const connectedUsers = useProjectStore((s) => s.connectedUsers);
+
+  const [remoteCursors, setRemoteCursors] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
+  const lastCursorUpdate = useRef(0);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   const [ctxMenuPosition, setCtxMenuPosition] = useState({ x: 0, y: 0 });
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
 
   const onContextMenu = (ev: React.MouseEvent) => {
     setCtxMenuPosition(screenToFlowPosition({ x: ev.clientX, y: ev.clientY }));
   };
+
+  const handleMouseMove = useCallback(
+    (ev: React.MouseEvent) => {
+      if (!awareness) return;
+
+      const now = Date.now();
+      if (now - lastCursorUpdate.current < 200) return;
+
+      lastCursorUpdate.current = now;
+
+      const flowPosition = screenToFlowPosition({
+        x: ev.clientX,
+        y: ev.clientY,
+      });
+
+      awareness.setLocalStateField("cursor", {
+        x: flowPosition.x,
+        y: flowPosition.y,
+      });
+    },
+    [awareness, screenToFlowPosition],
+  );
+
+  useEffect(() => {
+    if (!awareness) return;
+
+    const updateCursors = () => {
+      const states = awareness.getStates();
+      const cursors: Record<string, { x: number; y: number }> = {};
+      const localClientId = awareness.clientID;
+
+      states.forEach(
+        (
+          state: {
+            cursor?: { x: number; y: number };
+          },
+          clientId: number,
+        ) => {
+          if (state.cursor && clientId !== localClientId) {
+            const screenPos = flowToScreenPosition({
+              x: state.cursor.x,
+              y: state.cursor.y,
+            });
+            cursors[String(clientId)] = screenPos;
+          }
+        },
+      );
+
+      setRemoteCursors(cursors);
+    };
+
+    awareness.on("change", updateCursors);
+    updateCursors();
+
+    return () => {
+      awareness.off("change", updateCursors);
+    };
+  }, [awareness, flowToScreenPosition]);
 
   const handleNodesChange = useCallback(
     (changes: Parameters<typeof onNodesChange>[0]) => {
@@ -118,56 +184,72 @@ export function Viewport() {
   const mac = navigator.platform.startsWith("Mac");
 
   return (
-    <ContextMenu
-      trigger={
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={handleNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          nodeTypes={nodeTypes}
-          colorMode="dark"
-          fitView
-          panOnScroll={mac}
-          panOnDrag={!mac}
-          selectionOnDrag={mac}
-          onContextMenu={onContextMenu}
-          style={
-            {
-              "--xy-edge-stroke":
-                "rgb(from var(--color-neutral-300) r g b / 0.4)",
-              "--xy-edge-stroke-selected":
-                "rgb(from var(--color-teal-400) r g b / 0.6)",
-              "--xy-handle-background-color": "var(--color-neutral-100)",
-              "--xy-handle-border-color": "var(--color-neutral-600)",
-            } as Record<string, string>
-          }
-        >
-          <Background />
-        </ReactFlow>
-      }
-    >
-      <ContextSubmenu icon={<LuPlus />} label="Add node">
-        {nodeCategories.map(([name, types]) => (
-          <ContextSubmenu key={name} label={name}>
-            {types.map(([key, type]) => (
-              <ContextMenuItem
-                key={key}
-                onClick={() => addNode(key, ctxMenuPosition, {})}
-              >
-                {type.name}
-              </ContextMenuItem>
-            ))}
-          </ContextSubmenu>
-        ))}
-      </ContextSubmenu>
+    <div ref={reactFlowWrapper} className="relative w-full h-full">
+      {Object.entries(remoteCursors).map(([clientId, pos]) => {
+        const user = connectedUsers.find((u) => u.id === clientId);
+        if (!user) return null;
+        return (
+          <RemoteCursor
+            key={clientId}
+            x={pos.x}
+            y={pos.y}
+            name={user.name}
+            color={user.color}
+          />
+        );
+      })}
+      <ContextMenu
+        trigger={
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={handleNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onMouseMove={handleMouseMove}
+            nodeTypes={nodeTypes}
+            colorMode="dark"
+            fitView
+            panOnScroll={mac}
+            panOnDrag={!mac}
+            selectionOnDrag={mac}
+            onContextMenu={onContextMenu}
+            style={
+              {
+                "--xy-edge-stroke":
+                  "rgb(from var(--color-neutral-300) r g b / 0.4)",
+                "--xy-edge-stroke-selected":
+                  "rgb(from var(--color-teal-400) r g b / 0.6)",
+                "--xy-handle-background-color": "var(--color-neutral-100)",
+                "--xy-handle-border-color": "var(--color-neutral-600)",
+              } as Record<string, string>
+            }
+          >
+            <Background />
+          </ReactFlow>
+        }
+      >
+        <ContextSubmenu icon={<LuPlus />} label="Add node">
+          {nodeCategories.map(([name, types]) => (
+            <ContextSubmenu key={name} label={name}>
+              {types.map(([key, type]) => (
+                <ContextMenuItem
+                  key={key}
+                  onClick={() => addNode(key, ctxMenuPosition, {})}
+                >
+                  {type.name}
+                </ContextMenuItem>
+              ))}
+            </ContextSubmenu>
+          ))}
+        </ContextSubmenu>
 
-      <ContextMenuItem onClick={() => addGroup(ctxMenuPosition)}>
-        New group
-      </ContextMenuItem>
-    </ContextMenu>
+        <ContextMenuItem onClick={() => addGroup(ctxMenuPosition)}>
+          New group
+        </ContextMenuItem>
+      </ContextMenu>
+    </div>
   );
 }
