@@ -5,6 +5,7 @@ import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { uploadImageToBucket } from "../item/actions";
 
 export async function getUserProjects() {
   const supabase = await createClient();
@@ -48,6 +49,7 @@ export async function publishShader(
   price: number,
   description: string,
   categoryId: number,
+  image: File | null,
 ) {
   const supabase = await createClient();
 
@@ -59,6 +61,8 @@ export async function publishShader(
     redirect("/auth/login?next=/marketplace/upload");
   }
 
+  if (image) await uploadImageToBucket(image, "shader", shaderId);
+
   await supabase
     .from("shaders")
     .update({
@@ -66,6 +70,7 @@ export async function publishShader(
       price,
       description,
       category_id: categoryId,
+      image_name: image ? `shader_${shaderId}` : null,
     })
     .eq("id", shaderId);
 
@@ -77,6 +82,7 @@ export async function publishProject(
   projectID: string,
   price: number,
   description: string,
+  image: File | null,
 ) {
   const supabase = await createClient();
 
@@ -88,6 +94,8 @@ export async function publishProject(
     redirect("/auth/login?next=/profile");
   }
 
+  if (image) await uploadImageToBucket(image, "project", projectID);
+
   await supabase
     .from("projects")
     .update({
@@ -95,6 +103,7 @@ export async function publishProject(
       price,
       description,
       downloads: 0,
+      image_name: image ? `project_${projectID}` : null,
     })
     .eq("id", projectID);
 

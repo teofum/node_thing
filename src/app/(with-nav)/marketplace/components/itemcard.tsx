@@ -7,6 +7,9 @@ import { Stars } from "./stars";
 import { CardBadge } from "./card-badge";
 import Link from "next/link";
 import { startTransition, useActionState } from "react";
+import { deletePublication } from "../../profile/actions/deletePost";
+import { Dialog, DialogClose } from "@/ui/dialog";
+import { LuTrash2 } from "react-icons/lu";
 
 type ItemCardProps = {
   itemType: "Shader" | "Project"; // TODO group in the future
@@ -16,6 +19,7 @@ type ItemCardProps = {
   downloads: number;
   inCart: boolean;
   username?: string;
+  isOwn?: boolean;
   category?: string;
   createdAt: string;
   updatedAt: string;
@@ -32,6 +36,7 @@ export default function ItemCard({
   downloads,
   inCart,
   username,
+  isOwn,
   category,
   createdAt,
   updatedAt,
@@ -105,7 +110,35 @@ export default function ItemCard({
       </div>
 
       <div className="mt-2">
-        {inCart ? (
+        {isOwn ? (
+          <Dialog
+            title="Delete publication"
+            description="This action cannot be undone. Are you sure?"
+            trigger={
+              <Button
+                variant="outline"
+                size="lg"
+                className="text-red-400 flex items-center w-full mt-2"
+                icon
+              >
+                <LuTrash2 /> Delete Publication
+              </Button>
+            }
+          >
+            <form
+              action={async () => {
+                await deletePublication(id, itemType.toLowerCase());
+              }}
+              className="p-4 flex flex-col gap-4"
+            >
+              <Button variant="outline">Confirm delete</Button>
+
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+            </form>
+          </Dialog>
+        ) : inCart ? (
           <div className="flex justify-center items-center h-13.5 text-base/5 font-semibold rounded-lg border border-current/15 select-none">
             <LuCircleCheckBig className="inline mr-2 text-emerald-600" />
             In cart
