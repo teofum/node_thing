@@ -22,27 +22,38 @@ export default function ProfileHeader({
   return (
     <div className="flex justify-between items-center mb-8">
       <div className="flex items-center gap-4">
-        <AvatarEditor
-          currentAvatarUrl={user.user_metadata.avatar_url}
-          trigger={
-            <button
-              type="button"
-              className="relative w-20 h-20 rounded-full overflow-hidden group"
-            >
-              <Image
-                src={user.user_metadata.avatar_url}
-                alt=""
-                width={80}
-                height={80}
-                unoptimized
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <LuPencil className="text-base" />
-              </div>
-            </button>
-          }
-        />
+        {isOwnProfile ? (
+          <AvatarEditor
+            currentAvatarUrl={user.user_metadata.avatar_url}
+            trigger={
+              <button
+                type="button"
+                className="relative w-20 h-20 rounded-full overflow-hidden group"
+              >
+                <Image
+                  src={user.user_metadata.avatar_url}
+                  alt=""
+                  width={80}
+                  height={80}
+                  unoptimized
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <LuPencil className="text-base" />
+                </div>
+              </button>
+            }
+          />
+        ) : (
+          <Image
+            src={user.user_metadata.avatar_url}
+            alt=""
+            width={80}
+            height={80}
+            unoptimized
+            className="relative w-20 h-20 rounded-full overflow-hidden group"
+          />
+        )}
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold">
