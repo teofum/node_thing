@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useProjectStore } from "@/store/project.store";
 import { useAssetStore } from "@/store/asset.store";
 import { zip } from "@/utils/zip";
+import { isShader } from "@/store/project.types";
 
 export function useTextureCache(device: GPUDevice | null) {
   const layers = useProjectStore((s) => s.layers);
@@ -15,6 +16,7 @@ export function useTextureCache(device: GPUDevice | null) {
 
     const imageNamesArray = layers.flatMap((layer) =>
       layer.nodes
+        .filter(isShader)
         .map((node) => node.data.parameters["image"]?.value ?? null)
         .filter((name) => name !== null),
     );

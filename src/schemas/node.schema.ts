@@ -34,6 +34,9 @@ const parameterSchema = z
         type: z.literal("image"),
       }),
       z.object({
+        type: z.literal("string"),
+      }),
+      z.object({
         type: z.literal("select"),
         options: z.string().array(),
       }),
