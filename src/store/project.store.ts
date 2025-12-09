@@ -530,6 +530,10 @@ export const useProjectStore = create(
         set(withHistory(state, newState, "duplicateLayer"));
       },
 
+      reset: () => {
+        set(createInitialState());
+      },
+
       goTo: (to: number) => {
         const state = get() as ProjectStore;
         let { done } = state;
