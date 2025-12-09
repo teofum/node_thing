@@ -64,9 +64,11 @@ export function Viewport() {
       awareness.setLocalStateField("cursor", {
         x: flowPosition.x,
         y: flowPosition.y,
+        currentLayer,
+        currentGroup,
       });
     },
-    [awareness, screenToFlowPosition],
+    [awareness, screenToFlowPosition, currentLayer, currentGroup],
   );
 
   useEffect(() => {
@@ -80,16 +82,28 @@ export function Viewport() {
       states.forEach(
         (
           state: {
-            cursor?: { x: number; y: number };
+            cursor?: {
+              x: number;
+              y: number;
+              currentLayer: number;
+              currentGroup: string[];
+            };
           },
           clientId: number,
         ) => {
           if (state.cursor && clientId !== localClientId) {
-            const screenPos = flowToScreenPosition({
-              x: state.cursor.x,
-              y: state.cursor.y,
-            });
-            cursors[String(clientId)] = screenPos;
+            const sameLayer = state.cursor.currentLayer === currentLayer;
+            const sameGroup =
+              JSON.stringify(state.cursor.currentGroup) ===
+              JSON.stringify(currentGroup);
+
+            if (sameLayer && sameGroup) {
+              const screenPos = flowToScreenPosition({
+                x: state.cursor.x,
+                y: state.cursor.y,
+              });
+              cursors[String(clientId)] = screenPos;
+            }
           }
         },
       );
@@ -103,7 +117,7 @@ export function Viewport() {
     return () => {
       awareness.off("change", updateCursors);
     };
-  }, [awareness, flowToScreenPosition]);
+  }, [awareness, flowToScreenPosition, currentLayer, currentGroup]);
 
   const handleNodesChange = useCallback(
     (changes: Parameters<typeof onNodesChange>[0]) => {
