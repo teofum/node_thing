@@ -85,6 +85,7 @@ export default async function ProfilePage({
           user={isOwnProfile ? user : profileUser!}
           userData={userData}
           publishedCount={publishedShaders.length}
+          isOwnProfile={isOwnProfile}
         />
 
         <Tabs.Root
