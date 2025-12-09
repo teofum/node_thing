@@ -76,14 +76,18 @@ export function createGroup(
   graph: Graph,
   nodeTypes: Record<string, NodeType>,
 ): Graph {
-  const selectedNodes = graph.nodes.filter((n) => n.selected);
+  const selectedNodes = graph.nodes.filter(
+    (n) => n.selected && n.id !== "__output",
+  );
   const s = (id: string) => selectedNodes.some((n) => n.id === id);
 
   const innerEdges = graph.edges.filter((e) => s(e.source) && s(e.target));
   const inputEdges = graph.edges.filter((e) => !s(e.source) && s(e.target));
   const outputEdges = graph.edges.filter((e) => s(e.source) && !s(e.target));
 
-  const restNodes = graph.nodes.filter((n) => !n.selected);
+  const restNodes = graph.nodes.filter(
+    (n) => !n.selected || n.id === "__output",
+  );
   const restEdges = graph.edges.filter((e) => !s(e.source) && !s(e.target));
 
   const inputs = inputEdges
