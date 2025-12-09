@@ -246,18 +246,20 @@ export function Viewport() {
         }
       >
         <ContextSubmenu icon={<LuPlus />} label="Add node">
-          {nodeCategories.map(([name, types]) => (
-            <ContextSubmenu key={name} label={name}>
-              {types.map(([key, type]) => (
-                <ContextMenuItem
-                  key={key}
-                  onClick={() => addNode(key, ctxMenuPosition, {})}
-                >
-                  {type.name}
-                </ContextMenuItem>
-              ))}
-            </ContextSubmenu>
-          ))}
+          {nodeCategories
+            .filter(([name]) => currentGroup.length > 0 || name !== "Group")
+            .map(([name, types]) => (
+              <ContextSubmenu key={name} label={name}>
+                {types.map(([key, type]) => (
+                  <ContextMenuItem
+                    key={key}
+                    onClick={() => addNode(key, ctxMenuPosition, {})}
+                  >
+                    {type.name}
+                  </ContextMenuItem>
+                ))}
+              </ContextSubmenu>
+            ))}
         </ContextSubmenu>
 
         <ContextMenuItem onClick={() => addGroup(ctxMenuPosition)}>
