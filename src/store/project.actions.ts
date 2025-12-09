@@ -264,7 +264,12 @@ export function withHistory(
   const serializable = JSON.parse(JSON.stringify(cleanState));
   const fullNewState = { ...serializable, ...newState };
 
-  if (options.collapse && done === 0 && history[done]?.command === command) {
+  if (
+    options.collapse &&
+    done === 0 &&
+    history[done]?.command === command &&
+    history[done]?.diff
+  ) {
     const oldState = revertChangeset(serializable, history[done].diff);
     return {
       ...newState,
