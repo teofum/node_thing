@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { IconType } from "react-icons/lib";
-import { LuCloudUpload, LuGem, LuGlobe, LuSparkles } from "react-icons/lu";
+import { LuCloudUpload, LuGem } from "react-icons/lu";
 import { Button } from "@/ui/button";
 import { redirect } from "next/navigation";
 import {
@@ -23,17 +23,7 @@ const PremiumTab = forwardRef<HTMLDivElement, PremiumTabProps>(
       {
         id: "cloud",
         icon: LuCloudUpload,
-        text: "Save your projects on the cloud",
-      },
-      {
-        id: "publish",
-        icon: LuGlobe,
-        text: "Publish and sell shaders on the marketplace",
-      },
-      {
-        id: "ai",
-        icon: LuSparkles,
-        text: "Generate shaders with AI (WIP)",
+        text: "Save your projects on the cloud and access them from any computer",
       },
     ];
 

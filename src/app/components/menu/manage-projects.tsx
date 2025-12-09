@@ -11,7 +11,7 @@ import {
   LuTrash2,
 } from "react-icons/lu";
 
-import { Dialog, DialogClose } from "@/ui/dialog";
+import { Dialog } from "@/ui/dialog";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 
@@ -77,7 +77,7 @@ export function ManageProjects({
       <Dialog
         trigger={trigger}
         title="Project Manager"
-        description="Manage projects lol"
+        description="Click a project to open it"
         className="w-2/5"
         {...props}
       >
