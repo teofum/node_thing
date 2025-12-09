@@ -20,13 +20,14 @@ export const PublishShaderList = forwardRef<
     return a.published ? 1 : -1;
   });
   return (
-    <div className="flex gap-4 space-y-1" ref={forwardedRef} {...props}>
+    <div
+      className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]"
+      ref={forwardedRef}
+      {...props}
+    >
       {shaders.length ? (
         shaders.map((shader) => (
-          <div
-            key={shader.id}
-            className="glass glass-border p-4 rounded-2xl w-xs"
-          >
+          <div key={shader.id} className="glass glass-border p-4 rounded-2xl">
             <div className="flex">
               <h3 className="text-xl font-semibold mb-2">{shader.title}</h3>
               {shader.published && (
