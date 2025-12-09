@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { LuSave, LuDownload, LuFolderOpen, LuFileImage } from "react-icons/lu";
+import {
+  LuSave,
+  LuDownload,
+  LuFolderOpen,
+  LuFileImage,
+  LuFile,
+} from "react-icons/lu";
 
 import { Menu, MenuItem, MenuSeparator } from "@/ui/menu-bar";
 import { useUtilityStore } from "@/store/utility.store";
@@ -14,11 +20,18 @@ import {
   ImportResult,
 } from "@/utils/project";
 import { ConfirmImport } from "./confirm-import";
+import { PromptDialog } from "@/ui/prompt-dialog";
+import { useProjectStore } from "@/store/project.store";
+import { useAssetStore } from "@/store/asset.store";
 
 export function FileMenu() {
   const canvas = useUtilityStore((s) => s.canvas);
   const onNextRenderFinished = useUtilityStore((s) => s.onNextRenderFinished);
 
+  const resetProject = useProjectStore((s) => s.reset);
+  const clearAssets = useAssetStore((s) => s.clear);
+
+  const [newOpen, setNewOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [importResult, setImportResult] = useState<ImportResult>(undefined);
 
@@ -38,9 +51,17 @@ export function FileMenu() {
     setImportResult(await importProjectFromFile());
   };
 
+  const handleNew = () => {
+    resetProject();
+    clearAssets();
+  };
+
   return (
     <>
       <Menu label="File" value="file">
+        <MenuItem icon={<LuFile />} onClick={() => setNewOpen(true)}>
+          New
+        </MenuItem>
         <MenuItem icon={<LuSave />} onClick={exportProjectFromFile}>
           Save
         </MenuItem>
@@ -66,6 +87,19 @@ export function FileMenu() {
         importResult={importResult}
         setImportResult={setImportResult}
       />
+      <PromptDialog
+        title="New file"
+        trigger={null}
+        description="Create a new project"
+        open={newOpen}
+        onOpenChange={setNewOpen}
+        onConfirm={handleNew}
+      >
+        <div>Create a new project?</div>
+        <strong className="text-sm/4 font-semibold text-red-400">
+          All unsaved work will be lost. This action cannot be undone!
+        </strong>
+      </PromptDialog>
     </>
   );
 }

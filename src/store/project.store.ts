@@ -511,6 +511,10 @@ export const useProjectStore = create(
           set(withHistory(state, newState, "reorderLayer"));
         },
 
+        reset: () => {
+          set(createInitialState());
+        },
+
         exportLayer: (i: number) => {
           const layers = get().layers;
           const layer = layers[i];

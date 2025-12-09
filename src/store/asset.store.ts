@@ -42,6 +42,8 @@ export const useAssetStore = create(
       removeImage: (name: string) =>
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         set(({ images: { [name]: _, ...rest } }) => ({ images: rest })),
+
+      clear: () => set(initialState),
     })),
     {
       name: "asset-storage",
