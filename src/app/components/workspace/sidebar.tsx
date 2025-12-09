@@ -115,7 +115,7 @@ export function Sidebar() {
           <ToggleButton
             icon
             variant="ghost"
-            className={cn("ml-auto", {
+            className={cn({
               "opacity-0 group-hover:opacity-100": !sidebar.pinned,
             })}
             pressed={sidebar.pinned}

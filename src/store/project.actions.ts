@@ -11,7 +11,6 @@ import {
   StoredProject,
   NodeTypeDependency,
   isShader,
-  GroupData,
   Graph,
   isGroup,
 } from "./project.types";
@@ -244,12 +243,34 @@ export function withHistory(
     collapse: false,
   },
 ) {
-  const { history, done } = state;
-  state = JSON.parse(JSON.stringify(state));
-  const fullNewState = { ...state, ...newState };
+  const {
+    history,
+    done,
+    currentRoomId,
+    yjsDoc,
+    realtimeChannel,
+    awareness,
+    collaborationEnabled,
+    connectedUsers,
+    ...cleanState
+  } = state as Project & {
+    currentRoomId?: string | null;
+    yjsDoc?: unknown;
+    realtimeChannel?: unknown;
+    awareness?: unknown;
+    collaborationEnabled?: boolean;
+    connectedUsers?: unknown[];
+  };
+  const serializable = JSON.parse(JSON.stringify(cleanState));
+  const fullNewState = { ...serializable, ...newState };
 
-  if (options.collapse && done === 0 && history[done]?.command === command) {
-    const oldState = revertChangeset(state, history[done].diff);
+  if (
+    options.collapse &&
+    done === 0 &&
+    history[done]?.command === command &&
+    history[done]?.diff
+  ) {
+    const oldState = revertChangeset(serializable, history[done].diff);
     return {
       ...newState,
       history: historyPush(history.slice(done + 1), {
@@ -265,7 +286,7 @@ export function withHistory(
     ...newState,
     history: historyPush(history.slice(done), {
       command,
-      diff: diff(state, fullNewState),
+      diff: diff(serializable, fullNewState),
       layerIdx: fullNewState.currentLayer,
     }),
     done: 0,

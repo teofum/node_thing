@@ -13,6 +13,9 @@ import { applyChangeset, revertChangeset } from "json-diff-ts";
 import { nanoid } from "nanoid";
 import { create } from "zustand";
 import { combine, persist } from "zustand/middleware";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+import type * as Y from "yjs";
+import type { Awareness } from "y-protocols/awareness";
 
 import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
@@ -41,6 +44,7 @@ import {
   withHistory,
 } from "./project.actions";
 import {
+  GroupNode,
   isGroup,
   isShader,
   Layer,
@@ -48,550 +52,869 @@ import {
   Project,
 } from "./project.types";
 
-interface ProjectStore extends ReturnType<typeof createInitialState> {
+type ProjectStoreState = ReturnType<typeof createInitialState> & {
+  currentRoomId: string | null;
+  yjsDoc: Y.Doc | null;
+  realtimeChannel: RealtimeChannel | null;
+  awareness: Awareness | null;
+  collaborationEnabled: boolean;
+  connectedUsers: Array<{
+    id: string;
+    name: string;
+    avatar: string;
+    color: string;
+    selectedNode?: string | null;
+  }>;
+};
+
+interface ProjectStore extends ProjectStoreState {
   undo: () => void;
   redo: () => void;
 }
 
 export const useProjectStore = create(
   persist(
-    combine(createInitialState(), (set, get) => ({
-      setActiveLayer: (idx: number) => {
-        set({ currentLayer: idx, currentGroup: [] });
+    combine(
+      {
+        ...createInitialState(),
+        currentRoomId: null as string | null,
+        yjsDoc: null as Y.Doc | null,
+        realtimeChannel: null as RealtimeChannel | null,
+        awareness: null as Awareness | null,
+        collaborationEnabled: false,
+        connectedUsers: [] as Array<{
+          id: string;
+          name: string;
+          avatar: string;
+          color: string;
+          selectedNode?: string | null;
+        }>,
       },
+      (set, get) => ({
+        setActiveLayer: (idx: number) => {
+          set({ currentLayer: idx, currentGroup: [] });
+        },
 
-      openGroup: (id: string) => {
-        const { currentGroup } = get();
-        set({ currentGroup: [...currentGroup, id] });
-      },
+        openGroup: (id: string) => {
+          const { currentGroup } = get();
+          set({ currentGroup: [...currentGroup, id] });
+        },
 
-      closeGroup: (level?: number) => {
-        const { currentGroup } = get();
-        set({ currentGroup: currentGroup.slice(0, level ?? -1) });
-      },
+        closeGroup: (level?: number) => {
+          const { currentGroup } = get();
+          set({ currentGroup: currentGroup.slice(0, level ?? -1) });
+        },
 
-      onNodesChange: (changes: NodeChange<Node>[]) => {
-        let state = get();
-        const { layers, currentLayer } = state;
+        toggleCollaboration: async (enabled: boolean) => {
+          if (enabled) {
+            const { currentRoomId } = get();
+            if (!currentRoomId) return;
 
-        const layer = layers[currentLayer];
-        if (!layer) return;
+            const [{ createClient }, { initYjsSync }] = await Promise.all([
+              import("@/lib/supabase/client"),
+              import("@/lib/collaboration/yjs-sync"),
+            ]);
+            const supabase = createClient();
+            const {
+              data: { user },
+            } = await supabase.auth.getUser();
+            const channel = supabase.channel(`room:${currentRoomId}`);
+            await channel.subscribe();
+            const { ydoc, awareness } = initYjsSync(currentRoomId, channel, {
+              name:
+                user?.user_metadata?.full_name || user?.email || "Anonymous",
+              avatar: user?.user_metadata?.avatar_url || "",
+            });
 
-        const { tracked, untracked, collapsed } = getNodeChangesByType(changes);
+            const yNodes = ydoc.getMap("nodes");
+            const yEdges = ydoc.getMap("edges");
+            const yAssetRefs = ydoc.getMap("assetRefs");
 
-        const apply = (state: Project, changes: NodeChange<Node>[]) => {
-          return modifyGroup(state, (l) => ({
-            ...l,
-            nodes: applyNodeChanges(changes, l.nodes) as ShaderNode[],
-          }));
-        };
+            yAssetRefs.observe((event) => {
+              if (event.transaction.origin === ydoc) return;
 
-        // Apply untracked changes
-        if (untracked.length) set(apply(state, untracked));
+              const changes = Array.from(event.changes.keys.entries());
 
-        // Apply collapsed changes
-        if (collapsed.length) {
-          state = get();
-          set(
-            withHistory(
-              state,
-              apply(state, collapsed),
-              `moveNodes::${collapsed.map((c) => (c as NodePositionChange).id).join(":")}`,
-              { collapse: true },
-            ),
-          );
-        }
+              (async () => {
+                const { useAssetStore } = await import("./asset.store");
+                const assetStore = useAssetStore.getState();
+                const { downloadAsset } = await import(
+                  "@/lib/collaboration/asset-sync"
+                );
 
-        // Apply tracked changes
-        if (tracked.length) {
-          state = get();
-          set(withHistory(state, apply(state, tracked), "nodesChange"));
-        }
-      },
+                for (const [key, change] of changes) {
+                  if (
+                    (change.action === "add" || change.action === "update") &&
+                    !assetStore.images[key]
+                  ) {
+                    const asset = await downloadAsset(currentRoomId, key);
+                    if (asset) {
+                      await assetStore.addImage(key, asset, true);
+                    }
+                  }
+                }
+              })();
+            });
 
-      onEdgesChange: (changes: EdgeChange<Edge>[]) => {
-        let state = get();
-        const { layers, currentLayer } = state;
+            yNodes.observe((event) => {
+              if (event.transaction.origin === ydoc) return;
+              const nodes = Array.from(yNodes.values()) as ShaderNode[];
+              set(modifyLayer(get(), () => ({ nodes })));
+            });
 
-        const layer = layers[currentLayer];
-        if (!layer) return;
+            yEdges.observe((event) => {
+              if (event.transaction.origin === ydoc) return;
+              const edges = Array.from(yEdges.values()) as Edge[];
+              set(modifyLayer(get(), () => ({ edges })));
+            });
 
-        const { tracked, untracked } = getEdgeChangesByType(changes);
+            const updateUsers = () => {
+              const states = awareness.getStates();
+              const users: Array<{
+                id: string;
+                name: string;
+                avatar: string;
+                color: string;
+                selectedNode?: string | null;
+              }> = [];
+              const localClientId = awareness.clientID;
 
-        const apply = (state: Project, changes: EdgeChange<Edge>[]) => {
-          return modifyGroup(state, (l) => ({
-            ...l,
-            edges: applyEdgeChanges(changes, l.edges),
-          }));
-        };
-
-        // Apply untracked changes
-        if (untracked.length) set(apply(state, untracked));
-
-        // Apply tracked changes
-        if (tracked.length) {
-          state = get();
-          set(withHistory(state, apply(state, tracked), "edgesChange"));
-        }
-      },
-
-      onConnect: (connection: Connection) => {
-        const state = get();
-        const newState = modifyGroup(state, (layer) => {
-          const edgesWithoutConflictingConnections = layer.edges.filter(
-            (e) =>
-              e.target !== connection.target ||
-              e.targetHandle !== connection.targetHandle,
-          );
-          return {
-            edges: addEdge(connection, edgesWithoutConflictingConnections),
-          };
-        });
-
-        set(withHistory(state, newState, "connect"));
-      },
-
-      updateNodeDefaultValue: (
-        id: string,
-        input: string,
-        value: number | number[],
-      ) => {
-        const state = get();
-        const newState = modifyNode(state, id, (node) => ({
-          data: {
-            ...node.data,
-            defaultValues: { ...node.data.defaultValues, [input]: value },
-          },
-        }));
-
-        const command = `updateNodeDefaultValue::${id}::${input}`;
-        set(withHistory(state, newState, command, { collapse: true }));
-      },
-
-      updateNodeParameter: (
-        id: string,
-        param: string,
-        value: string | null,
-      ) => {
-        const state = get();
-        const newState = modifyNode(state, id, (node) => ({
-          data: {
-            ...node.data,
-            parameters: { ...node.data.parameters, [param]: { value } },
-          },
-        }));
-
-        set(withHistory(state, newState, "updateNodeParameter"));
-      },
-
-      updateNodeUniform: (
-        id: string,
-        name: string,
-        value: number | number[],
-      ) => {
-        const state = get();
-        const newState = modifyNode(state, id, (node) => ({
-          data: {
-            ...node.data,
-            uniforms: { ...node.data.uniforms, [name]: value },
-          },
-        }));
-
-        const command = `updateNodeUniform::${id}::${name}`;
-        set(withHistory(state, newState, command, { collapse: true }));
-      },
-
-      /*
-       * Actions: canvas
-       */
-      setCanvasSize: (width: number, height: number) => {
-        const state = get();
-        const newState = {
-          properties: {
-            ...state.properties,
-            canvas: { ...state.properties.canvas, width, height },
-          },
-        };
-
-        set(withHistory(state, newState, "setCanvasSize"));
-      },
-
-      addLayer: () => {
-        const state = get();
-        const newState = {
-          layers: [
-            ...state.layers,
-            createLayer(
-              `Layer ${state.layers.length}`,
-              state.properties.canvas,
-            ),
-          ],
-          currentLayer: state.layers.length,
-          currentGroup: [],
-        };
-
-        set(withHistory(state, newState, "addLayer"));
-      },
-
-      setLayerBounds: (x: number, y: number, width: number, height: number) => {
-        const state = get();
-        const newState = modifyLayer(state, (layer) => ({
-          ...layer,
-          position: { x, y },
-          size: { width, height },
-        }));
-
-        const command = `setLayerBounds::${state.layers[state.currentLayer].id}`;
-        set(withHistory(state, newState, command, { collapse: true }));
-      },
-
-      reorderLayers: (from: number, to: number) => {
-        const state = get();
-        const { layers, currentLayer } = state;
-
-        const newLayers = layers.slice();
-        const [moved] = newLayers.splice(from, 1);
-        newLayers.splice(to, 0, moved);
-
-        let newCurrent = currentLayer;
-        if (currentLayer === from) {
-          newCurrent = to;
-        } else if (from < currentLayer && to >= currentLayer) {
-          newCurrent = currentLayer - 1;
-        } else if (from > currentLayer && to <= currentLayer) {
-          newCurrent = currentLayer + 1;
-        }
-
-        const newState = {
-          layers: newLayers,
-          currentLayer: newCurrent,
-        };
-
-        set(withHistory(state, newState, "reorderLayer"));
-      },
-
-      exportLayer: (i: number) => {
-        const layers = get().layers;
-        const layer = layers[i];
-        return JSON.stringify(layer, null, 2);
-      },
-
-      importLayer: (json: string) => {
-        const state = get();
-
-        const parsedLayer: Layer = JSON.parse(json);
-        parsedLayer.id = newLayerId();
-
-        const newState = {
-          layers: [...state.layers, parsedLayer],
-          currentLayer: state.layers.length,
-          currentGroup: [],
-        };
-
-        set(withHistory(state, newState, "importLayer"));
-      },
-
-      exportProject: () => {
-        const project = get();
-        return prepareProjectForExport(project);
-      },
-
-      importProject: (project: Project) =>
-        set((current) => {
-          return mergeProject(project, current);
-        }),
-
-      loadNodeTypes: async () => {
-        const purchased = await getPurchasedShaders();
-        const external = Object.fromEntries(
-          purchased
-            .filter(
-              (shader): shader is NonNullable<typeof shader> =>
-                shader !== null && shader.node_config !== null,
-            )
-            .map((shader) => {
-              const config = shader.node_config as NodeType;
-              return [
-                shader.id,
-                {
-                  ...config,
-                  externalShaderId: shader.id,
+              states.forEach(
+                (
+                  state: {
+                    user?: { name: string; avatar: string; color: string };
+                    selectedNode?: string | null;
+                  },
+                  clientId: number,
+                ) => {
+                  if (state.user && clientId !== localClientId) {
+                    users.push({
+                      id: String(clientId),
+                      name: state.user.name || "Anonymous",
+                      avatar: state.user.avatar || "",
+                      color: state.user.color || "#3b82f6",
+                      selectedNode: state.selectedNode,
+                    });
+                  }
                 },
-              ];
-            }),
-        );
-
-        const custom = await getCustomShaders();
-        const customNodeTypes = Object.fromEntries(
-          custom
-            .filter((shader) => shader.node_config)
-            .map((shader) => {
-              const config = shader.node_config as NodeTypeDescriptor;
-              const inputs = createHandles(
-                Array.isArray(config.inputs) ? config.inputs : [],
-              );
-              const outputs = createHandles(
-                Array.isArray(config.outputs) ? config.outputs : [],
               );
 
-              const nodeType = {
-                name: config.name ?? shader.title ?? "Custom",
-                category: "Custom",
-                shader: config.code ?? "",
-                inputs,
-                outputs,
-                parameters: {},
-                externalShaderId: shader.id,
-              };
-              return [`custom_${nodeType.externalShaderId}`, nodeType];
-            }),
-        );
+              set({ connectedUsers: users });
+            };
 
-        set(({ nodeTypes }) => ({
-          nodeTypes: { ...nodeTypes, external, custom: customNodeTypes },
-        }));
-      },
+            awareness.on("change", updateUsers);
+            updateUsers();
 
-      createNodeType: async (desc: NodeTypeDescriptor) => {
-        const data = await saveNewShader(desc);
-        const id = data ? data.id : nanoid();
-        const key = `custom_${id}`;
-        set(updateNodeType(key, desc));
-        if (data) {
-          set(({ nodeTypes }) => ({
-            nodeTypes: {
-              ...nodeTypes,
-              custom: {
-                ...nodeTypes.custom,
-                [key]: { ...nodeTypes.custom[key], externalShaderId: id },
-              },
-            },
-          }));
-        }
-      },
+            set({
+              yjsDoc: ydoc,
+              realtimeChannel: channel,
+              awareness,
+              collaborationEnabled: true,
+            });
+          } else {
+            const { realtimeChannel } = get();
+            if (realtimeChannel) {
+              realtimeChannel.unsubscribe();
+            }
+            set({
+              yjsDoc: null,
+              realtimeChannel: null,
+              awareness: null,
+              collaborationEnabled: false,
+              connectedUsers: [],
+            });
+          }
+        },
 
-      updateNodeType: async (id: string, desc: NodeTypeDescriptor) => {
-        const { nodeTypes } = get();
-        const remoteId = nodeTypes.custom[id].externalShaderId;
-        set(updateNodeType(id, desc));
-        if (remoteId) {
-          const data = await updateShader(desc, remoteId);
-          if (!data) return;
-          set(({ nodeTypes }) => ({
-            nodeTypes: {
-              ...nodeTypes,
-              custom: {
-                ...nodeTypes.custom,
-                [id]: { ...nodeTypes.custom[id], externalShaderId: remoteId },
-              },
-            },
-          }));
-        }
-      },
+        onNodesChange: (changes: NodeChange<Node>[]) => {
+          let state = get();
+          const { layers, currentLayer, yjsDoc, collaborationEnabled } = state;
 
-      deleteNodeType: async (name: string) => {
-        const { nodeTypes } = get();
-        const remoteId = nodeTypes.custom[name].externalShaderId;
-        if (remoteId) await deleteShader(remoteId);
+          const layer = layers[currentLayer];
+          if (!layer) return;
 
-        set(({ nodeTypes, layers }) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { [name]: _, ...rest } = nodeTypes.custom;
-          return {
-            nodeTypes: { ...nodeTypes, custom: rest },
-            layers: layers.map((layer) => ({
-              ...layer,
-              nodes: layer.nodes.filter(
-                (n) => !isShader(n) || n.data.type !== name,
+          const { tracked, untracked, collapsed } =
+            getNodeChangesByType(changes);
+
+          const apply = (state: Project, changes: NodeChange<Node>[]) => {
+            return modifyGroup(state, (l) => ({
+              ...l,
+              nodes: applyNodeChanges(changes, l.nodes) as ShaderNode[],
+            }));
+          };
+
+          if (untracked.length) set(apply(state, untracked));
+
+          if (collapsed.length) {
+            state = get();
+            set(
+              withHistory(
+                state,
+                apply(state, collapsed),
+                `moveNodes::${collapsed.map((c) => (c as NodePositionChange).id).join(":")}`,
+                { collapse: true },
               ),
-              edges: layer.edges.filter((e) => {
-                const source = layer.nodes.find((n) => n.id === e.source);
-                const target = layer.nodes.find((n) => n.id === e.target);
+            );
+          }
 
-                if (
-                  !source ||
-                  !target ||
-                  !isShader(source) ||
-                  !isShader(target)
-                )
-                  return true;
+          if (tracked.length) {
+            state = get();
+            set(withHistory(state, apply(state, tracked), "nodesChange"));
+          }
 
-                return source?.data.type !== name && target?.data.type !== name;
-              }),
-            })),
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yNodes = yjsDoc.getMap("nodes");
+            yjsDoc.transact(() => {
+              for (const node of currentGraph.nodes) {
+                yNodes.set(node.id, node);
+              }
+              const currentIds = new Set(
+                currentGraph.nodes.map((n: ShaderNode | GroupNode) => n.id),
+              );
+              for (const key of yNodes.keys()) {
+                if (!currentIds.has(key)) {
+                  yNodes.delete(key);
+                }
+              }
+            }, yjsDoc);
+          }
+        },
+
+        onEdgesChange: (changes: EdgeChange<Edge>[]) => {
+          let state = get();
+          const { layers, currentLayer, yjsDoc, collaborationEnabled } = state;
+
+          const layer = layers[currentLayer];
+          if (!layer) return;
+
+          const { tracked, untracked } = getEdgeChangesByType(changes);
+
+          const apply = (state: Project, changes: EdgeChange<Edge>[]) => {
+            return modifyGroup(state, (l) => ({
+              ...l,
+              edges: applyEdgeChanges(changes, l.edges),
+            }));
           };
-        });
-      },
 
-      addNode: (
-        type: string,
-        position: Point,
-        parameters: NodeData["parameters"] = {},
-      ) => {
-        const state = get();
-        const allNodeTypes = getAllNodeTypes(state.nodeTypes);
-        const newState = modifyGroup(state, (layer) => ({
-          nodes: [
-            ...layer.nodes.map((node) => ({ ...node, selected: false })),
-            createNode(type, position, allNodeTypes, parameters),
-          ],
-        }));
+          if (untracked.length) set(apply(state, untracked));
 
-        set(withHistory(state, newState, "addNode"));
-      },
+          if (tracked.length) {
+            state = get();
+            set(withHistory(state, apply(state, tracked), "edgesChange"));
 
-      addGroup: (position: Point) => {
-        const state = get();
-        const allNodeTypes = getAllNodeTypes(state.nodeTypes);
-        const newState = modifyGroup(state, (graph) =>
-          createGroup(position, graph, allNodeTypes),
-        );
+            if (collaborationEnabled && yjsDoc) {
+              const updatedState = get();
+              const currentGraph =
+                updatedState.layers[updatedState.currentLayer];
+              const yEdges = yjsDoc.getMap("edges");
+              yjsDoc.transact(() => {
+                yEdges.clear();
+                for (const edge of currentGraph.edges) {
+                  yEdges.set(edge.id, edge);
+                }
+              }, yjsDoc);
+            }
+          }
+        },
 
-        set(withHistory(state, newState, "addGroup"));
-      },
+        onConnect: (connection: Connection) => {
+          const state = get();
+          const { yjsDoc, collaborationEnabled } = state;
+          const newState = modifyGroup(state, (layer) => {
+            const edgesWithoutConflictingConnections = layer.edges.filter(
+              (e) =>
+                e.target !== connection.target ||
+                e.targetHandle !== connection.targetHandle,
+            );
+            return {
+              edges: addEdge(connection, edgesWithoutConflictingConnections),
+            };
+          });
 
-      renameGroup: (name: string, id: string) => {
-        const state = get();
-        const newState = modifyGroup(state, (layer) => {
-          const group = layer.nodes.find((n) => n.id === id);
-          if (!group || !isGroup(group)) return {};
+          set(withHistory(state, newState, "connect"));
 
-          return {
-            nodes: [
-              ...layer.nodes.filter((n) => n.id !== id),
-              { ...group, data: { ...group.data, name } },
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yEdges = yjsDoc.getMap("edges");
+            yjsDoc.transact(() => {
+              yEdges.clear();
+              for (const edge of currentGraph.edges) {
+                yEdges.set(edge.id, edge);
+              }
+            }, yjsDoc);
+          }
+        },
+
+        updateNodeDefaultValue: (
+          id: string,
+          input: string,
+          value: number | number[],
+        ) => {
+          const state = get();
+          const newState = modifyNode(state, id, (node) => ({
+            data: {
+              ...node.data,
+              defaultValues: { ...node.data.defaultValues, [input]: value },
+            },
+          }));
+
+          const command = `updateNodeDefaultValue::${id}::${input}`;
+          set(withHistory(state, newState, command, { collapse: true }));
+
+          const { yjsDoc, collaborationEnabled } = state;
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yNodes = yjsDoc.getMap("nodes");
+            yjsDoc.transact(() => {
+              for (const node of currentGraph.nodes) {
+                yNodes.set(node.id, node);
+              }
+            }, yjsDoc);
+          }
+        },
+
+        updateNodeParameter: (
+          id: string,
+          param: string,
+          value: string | null,
+        ) => {
+          const state = get();
+          const newState = modifyNode(state, id, (node) => ({
+            data: {
+              ...node.data,
+              parameters: { ...node.data.parameters, [param]: { value } },
+            },
+          }));
+
+          set(withHistory(state, newState, "updateNodeParameter"));
+
+          const { yjsDoc, collaborationEnabled } = state;
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yNodes = yjsDoc.getMap("nodes");
+            const yAssetRefs = yjsDoc.getMap("assetRefs");
+
+            yjsDoc.transact(() => {
+              if (value) {
+                yAssetRefs.set(value, true);
+              }
+
+              for (const node of currentGraph.nodes) {
+                yNodes.set(node.id, node);
+              }
+            }, yjsDoc);
+          }
+        },
+
+        updateNodeUniform: (
+          id: string,
+          name: string,
+          value: number | number[],
+        ) => {
+          const state = get();
+          const newState = modifyNode(state, id, (node) => ({
+            data: {
+              ...node.data,
+              uniforms: { ...node.data.uniforms, [name]: value },
+            },
+          }));
+
+          const command = `updateNodeUniform::${id}::${name}`;
+          set(withHistory(state, newState, command, { collapse: true }));
+
+          const { yjsDoc, collaborationEnabled } = state;
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yNodes = yjsDoc.getMap("nodes");
+            yjsDoc.transact(() => {
+              for (const node of currentGraph.nodes) {
+                yNodes.set(node.id, node);
+              }
+            }, yjsDoc);
+          }
+        },
+
+        setCanvasSize: (width: number, height: number) => {
+          const state = get();
+          const newState = {
+            properties: {
+              ...state.properties,
+              canvas: { ...state.properties.canvas, width, height },
+            },
+          };
+
+          set(withHistory(state, newState, "setCanvasSize"));
+        },
+
+        addLayer: () => {
+          const state = get();
+          const newState = {
+            layers: [
+              ...state.layers,
+              createLayer(
+                `Layer ${state.layers.length}`,
+                state.properties.canvas,
+              ),
             ],
+            currentLayer: state.layers.length,
+            currentGroup: [],
           };
-        });
 
-        set(withHistory(state, newState, "renameGroup"));
-      },
+          set(withHistory(state, newState, "addLayer"));
+        },
 
-      removeNode: (id: string) => {
-        const state = get();
-        const newState = modifyGroup(state, (layer) => ({
-          nodes: layer.nodes.filter((node) => node.id !== id),
-        }));
+        setLayerBounds: (
+          x: number,
+          y: number,
+          width: number,
+          height: number,
+        ) => {
+          const state = get();
+          const newState = modifyLayer(state, (layer) => ({
+            ...layer,
+            position: { x, y },
+            size: { width, height },
+          }));
 
-        set(withHistory(state, newState, "removeNode"));
-      },
+          const command = `setLayerBounds::${state.layers[state.currentLayer].id}`;
+          set(withHistory(state, newState, command, { collapse: true }));
+        },
 
-      changeLayerName: (name: string, idx: number) => {
-        const state = get();
-        const newState = modifyLayer(state, () => ({ name }), idx);
+        reorderLayers: (from: number, to: number) => {
+          const state = get();
+          const { layers, currentLayer } = state;
 
-        set(withHistory(state, newState, "renameLayer"));
-      },
+          const newLayers = layers.slice();
+          const [moved] = newLayers.splice(from, 1);
+          newLayers.splice(to, 0, moved);
 
-      removeLayer: (i: number) => {
-        const state = get();
-        const { layers, currentLayer, currentGroup } = state;
-
-        if (layers.length <= 1) return; // don't remove the last layer
-
-        const newLayers = [...layers.slice(0, i), ...layers.slice(i + 1)];
-        const newCurrentLayer =
-          i <= currentLayer ? Math.max(0, currentLayer - 1) : currentLayer;
-
-        const newState = {
-          layers: newLayers,
-          currentLayer: newCurrentLayer,
-          currentGroup: newCurrentLayer === currentLayer ? currentGroup : [],
-        };
-
-        set(withHistory(state, newState, "removeLayer"));
-      },
-
-      duplicateLayer: (i: number) => {
-        const state = get();
-        const { layers } = state;
-
-        const sourceLayer = layers[i];
-        const newLayerIdx = i + 1;
-
-        const newLayer: Layer = {
-          ...sourceLayer,
-          name: sourceLayer.name + " copy",
-          id: newLayerId(),
-        };
-
-        const newLayers = [
-          ...layers.slice(0, newLayerIdx),
-          newLayer,
-          ...layers.slice(newLayerIdx),
-        ];
-
-        const newState = {
-          layers: newLayers,
-          currentLayer: newLayerIdx,
-          currentGroup: [],
-        };
-
-        set(withHistory(state, newState, "duplicateLayer"));
-      },
-
-      reset: () => {
-        set(createInitialState());
-      },
-
-      goTo: (to: number) => {
-        const state = get() as ProjectStore;
-        let { done } = state;
-        if (to === done) return;
-
-        const { undo, redo } = state;
-        if (to > done) {
-          while (done !== to) {
-            undo();
-            done++;
+          let newCurrent = currentLayer;
+          if (currentLayer === from) {
+            newCurrent = to;
+          } else if (from < currentLayer && to >= currentLayer) {
+            newCurrent = currentLayer - 1;
+          } else if (from > currentLayer && to <= currentLayer) {
+            newCurrent = currentLayer + 1;
           }
-        } else {
-          while (done !== to) {
-            redo();
-            done--;
+
+          const newState = {
+            layers: newLayers,
+            currentLayer: newCurrent,
+          };
+
+          set(withHistory(state, newState, "reorderLayer"));
+        },
+
+        reset: () => {
+          set(createInitialState());
+        },
+
+        exportLayer: (i: number) => {
+          const layers = get().layers;
+          const layer = layers[i];
+          return JSON.stringify(layer, null, 2);
+        },
+
+        importLayer: (json: string) => {
+          const state = get();
+
+          const parsedLayer: Layer = JSON.parse(json);
+          parsedLayer.id = newLayerId();
+
+          const newState = {
+            layers: [...state.layers, parsedLayer],
+            currentLayer: state.layers.length,
+            currentGroup: [],
+          };
+
+          set(withHistory(state, newState, "importLayer"));
+        },
+
+        exportProject: () => {
+          const project = get();
+          return prepareProjectForExport(project);
+        },
+
+        importProject: (project: Project) =>
+          set((current) => {
+            return mergeProject(project, current);
+          }),
+
+        loadNodeTypes: async () => {
+          const purchased = await getPurchasedShaders();
+          const external = Object.fromEntries(
+            purchased
+              .filter(
+                (shader): shader is NonNullable<typeof shader> =>
+                  shader !== null && shader.node_config !== null,
+              )
+              .map((shader) => {
+                const config = shader.node_config as NodeType;
+                return [
+                  shader.id,
+                  {
+                    ...config,
+                    externalShaderId: shader.id,
+                  },
+                ];
+              }),
+          );
+
+          const custom = await getCustomShaders();
+          const customNodeTypes = Object.fromEntries(
+            custom
+              .filter((shader) => shader.node_config)
+              .map((shader) => {
+                const config = shader.node_config as NodeTypeDescriptor;
+                const inputs = createHandles(
+                  Array.isArray(config.inputs) ? config.inputs : [],
+                );
+                const outputs = createHandles(
+                  Array.isArray(config.outputs) ? config.outputs : [],
+                );
+
+                const nodeType = {
+                  name: config.name ?? shader.title ?? "Custom",
+                  category: "Custom",
+                  shader: config.code ?? "",
+                  inputs,
+                  outputs,
+                  parameters: {},
+                  externalShaderId: shader.id,
+                };
+                return [`custom_${nodeType.externalShaderId}`, nodeType];
+              }),
+          );
+
+          set(({ nodeTypes }) => ({
+            nodeTypes: { ...nodeTypes, external, custom: customNodeTypes },
+          }));
+        },
+
+        createNodeType: async (desc: NodeTypeDescriptor) => {
+          const data = await saveNewShader(desc);
+          const id = data ? data.id : nanoid();
+          const key = `custom_${id}`;
+          set(updateNodeType(key, desc));
+          if (data) {
+            set(({ nodeTypes }) => ({
+              nodeTypes: {
+                ...nodeTypes,
+                custom: {
+                  ...nodeTypes.custom,
+                  [key]: { ...nodeTypes.custom[key], externalShaderId: id },
+                },
+              },
+            }));
           }
-        }
-      },
+        },
 
-      undo: () => {
-        let state = get();
-        const { history, done } = state;
+        updateNodeType: async (id: string, desc: NodeTypeDescriptor) => {
+          const { nodeTypes } = get();
+          const remoteId = nodeTypes.custom[id].externalShaderId;
+          set(updateNodeType(id, desc));
+          if (remoteId) {
+            const data = await updateShader(desc, remoteId);
+            if (!data) return;
+            set(({ nodeTypes }) => ({
+              nodeTypes: {
+                ...nodeTypes,
+                custom: {
+                  ...nodeTypes.custom,
+                  [id]: { ...nodeTypes.custom[id], externalShaderId: remoteId },
+                },
+              },
+            }));
+          }
+        },
 
-        if (history.length <= done) return;
+        deleteNodeType: async (name: string) => {
+          const { nodeTypes } = get();
+          const remoteId = nodeTypes.custom[name].externalShaderId;
+          if (remoteId) await deleteShader(remoteId);
 
-        state = JSON.parse(JSON.stringify(state));
-        const newState = revertChangeset(state, history[done].diff);
+          set(({ nodeTypes, layers }) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { [name]: _, ...rest } = nodeTypes.custom;
+            return {
+              nodeTypes: { ...nodeTypes, custom: rest },
+              layers: layers.map((layer) => ({
+                ...layer,
+                nodes: layer.nodes.filter(
+                  (n) => !isShader(n) || n.data.type !== name,
+                ),
+                edges: layer.edges.filter((e) => {
+                  const source = layer.nodes.find((n) => n.id === e.source);
+                  const target = layer.nodes.find((n) => n.id === e.target);
 
-        set({
-          ...newState,
-          done: done + 1,
-          currentLayer: history[done].layerIdx ?? 0,
-        });
-      },
+                  if (
+                    !source ||
+                    !target ||
+                    !isShader(source) ||
+                    !isShader(target)
+                  )
+                    return true;
 
-      redo: () => {
-        let state = get();
-        const { history, done } = state;
+                  return (
+                    source?.data.type !== name && target?.data.type !== name
+                  );
+                }),
+              })),
+            };
+          });
+        },
 
-        if (done <= 0) return;
+        addNode: (
+          type: string,
+          position: Point,
+          parameters: NodeData["parameters"] = {},
+        ) => {
+          const state = get();
+          const allNodeTypes = getAllNodeTypes(state.nodeTypes);
+          const newState = modifyGroup(state, (layer) => ({
+            nodes: [
+              ...layer.nodes.map((node) => ({ ...node, selected: false })),
+              createNode(type, position, allNodeTypes, parameters),
+            ],
+          }));
 
-        state = JSON.parse(JSON.stringify(state));
-        const newState = applyChangeset(state, history[done - 1].diff);
+          set(withHistory(state, newState, "addNode"));
+        },
 
-        set({
-          ...newState,
-          done: done - 1,
-          currentLayer: history[done - 1].layerIdx ?? 0,
-        });
-      },
-    })),
+        addGroup: (position: Point) => {
+          const state = get();
+          const allNodeTypes = getAllNodeTypes(state.nodeTypes);
+          const newState = modifyGroup(state, (graph) =>
+            createGroup(position, graph, allNodeTypes),
+          );
+
+          set(withHistory(state, newState, "addGroup"));
+        },
+
+        renameGroup: (name: string, id: string) => {
+          const state = get();
+          const newState = modifyGroup(state, (layer) => {
+            const group = layer.nodes.find((n) => n.id === id);
+            if (!group || !isGroup(group)) return {};
+
+            return {
+              nodes: [
+                ...layer.nodes.filter((n) => n.id !== id),
+                { ...group, data: { ...group.data, name } },
+              ],
+            };
+          });
+
+          set(withHistory(state, newState, "renameGroup"));
+        },
+
+        removeNode: (id: string) => {
+          const state = get();
+          const newState = modifyGroup(state, (layer) => ({
+            nodes: layer.nodes.filter((node) => node.id !== id),
+          }));
+
+          set(withHistory(state, newState, "removeNode"));
+        },
+
+        changeLayerName: (name: string, idx: number) => {
+          const state = get();
+          const newState = modifyLayer(state, () => ({ name }), idx);
+
+          set(withHistory(state, newState, "renameLayer"));
+        },
+
+        removeLayer: (i: number) => {
+          const state = get();
+          const { layers, currentLayer, currentGroup } = state;
+
+          if (layers.length <= 1) return;
+
+          const newLayers = [...layers.slice(0, i), ...layers.slice(i + 1)];
+          const newCurrentLayer =
+            i <= currentLayer ? Math.max(0, currentLayer - 1) : currentLayer;
+
+          const newState = {
+            layers: newLayers,
+            currentLayer: newCurrentLayer,
+            currentGroup: newCurrentLayer === currentLayer ? currentGroup : [],
+          };
+
+          set(withHistory(state, newState, "removeLayer"));
+        },
+
+        duplicateLayer: (i: number) => {
+          const state = get();
+          const { layers } = state;
+
+          const sourceLayer = layers[i];
+          const newLayerIdx = i + 1;
+
+          const newLayer: Layer = {
+            ...sourceLayer,
+            name: sourceLayer.name + " copy",
+            id: newLayerId(),
+          };
+
+          const newLayers = [
+            ...layers.slice(0, newLayerIdx),
+            newLayer,
+            ...layers.slice(newLayerIdx),
+          ];
+
+          const newState = {
+            layers: newLayers,
+            currentLayer: newLayerIdx,
+            currentGroup: [],
+          };
+
+          set(withHistory(state, newState, "duplicateLayer"));
+        },
+
+        goTo: (to: number) => {
+          const state = get() as ProjectStore;
+          let { done } = state;
+          if (to === done) return;
+
+          const { undo, redo } = state;
+          if (to > done) {
+            while (done !== to) {
+              undo();
+              done++;
+            }
+          } else {
+            while (done !== to) {
+              redo();
+              done--;
+            }
+          }
+        },
+
+        undo: () => {
+          const state = get();
+          const {
+            history,
+            done,
+            currentRoomId,
+            yjsDoc,
+            realtimeChannel,
+            awareness,
+            collaborationEnabled,
+            connectedUsers,
+            ...cleanState
+          } = state as typeof state & {
+            currentRoomId?: string | null;
+            yjsDoc?: unknown;
+            realtimeChannel?: unknown;
+            awareness?: unknown;
+            collaborationEnabled?: boolean;
+            connectedUsers?: unknown[];
+          };
+
+          if (history.length <= done) return;
+
+          const serializable = JSON.parse(JSON.stringify(cleanState));
+          const newState = revertChangeset(serializable, history[done].diff);
+
+          set({
+            ...newState,
+            done: done + 1,
+            currentLayer: history[done].layerIdx ?? 0,
+          });
+
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yNodes = yjsDoc.getMap("nodes");
+            const yEdges = yjsDoc.getMap("edges");
+            yjsDoc.transact(() => {
+              yNodes.clear();
+              yEdges.clear();
+              for (const node of currentGraph.nodes) {
+                yNodes.set(node.id, node);
+              }
+              for (const edge of currentGraph.edges) {
+                yEdges.set(edge.id, edge);
+              }
+            });
+          }
+        },
+
+        redo: () => {
+          const state = get();
+          const {
+            history,
+            done,
+            currentRoomId,
+            yjsDoc,
+            realtimeChannel,
+            awareness,
+            collaborationEnabled,
+            connectedUsers,
+            ...cleanState
+          } = state as typeof state & {
+            currentRoomId?: string | null;
+            yjsDoc?: unknown;
+            realtimeChannel?: unknown;
+            awareness?: unknown;
+            collaborationEnabled?: boolean;
+            connectedUsers?: unknown[];
+          };
+
+          if (done <= 0) return;
+
+          const serializable = JSON.parse(JSON.stringify(cleanState));
+          const newState = applyChangeset(serializable, history[done - 1].diff);
+
+          set({
+            ...newState,
+            done: done - 1,
+            currentLayer: history[done - 1].layerIdx ?? 0,
+          });
+
+          if (collaborationEnabled && yjsDoc) {
+            const updatedState = get();
+            const currentGraph = updatedState.layers[updatedState.currentLayer];
+            const yNodes = yjsDoc.getMap("nodes");
+            const yEdges = yjsDoc.getMap("edges");
+            yjsDoc.transact(() => {
+              yNodes.clear();
+              yEdges.clear();
+              for (const node of currentGraph.nodes) {
+                yNodes.set(node.id, node);
+              }
+              for (const edge of currentGraph.edges) {
+                yEdges.set(edge.id, edge);
+              }
+            });
+          }
+        },
+      }),
+    ),
     {
       name: "main-store",
       merge: (persisted, current) => ({
         ...current,
         ...mergeProject(persisted, current),
       }),
-      partialize: prepareProjectForExport,
+      partialize: (state) => {
+        const {
+          currentRoomId,
+          yjsDoc,
+          realtimeChannel,
+          awareness,
+          collaborationEnabled,
+          connectedUsers,
+          ...rest
+        } = state;
+        return prepareProjectForExport(rest);
+      },
     },
   ),
 );

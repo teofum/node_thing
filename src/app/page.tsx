@@ -20,6 +20,7 @@ import {
 } from "./actions";
 import { createClient } from "@/lib/supabase/server";
 import { Tutorial } from "./components/tutorials/tutorial";
+import { ShareButton } from "./components/workspace/share-button";
 import Image from "next/image";
 
 export default async function Home() {
@@ -92,6 +93,8 @@ export default async function Home() {
         <LinkButton href="/marketplace" variant="outline">
           Marketplace
         </LinkButton>
+
+        <ShareButton />
 
         <AuthButton />
       </div>
