@@ -73,7 +73,7 @@ export function RenderShaderNode(props: ShaderNodeProps<ShaderNode>) {
     );
 
   const node = (
-    <ShaderNodeContainer {...props}>
+    <div>
       <div
         className={cn(
           "text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px]",
@@ -116,23 +116,27 @@ export function RenderShaderNode(props: ShaderNodeProps<ShaderNode>) {
           <NodeOutput key={key} output={[key, output]} {...props} />
         ))}
       </div>
-    </ShaderNodeContainer>
+    </div>
   );
 
   const showTooltip = props.mock
     ? nodeTypeInfo.category !== "Custom" && !nodeTypeInfo.externalShaderId
     : tooltipsEnabled && nodeTypeInfo.tooltip;
 
-  return showTooltip ? (
-    <Tooltip
-      className="max-w-70 max-h-70"
-      content={nodeTypeInfo.tooltip ?? "(Missing description)"}
-      side={props.mock ? "right" : "top"}
-      delay={700}
-    >
-      {node}
-    </Tooltip>
-  ) : (
-    node
+  return (
+    <ShaderNodeContainer {...props}>
+      {showTooltip ? (
+        <Tooltip
+          className="max-w-70 max-h-70"
+          content={nodeTypeInfo.tooltip ?? "(Missing description)"}
+          side={props.mock ? "right" : "top"}
+          delay={700}
+        >
+          {node}
+        </Tooltip>
+      ) : (
+        node
+      )}
+    </ShaderNodeContainer>
   );
 }
