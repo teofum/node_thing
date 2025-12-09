@@ -43,6 +43,11 @@ export function RenderShaderNode(props: ShaderNodeProps<ShaderNode>) {
   const { data } = props;
   const nodeTypes = useNodeTypes();
   const remove = useProjectStore((s) => s.removeNode);
+  const connectedUsers = useProjectStore((s) => s.connectedUsers);
+
+  const usersEditingThisNode = (connectedUsers || []).filter(
+    (user) => user.selectedNode === props.id,
+  );
 
   const tooltipsEnabled = useConfigStore((s) => s.view.tooltipsEnabled);
 
@@ -76,7 +81,7 @@ export function RenderShaderNode(props: ShaderNodeProps<ShaderNode>) {
     <div>
       <div
         className={cn(
-          "text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px]",
+          "text-xs/5 px-3 py-1.5 font-bold border-b border-white/15 bg-clip-padding rounded-t-[11px] relative",
           {
             "bg-purple-400/15":
               data.type === "__output" || nodeTypeInfo.category === "Group",
@@ -87,6 +92,30 @@ export function RenderShaderNode(props: ShaderNodeProps<ShaderNode>) {
           },
         )}
       >
+        {usersEditingThisNode.length > 0 && (
+          <div className="absolute -top-1 -right-1 flex -space-x-1">
+            {usersEditingThisNode.slice(0, 2).map((user) => (
+              <div
+                key={user.id}
+                className="w-5 h-5 rounded-full border-2 border-neutral-950 overflow-hidden"
+                style={{ backgroundColor: user.color }}
+                title={user.name}
+              >
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white text-[8px] font-bold">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
         <div className="flex items-center gap-1">
           {nodeTypeInfo.name}
           {nodeTypeInfo.externalShaderId &&

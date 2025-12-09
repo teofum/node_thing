@@ -60,7 +60,7 @@ function StringParameter({ id, data, name, param }: ParameterProps) {
         variant="outline"
         size="sm"
         className="col-span-2"
-        value={data.parameters[name].value ?? ""}
+        value={data.parameters[name]?.value ?? ""}
         onChange={(ev) => setParameter(id, name, ev.target.value)}
       />
     </div>
