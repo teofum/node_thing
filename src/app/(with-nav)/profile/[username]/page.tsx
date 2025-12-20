@@ -52,7 +52,7 @@ export default async function ProfilePage({
   } else {
     const { data: publicProfile } = await supabase
       .from("profiles")
-      .select("username, display_name, is_premium, avatar_url")
+      .select("username, display_name, avatar_url")
       .eq("id", profile.id)
       .single();
     const { data: authUser } = await supabase.auth.admin.getUserById(
@@ -61,7 +61,6 @@ export default async function ProfilePage({
     userData = {
       username: publicProfile?.username || username,
       displayName: publicProfile?.display_name || null,
-      isPremium: publicProfile?.is_premium || null,
     };
     profileUser = {
       ...user,

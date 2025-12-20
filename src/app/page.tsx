@@ -49,7 +49,7 @@ export default async function Home() {
   if (user) {
     const { data: data, error } = await supabase
       .from("profiles")
-      .select("username, is_premium")
+      .select("username")
       .eq("id", user.id)
       .single();
 
