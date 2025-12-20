@@ -8,10 +8,7 @@ import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 export type UserData = {
   username: string;
   displayName: string | null;
-  isPremium: boolean | null;
   mpAccessToken?: string | null;
-  cancelled?: boolean | null;
-  subscriptionId?: string | null;
 };
 
 export async function getUser() {
@@ -29,9 +26,7 @@ export async function getUserData() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select(
-      "username, display_name, is_premium, mp_access_token, cancelled, subscription_id",
-    )
+    .select("username, display_name, mp_access_token")
     .eq("id", user.id)
     .single();
 
