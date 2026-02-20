@@ -83,7 +83,6 @@
     "json-diff-ts": "^4.8.2",
     "jszip": "^3.10.1",
     "mediabunny": "^1.23.0",
-    "mercadopago": "^2.9.0",
     "nanoid": "^5.1.6",
     "next": "15.5.7",
     "react": "19.2.1",
