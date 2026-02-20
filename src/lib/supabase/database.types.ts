@@ -97,7 +97,6 @@ export type Database = {
           id: string;
           image_name: string | null;
           name: string | null;
-          price: number | null;
           published: boolean | null;
           updated_at: string | null;
           user_id: string;
@@ -111,7 +110,6 @@ export type Database = {
           id?: string;
           image_name?: string | null;
           name?: string | null;
-          price?: number | null;
           published?: boolean | null;
           updated_at?: string | null;
           user_id: string;
@@ -125,7 +123,6 @@ export type Database = {
           id?: string;
           image_name?: string | null;
           name?: string | null;
-          price?: number | null;
           published?: boolean | null;
           updated_at?: string | null;
           user_id?: string;
@@ -284,7 +281,6 @@ export type Database = {
           id: string;
           image_name: string | null;
           node_config: Json | null;
-          price: number;
           published: boolean | null;
           step: number | null;
           title: string;
@@ -300,7 +296,6 @@ export type Database = {
           id?: string;
           image_name?: string | null;
           node_config?: Json | null;
-          price: number;
           published?: boolean | null;
           step?: number | null;
           title: string;
@@ -316,7 +311,6 @@ export type Database = {
           id?: string;
           image_name?: string | null;
           node_config?: Json | null;
-          price?: number;
           published?: boolean | null;
           step?: number | null;
           title?: string;
@@ -402,7 +396,6 @@ export type Database = {
           downloads: number;
           id: string;
           image_name: string;
-          price: number;
           profiles: Json;
           rating_count: number;
           title: string;
@@ -457,7 +450,6 @@ export type Database = {
           downloads: number;
           id: string;
           image_name: string;
-          price: number;
           profiles: Json;
           rating_count: number;
           title: string;
