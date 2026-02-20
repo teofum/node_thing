@@ -7,7 +7,6 @@ import ItemCard from "./itemcard";
 interface Shader {
   id: string;
   title: string;
-  price: number;
   averageRating?: number | null;
   ratingCount?: number | null;
   downloads: number;
@@ -22,7 +21,6 @@ interface Project {
   id: string;
   title: string;
   description: string | null;
-  price: number | null;
   downloads: number | null;
   createdAt: string | null;
   updatedAt: string;
@@ -40,7 +38,7 @@ function mixSortedLists(
 ) {
   const mixed: (Shader | Project)[] = [];
 
-  const comparable = ["price", "reviews", "date", "downloads"];
+  const comparable = ["reviews", "date", "downloads"];
 
   if (!comparable.includes(sortBy)) {
     return [...sortedShaders, ...sortedProjects];
@@ -55,10 +53,6 @@ function mixSortedLists(
     let sValue: number, pValue: number;
 
     switch (sortBy) {
-      case "price":
-        sValue = s.price ?? 0;
-        pValue = p.price ?? 0;
-        break;
       case "reviews":
         sValue = s.averageRating ?? 0;
         pValue = 0;
@@ -103,7 +97,7 @@ export function ShaderListClient({
   projects: Project[];
   currentUsername?: string;
 }) {
-  const [sortBy, setSortBy] = useState("price");
+  const [sortBy, setSortBy] = useState("downloads");
   const [ascending, setAscending] = useState(true);
 
   const sortedShaders = useMemo(() => {
@@ -112,10 +106,6 @@ export function ShaderListClient({
       let valA, valB;
 
       switch (sortBy) {
-        case "price":
-          valA = a.price;
-          valB = b.price;
-          break;
         case "reviews":
           valA = a.averageRating ?? 0;
           valB = b.averageRating ?? 0;
@@ -137,7 +127,6 @@ export function ShaderListClient({
       ...p,
       name: p.title ?? "Untitled Project",
       description: p.description ?? "",
-      price: p.price ?? 0,
       createdAt: p.createdAt ?? new Date().toISOString(),
       profiles: { username: p.profiles?.username ?? "" },
     }));
@@ -146,10 +135,6 @@ export function ShaderListClient({
       let valA, valB;
 
       switch (sortBy) {
-        case "price":
-          valA = a.price ?? 0;
-          valB = b.price ?? 0;
-          break;
         case "date":
           valA = new Date(a.createdAt!).getTime();
           valB = new Date(b.createdAt!).getTime();
@@ -189,7 +174,6 @@ export function ShaderListClient({
               key={item.id}
               id={item.id}
               title={item.title}
-              price={item.price}
               downloads={item.downloads}
               isOwned={ownedIds.has(item.id)}
               username={item.profiles?.username}
@@ -211,7 +195,6 @@ export function ShaderListClient({
               key={item.id}
               id={item.id}
               title={item.title ?? "Untilted project"}
-              price={item.price ?? 0}
               downloads={item.downloads ?? 0}
               isOwned={ownedIds.has(item.id)}
               username={item.profiles?.username}

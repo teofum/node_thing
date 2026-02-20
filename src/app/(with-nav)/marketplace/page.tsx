@@ -1,7 +1,6 @@
 import { LuGitFork, LuPlus, LuSearch } from "react-icons/lu";
 
 import { Button, LinkButton } from "@/ui/button";
-import { RangeSliderInput } from "@/ui/range-slider";
 import { getCategories, getItems } from "./actions";
 import { ShaderListClient } from "./components/items-sort";
 import { Input } from "@/ui/input";
@@ -13,8 +12,6 @@ type Props = {
     error?: string;
     category?: string | string[];
     search?: string;
-    minPrice?: string;
-    maxPrice?: string;
     type?: string | string[];
   }>;
 };
@@ -69,13 +66,6 @@ export default async function MarketplacePage({ searchParams }: Props) {
     );
   }
 
-  const minPrice = params.minPrice ? Number(params.minPrice) : 0;
-  const maxPrice = params.maxPrice ? Number(params.maxPrice) : Infinity;
-
-  filteredShaders = filteredShaders.filter(
-    (shader) => shader.price >= minPrice && shader.price <= maxPrice,
-  );
-
   let filteredProjects = projects;
   if (searchTerm) {
     const searchLower = searchTerm.toLowerCase().trim();
@@ -86,10 +76,6 @@ export default async function MarketplacePage({ searchParams }: Props) {
           project.description.toLowerCase().includes(searchLower)),
     );
   }
-
-  filteredProjects = filteredProjects.filter(
-    (project) => project.price >= minPrice && project.price <= maxPrice,
-  );
 
   if (!selectedTypes.includes("shader")) filteredShaders = [];
   if (!selectedTypes.includes("project")) filteredProjects = [];
@@ -142,17 +128,9 @@ export default async function MarketplacePage({ searchParams }: Props) {
             <LuSearch size={20} />
           </Button>
 
-          <div className="mt-4">
-            <RangeSliderInput
-              min={0}
-              max={99000}
-              step={1000}
-              defaultMin={Number(params.minPrice) || 0}
-              defaultMax={Number(params.maxPrice) || 99000}
-              nameMin="minPrice"
-              nameMax="maxPrice"
-            />
-          </div>
+          {/* <div className="mt-4">
+            Deleted RangeSliderInput for price
+          </div> */}
         </form>
 
         <div className="mb-6 flex justify-center gap-2 flex-wrap">
@@ -172,8 +150,6 @@ export default async function MarketplacePage({ searchParams }: Props) {
               typeParams.append("category", cat),
             );
             newTypes.forEach((t) => typeParams.append("type", t));
-            if (params.minPrice) typeParams.set("minPrice", params.minPrice);
-            if (params.maxPrice) typeParams.set("maxPrice", params.maxPrice);
 
             const typeUrl = `/marketplace${
               typeParams.toString() ? "?" + typeParams.toString() : ""

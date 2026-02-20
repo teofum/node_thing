@@ -12,10 +12,9 @@ import { LuTrash2 } from "react-icons/lu";
 import { addToLibrary } from "../actions";
 
 type ItemCardProps = {
-  itemType: "Shader" | "Project"; // TODO group in the future
+  itemType: "Shader" | "Project";
   id: string;
   title: string;
-  price: number;
   downloads: number;
   isOwned: boolean;
   username?: string;
@@ -32,7 +31,6 @@ export default function ItemCard({
   itemType,
   id,
   title,
-  price,
   downloads,
   isOwned,
   username,
@@ -100,7 +98,6 @@ export default function ItemCard({
       </Link>
 
       <div className="flex flex-row gap-3">
-        <div className="grow text-2xl font-bold text-teal-400">${price}</div>
         <div className="flex flex-row items-center gap-1 text-white/60">
           <LuDownload /> {downloads}
         </div>
