@@ -29,16 +29,14 @@ export function PublishDialog({
   // TODO pending behaviour
   const [handlePublishState, handlePublishAction, handlePublishPending] =
     useActionState(async (_prevState: null, formData: FormData) => {
-      const priceStr = formData.get("price") as string;
       const description = formData.get("description") as string;
-      const price = Number(priceStr) || 0;
       const image = formData.get("image") as File | null;
 
       if (type === "shader") {
         const categoryId = Number(formData.get("categoryId"));
-        await publishShader(id, price, description, categoryId, image);
+        await publishShader(id, description, categoryId, image);
       } else {
-        await publishProject(id, price, description, image);
+        await publishProject(id, description, image);
       }
 
       props.onOpenChange?.(false);
@@ -55,28 +53,6 @@ export function PublishDialog({
     >
       <form action={handlePublishAction}>
         <div className="h-full min-h-0 overflow-auto p-4 border-white/15">
-          <div className="font-semibold text-lg mt-3">Price</div>
-
-          <div className="flex items-center gap-2">
-            <Input
-              name="price"
-              type="number"
-              defaultValue=""
-              autoFocus
-              className="w-full"
-              required
-            />
-            <Tooltip
-              content={
-                "Currently AR$ (Argentine Peso) is the only supported currency"
-              }
-              side={"right"}
-              delay={200}
-            >
-              <p>AR$</p>
-            </Tooltip>
-          </div>
-
           <div className="font-semibold text-lg mt-4">Description</div>
           <Input name="description" defaultValue="" className="w-full" />
 
