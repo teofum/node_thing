@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { LuGem, LuPencil } from "react-icons/lu";
+import { LuPencil } from "react-icons/lu";
 import { signOutAction } from "@/app/auth/actions";
 import { Button } from "@/ui/button";
 import type { User } from "@supabase/supabase-js";
@@ -55,12 +55,9 @@ export default function ProfileHeader({
           />
         )}
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">
-              {userData.displayName || userData.username}
-            </h1>
-            {userData.isPremium && <LuGem className="text-xl" />}
-          </div>
+          <h1 className="text-2xl font-bold">
+            {userData.displayName || userData.username}
+          </h1>
           <div className="flex items-center gap-4 mt-1">
             <span className="text-sm text-white/60">@{userData.username}</span>
             <span className="text-sm text-white/60">

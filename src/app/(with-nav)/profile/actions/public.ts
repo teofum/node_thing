@@ -9,7 +9,7 @@ export async function getPublicUserData(username: string) {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, username, is_premium")
+    .select("id, username")
     .eq("username", username)
     .single();
 

@@ -20,7 +20,6 @@ import { ConfirmImport } from "./confirm-import";
 export interface ProjectsMenuProps {
   userData: {
     username: string;
-    is_premium: boolean | null;
   } | null;
   projects: Tables<"projects">[];
   purchasedProjects: Tables<"projects">[];
@@ -56,19 +55,8 @@ export function ProjectsMenu({
     return null;
   }, null);
 
-  if (!userData || !userData.is_premium) {
-    return (
-      <Menu label="Projects" value="file">
-        <MenuItem icon={<LuGem />}>
-          <Link
-            href={`/profile/${userData?.username}`}
-            className="w-full h-full"
-          >
-            Premium
-          </Link>
-        </MenuItem>
-      </Menu>
-    );
+  if (!userData) {
+    return null;
   }
 
   return (

@@ -5,12 +5,6 @@ import { SupabaseClient, User } from "@supabase/supabase-js";
 export async function getProjects() {
   const { supabase, user } = await getSupabaseUserOrRedirect("/onboarding");
 
-  if ((await getUserData(supabase, user))?.is_premium === false) {
-    return [];
-  }
-
-  let projects: Tables<"projects">[] = [];
-
   const { data: projectData, error: projectError } = await supabase
     .from("projects")
     .select("*")
@@ -21,19 +15,13 @@ export async function getProjects() {
     throw new Error(`Failed to load projects: ${projectError.message}`);
   }
 
-  projects = projectData ?? [];
+  const projects: Tables<"projects">[] = projectData ?? [];
 
   return projects;
 }
 
 export async function getPurchasedProjects() {
   const { supabase, user } = await getSupabaseUserOrRedirect("/onboarding");
-
-  if ((await getUserData(supabase, user))?.is_premium === false) {
-    return [];
-  }
-
-  let purchasedProjects: Tables<"projects">[] = [];
 
   const { data: purchasedProjectData, error: purchasedProjectError } =
     await supabase
@@ -54,7 +42,7 @@ export async function getPurchasedProjects() {
     );
   }
 
-  purchasedProjects =
+  const purchasedProjects =
     (purchasedProjectData
       ?.map((p) => p.projects)
       .filter((p) => p !== null) as Tables<"projects">[]) ?? [];
@@ -65,7 +53,7 @@ export async function getPurchasedProjects() {
 export async function getUserData(supabase: SupabaseClient, user: User) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("username, is_premium")
+    .select("username")
     .eq("id", user.id)
     .single();
 

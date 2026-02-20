@@ -18,28 +18,13 @@ export async function getUserProjects() {
     redirect("/auth/login?next=/marketplace/upload");
   }
 
-  let projects: Tables<"projects">[] = [];
+  const { data: projectData } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false });
 
-  if (user) {
-    const { data: data, error } = await supabase
-      .from("profiles")
-      .select("username, is_premium")
-      .eq("id", user.id)
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to load user data: ${error.message}`);
-    }
-
-    if (data?.is_premium) {
-      const { data: projectData } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("updated_at", { ascending: false });
-      projects = projectData ?? [];
-    }
-  }
+  const projects: Tables<"projects">[] = projectData ?? [];
 
   return projects;
 }
