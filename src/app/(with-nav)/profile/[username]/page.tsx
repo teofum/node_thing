@@ -97,7 +97,7 @@ export default async function ProfilePage({
             {isOwnProfile && (
               <>
                 <Tabs.Trigger className={triggerStyle} value="tab2">
-                  Purchased
+                  In library
                 </Tabs.Trigger>
                 <Tabs.Trigger className={triggerStyle} value="tab3">
                   Settings
