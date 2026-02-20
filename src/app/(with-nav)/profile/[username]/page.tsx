@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import * as Tabs from "@radix-ui/react-tabs";
 import ProfileHeader from "../components/profile-header";
 import ItemsTab from "../components/items-tab";
-import PremiumTab from "../components/premium-tab";
 import SettingsTab from "../components/settings-tab";
 import {
   getPublicPublishedShaders,
@@ -101,9 +100,6 @@ export default async function ProfilePage({
                   Purchased
                 </Tabs.Trigger>
                 <Tabs.Trigger className={triggerStyle} value="tab3">
-                  Premium
-                </Tabs.Trigger>
-                <Tabs.Trigger className={triggerStyle} value="tab4">
                   Settings
                 </Tabs.Trigger>
               </>
@@ -141,16 +137,6 @@ export default async function ProfilePage({
               <Tabs.Content
                 className="grow rounded-b-md p-5 outline-none"
                 value="tab3"
-              >
-                <PremiumTab
-                  className="rounded-2xl p-4 min-h-[300px] mb-3"
-                  userData={userData}
-                  user={user}
-                />
-              </Tabs.Content>
-              <Tabs.Content
-                className="grow rounded-b-md p-5 outline-none"
-                value="tab4"
               >
                 <SettingsTab
                   className="rounded-2xl p-4 min-h-[300px] mb-3"
