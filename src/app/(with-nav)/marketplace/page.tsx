@@ -1,4 +1,4 @@
-import { LuPlus, LuSearch } from "react-icons/lu";
+import { LuGitFork, LuPlus, LuSearch } from "react-icons/lu";
 
 import { Button, LinkButton } from "@/ui/button";
 import { RangeSliderInput } from "@/ui/range-slider";
@@ -105,6 +105,10 @@ export default async function MarketplacePage({ searchParams }: Props) {
             </p>
           </div>
           <div className="flex gap-4 items-center">
+            <LinkButton href={`/profile/${userData.username}`}>
+              <LuGitFork />
+              Library
+            </LinkButton>
             <LinkButton href="/marketplace/upload">
               <LuPlus />
               Create
