@@ -88,26 +88,27 @@ export default async function ProfilePage({
 
         <Tabs.Root
           className="flex flex-col border border-white/15 rounded-2xl"
-          defaultValue="tab1"
+          defaultValue={isOwnProfile ? "library" : "published"}
         >
           <Tabs.List className="flex shrink-0">
-            <Tabs.Trigger className={triggerStyle} value="tab1">
+            {isOwnProfile && (
+              <Tabs.Trigger className={triggerStyle} value="library">
+                In library
+              </Tabs.Trigger>
+            )}
+            <Tabs.Trigger className={triggerStyle} value="published">
               Published
             </Tabs.Trigger>
+
             {isOwnProfile && (
-              <>
-                <Tabs.Trigger className={triggerStyle} value="tab2">
-                  In library
-                </Tabs.Trigger>
-                <Tabs.Trigger className={triggerStyle} value="tab3">
-                  Settings
-                </Tabs.Trigger>
-              </>
+              <Tabs.Trigger className={triggerStyle} value="settings">
+                Settings
+              </Tabs.Trigger>
             )}
           </Tabs.List>
           <Tabs.Content
             className="grow rounded-b-md p-5 outline-none"
-            value="tab1"
+            value="published"
           >
             <ItemsTab
               shadersList={publishedShaders}
@@ -123,7 +124,7 @@ export default async function ProfilePage({
             <>
               <Tabs.Content
                 className="grow rounded-b-md p-5 outline-none"
-                value="tab2"
+                value="library"
               >
                 <ItemsTab
                   shadersList={purchasedShaders}
@@ -136,7 +137,7 @@ export default async function ProfilePage({
               </Tabs.Content>
               <Tabs.Content
                 className="grow rounded-b-md p-5 outline-none"
-                value="tab3"
+                value="settings"
               >
                 <SettingsTab
                   className="rounded-2xl p-4 min-h-[300px] mb-3"
