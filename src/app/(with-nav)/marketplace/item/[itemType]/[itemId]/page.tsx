@@ -153,7 +153,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
               {item.incart ? (
                 <div className="flex justify-center items-center h-13.5 text-base/5 font-semibold rounded-lg border border-current/15 select-none">
                   <LuCircleCheckBig className="inline mr-2 text-emerald-600" />
-                  In cart
+                  In library
                 </div>
               ) : (
                 <form action={addToCart}>
@@ -170,7 +170,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
                     className="flex items-center text-emerald-600 w-full"
                   >
                     <LuPlus />
-                    Add to cart
+                    Add to library
                   </Button>
                 </form>
               )}
