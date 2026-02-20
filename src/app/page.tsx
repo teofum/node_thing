@@ -22,6 +22,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Tutorial } from "./components/tutorials/tutorial";
 import { ShareButton } from "./components/workspace/share-button";
 import Image from "next/image";
+import { ContributeButton } from "./components/workspace/contribute-button";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -96,6 +97,8 @@ export default async function Home() {
 
         <ShareButton />
 
+        <ContributeButton />
+
         <AuthButton />
       </div>
 
@@ -118,4 +121,3 @@ export default async function Home() {
     </div>
   );
 }
-
