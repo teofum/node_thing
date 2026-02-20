@@ -146,37 +146,6 @@ export async function getCategories(): Promise<Category[]> {
   return categories || [];
 }
 
-// get shaders that the user bought so they can use them in the editor
-// it's not a marketplace action, but I don't know where else to put it :/
-export async function getPurchasedShaders() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return [];
-  }
-
-  const { data: purchases } = await supabase
-    .from("purchases")
-    .select(
-      `
-      shader:shaders (
-        id,
-        title,
-        code,
-        node_config,
-        category:categories(name)
-      )
-    `,
-    )
-    .eq("user_id", user.id)
-    .not("shader_id", "is", null);
-
-  return purchases?.map((p) => p.shader).filter(Boolean) || [];
-}
-
 export async function getImage(itemType: "shader" | "project", itemId: string) {
   const { supabase } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/marketplace",
@@ -201,4 +170,45 @@ export async function getImage(itemType: "shader" | "project", itemId: string) {
     .getPublicUrl(imageName.image_name);
 
   return data.publicUrl;
+}
+
+export async function addToLibrary(formData: FormData) {
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
+
+  const itemId = formData.get("itemId") as string;
+  const itemType = formData.get("itemType") as "shader" | "project";
+
+  const table = itemType === "shader" ? "shaders" : "projects";
+  const idType = itemType === "shader" ? "shader_id" : "project_id";
+
+  const { data: item, error } = await supabase
+    .from(table)
+    .select("id, price, user_id")
+    .eq("id", itemId)
+    .single();
+
+  if (!item || error) {
+    redirect(
+      `/marketplace?error=${encodeURIComponent(`${itemType} not found`)}`,
+    );
+  }
+
+  // check if already in user library
+  const { error: insertErr } = await supabase.from("purchases").insert({
+    user_id: user.id,
+    shader_id: itemType === "shader" ? itemId : null,
+    project_id: itemType === "project" ? itemId : null,
+    item_type: itemType,
+  });
+
+  if (insertErr) {
+    redirect(
+      `/marketplace?error=${encodeURIComponent(`Failed to add to library: ${insertErr?.message}`)}`,
+    );
+  }
+
+  revalidatePath("/marketplace");
+  // revalidatePath("/marketplace/library"); // TODO
 }

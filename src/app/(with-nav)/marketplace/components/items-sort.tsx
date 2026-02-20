@@ -94,12 +94,12 @@ function mixSortedLists(
 
 export function ShaderListClient({
   shaders,
-  cartIds,
+  ownedIds,
   projects,
   currentUsername,
 }: {
   shaders: Shader[];
-  cartIds: Set<string>;
+  ownedIds: Set<string>;
   projects: Project[];
   currentUsername?: string;
 }) {
@@ -191,7 +191,7 @@ export function ShaderListClient({
               title={item.title}
               price={item.price}
               downloads={item.downloads}
-              inCart={cartIds.has(item.id)}
+              isOwned={ownedIds.has(item.id)}
               username={item.profiles?.username}
               isOwn={item.profiles?.username === currentUsername}
               category={item.category.name}
@@ -213,7 +213,7 @@ export function ShaderListClient({
               title={item.title ?? "Untilted project"}
               price={item.price ?? 0}
               downloads={item.downloads ?? 0}
-              inCart={cartIds.has(item.id)}
+              isOwned={ownedIds.has(item.id)}
               username={item.profiles?.username}
               isOwn={item.profiles?.username === currentUsername}
               createdAt={item.createdAt ?? new Date().toISOString()}

@@ -17,7 +17,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import type * as Y from "yjs";
 import type { Awareness } from "y-protocols/awareness";
 
-import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
+import { getPurchasedShaders } from "@/app/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { createGroup, createNode } from "@/utils/node";
 import { Point } from "@/utils/point";

@@ -1,6 +1,9 @@
+"use server";
+
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import { Tables } from "@/lib/supabase/database.types";
 import { SupabaseClient, User } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
 
 export async function getProjects() {
   const { supabase, user } = await getSupabaseUserOrRedirect("/onboarding");
@@ -18,6 +21,35 @@ export async function getProjects() {
   const projects: Tables<"projects">[] = projectData ?? [];
 
   return projects;
+}
+
+export async function getPurchasedShaders() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
+  const { data: purchases } = await supabase
+    .from("purchases")
+    .select(
+      `
+      shader:shaders (
+        id,
+        title,
+        code,
+        node_config,
+        category:categories(name)
+      )
+    `,
+    )
+    .eq("user_id", user.id)
+    .not("shader_id", "is", null);
+
+  return purchases?.map((p) => p.shader).filter(Boolean) || [];
 }
 
 export async function getPurchasedProjects() {

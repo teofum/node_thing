@@ -10,10 +10,9 @@ import {
 } from "../../actions";
 import { Button } from "@/ui/button";
 import { Stars } from "../../../components/stars";
-import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
 import { loadImageFromFile } from "@/utils/image";
 import { UploadImage } from "./components/upload-image";
-import { getImage } from "../../../actions";
+import { addToLibrary, getImage } from "../../../actions";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import Link from "next/link";
 import { Dialog, DialogClose } from "@/ui/dialog";
@@ -156,7 +155,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
                   In library
                 </div>
               ) : (
-                <form action={addToCart}>
+                <form action={addToLibrary}>
                   <input type="hidden" name="itemId" value={item.id} />
                   <input
                     type="hidden"

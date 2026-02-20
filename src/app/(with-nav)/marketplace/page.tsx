@@ -3,11 +3,10 @@ import { LuPlus, LuSearch } from "react-icons/lu";
 import { Button, LinkButton } from "@/ui/button";
 import { RangeSliderInput } from "@/ui/range-slider";
 import { getCategories, getItems } from "./actions";
-import { getCartItems } from "./cart.actions";
 import { ShaderListClient } from "./components/items-sort";
-import { Cart } from "./components/cart";
 import { Input } from "@/ui/input";
 import { getUserData } from "../profile/actions/user";
+import { getPurchasedProjects, getPurchasedShaders } from "@/app/actions";
 
 type Props = {
   searchParams: Promise<{
@@ -24,13 +23,18 @@ export default async function MarketplacePage({ searchParams }: Props) {
   const params = await searchParams;
   const { shaders, projects } = await getItems();
   const categories = await getCategories();
-  const cartItems = await getCartItems();
+  const purchasedShaders = await getPurchasedShaders();
+  const purchasedProjects = await getPurchasedProjects();
   const userData = await getUserData();
-  const cartIds = new Set(
-    cartItems
-      .map((item) => item.shader_id || item.project_id)
+  const ownedIds = new Set<string>([
+    ...purchasedShaders
+      .map((shader) => shader?.id)
       .filter((id): id is string => id !== null),
-  );
+
+    ...purchasedProjects
+      .map((project) => project?.id)
+      .filter((id): id is string => id !== null),
+  ]);
 
   // Filter by category and search from URL params to not use client-side
   const selectedCategories = Array.isArray(params.category)
@@ -101,7 +105,6 @@ export default async function MarketplacePage({ searchParams }: Props) {
             </p>
           </div>
           <div className="flex gap-4 items-center">
-            <Cart items={cartItems} />
             <LinkButton href="/marketplace/upload">
               <LuPlus />
               Create
@@ -247,7 +250,7 @@ export default async function MarketplacePage({ searchParams }: Props) {
           <ShaderListClient
             shaders={filteredShaders}
             projects={filteredProjects}
-            cartIds={cartIds}
+            ownedIds={ownedIds}
             currentUsername={userData.username}
           />
         )}
