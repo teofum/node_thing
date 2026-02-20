@@ -53,38 +53,20 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null;
-          cancelled: boolean | null;
           display_name: string | null;
           id: string;
-          is_premium: boolean | null;
-          mp_access_token: string | null;
-          mp_refresh_token: string | null;
-          mp_user_id: string | null;
-          subscription_id: string | null;
           username: string;
         };
         Insert: {
           avatar_url?: string | null;
-          cancelled?: boolean | null;
           display_name?: string | null;
           id: string;
-          is_premium?: boolean | null;
-          mp_access_token?: string | null;
-          mp_refresh_token?: string | null;
-          mp_user_id?: string | null;
-          subscription_id?: string | null;
           username: string;
         };
         Update: {
           avatar_url?: string | null;
-          cancelled?: boolean | null;
           display_name?: string | null;
           id?: string;
-          is_premium?: boolean | null;
-          mp_access_token?: string | null;
-          mp_refresh_token?: string | null;
-          mp_user_id?: string | null;
-          subscription_id?: string | null;
           username?: string;
         };
         Relationships: [];
