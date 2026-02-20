@@ -116,8 +116,6 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             </div>
           </div>
 
-          {/*Add to Cart or Delete Post*/}
-
           {owner ? (
             <Dialog
               title="Delete publication"
@@ -149,7 +147,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             </Dialog>
           ) : (
             <div className="mt-2">
-              {item.incart ? (
+              {item.isowned ? (
                 <div className="flex justify-center items-center h-13.5 text-base/5 font-semibold rounded-lg border border-current/15 select-none">
                   <LuCircleCheckBig className="inline mr-2 text-emerald-600" />
                   In library
