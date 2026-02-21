@@ -26,7 +26,6 @@ export async function saveNewShader(desc: {
       title: desc.name.trim(),
       description: "",
       code: desc.code.trim(),
-      price: 0,
       category_id: 0,
       node_config: desc,
     })
