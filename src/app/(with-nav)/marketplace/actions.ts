@@ -185,7 +185,7 @@ export async function addToLibrary(formData: FormData) {
 
   const { data: item, error } = await supabase
     .from(table)
-    .select("id, price, user_id")
+    .select("id, user_id")
     .eq("id", itemId)
     .single();
 
@@ -193,6 +193,17 @@ export async function addToLibrary(formData: FormData) {
     redirect(
       `/marketplace?error=${encodeURIComponent(`${itemType} not found`)}`,
     );
+  }
+
+  const { data: existing } = await supabase
+    .from("purchases")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq(idType, itemId)
+    .maybeSingle();
+
+  if (existing) {
+    redirect(`/marketplace?error=Already in library`);
   }
 
   // check if already in user library
