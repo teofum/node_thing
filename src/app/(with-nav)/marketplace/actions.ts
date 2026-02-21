@@ -210,5 +210,4 @@ export async function addToLibrary(formData: FormData) {
   }
 
   revalidatePath("/marketplace");
-  // revalidatePath("/marketplace/library"); // TODO
 }
