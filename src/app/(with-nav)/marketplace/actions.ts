@@ -206,7 +206,6 @@ export async function addToLibrary(formData: FormData) {
     redirect(`/marketplace?error=Already in library`);
   }
 
-  // check if already in user library
   const { error: insertErr } = await supabase.from("purchases").insert({
     user_id: user.id,
     shader_id: itemType === "shader" ? itemId : null,
