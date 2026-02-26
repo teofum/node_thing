@@ -40,7 +40,7 @@ export const PublishShaderList = forwardRef<
               )}
             </div>
 
-            <div className="flex">
+            <div className="flex mt-6">
               <PeekCodeDialog
                 trigger={
                   <Button type="submit" variant="outline" size="md" icon>
@@ -55,7 +55,7 @@ export const PublishShaderList = forwardRef<
                   <Button
                     onClick={() => handleView("shader", shader.id)}
                     type="submit"
-                    variant="ghost"
+                    variant="outline"
                     size="md"
                     icon
                   >
@@ -64,7 +64,7 @@ export const PublishShaderList = forwardRef<
                 ) : (
                   <Button
                     type="submit"
-                    variant="ghost"
+                    variant="outline"
                     size="md"
                     icon
                     onClick={() => publish(shader.id)}

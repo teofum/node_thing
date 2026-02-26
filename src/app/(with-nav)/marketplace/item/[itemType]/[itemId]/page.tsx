@@ -10,10 +10,9 @@ import {
 } from "../../actions";
 import { Button } from "@/ui/button";
 import { Stars } from "../../../components/stars";
-import { addToCart } from "@/app/(with-nav)/marketplace/cart.actions";
 import { loadImageFromFile } from "@/utils/image";
 import { UploadImage } from "./components/upload-image";
-import { getImage } from "../../../actions";
+import { addToLibrary, getImage } from "../../../actions";
 import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import Link from "next/link";
 import { Dialog, DialogClose } from "@/ui/dialog";
@@ -99,11 +98,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             )}
           </div>
 
-          <div className="flex flex-row gap-3 mt-30">
-            <div className="grow text-2xl font-bold text-teal-400">
-              Price: ${item.price}
-            </div>
-          </div>
+          <div className="flex flex-row gap-3 mt-30"></div>
 
           <div className="flex flex-row items-center gap-1 text-white/60 mt-2">
             <div className="flex flex-row items-center gap-1 text-white/60 mx-2">
@@ -116,8 +111,6 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
               />
             </div>
           </div>
-
-          {/*Add to Cart or Delete Post*/}
 
           {owner ? (
             <Dialog
@@ -150,13 +143,13 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             </Dialog>
           ) : (
             <div className="mt-2">
-              {item.incart ? (
+              {item.isowned ? (
                 <div className="flex justify-center items-center h-13.5 text-base/5 font-semibold rounded-lg border border-current/15 select-none">
                   <LuCircleCheckBig className="inline mr-2 text-emerald-600" />
-                  In cart
+                  In library
                 </div>
               ) : (
-                <form action={addToCart}>
+                <form action={addToLibrary}>
                   <input type="hidden" name="itemId" value={item.id} />
                   <input
                     type="hidden"
@@ -170,7 +163,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
                     className="flex items-center text-emerald-600 w-full"
                   >
                     <LuPlus />
-                    Add to cart
+                    Add to library
                   </Button>
                 </form>
               )}

@@ -31,7 +31,6 @@ export async function getUserProjects() {
 
 export async function publishShader(
   shaderId: string,
-  price: number,
   description: string,
   categoryId: number,
   image: File | null,
@@ -52,7 +51,6 @@ export async function publishShader(
     .from("shaders")
     .update({
       published: true,
-      price,
       description,
       category_id: categoryId,
       image_name: image ? `shader_${shaderId}` : null,
@@ -65,7 +63,6 @@ export async function publishShader(
 
 export async function publishProject(
   projectID: string,
-  price: number,
   description: string,
   image: File | null,
 ) {
@@ -85,7 +82,6 @@ export async function publishProject(
     .from("projects")
     .update({
       published: true,
-      price,
       description,
       downloads: 0,
       image_name: image ? `project_${projectID}` : null,

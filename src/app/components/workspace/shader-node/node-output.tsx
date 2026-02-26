@@ -26,7 +26,7 @@ export function NodeOutput({
         })}
       />
       <div className="text-white text-xs/4 text-end col-start-3 min-w-4">
-        {output.name}
+        {output.display ?? output.name}
       </div>
     </div>
   );

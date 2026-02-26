@@ -10,67 +10,6 @@ import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 type Category = Tables<"categories">;
 
-export async function uploadShaderAction(formData: FormData) {
-  const { supabase, user } = await getSupabaseUserOrRedirect(
-    `/marketplace/upload?error=${encodeURIComponent("Authentication required")}`,
-  );
-
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const code = formData.get("code") as string;
-  const priceStr = formData.get("price") as string;
-  const categoryIdStr = formData.get("category") as string;
-
-  if (!title?.trim()) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Title is required")}`,
-    );
-  }
-
-  if (!code?.trim()) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Shader code cannot be empty")}`,
-    );
-  }
-
-  const price = parseFloat(priceStr);
-  if (isNaN(price) || price < 0) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Valid price is required")}`,
-    );
-  }
-
-  if (!categoryIdStr) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Category is required")}`,
-    );
-  }
-
-  const categoryId = parseInt(categoryIdStr);
-  if (isNaN(categoryId)) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Invalid category selected")}`,
-    );
-  }
-
-  const { error } = await supabase.from("shaders").insert({
-    user_id: user.id,
-    title: title.trim(),
-    description: description?.trim() || null,
-    code: code.trim(),
-    price,
-    category_id: categoryId,
-    node_config: null,
-  });
-
-  if (error) {
-    redirect(`/marketplace/upload?error=${encodeURIComponent(error.message)}`);
-  }
-
-  revalidatePath("/marketplace");
-  redirect("/marketplace");
-}
-
 export async function getItems() {
   const supabase = await createClient();
   const {
@@ -146,37 +85,6 @@ export async function getCategories(): Promise<Category[]> {
   return categories || [];
 }
 
-// get shaders that the user bought so they can use them in the editor
-// it's not a marketplace action, but I don't know where else to put it :/
-export async function getPurchasedShaders() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return [];
-  }
-
-  const { data: purchases } = await supabase
-    .from("purchases")
-    .select(
-      `
-      shader:shaders (
-        id,
-        title,
-        code,
-        node_config,
-        category:categories(name)
-      )
-    `,
-    )
-    .eq("user_id", user.id)
-    .not("shader_id", "is", null);
-
-  return purchases?.map((p) => p.shader).filter(Boolean) || [];
-}
-
 export async function getImage(itemType: "shader" | "project", itemId: string) {
   const { supabase } = await getSupabaseUserOrRedirect(
     "/auth/login?next=/marketplace",
@@ -201,4 +109,54 @@ export async function getImage(itemType: "shader" | "project", itemId: string) {
     .getPublicUrl(imageName.image_name);
 
   return data.publicUrl;
+}
+
+export async function addToLibrary(formData: FormData) {
+  const { supabase, user } = await getSupabaseUserOrRedirect(
+    "/auth/login?next=/marketplace",
+  );
+
+  const itemId = formData.get("itemId") as string;
+  const itemType = formData.get("itemType") as "shader" | "project";
+
+  const table = itemType === "shader" ? "shaders" : "projects";
+  const idType = itemType === "shader" ? "shader_id" : "project_id";
+
+  const { data: item, error } = await supabase
+    .from(table)
+    .select("id, user_id")
+    .eq("id", itemId)
+    .single();
+
+  if (!item || error) {
+    redirect(
+      `/marketplace?error=${encodeURIComponent(`${itemType} not found`)}`,
+    );
+  }
+
+  const { data: existing } = await supabase
+    .from("purchases")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq(idType, itemId)
+    .maybeSingle();
+
+  if (existing) {
+    redirect(`/marketplace?error=Already in library`);
+  }
+
+  const { error: insertErr } = await supabase.from("purchases").insert({
+    user_id: user.id,
+    shader_id: itemType === "shader" ? itemId : null,
+    project_id: itemType === "project" ? itemId : null,
+    item_type: itemType,
+  });
+
+  if (insertErr) {
+    redirect(
+      `/marketplace?error=${encodeURIComponent(`Failed to add to library: ${insertErr?.message}`)}`,
+    );
+  }
+
+  revalidatePath("/marketplace");
 }

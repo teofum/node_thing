@@ -17,7 +17,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import type * as Y from "yjs";
 import type { Awareness } from "y-protocols/awareness";
 
-import { getPurchasedShaders } from "@/app/(with-nav)/marketplace/actions";
+import { getPurchasedShaders } from "@/app/actions";
 import { NodeData, NodeType, ShaderNode } from "@/schemas/node.schema";
 import { createGroup, createNode } from "@/utils/node";
 import { Point } from "@/utils/point";
@@ -560,6 +560,7 @@ export const useProjectStore = create(
                   shader.id,
                   {
                     ...config,
+                    category: shader.category?.name ?? config.category,
                     externalShaderId: shader.id,
                   },
                 ];
@@ -571,24 +572,12 @@ export const useProjectStore = create(
             custom
               .filter((shader) => shader.node_config)
               .map((shader) => {
-                const config = shader.node_config as NodeTypeDescriptor;
-                const inputs = createHandles(
-                  Array.isArray(config.inputs) ? config.inputs : [],
-                );
-                const outputs = createHandles(
-                  Array.isArray(config.outputs) ? config.outputs : [],
-                );
+                const config = shader.node_config as NodeType;
 
-                const nodeType = {
-                  name: config.name ?? shader.title ?? "Custom",
-                  category: "Custom",
-                  shader: config.code ?? "",
-                  inputs,
-                  outputs,
-                  parameters: {},
-                  externalShaderId: shader.id,
-                };
-                return [`custom_${nodeType.externalShaderId}`, nodeType];
+                return [
+                  `custom_${shader.id}`,
+                  { ...config, externalShaderId: shader.id },
+                ];
               }),
           );
 

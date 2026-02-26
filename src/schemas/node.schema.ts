@@ -4,6 +4,7 @@ import { Node } from "@xyflow/react";
 const handleSchema = z
   .object({
     name: z.string(),
+    display: z.string().optional(),
   })
   .and(
     z.union([

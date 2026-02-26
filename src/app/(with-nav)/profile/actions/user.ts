@@ -26,7 +26,7 @@ export async function getUserData() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("username, display_name, mp_access_token")
+    .select("username, display_name")
     .eq("id", user.id)
     .single();
 

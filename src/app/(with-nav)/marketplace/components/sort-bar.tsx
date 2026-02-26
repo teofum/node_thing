@@ -17,8 +17,8 @@ type SortMenubarProps = {
 };
 
 export function SortMenubar({ onChange }: SortMenubarProps) {
-  const [sortBy, setSortBy] = useState<string>("price");
-  const [isUp, setIsUp] = useState(true);
+  const [sortBy, setSortBy] = useState<string>("downloads");
+  const [isUp, setIsUp] = useState(false);
 
   const handleClick = () => {
     const updateIsUp = !isUp;
@@ -34,7 +34,7 @@ export function SortMenubar({ onChange }: SortMenubarProps) {
   return (
     <div className="flex items-center gap-3 mb-6">
       <span className="text-sm text-white/60">Sort results by:</span>
-      <div className="w-32">
+      <div className="w-36">
         <Select
           placeholder="None"
           variant="outline"
@@ -42,12 +42,6 @@ export function SortMenubar({ onChange }: SortMenubarProps) {
           value={sortBy}
           onValueChange={handleSelect}
         >
-          <SelectItem value="price">
-            <div className="flex items-center gap-2">
-              <LuDollarSign className="text-base" />
-              <div className="font-semibold">Price</div>
-            </div>
-          </SelectItem>
           <SelectItem value="reviews">
             <div className="flex items-center gap-2">
               <LuStar className="text-base" />

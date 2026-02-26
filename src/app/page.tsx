@@ -22,6 +22,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Tutorial } from "./components/tutorials/tutorial";
 import { ShareButton } from "./components/workspace/share-button";
 import Image from "next/image";
+import { ContributeButton } from "./components/workspace/contribute-button";
+import { LuLayoutGrid } from "react-icons/lu";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -91,10 +93,13 @@ export default async function Home() {
         </Menubar>
 
         <LinkButton href="/marketplace" variant="outline">
+          <LuLayoutGrid size={16} />
           Marketplace
         </LinkButton>
 
         <ShareButton />
+
+        <ContributeButton />
 
         <AuthButton />
       </div>

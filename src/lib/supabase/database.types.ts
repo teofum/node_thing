@@ -14,51 +14,6 @@ export type Database = {
   };
   public: {
     Tables: {
-      cart_items: {
-        Row: {
-          created_at: string | null;
-          id: string;
-          item_type: string | null;
-          price_at_time: number;
-          project_id: string | null;
-          shader_id: string | null;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string | null;
-          id?: string;
-          item_type?: string | null;
-          price_at_time: number;
-          project_id?: string | null;
-          shader_id?: string | null;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string | null;
-          id?: string;
-          item_type?: string | null;
-          price_at_time?: number;
-          project_id?: string | null;
-          shader_id?: string | null;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "cart_items_project_id_fkey";
-            columns: ["project_id"];
-            isOneToOne: false;
-            referencedRelation: "projects";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "cart_items_shader_id_fkey";
-            columns: ["shader_id"];
-            isOneToOne: false;
-            referencedRelation: "shaders";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       categories: {
         Row: {
           id: number;
@@ -80,201 +35,49 @@ export type Database = {
           created_by: string | null;
           id: string;
           last_activity: string | null;
-          project_id: string | null;
-          yjs_snapshot: string | null;
         };
         Insert: {
           created_at?: string | null;
           created_by?: string | null;
           id?: string;
           last_activity?: string | null;
-          project_id?: string | null;
-          yjs_snapshot?: string | null;
         };
         Update: {
           created_at?: string | null;
           created_by?: string | null;
           id?: string;
           last_activity?: string | null;
-          project_id?: string | null;
-          yjs_snapshot?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "collaboration_rooms_project_id_fkey";
-            columns: ["project_id"];
-            isOneToOne: false;
-            referencedRelation: "projects";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      order_items: {
-        Row: {
-          created_at: string | null;
-          id: string;
-          item_type: string | null;
-          order_id: string;
-          price: number;
-          project_id: string | null;
-          shader_id: string | null;
-        };
-        Insert: {
-          created_at?: string | null;
-          id?: string;
-          item_type?: string | null;
-          order_id: string;
-          price: number;
-          project_id?: string | null;
-          shader_id?: string | null;
-        };
-        Update: {
-          created_at?: string | null;
-          id?: string;
-          item_type?: string | null;
-          order_id?: string;
-          price?: number;
-          project_id?: string | null;
-          shader_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "order_items_order_id_fkey";
-            columns: ["order_id"];
-            isOneToOne: false;
-            referencedRelation: "orders";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "order_items_project_id_fkey";
-            columns: ["project_id"];
-            isOneToOne: false;
-            referencedRelation: "projects";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "order_items_shader_id_fkey";
-            columns: ["shader_id"];
-            isOneToOne: false;
-            referencedRelation: "shaders";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      orders: {
-        Row: {
-          created_at: string | null;
-          id: string;
-          status: string;
-          total_amount: number;
-          updated_at: string | null;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string | null;
-          id?: string;
-          status?: string;
-          total_amount: number;
-          updated_at?: string | null;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string | null;
-          id?: string;
-          status?: string;
-          total_amount?: number;
-          updated_at?: string | null;
-          user_id?: string;
         };
         Relationships: [];
       };
       profiles: {
         Row: {
           avatar_url: string | null;
-          cancelled: boolean | null;
           display_name: string | null;
           id: string;
-          is_premium: boolean | null;
-          mp_access_token: string | null;
-          mp_refresh_token: string | null;
-          mp_user_id: string | null;
-          subscription_id: string | null;
           username: string;
         };
         Insert: {
           avatar_url?: string | null;
-          cancelled?: boolean | null;
           display_name?: string | null;
           id: string;
-          is_premium?: boolean | null;
-          mp_access_token?: string | null;
-          mp_refresh_token?: string | null;
-          mp_user_id?: string | null;
-          subscription_id?: string | null;
           username: string;
         };
         Update: {
           avatar_url?: string | null;
-          cancelled?: boolean | null;
           display_name?: string | null;
           id?: string;
-          is_premium?: boolean | null;
-          mp_access_token?: string | null;
-          mp_refresh_token?: string | null;
-          mp_user_id?: string | null;
-          subscription_id?: string | null;
           username?: string;
         };
         Relationships: [];
-      };
-      project_collaborators: {
-        Row: {
-          created_at: string | null;
-          id: string;
-          project_id: string;
-          role: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string | null;
-          id?: string;
-          project_id: string;
-          role?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string | null;
-          id?: string;
-          project_id?: string;
-          role?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "project_collaborators_project_id_fkey";
-            columns: ["project_id"];
-            isOneToOne: false;
-            referencedRelation: "projects";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "project_collaborators_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
-        ];
       };
       projects: {
         Row: {
           created_at: string | null;
           description: string | null;
-          downloads: number | null;
           id: string;
           image_name: string | null;
           name: string | null;
-          price: number | null;
           published: boolean | null;
           updated_at: string | null;
           user_id: string;
@@ -284,11 +87,9 @@ export type Database = {
         Insert: {
           created_at?: string | null;
           description?: string | null;
-          downloads?: number | null;
           id?: string;
           image_name?: string | null;
           name?: string | null;
-          price?: number | null;
           published?: boolean | null;
           updated_at?: string | null;
           user_id: string;
@@ -298,11 +99,9 @@ export type Database = {
         Update: {
           created_at?: string | null;
           description?: string | null;
-          downloads?: number | null;
           id?: string;
           image_name?: string | null;
           name?: string | null;
-          price?: number | null;
           published?: boolean | null;
           updated_at?: string | null;
           user_id?: string;
@@ -323,7 +122,6 @@ export type Database = {
         Row: {
           id: string;
           item_type: string | null;
-          order_id: string;
           project_id: string | null;
           purchased_at: string | null;
           shader_id: string | null;
@@ -332,7 +130,6 @@ export type Database = {
         Insert: {
           id?: string;
           item_type?: string | null;
-          order_id: string;
           project_id?: string | null;
           purchased_at?: string | null;
           shader_id?: string | null;
@@ -341,20 +138,12 @@ export type Database = {
         Update: {
           id?: string;
           item_type?: string | null;
-          order_id?: string;
           project_id?: string | null;
           purchased_at?: string | null;
           shader_id?: string | null;
           user_id?: string;
         };
         Relationships: [
-          {
-            foreignKeyName: "purchases_order_id_fkey";
-            columns: ["order_id"];
-            isOneToOne: false;
-            referencedRelation: "orders";
-            referencedColumns: ["id"];
-          },
           {
             foreignKeyName: "purchases_project_id_fkey";
             columns: ["project_id"];
@@ -467,11 +256,9 @@ export type Database = {
           code: string;
           created_at: string;
           description: string | null;
-          downloads: number;
           id: string;
           image_name: string | null;
           node_config: Json | null;
-          price: number;
           published: boolean | null;
           step: number | null;
           title: string;
@@ -483,11 +270,9 @@ export type Database = {
           code: string;
           created_at?: string;
           description?: string | null;
-          downloads?: number;
           id?: string;
           image_name?: string | null;
           node_config?: Json | null;
-          price: number;
           published?: boolean | null;
           step?: number | null;
           title: string;
@@ -499,11 +284,9 @@ export type Database = {
           code?: string;
           created_at?: string;
           description?: string | null;
-          downloads?: number;
           id?: string;
           image_name?: string | null;
           node_config?: Json | null;
-          price?: number;
           published?: boolean | null;
           step?: number | null;
           title?: string;
@@ -564,7 +347,7 @@ export type Database = {
         Returns: boolean;
       };
       get_item: {
-        Args: { item_id: string; item_type: string; user_uuid?: string };
+        Args: { item_id: string; type: string; user_uuid: string };
         Returns: {
           averagerating: number;
           category: string;
@@ -572,9 +355,8 @@ export type Database = {
           description: string;
           downloads: number;
           id: string;
-          incart: boolean;
+          isowned: boolean;
           itemtype: string;
-          price: number;
           ratingcount: number;
           title: string;
           username: string;
@@ -589,7 +371,6 @@ export type Database = {
           downloads: number;
           id: string;
           image_name: string;
-          price: number;
           profiles: Json;
           rating_count: number;
           title: string;
@@ -644,7 +425,6 @@ export type Database = {
           downloads: number;
           id: string;
           image_name: string;
-          price: number;
           profiles: Json;
           rating_count: number;
           title: string;

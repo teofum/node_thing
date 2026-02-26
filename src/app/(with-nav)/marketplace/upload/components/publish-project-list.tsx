@@ -39,13 +39,13 @@ export const PublishProjectList = forwardRef<
               )}
             </div>
 
-            <div className="flex">
+            <div className="flex mt-6">
               <div className="ml-auto text-teal-300">
                 {project.published ? (
                   <Button
                     onClick={() => handleView("project", project.id)}
                     type="submit"
-                    variant="ghost"
+                    variant="outline"
                     size="md"
                     icon
                   >
@@ -54,7 +54,7 @@ export const PublishProjectList = forwardRef<
                 ) : (
                   <Button
                     type="submit"
-                    variant="ghost"
+                    variant="outline"
                     size="md"
                     icon
                     onClick={() => publish(project.id)}

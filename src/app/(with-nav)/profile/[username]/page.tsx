@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import * as Tabs from "@radix-ui/react-tabs";
 import ProfileHeader from "../components/profile-header";
 import ItemsTab from "../components/items-tab";
-import PremiumTab from "../components/premium-tab";
 import SettingsTab from "../components/settings-tab";
 import {
   getPublicPublishedShaders,
@@ -89,29 +88,27 @@ export default async function ProfilePage({
 
         <Tabs.Root
           className="flex flex-col border border-white/15 rounded-2xl"
-          defaultValue="tab1"
+          defaultValue={isOwnProfile ? "library" : "published"}
         >
           <Tabs.List className="flex shrink-0">
-            <Tabs.Trigger className={triggerStyle} value="tab1">
+            {isOwnProfile && (
+              <Tabs.Trigger className={triggerStyle} value="library">
+                In library
+              </Tabs.Trigger>
+            )}
+            <Tabs.Trigger className={triggerStyle} value="published">
               Published
             </Tabs.Trigger>
+
             {isOwnProfile && (
-              <>
-                <Tabs.Trigger className={triggerStyle} value="tab2">
-                  Purchased
-                </Tabs.Trigger>
-                <Tabs.Trigger className={triggerStyle} value="tab3">
-                  Premium
-                </Tabs.Trigger>
-                <Tabs.Trigger className={triggerStyle} value="tab4">
-                  Settings
-                </Tabs.Trigger>
-              </>
+              <Tabs.Trigger className={triggerStyle} value="settings">
+                Settings
+              </Tabs.Trigger>
             )}
           </Tabs.List>
           <Tabs.Content
             className="grow rounded-b-md p-5 outline-none"
-            value="tab1"
+            value="published"
           >
             <ItemsTab
               shadersList={publishedShaders}
@@ -127,7 +124,7 @@ export default async function ProfilePage({
             <>
               <Tabs.Content
                 className="grow rounded-b-md p-5 outline-none"
-                value="tab2"
+                value="library"
               >
                 <ItemsTab
                   shadersList={purchasedShaders}
@@ -140,17 +137,7 @@ export default async function ProfilePage({
               </Tabs.Content>
               <Tabs.Content
                 className="grow rounded-b-md p-5 outline-none"
-                value="tab3"
-              >
-                <PremiumTab
-                  className="rounded-2xl p-4 min-h-[300px] mb-3"
-                  userData={userData}
-                  user={user}
-                />
-              </Tabs.Content>
-              <Tabs.Content
-                className="grow rounded-b-md p-5 outline-none"
-                value="tab4"
+                value="settings"
               >
                 <SettingsTab
                   className="rounded-2xl p-4 min-h-[300px] mb-3"
