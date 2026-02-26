@@ -10,67 +10,6 @@ import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 
 type Category = Tables<"categories">;
 
-export async function uploadShaderAction(formData: FormData) {
-  const { supabase, user } = await getSupabaseUserOrRedirect(
-    `/marketplace/upload?error=${encodeURIComponent("Authentication required")}`,
-  );
-
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const code = formData.get("code") as string;
-  const priceStr = formData.get("price") as string;
-  const categoryIdStr = formData.get("category") as string;
-
-  if (!title?.trim()) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Title is required")}`,
-    );
-  }
-
-  if (!code?.trim()) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Shader code cannot be empty")}`,
-    );
-  }
-
-  const price = parseFloat(priceStr);
-  if (isNaN(price) || price < 0) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Valid price is required")}`,
-    );
-  }
-
-  if (!categoryIdStr) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Category is required")}`,
-    );
-  }
-
-  const categoryId = parseInt(categoryIdStr);
-  if (isNaN(categoryId)) {
-    redirect(
-      `/marketplace/upload?error=${encodeURIComponent("Invalid category selected")}`,
-    );
-  }
-
-  const { error } = await supabase.from("shaders").insert({
-    user_id: user.id,
-    title: title.trim(),
-    description: description?.trim() || null,
-    code: code.trim(),
-    price,
-    category_id: categoryId,
-    node_config: null,
-  });
-
-  if (error) {
-    redirect(`/marketplace/upload?error=${encodeURIComponent(error.message)}`);
-  }
-
-  revalidatePath("/marketplace");
-  redirect("/marketplace");
-}
-
 export async function getItems() {
   const supabase = await createClient();
   const {
