@@ -571,24 +571,12 @@ export const useProjectStore = create(
             custom
               .filter((shader) => shader.node_config)
               .map((shader) => {
-                const config = shader.node_config as NodeTypeDescriptor;
-                const inputs = createHandles(
-                  Array.isArray(config.inputs) ? config.inputs : [],
-                );
-                const outputs = createHandles(
-                  Array.isArray(config.outputs) ? config.outputs : [],
-                );
+                const config = shader.node_config as NodeType;
 
-                const nodeType = {
-                  name: config.name ?? shader.title ?? "Custom",
-                  category: "Custom",
-                  shader: config.code ?? "",
-                  inputs,
-                  outputs,
-                  parameters: {},
-                  externalShaderId: shader.id,
-                };
-                return [`custom_${nodeType.externalShaderId}`, nodeType];
+                return [
+                  `custom_${shader.id}`,
+                  { ...config, externalShaderId: shader.id },
+                ];
               }),
           );
 

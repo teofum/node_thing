@@ -4,6 +4,22 @@ import { getSupabaseUserOrRedirect } from "@/lib/supabase/auth-util";
 import { createClient } from "@/lib/supabase/server";
 import { HandleDescriptor } from "@/store/project.types";
 
+function handleParser(
+  handles: HandleDescriptor[],
+): Record<string, HandleDescriptor> {
+  return Object.fromEntries(
+    handles.map((handle) => [
+      handle.name,
+      {
+        name: handle.name,
+        type: handle.type,
+        id: handle.id,
+        display: handle.display,
+      },
+    ]),
+  );
+}
+
 export async function saveNewShader(desc: {
   name: string;
   inputs: HandleDescriptor[];
@@ -19,6 +35,15 @@ export async function saveNewShader(desc: {
     return null;
   }
 
+  const nodeConfig = {
+    name: desc.name.trim(),
+    shader: desc.code.trim(),
+    inputs: handleParser(desc.inputs),
+    outputs: handleParser(desc.outputs),
+    category: "Custom",
+    parameters: {},
+  };
+
   const { data, error } = await supabase
     .from("shaders")
     .insert({
@@ -27,7 +52,7 @@ export async function saveNewShader(desc: {
       description: "",
       code: desc.code.trim(),
       category_id: 0,
-      node_config: desc,
+      node_config: nodeConfig,
     })
     .select()
     .single();
@@ -59,12 +84,21 @@ export async function updateShader(
     return null;
   }
 
+  const nodeConfig = {
+    name: desc.name.trim(),
+    shader: desc.code.trim(),
+    inputs: handleParser(desc.inputs),
+    outputs: handleParser(desc.outputs),
+    category: "Custom",
+    parameters: {},
+  };
+
   const { data, error } = await supabase
     .from("shaders")
     .update({
       title: desc.name.trim(),
       code: desc.code.trim(),
-      node_config: desc,
+      node_config: nodeConfig,
     })
     .eq("id", id)
     .select()
