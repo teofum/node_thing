@@ -75,7 +75,6 @@ export type Database = {
         Row: {
           created_at: string | null;
           description: string | null;
-          downloads: number | null;
           id: string;
           image_name: string | null;
           name: string | null;
@@ -88,7 +87,6 @@ export type Database = {
         Insert: {
           created_at?: string | null;
           description?: string | null;
-          downloads?: number | null;
           id?: string;
           image_name?: string | null;
           name?: string | null;
@@ -101,7 +99,6 @@ export type Database = {
         Update: {
           created_at?: string | null;
           description?: string | null;
-          downloads?: number | null;
           id?: string;
           image_name?: string | null;
           name?: string | null;
@@ -259,7 +256,6 @@ export type Database = {
           code: string;
           created_at: string;
           description: string | null;
-          downloads: number;
           id: string;
           image_name: string | null;
           node_config: Json | null;
@@ -274,7 +270,6 @@ export type Database = {
           code: string;
           created_at?: string;
           description?: string | null;
-          downloads?: number;
           id?: string;
           image_name?: string | null;
           node_config?: Json | null;
@@ -289,7 +284,6 @@ export type Database = {
           code?: string;
           created_at?: string;
           description?: string | null;
-          downloads?: number;
           id?: string;
           image_name?: string | null;
           node_config?: Json | null;
@@ -363,7 +357,6 @@ export type Database = {
           id: string;
           isowned: boolean;
           itemtype: string;
-          price: number;
           ratingcount: number;
           title: string;
           username: string;
