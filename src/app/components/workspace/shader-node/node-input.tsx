@@ -39,7 +39,7 @@ export function NodeInput({
           "!bg-neutral-100": input.type === "number",
         })}
       />
-      <div className="text-xs/4 min-w-4">{input.name}</div>
+      <div className="text-xs/4 min-w-4">{input.display ?? input.name}</div>
 
       {renderDefaultValueInput ? (
         input.type === "number" ? (
