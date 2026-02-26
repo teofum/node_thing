@@ -98,11 +98,7 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
             )}
           </div>
 
-          <div className="flex flex-row gap-3 mt-30">
-            <div className="grow text-2xl font-bold text-teal-400">
-              Price: ${item.price}
-            </div>
-          </div>
+          <div className="flex flex-row gap-3 mt-30"></div>
 
           <div className="flex flex-row items-center gap-1 text-white/60 mt-2">
             <div className="flex flex-row items-center gap-1 text-white/60 mx-2">
