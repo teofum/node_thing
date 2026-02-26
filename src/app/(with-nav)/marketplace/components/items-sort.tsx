@@ -113,6 +113,7 @@ export function ShaderListClient({
         case "date":
           valA = new Date(a.createdAt).getTime();
           valB = new Date(b.createdAt).getTime();
+          break;
         default:
           valA = a.downloads;
           valB = b.downloads;
