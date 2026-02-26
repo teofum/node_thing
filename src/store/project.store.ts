@@ -560,6 +560,7 @@ export const useProjectStore = create(
                   shader.id,
                   {
                     ...config,
+                    category: shader.category?.name ?? config.category,
                     externalShaderId: shader.id,
                   },
                 ];
