@@ -18,7 +18,7 @@ type SortMenubarProps = {
 
 export function SortMenubar({ onChange }: SortMenubarProps) {
   const [sortBy, setSortBy] = useState<string>("downloads");
-  const [isUp, setIsUp] = useState(true);
+  const [isUp, setIsUp] = useState(false);
 
   const handleClick = () => {
     const updateIsUp = !isUp;

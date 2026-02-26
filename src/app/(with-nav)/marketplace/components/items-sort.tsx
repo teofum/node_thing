@@ -98,7 +98,7 @@ export function ShaderListClient({
   currentUsername?: string;
 }) {
   const [sortBy, setSortBy] = useState("downloads");
-  const [ascending, setAscending] = useState(true);
+  const [ascending, setAscending] = useState(false);
 
   const sortedShaders = useMemo(() => {
     const sorted = [...shaders];
