@@ -24,6 +24,11 @@ pnpm build
 pnpm exec electron .\electron\dist\main.js
 ```
 
+Examples:
+
+<img width="1914" height="967" alt="image" src="https://github.com/user-attachments/assets/42e48953-3ca4-4d07-932c-02d413798f91" />
+
+
 
 # Building (production)
 
